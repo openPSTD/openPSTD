@@ -1,0 +1,96 @@
+@startuml
+
+title Main class diagram of the plugin
+
+package data {
+    class PickleStream {
+        +__init__(f)
+        +read(n)
+        +readLine()
+        +get()
+    }
+
+    class Listener{
+        +__init__(receiver)
+        -getFromObj(arg)
+        -closeAll()
+        +try_open()
+        +read()
+    }
+
+    class DomainInfo {
+        +__init__(pstd_data=None, ll=None)
+        +{static} restore(str)
+    }
+
+    class DomainInfo.SubDomainInfo {
+        +__init__(di)
+        +{static} restore(data)
+    }
+
+    class StaticData {
+        +{static} read_pressure_level_data(dir, id, frame)
+    }
+}
+
+package enums {
+    class S {
+        +BOUNDARY_ABSORPTION
+        +BOUNDARY_LOCALLY_REACTING
+    }
+
+    class VisualisationType {
+        +PLAIN
+        +BOUNDARY
+        +SUBDOMAIN
+        +LISTENER
+        +BAKED_SUBDOMAIN
+    }
+}
+
+package bmesg {
+    class Staticbmesh {
+        +{static} layer(bm, type, name)
+        +{static} update(me, type, name, v)
+        +{static} updater(type, bm_name, scn_name)
+    }
+}
+
+package i18n {
+    class i18n {
+        +__init__(lang)
+        +__getitem__(k)
+    }
+}
+
+package Mesh {
+    class Mesh {
+        +__init__(me)
+        +is_bmesh()
+        +vertices()
+        +polygons()
+        +test_NON_ORTHO()
+        +test_NON_2D()
+        +test_NON_QUAD()
+        +validate()
+        +get_bmesh()
+        +get_bbox(scaling_component = None)
+        +get_domains(nm, scaling_component)
+    }
+
+    note "Uses bmesh from blender" as NoteBmesh
+    NoteBmesh .. Mesh
+}
+
+
+
+note "Move function to a class" as N1
+N1 .. StaticData
+N1 .. Staticbmesh
+
+note "Rename class" as NoteRename
+NoteRename .. S
+
+DomainInfo "1" *-- "*" DomainInfo.SubDomainInfo
+
+@enduml
