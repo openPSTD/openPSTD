@@ -162,7 +162,7 @@ class BakeSimulation(bpy.types.Operator):
             max(p[2] for p in bound_box)))
             
         bb = bb_max - bb_min
-        bbc = ob.matrix_world * ((bb_max + bb_min) / 2.)
+        bbc = (bb_max + bb_min) / 2.
         bbc.z = ob.matrix_world[2][3] + 10.
         
         cam.type = 'ORTHO'
