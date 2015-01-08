@@ -83,7 +83,7 @@ package Mesh {
 }
 
 package ops {
-    note "User Openerations" as noteOps
+    note "User Operations" as noteOps
 
     class SaveImpulseResponse {
         +bl_idname
@@ -193,7 +193,7 @@ package ui {
     note "user interface" as noteUi
 }
 
-package visualiztion {
+package visualization {
     class StaticData {
         +{static} VISMAT_NAME
         +{static} linear_scale(max_value)
