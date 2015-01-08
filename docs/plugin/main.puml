@@ -48,7 +48,7 @@ package enums {
     }
 }
 
-package bmesg {
+package bmesh {
     class Staticbmesh {
         +{static} layer(bm, type, name)
         +{static} update(me, type, name, v)
@@ -82,6 +82,171 @@ package Mesh {
     NoteBmesh .. Mesh
 }
 
+package ops {
+    note "User Openerations" as noteOps
+
+    class SaveImpulseResponse {
+        +bl_idname
+        +bl_label
+        +filename_ext
+        +filter_glob
+        +setting_normalize
+        +setting_filetype
+        +execute(context)
+        -poll(context)
+    }
+
+    class BakeSimulation {
+        +get_domain_visses
+        +bl_idname
+        +bl_label
+        +execute(context)
+        -poll(context)
+    }
+
+    class StartSimulation {
+        -run
+        +bl_idname
+        +bl_label
+        +original_label
+        +alternative_label
+        +filename_ext
+        +filter_glob
+        +filepath
+        +check_existing
+        +invoke(context)
+        +execute(context)
+    }
+
+    class StartSimulation {
+        -run
+        +bl_idname
+        +bl_label
+        +invoke(context)
+    }
+
+    class ClearSimulationData {
+        +bl_idname
+        +bl_label
+        +execute(context)
+        -poll(context)
+    }
+
+    class ClearSimulationData {
+        +bl_idname
+        +bl_label
+        +is_running
+        -timer
+        +modal(context, events)
+        +execute(context)
+        +cancel(context)
+    }
+}
+
+package props {
+    class SimulationResultPathList {
+        +path
+    }
+
+    class StaticData {
+        +{static} STAND_ALONE
+        +{static} default_python_path
+        +{static} pstd_config_fn
+        +{static} DEFAULT_GRID_SPACING
+        +{static} DEFAULT_SOUND_SPEED
+        +{static} grid_spacing_to_max_freq
+        +{static} make_prop_updater(n1, b2, f)
+        +{static} chain(*args)
+        +{static} update_pstd_ini_file(key, value, section)
+        +{static} get_from_pstd_ini_file(key, section)
+        +{static} apply()
+    }
+}
+
+package store {
+    class data {
+       +store
+        +__getattr__(k)
+        +__setattr__(k, v)
+    }
+}
+
+package ui {
+    class MenuItemHandler {
+        +__init__(attachment, opname, icon, text)
+        +register()
+        +unregister()
+    }
+    class ImpulseResponseMenuItemHandler{
+        +__init__()
+    }
+    class SettingsPanel {
+        +bl_label
+        +bl_idname
+        +bl_space_type
+        +bl_region_type
+        +bl_context
+
+        +draw(context)
+    }
+
+    note "user interface" as noteUi
+}
+
+package visualiztion {
+    class StaticData {
+        +{static} VISMAT_NAME
+        +{static} linear_scale(max_value)
+    }
+
+    class ColorMap {
+        +__call__(v)
+    }
+
+    class ColorMapHot {
+        +f(s, v)
+    }
+
+    class Grid {
+        +db_scale
+        +cur_frame
+        +matrix_key
+        +invalidation
+        +dbs_colors
+        +__init__(w, h, x, y, sx, sy)
+        +update(fr, z)
+        +update_colors()
+        +move(mat)
+        +draw()
+        +to_object(parent_name, subdomain_info, ob)
+        +{static} from_subdomain_data(data)
+    }
+
+    class Domain {
+        +{static} draw(ob, me, d)
+    }
+
+    class ColorBar {
+        +{static} draw(rw, rh, dbs)
+    }
+
+    class ImpulseResponse {
+        +{static} draw(r1)
+    }
+
+    class DrawHandler {
+        +__init__(area_type, callback)
+        +register()
+        +unregister()
+    }
+
+    class Handler {
+        +__init__(area_type, callback)
+        +register()
+        +unregister()
+    }
+
+}
 
 
 note "Move function to a class" as N1
