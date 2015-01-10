@@ -3,7 +3,7 @@
 title Main class diagram of the plugin
 
 package __init__ {
-    class StaticData {
+    class StaticInit {
         +{static} pressure_level_cache
         +{static} bl_info
         +{static} pstd_path
@@ -34,21 +34,6 @@ package store {
 
     note "Data storage for plugin wide variables" as NoteDataStore
     NoteDataStore .. store.data
-}
-
-package bpy {
-    note "blender classes" as bpy.blender
-    package types {
-        class Operator
-        class Panel
-    }
-}
-
-package bpy_extras {
-    note "blender classes" as bpy_extras.blender
-    package io_utils {
-        class ExportHelper
-    }
 }
 
 package data {
@@ -128,9 +113,6 @@ package Mesh {
         +get_bbox(scaling_component = None)
         +get_domains(nm, scaling_component)
     }
-
-    note "Uses bmesh from blender" as NoteBmesh
-    NoteBmesh .. Mesh
 }
 
 package ops {
@@ -198,7 +180,7 @@ package props {
         +path
     }
 
-    class StaticData {
+    class StaticProps {
         +{static} STAND_ALONE
         +{static} default_python_path
         +{static} pstd_config_fn
@@ -238,7 +220,7 @@ package ui {
 }
 
 package visualization {
-    class StaticData {
+    class StaticVisualization {
         +{static} VISMAT_NAME
         +{static} linear_scale(max_value)
     }
@@ -289,18 +271,37 @@ package visualization {
         +register()
         +unregister()
     }
+}
+
+package blender {
+    note "blender classes" as blender
+
+    package bpy {
+        package types {
+            class Operator
+            class Panel
+        }
+    }
+
+    package bpy_extras {
+        package io_utils {
+            class ExportHelper
+        }
+    }
+
+    package _bmesh {
+        class BMesh
+    }
 
 }
 
-
-note "Move function to a class" as N1
-N1 .. StaticData
-N1 .. Staticbmesh
-
-note "Rename class" as NoteRename
+note "Class with string constants" as NoteRename
 NoteRename .. S
 
 DomainInfo "1" *-- "*" DomainInfo.SubDomainInfo
+
+Mesh "1" *-- "1" BMesh
+
 
 SaveImpulseResponse --|> Operator
 SaveImpulseResponse --|> ExportHelper
