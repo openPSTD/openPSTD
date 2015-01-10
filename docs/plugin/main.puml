@@ -2,6 +2,55 @@
 
 title Main class diagram of the plugin
 
+package __init__ {
+    class StaticData {
+        +{static} pressure_level_cache
+        +{static} bl_info
+        +{static} pstd_path
+        +{static} ui_elements
+        +{static} run(op, context)
+        +{static} draw_impulse_response()
+        +{static} draw_colorbar()
+        +{static} get_subdomain_vis(ob, subdomain, frame, cache=True)
+        +{static} get_domain_visses(ob, frame, cache=True)
+        +{static} draw_pressure_levels()
+        +{static} update_baked_domains(scn)
+        +{static} draw_domain_mesh()
+        +{static} register()
+        +{static} unregister()
+    }
+}
+
+package store {
+    class store.data {
+        +{static}store
+        +simulation_running
+        +status_message
+        +simulation_process
+        +current_simulation_output_dir
+        +__getattr__(k)
+        +__setattr__(k, v)
+    }
+
+    note "Data storage for plugin wide variables" as NoteDataStore
+    NoteDataStore .. store.data
+}
+
+package bpy {
+    note "blender classes" as bpy.blender
+    package types {
+        class Operator
+        class Panel
+    }
+}
+
+package bpy_extras {
+    note "blender classes" as bpy_extras.blender
+    package io_utils {
+        class ExportHelper
+    }
+}
+
 package data {
     class PickleStream {
         +__init__(f)
@@ -11,6 +60,7 @@ package data {
     }
 
     class Listener{
+        +{static} ob_to_listener
         +__init__(receiver)
         -getFromObj(arg)
         -closeAll()
@@ -34,12 +84,12 @@ package data {
 }
 
 package enums {
-    class S {
+    enum S {
         +BOUNDARY_ABSORPTION
         +BOUNDARY_LOCALLY_REACTING
     }
 
-    class VisualisationType {
+    enum VisualisationType {
         +PLAIN
         +BOUNDARY
         +SUBDOMAIN
@@ -65,6 +115,7 @@ package i18n {
 
 package Mesh {
     class Mesh {
+        +{static} error_code
         +__init__(me)
         +is_bmesh()
         +vertices()
@@ -86,57 +137,56 @@ package ops {
     note "User Operations" as noteOps
 
     class SaveImpulseResponse {
-        +bl_idname
-        +bl_label
-        +filename_ext
-        +filter_glob
-        +setting_normalize
-        +setting_filetype
+        +{static}bl_idname
+        +{static}bl_label
+        +{static}filename_ext
+        +{static}filter_glob
+        +{static}setting_normalize
+        +{static}setting_filetype
         +execute(context)
         -poll(context)
     }
 
     class BakeSimulation {
-        +get_domain_visses
-        +bl_idname
-        +bl_label
+        +{static}get_domain_visses
+        +{static}bl_idname
+        +{static}bl_label
         +execute(context)
         -poll(context)
     }
 
     class StartSimulation {
-        -run
-        +bl_idname
-        +bl_label
-        +original_label
-        +alternative_label
-        +filename_ext
-        +filter_glob
-        +filepath
-        +check_existing
+        -{static}run
+        +{static}bl_idname
+        +{static}bl_label
+        +{static}original_label
+        +{static}alternative_label
+        +{static}filename_ext
+        +{static}filter_glob
+        +{static}filepath
+        +{static}check_existing
         +invoke(context)
         +execute(context)
     }
 
-    class StartSimulation {
-        -run
-        +bl_idname
-        +bl_label
+    class StopSimulation {
+        +{static}bl_idname
+        +{static}bl_label
         +invoke(context)
     }
 
     class ClearSimulationData {
-        +bl_idname
-        +bl_label
+        +{static}bl_idname
+        +{static}bl_label
         +execute(context)
         -poll(context)
     }
 
-    class ClearSimulationData {
-        +bl_idname
-        +bl_label
-        +is_running
-        -timer
+    class FramesAvailableTimer {
+        +{static}bl_idname
+        +{static}bl_label
+        +{static}is_running
+        -{static}timer
         +modal(context, events)
         +execute(context)
         +cancel(context)
@@ -163,16 +213,10 @@ package props {
     }
 }
 
-package store {
-    class data {
-       +store
-        +__getattr__(k)
-        +__setattr__(k, v)
-    }
-}
-
 package ui {
     class MenuItemHandler {
+        +func
+        +attachment
         +__init__(attachment, opname, icon, text)
         +register()
         +unregister()
@@ -181,11 +225,11 @@ package ui {
         +__init__()
     }
     class SettingsPanel {
-        +bl_label
-        +bl_idname
-        +bl_space_type
-        +bl_region_type
-        +bl_context
+        +{static}bl_label
+        +{static}bl_idname
+        +{static}bl_space_type
+        +{static}bl_region_type
+        +{static}bl_context
 
         +draw(context)
     }
@@ -204,15 +248,15 @@ package visualization {
     }
 
     class ColorMapHot {
-        +f(s, v)
+        +f(v)
     }
 
     class Grid {
-        +db_scale
-        +cur_frame
-        +matrix_key
-        +invalidation
-        +dbs_colors
+        +{static}db_scale
+        +{static}cur_frame
+        +{static}matrix_key
+        +{static}invalidation
+        +{static}dbs_colors
         +__init__(w, h, x, y, sx, sy)
         +update(fr, z)
         +update_colors()
@@ -257,5 +301,20 @@ note "Rename class" as NoteRename
 NoteRename .. S
 
 DomainInfo "1" *-- "*" DomainInfo.SubDomainInfo
+
+SaveImpulseResponse --|> Operator
+SaveImpulseResponse --|> ExportHelper
+BakeSimulation --|> Operator
+StartSimulation --|> Operator
+StopSimulation --|> Operator
+ClearSimulationData --|> Operator
+FramesAvailableTimer --|> Operator
+
+ImpulseResponseMenuItemHandler --|> MenuItemHandler
+SettingsPanel --|> Panel
+
+ColorMapHot --|> ColorMap
+
+store.data *-- ColorMapHot
 
 @enduml
