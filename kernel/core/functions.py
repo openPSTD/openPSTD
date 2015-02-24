@@ -18,6 +18,10 @@
 ########################################################################
 
 import numpy as np
+import traceback
+import pickle
+import sys
+from math import ceil, log2
 
 try:
     # Use the pyfftw library if available: Due to the better
@@ -214,20 +218,39 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     return Lp
 
-def do_assert(*args):
-    for i in range(0,len(args),2):
-        # print i
-        if not array_equal(args[i], args[i+1]):
-            print(args[i])
-            print(" !=")
-            print(args[i+1])
-            raise AssertionError
-    # print "Assertion succeeded"
-            
+
 def get_grid_spacing(cnf):
     dxv = np.array([0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.])
     return dxv.compress((dxv<cnf.c1/cnf.freqmax/2.).flat)[-1]
 
 def nearest_2power(n):
     return np.power(2.,(np.ceil(np.log2(n))))
-        
+
+def warn(s):
+    print("s")
+
+def exit_with_error(e,stand_alone):
+    if stand_alone:
+        print('\n')
+        print('Error encountered while running openPSTD:')
+        traceback.print_exc()
+        exit(1)
+    else:
+        pickle.dump({'status':'error', 'message':str(e)},sys.stdout,0)
+        exit(0)
+
+def safe_float(s):
+    try: return float(s)
+    except: return s
+
+def subsample(a, n):
+    final_shape = [int(ceil(float(x)/n)) for x in a.shape]
+    padded_shape = [x * int(n) for x in final_shape]
+    b = np.zeros(padded_shape)
+    b[0:a.shape[0],0:a.shape[1]] = a
+    b[:a.shape[0],a.shape[1]:] = a[:,a.shape[1]-1:]
+    b[a.shape[0]:,:a.shape[1]] = a[a.shape[0]-1:,:]
+    b[a.shape[0]:,a.shape[1]:] = a[-1,-1]
+    sh = final_shape[0],n,final_shape[1],n
+    return b.reshape(sh).mean(-1).mean(1)
+

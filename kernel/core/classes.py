@@ -18,9 +18,12 @@
 ########################################################################
 
 import sys
+import os
 import math
 import array
 import itertools
+import matplotlib.pyplot as plt
+import shutil
 import numpy as np
 
 from os.path import commonprefix
@@ -31,6 +34,7 @@ try:
     has_matplotlib = True
 except: has_matplotlib = False
 
+# Only for python 2.*
 try: range = xrange
 except: pass
 
@@ -71,11 +75,7 @@ class Point(Coordinate):
     y = property(lambda s: s[1])
     z = property(lambda s: s[2])
 
-class Receiver(Point):
-    def stag():
-        return [a-floor(a) for a in [self.x, self.y]]
-
-# A rectangular domain
+# A rectangular domain; the building block of the scene geometry
 class Domain(object):
     ADJACENCIES = ['left', 'right', 'top', 'bottom']
     OPPOSITES = dict((ADJACENCIES[0:2], ADJACENCIES[2:4], ADJACENCIES[0:2][::-1], ADJACENCIES[2:4][::-1]))
@@ -155,7 +155,7 @@ class Domain(object):
         return p.x > self.topleft.x and p.x < self.bottomright.x and p.y > self.topleft.y and p.y < self.bottomright.y
     def neighbours(self):
         return [self.left, self.right, self.top, self.bottom]
-    def is_neigbour_of(self, other):
+    def is_neighbour_of(self, other):
         return other in sum(self.neighbours(),[])
     def num_neighbours(self,with_pml=True):
         return len([n for n in sum(self.neighbours(),[]) if n is not None and (not n.is_pml or with_pml)])
@@ -325,7 +325,7 @@ class Domain(object):
             matrix1 = matrix2 = None
             if ct == CalculationType.VELOCITY and domain1 is None and domain2 is None:
                 # For a PML layer parallel to its interface direction the matrix is concatenated with zeros
-                # TK: TODO: This statement is probably no longer correct, with arbitraty domain configurations 
+                # TK: TODO: This statement is probably no longer correct, with arbitrary domain configurations
                 # a PML domain can also have a neighbour
                 #   |             |
                 # __|_____________|___
@@ -382,7 +382,7 @@ class Domain(object):
         
         # sys.stdout.write("\b"*len(str))
             
-        
+
 class BoundaryType:
     HORIZONTAL = 'x'
     VERTICAL = 'z'
@@ -398,7 +398,8 @@ class BoundaryType:
 class CalculationType:
     PRESSURE = 'p'
     VELOCITY = 'v'
-    
+
+# Class representing a boundary of a domain. A boundary is shared between two domains.
 class Boundary(object):
     def __init__(self, a, b, t):
         order = a.topleft < b.topleft
@@ -537,7 +538,7 @@ class Scene(object):
                 if (b.is_sec_pml and a in b.pml_for) or (a.is_sec_pml and b in a.pml_for):
                     # secondary pml layers should have a single pml neighbour
                     pass
-                elif not (len(a.pml_for) == 1 and len(b.pml_for) == 1 and a.pml_for[0].is_neigbour_of(b.pml_for[0]) and a.is_sec_pml == b.is_sec_pml):
+                elif not (len(a.pml_for) == 1 and len(b.pml_for) == 1 and a.pml_for[0].is_neighbour_of(b.pml_for[0]) and a.is_sec_pml == b.is_sec_pml):
                     continue
             
             # Test for the following situations:
@@ -649,7 +650,7 @@ class Scene(object):
         def sort_func(d1t, d2t):
             d1, d2 = d1t[2], d2t[2]
             if d1[0].id != d2[0].id:
-                return cmp(d1[0].id, d2[0].id)
+                return __cmp__(d1[0].id, d2[0].id)
             for a, b in coord_pairs(d1, d2):
                 if a != b: return -1 if a < b else 1
             return 0
@@ -724,7 +725,7 @@ class Scene(object):
             a[tl.y:tl.y+b.size.height,tl.x:tl.x+b.size.width] += getattr(b, field)
         return a
     def set(self, field, t, Lp):
-        raise Error("Do not use")
+        raise Exception("Do not use")
         A, B = sorted([b for b in self.boundaries if b.boundary_type == t])
         assert A.domain2 == B.domain1
         a, b, c = A.domain1, A.domain2, B.domain2        
@@ -741,3 +742,62 @@ class Scene(object):
             getattr(a, field)[0:a.size.height, 0:w] = Lp[0:w,                           0:a.size.height                            ].transpose()
             getattr(b, field)[0:b.size.height, 0:w] = Lp[0:w,               a.size.height:a.size.height+b.size.height              ].transpose()
             getattr(c, field)[0:c.size.height, 0:w] = Lp[0:w, a.size.height+b.size.height:a.size.height+b.size.height+c.size.height].transpose()
+
+# Class to write data from simulation to file (array to bin or plot to file)
+class DataWriter:
+    def __init__(self,cfgd,scene,write_plot,write_array):
+        self.plotdir = cfgd['plotdir']
+        self.scene = scene
+        self.write_plot = write_plot
+        self.write_array = write_array
+        self.visualisation_subsampling=cfgd.get('visualisation_subsampling', 1)
+        if write_plot or write_array:
+            if not os.path.exists(self.plotdir):
+                os.mkdir(self.plotdir)
+
+            if not os.access(self.plotdir, os.W_OK | os.X_OK):
+                print("Unable to write to directory '%s'" % self.plotdir)
+                exit(2)
+        if write_plot:
+            fi = plt.figure(1, figsize=(12, 9), dpi=90)
+            self.pp = plt.imshow(scene.get('p0'), interpolation='bicubic')
+            self.pp.set_cmap('BrBG')
+            self.pp.colorbar = plt.colorbar()
+            self.scene.draw_boundaries(fi)
+            self.scene.draw_domain_ids(fi)
+            self.scene.draw_receivers(fi)
+
+
+    # Handle plotting colour scale and draw
+    def _write_plot(self,frame):
+        self.pp.set_array(self.scene.get('p0'))
+        self.pp.autoscale()
+        m = max(abs(self.pp.norm.vmin),abs(self.pp.norm.vmin))
+        self.pp.norm.vmin = -m
+        self.pp.norm.vmax = m
+
+        temp_fileame = os.path.join(self.plotdir,'temp.png')
+        image_filename = os.path.join(self.plotdir,'im-%06d.png'%(frame+1))
+        plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
+        # atomic operation
+        shutil.move(temp_fileame, image_filename)
+
+    # Write binary data to file
+    def _write_array(self,frame):
+        for d in (_d for _d in self.scene.domains if not _d.is_pml):
+            array_filename = os.path.join(self.plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
+            array_file = open(array_filename,'wb')
+            if self.visualisation_subsampling > 1:
+                numpy_array = subsample(d.p0, self.visualisation_subsampling)
+            else:
+                numpy_array = d.p0
+            pa = array.array('f',numpy_array.flatten(order='F'))
+            pa.tofile(array_file)
+            array_file.close()
+
+    # Public method to write data to file
+    def write_to_file(self,frame):
+        if self.write_array:
+            self._write_array(frame)
+        if self.write_plot:
+            self._write_plot(frame)
