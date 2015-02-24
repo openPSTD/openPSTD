@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 ########################################################################
 #                                                                      #
 # This file is part of openPSTD.                                       #
@@ -17,17 +20,40 @@
 #                                                                      #
 ########################################################################
 
-import bmesh
+__author__ = 'michiel'
 
-def layer(bm, type, name):
-    try: return getattr(bm.edges.layers, type)[name]
-    except: return getattr(bm.edges.layers, type).new(name)
+import sys
+import platform
 
-def update(me, type, name, v):
-    bm = bmesh.from_edit_mesh(me)
-    l = layer(bm, type, name)
-    for e in (_e for _e in bm.edges if _e.select):
-        e[l] = v
+import PySide
+from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox
 
-def updater(type, bm_name, scn_name):
-    return lambda self, context: update(context.edit_object.data, type, bm_name, getattr(context.scene, scn_name))
+from quitter_ui import Ui_MainWindow
+
+__version__ = '0.0.1'
+
+
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.setupUi(self)
+        #self.aboutButton.clicked.connect(self.about)
+
+    def about(self):
+        '''Popup a box with about message.'''
+        QMessageBox.about(self, "About PySide, Platform and the like",
+                """<b>Platform Details</b> v %s
+               <p>Copyright � 2010 Joe Bloggs.
+               All rights reserved in accordance with
+               GPL v2 or later - NO WARRANTIES!
+               <p>This application can be used for
+               displaying platform details.
+               <p>Python %s -  PySide version %s - Qt version %s on %s""" % (__version__,
+                platform.python_version(), PySide.__version__,  PySide.QtCore.__version__,
+                platform.system()))
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    frame = MainWindow()
+    frame.show()
+    app.exec_()
