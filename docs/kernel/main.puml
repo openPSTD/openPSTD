@@ -1,28 +1,293 @@
 @startuml
 
-title Main class diagram of the kernel
+title Class diagram of the stand alone application
 
-abstract class AbstractList
-abstract AbstractCollection
-interface List
-interface Collection
+package kernel {
+	class Main {
+		+boolean has_matplotlib
+		+boolean stand_alone
+		+boolean write_array
+		+boolean write_plot
+		+boolean use_threading
+		+PSTDSolver solver
+		+ConfigParser config
+		+PSTDConfig cfg
+		+dict cfdg
+		+dict scene_desc
+		+String plotdir
+		+int visualisation_subsampling
+		+dict pstd_desc
+		+float dx
+		+float dz
+		
+		+list<(int,int)> speaker_positions
+		+list<(int,int)> receiver_positions
+		+list<file> receiver_files
+	}
 
-List <|-- AbstractList
-Collection <|-- AbstractCollection
-
-Collection <|- List
-AbstractCollection <|- AbstractList
-AbstractList <|-- ArrayList
-
-class ArrayList {
-Object[] elementData
-size()
+	class util {
+		-ArgumentParser parser
+		-int num_samples
+		-np.array samples
+		-String write_fn
+		-float sample_rate
+		+np.array resample(old_xs,ys,new_xs)
+		+void write_wav(arr,fn,sr)
+		+void write_bin(arr,fn,sr)
+	}
+	note "write_wav, write_bin, resample are unused" as unusedNote
+}
+package sequential {
+	class Solver {
+		+DataWriter datawriter
+		+Scene scene
+		+PSTDConfig cfd
+		+boolean stand_alone
+		+List<File> receiver_files
+	}
 }
 
-enum TimeUnit {
-DAYS
-HOURS
-MINUTES
+package concurrent {
+	class ConcurrentSolver {
+		+int number_of_cores
+		+DataWriter datawriter
+		+Scene scene
+		+PSTDConfig cfd
+		+boolean stand_alone
+		+List<File> receiver_files
+	}
+
+
+}
+package classes {
+
+	class Coordinate {
+		+np.array array
+		+void __init__(x,*args)
+		+int __len__()
+		+void __iter__()
+		+float __getitem__(i)
+		+void __add__(other)
+		+Coordinate __sub__(other)
+		+boolean __lt__(other)
+		+String __repr__()
+	}
+	
+	class Size {
+		+float width
+		+float height
+		+float depth
+	}
+
+	class Point {
+		+float x
+		+float y
+		+float z
+	}
+	Coordinate <|-- Point
+	Coordinate <|-- Size	
+	class Receiver {
+		+String id
+		-PSTDConfid cfg
+		+boolean nearest_neighbour
+		+Point location
+		+Point grid_location
+		+Domain container
+		+np.array array
+		+float calc()
+		+void create_annotation(fig,tl)
+		+String __repr__()
+	}
+
+	class Domain {
+		+{static} String ADJACENCIES
+		+{static} dict<ADJACENCIES,ADJACENCIES> OPPOSITES
+		+{static} set<ADJACENCIES> HORIZONTAL
+		+{static} set<ADJACENCIES> VERTICAL
+		+String id
+		-dict cfg
+		-float alpha
+		+float topleft
+		+float bottomright
+		+float size
+		+float u0
+		+float u0_old
+		+float w0
+		+float w0_old
+		+float p0
+		+float p0_old
+		+float px0
+		+float px0_old
+		+float pz0
+		+float pz0_old
+		~list<Domain> left
+		~list<Domain> right
+		~list<Domain> top
+		~list<Domain> bottom
+		-float impedance
+		+float rho
+		+boolean is_pml
+		~dict rho_matrices
+		~boolean local
+
+		+String __repr__()
+		+boolean __lt__(other)
+		-np.array Z(a,b)
+		+void push_values()
+		-void clear_matrices()
+		+void calc_rho_matrices()
+		~boolean contains_point(p)
+		~list<Domain> neighbours()
+		~boolean is_neighbour_of(other)
+		~int num_neighbours(with_pml)
+		+boolean is_rigid()
+		+void calc_pml()
+		-{static}make_attenuation(horizontal,ascending)	
+		+boolean should_update(d)
+		+void apply_pml()
+		~int get_range(bt)
+		~list get_detached(adj)
+		~Domain find_neighbor_at(adj,d)
+		+void calc(bt,ct,dest)
+	}
+
+	class BoundaryType {
+		+{static} String HORIZONTAL	
+		+{static} String VERTICAL
+		+{static} BoundaryType.String from_domain_adjacency(adj)
+		+{static} BoundaryType.String ortho(bt)
+	}
+
+	class CalculationType {
+		+{static} String PRESSURE
+		+{static} String VELOCITY
+	}
+			
+	class Boundary {
+		~Domain domain1
+		~Domain domain2
+		+BoundaryType.String boundary_type
+		-line
+		+void __init__(a,b,t)
+		~void create_line(fig,tl)
+	}		
+	CalculationType o-- Domain
+	Boundary o-- Domain
+	BoundaryType o-- Boundary
+
+	class Receiver {
+		+String id
+		-dict cfg
+		+Domain nearest_neighbour
+		-Point location
+		-Point grid_location
+		-Point grid_offset
+		-Domain container
+		-np.array array
+
+		+void calc()
+		~void create_annotation(fig,tl)
+		+String __repr__()
+
+	}
+
+	class Scene { 
+		-dict cfg
+		+list<Domain> domains
+		-list<Boundary> boundaries
+		-list<Receiver> receivers
+		-list<Point> source_positions
+		~float topleft
+		~float bottomright
+		~float size
+
+		+void __repr__()
+		+Domain__getattr(k)
+		+void add_receiver(rx,ry)
+		+void add_domain(b)
+		+void calc_rho_matrices()
+		+void add_pml_domains(n)
+		+void calc_pml_matrices()
+		+void apply_pml_matrices()
+		+void add_source(sx,sy)
+		+void draw_boundaries(fig)
+		+void draw_receivers(fig)
+		+void draw_domain_ids(fig)
+		+np.array get(field)
+		+void set(field,t,Lp)
+	}
+
+	class DataWriter {
+		-String plotdir
+		-Scene scene
+		+boolean write_plot
+		+boolean write_array
+		+int visualisation_subsampling
+		-void _write_plot(frame)
+		-void _write_array(frame)
+		+void write_to_file(frame)
+	}
 }
 
+package derived_config {
+	class PSTD_Config_Base {
+		-float Wlength
+		+float alfa
+		-float Walfa
+		-float alphaPMLp
+		-float alphaPMLu
+		-float ufact
+		-float pfact
+		-np.array A
+		+float dx
+		+float dz
+		-float fs
+		+float bwidth
+		+float dtRK
+		+int TRK
+		+{static} list<float> coef
+	}
+	PSTD_Config_Base o-- Receiver
+	Point o-- Receiver
+	Domain o-- Receiver
+}
+
+package functions {
+	class functions {
+		+int cpu_count
+		+int align
+		+np.fft fft(*args,**kwargs)
+		+(float,float) PML(cnf,PMLcells,rho)
+		+(np.array,np.array) Rmatrices(rho1,rho,rho2)
+		+(np.array,np.array) Rmatrices2D(rholeft,rhoright,rholower,rhoupper,rho)
+		+tuple(np.array{6}) kcalc_old(dx,N.cw.PMLcellsghost)
+		+(np.array,np.array) kcalc(dx,N)
+		+np.array spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct)
+		+void warn(String s)
+		+void exit_with_error(Exception e,boolean stand_alone)
+		+Object safe_float(Object s)
+		+np.array subsample(np.array a,int n)
+		+void do_assert(*args)
+		+float get_grid_spacing(cnf)
+		+int nearest_2power(int n)
+	}
+}
+package kcalc {
+	class Kcalc {
+		+void calc(dx,n)
+		+np.array get(n,a,dx)
+		+int match(n)
+	}
+}
+	Domain *-- Scene
+	Boundary *-- Scene
+	Receiver *-- Scene
+	Point o-- Scene
+	Size o-- Scene
+	PSTD_Config_Base o-- Scene
+	Scene o-- Main
+	Solver <|-- ConcurrentSolver
+	DataWriter o-- Main
+	DataWriter o-- Solver
+	Solver o-- Main
 @enduml
