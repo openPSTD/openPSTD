@@ -37,7 +37,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        self.btnExtrude.clicked.connect(self.test)
+        self.actionAbout.triggered.connect(self.about)
         #self.aboutButton.clicked.connect(self.about)
+
+    def test(self):
+        self.mainView.test();
 
     def about(self):
         '''Popup a box with about message.'''
