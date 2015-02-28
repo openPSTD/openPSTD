@@ -6,6 +6,7 @@ from PySide import QtCore, QtGui, QtOpenGL
 from vispy import gloo
 import OpenGL.GL as gl
 import numpy as np
+from colors import activeColorScheme as colorScheme
 
 try:
     from OpenGL import GL
@@ -29,10 +30,6 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.program = None
 
-    def test(self):
-        vPosition.set_data(np.array([[0.0, 0.0], [-0.7, 0.7], [0.7, -0.7], [-0.8, -0.8]], np.float32))
-        self.updateGL()
-
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
 
@@ -50,7 +47,8 @@ class Viewer2D(QtOpenGL.QGLWidget):
         # Build program & data
         # ----------------------------------------
         self.program = gloo.Program(vertex_code, fragment_code, count=4)
-        self.program['color'] = [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 1, 0, 1)]
+        vColors = [colorScheme.editorLineColor()] * 4
+        self.program['color'] = vColors
         self.program['position'] = vPosition
         self.program['scale'] = 1.0
 
