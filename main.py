@@ -25,6 +25,8 @@ __author__ = 'michiel'
 import sys
 import platform
 
+import model
+
 import PySide
 from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox
 
@@ -35,14 +37,16 @@ __version__ = '0.0.1'
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
+        self.m = model.model()
+        self.m.SceneDescChanged.append(self.updateViews)
+
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
-        self.btnExtrude.clicked.connect(self.test)
         self.actionAbout.triggered.connect(self.about)
-        #self.aboutButton.clicked.connect(self.about)
+        self.actionNew.triggered.connect(self.m.loadEmptyDocument)
 
-    def test(self):
-        self.mainView.test();
+    def updateViews(self):
+        self.mainView.updateScene(self.m.SceneDesc)
 
     def about(self):
         '''Popup a box with about message.'''
