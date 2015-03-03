@@ -1,0 +1,83 @@
+@startuml
+
+title Main class diagram of user interface
+
+package colors {
+    class Colors {
+        +black
+        +white
+        +red
+        +green
+        +blue
+        +yellow
+        +lightblue
+        +purple
+    }
+    class BaseColorGradient {
+        +CalculateColor(value)
+    }
+    class MultiColorGradient {
+        +__init__(colorPositions, colors)
+        +calculateColor(value)
+    }
+    class TwoColorGradient {
+        +__init__(colorZero, colorOne)
+    }
+    class BaseColorScheme {
+        +editorBackgroundColor()
+        +editorLineColor()
+        +editorLineAbsoptionColorGradient()
+        +editorDefualtDomainColor()
+        +editorDomainSignalColorGradient()
+    }
+    class StandardColorScheme {
+        +editorBackgroundColor()
+        +editorLineColor()
+        +editorLineAbsoptionColorGradient()
+        +editorDefualtDomainColor()
+        +editorDomainSignalColorGradient()
+    }
+
+    BaseColorGradient <|-- MultiColorGradient
+    MultiColorGradient <|-- TwoColorGradient
+    StandardColorScheme <|-- BaseColorScheme
+    StandardColorScheme --> TwoColorGradient
+}
+
+package main {
+    class MainWindow {
+        +__init__()
+        +updateViews()
+    }
+}
+
+package Model {
+    class model {
+        +{static} emptyDocumentFilename
+        +__init__()
+        +loadEmptyDocument()
+        +load(filename)
+        +save(filename)
+    }
+}
+
+package viewer2D {
+    class Viewer2D {
+        --
+        +__init__()
+        +minimumSizeHint()
+        +sizeHint()
+        +initilizeGL()
+        +paintGL()
+        +resizeGL()
+        --
+        +updateScene()
+        +updateViewMatrix()
+    }
+}
+
+MainWindow --> Viewer2D
+MainWindow --> model
+Viewer2D --> StandardColorScheme
+
+@enduml
