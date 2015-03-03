@@ -8,20 +8,20 @@ class Open(operations.BaseOperation.operation):
     def __init__(self, filename):
         self.filename = filename
 
-    def run(self, model):
+    def run(self, r):
         f = open(self.filename, 'r')
-        model.SceneDesc = json.load(f)
+        r.model.SceneDesc = json.load(f)
         f.close()
-        helper.CallObservers(model.SceneDescChanged)
+        helper.CallObservers(r.model.SceneDescChanged)
 
 
 class Save(operations.BaseOperation.operation):
     def __init__(self, filename):
         self.filename = filename
 
-    def run(self, model):
+    def run(self, r):
         f = open(self.filename, 'w')
-        json.dump(model.SceneDesc, f)
+        json.dump(r.model.SceneDesc, f)
         f.close()
 
 class New(Open):
@@ -31,3 +31,7 @@ class New(Open):
     def __init__(self):
         super(New, self).__init__(New.emptyDocumentFilename)
         print("WARNING: loading test file in place of the standard empty file")
+
+class Close(operations.BaseOperation.operation):
+    def run(self, r):
+        r.ui.close()

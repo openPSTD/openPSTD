@@ -30,7 +30,7 @@ import model
 import PySide
 from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox
 
-from quitter_ui import Ui_MainWindow
+from MainWindow_ui import Ui_MainWindow
 
 import operations.MenuFileOperations
 
@@ -46,12 +46,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.actionAbout.triggered.connect(self.about)
         self.actionNew.triggered.connect(self.createRunOperation(operations.MenuFileOperations.New))
+        self.actionClose.triggered.connect(self.createRunOperation(operations.MenuFileOperations.Close))
 
     def createRunOperation(self, operationClass):
         mw = self
         def RunOperation():
             operation = operationClass()
-            operation.run(mw.m)
+            operation.run(operations.BaseOperation.Reciever(mw.m, mw))
         return RunOperation
 
     def updateViews(self):

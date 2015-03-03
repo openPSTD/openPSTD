@@ -21,8 +21,15 @@ __author__ = 'michiel'
 
 import abc
 
-class operation:
-    __metaclass__  = abc.ABCMeta
 
-    def run(self, model):
+class Reciever:
+    def __init__(self, model, ui):
+        self.model = model
+        self.ui = ui
+
+
+class operation:
+    __metaclass__ = abc.ABCMeta
+
+    def run(self, r):
         pass
