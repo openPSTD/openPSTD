@@ -59,6 +59,12 @@ package Model {
         +load(filename)
         +save(filename)
     }
+
+    class AppConfig {
+
+    }
+
+    model --> AppConfig
 }
 
 package viewer2D {
@@ -76,8 +82,56 @@ package viewer2D {
     }
 }
 
+package simulation {
+    class runner {
+        +run()
+    }
+}
+
+package operations {
+    abstract class operation {
+        +run(model)
+    }
+}
+
+package MenuFileOperations {
+    class open
+    operation <|-- open
+
+    class new
+    operation <|-- new
+
+    class save
+    operation <|-- save
+
+    class close
+    operation <|-- close
+}
+
+package SceneEditOperations {
+    class extrude
+    operation <|-- extrude
+
+    class AddSpeaker
+    operation <|-- AddSpeaker
+
+    class SetListenerPos
+    operation <|-- SetListenerPos
+}
+
+package SceneOperations {
+    class Simulate
+    operation <|-- Simulate
+
+    class CreateMovie
+    operation <|-- CreateMovie
+}
+
 MainWindow --> Viewer2D
 MainWindow --> model
 Viewer2D --> StandardColorScheme
+model --> runner
+operation --> model
+MainWindow --> operation
 
 @enduml
