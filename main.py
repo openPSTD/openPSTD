@@ -32,6 +32,8 @@ from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMe
 
 from quitter_ui import Ui_MainWindow
 
+import operations.MenuFileOperations
+
 __version__ = '0.0.1'
 
 
@@ -43,7 +45,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         self.actionAbout.triggered.connect(self.about)
-        self.actionNew.triggered.connect(self.m.loadEmptyDocument)
+        self.actionNew.triggered.connect(self.createRunOperation(operations.MenuFileOperations.New))
+
+    def createRunOperation(self, operationClass):
+        mw = self
+        def RunOperation():
+            operation = operationClass()
+            operation.run(mw.m)
+        return RunOperation
 
     def updateViews(self):
         self.mainView.updateScene(self.m.SceneDesc)

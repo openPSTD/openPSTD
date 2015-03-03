@@ -19,11 +19,10 @@
 
 __author__ = 'michiel'
 
-class model:
-    def __init__(self):
-        self.SceneDesc = None
-        self.Simulation = None
-        self.AppConfig = None
+import abc
 
-        self.SceneDescChanged = []
-        self.SimulationChanged = []
+class operation:
+    __metaclass__  = abc.ABCMeta
+
+    def run(self, model):
+        pass
