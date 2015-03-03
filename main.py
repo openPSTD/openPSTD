@@ -64,7 +64,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             operation.run(operations.BaseOperation.Reciever(self.m, self))
 
     def SaveOperation(self):
-
         fname, _ = QFileDialog.getSaveFileName(self, 'Open file', '')
         if(fname != ''):
             operation = operations.MenuFileOperations.Save(fname)
