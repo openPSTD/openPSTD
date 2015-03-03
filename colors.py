@@ -16,10 +16,10 @@
 # along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    #
 #                                                                      #
 ########################################################################
+__author__ = 'michiel'
 
 import numpy as np
-
-__author__ = 'michiel'
+import abc
 
 class Colors:
     black = (0, 0, 0, 1)
@@ -33,6 +33,8 @@ class Colors:
 
 
 class BaseColorGradient:
+    __metaclass__ = abc.ABCMeta
+
     def CalculateColor(self, value):
         return Colors.white
 
@@ -57,6 +59,8 @@ class TwoColorGradient(MultiColorGradient):
         self.colorOne = colorOne
 
 class BaseColorScheme:
+    __metaclass__ = abc.ABCMeta
+
     def editorBackgroundColor(self):
         return Colors.white
 
