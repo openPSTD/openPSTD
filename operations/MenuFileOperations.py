@@ -21,7 +21,7 @@ class Save(operations.BaseOperation.operation):
 
     def run(self, r):
         f = open(self.filename, 'w')
-        json.dump(r.model.SceneDesc, f)
+        json.dump(r.model.SceneDesc, f, sort_keys=True, indent=4, separators=(',', ': '))
         f.close()
 
 class New(Open):

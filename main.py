@@ -28,7 +28,7 @@ import platform
 import model
 
 import PySide
-from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox
+from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox, QFileDialog
 
 from MainWindow_ui import Ui_MainWindow
 
@@ -46,6 +46,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.actionAbout.triggered.connect(self.about)
         self.actionNew.triggered.connect(self.createRunOperation(operations.MenuFileOperations.New))
+        self.actionOpen.triggered.connect(self.OpenOperation)
+        self.actionSave.triggered.connect(self.SaveOperation)
         self.actionClose.triggered.connect(self.createRunOperation(operations.MenuFileOperations.Close))
 
     def createRunOperation(self, operationClass):
@@ -54,6 +56,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             operation = operationClass()
             operation.run(operations.BaseOperation.Reciever(mw.m, mw))
         return RunOperation
+
+    def OpenOperation(self):
+        fname, _ = QFileDialog.getOpenFileName(self, 'Open file', '')
+        if(fname != ''):
+            operation = operations.MenuFileOperations.Open(fname)
+            operation.run(operations.BaseOperation.Reciever(self.m, self))
+
+    def SaveOperation(self):
+
+        fname, _ = QFileDialog.getSaveFileName(self, 'Open file', '')
+        if(fname != ''):
+            operation = operations.MenuFileOperations.Save(fname)
+            operation.run(operations.BaseOperation.Reciever(self.m, self))
 
     def updateViews(self):
         self.mainView.updateScene(self.m.SceneDesc)
