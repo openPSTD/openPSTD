@@ -26,7 +26,6 @@ import json
 import array
 import struct
 import shutil
-import pickle
 import traceback
 import threading
 import argparse
@@ -50,25 +49,25 @@ if pstd_dir not in sys.path:
 # Parse arguments from command line
 parser = argparse.ArgumentParser(prog="openPSTD",
                                  description="Stand-alone application openPSTD")
-parser.add_argument('scene_file',help="JSON file containing scene description")
-parser.add_argument('-m','--multithreaded', action="store_true",help="Run openPSTD multithreaded")
-parser.add_argument('-p','--write-plot', action="store_true",help="Write plot to image (only when matplotlib is installed)")
-parser.add_argument('-a','--write-array',action="store_true",help="Write array to file")
+parser.add_argument('scene_file', help="JSON file containing scene description")
+parser.add_argument('-m','--multithreaded', action="store_true", help="Run openPSTD multithreaded")
+parser.add_argument('-p','--write-plot', action="store_true", help="Write plot to image (only when matplotlib is installed)")
+parser.add_argument('-a','--write-array', action="store_true", help="Write array to file")
+parser.add_argument('-s','--use-std', action="store_true", help="use standard input and output")
 
-interpreter = os.path.basename(sys.executable)
+#interpreter = os.path.basename(sys.executable)
 # Blender is invoked differently: blender -b -P script.py [args]
-if interpreter.startswith("blender"):
-    parser.add_argument('-b',action="store_true",help="Flag from blender interpreter. Not for command-line use")
-    parser.add_argument('-P',action="store_true",help="Flag from blender interpreter. Not for command-line use")
-else:
-    stand_alone=True
+#if interpreter.startswith("blender"):
+#    pass
+#else:
+#    stand_alone=True
 
 args = parser.parse_args()
 
 # Use binary mode IO in Python 3+
-if not stand_alone:
-    if hasattr(sys.stdin, 'detach'): sys.stdin = sys.stdin.detach()
-    if hasattr(sys.stdout, 'detach'): sys.stdout = sys.stdout.detach()
+if args.use_std:
+    #if hasattr(sys.stdin, 'detach'): sys.stdin = sys.stdin.detach()
+    #if hasattr(sys.stdout, 'detach'): sys.stdout = sys.stdout.detach()
     args.write_array = True
 
 # Numpy is neccesary
@@ -96,15 +95,15 @@ if not has_matplotlib and stand_alone and args.write_plot:
 
 # Load scene description from .json file or Blender
 scene_desc = None
-if stand_alone:
+#if not args.use_std:
+if args.scene_file is None:
+    scene_desc = json.load(sys.stdin)
+else:
     f = open(args.scene_file, 'r')
     scene_desc = json.load(f)
     f.close()
     
     os.chdir(os.path.dirname(os.path.abspath(args.scene_file)))
-else:
-    scene_desc = pickle.load(sys.stdin)
-
 
 plotdir = scene_desc['plotdir']
 visualisation_subsampling = scene_desc.get('visualisation_subsampling', 1)
@@ -158,12 +157,12 @@ for i,(rx, ry) in enumerate(receiver_positions):
 
 pstd_desc['dump'] = repr(scene)
 
-if stand_alone:
+if not args.use_std:
     print("\n%s\n"%("-"*20))
     print(scene)
     print("\n%s\n"%("-"*20))
 else:
-    pickle.dump(pstd_desc,sys.stdout,0)
+    json.dump(pstd_desc,sys.stdout, sort_keys=True, indent=4, separators={',', ': '})
     sys.stdout.flush()
 
 # Calculate rho and pml matrices for all domains
@@ -177,12 +176,12 @@ if args.multithreaded:
     with Exception as e:
         exit_with_error(e,stand_alone)
 else:
-    solver = sequential.PSTDSolver(cfg,scene,stand_alone,data_writer,receiver_files)
+    solver = sequential.PSTDSolver(cfg,scene,args.use_std,data_writer,receiver_files)
 
-if stand_alone:
+if not args.use_std:
     print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
 else:
-    pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+    json.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout, sort_keys=True, indent=4, separators={',', ': '})
 
 # Exit to prevent the Blender interpreter from processing
 # the subsequent command line arguments.

@@ -23,7 +23,7 @@ import time
 import math
 import struct
 import shutil
-import pickle
+import json
 import threading
 #from pstd import exit_with_error,subsample,write_array_to_file,write_plot_to_file
 
@@ -39,11 +39,14 @@ P,V = CalculationType.PRESSURE, CalculationType.VELOCITY
 
 
 class PSTDSolver:
-    def __init__(self,cfg,scene,stand_alone,data_writer,receiver_files):
+    def __init__(self,cfg,scene,use_std,data_writer,receiver_files):
         # Loop over time steps
         for frame in range(int(cfg.TRK)):
-            if stand_alone:
+            if not use_std:
                 sys.stdout.write("\r%d"%(frame+1))
+                sys.stdout.flush()
+            else:
+                json.dump({'status':'running', 'message':"Calculation frame:%d"%(frame+1), 'frame':frame+1}, sys.stdout, sort_keys=True, indent=4, separators={',', ': '})
                 sys.stdout.flush()
 
             # Keep a reference to current matrix contents
