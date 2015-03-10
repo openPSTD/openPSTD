@@ -229,8 +229,8 @@ def nearest_2power(n):
 def warn(s):
     print("s")
 
-def exit_with_error(e,stand_alone):
-    if stand_alone:
+def exit_with_error(e,pickle_output):
+    if not pickle_output:
         print('\n')
         print('Error encountered while running openPSTD:')
         traceback.print_exc()
