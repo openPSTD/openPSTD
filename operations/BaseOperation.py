@@ -22,6 +22,7 @@ __author__ = 'michiel'
 import abc
 import helper
 import threading
+import sys
 
 class Reciever:
     def __init__(self, model, ui):
@@ -47,28 +48,32 @@ class LongOperation:
         self.statusText = 'None'
         self.statusChanged = []
         self.status = STATUS_NONE
-        self._thread = threading.Thread(target=self.process)
+        self._thread = threading.Thread(target=self._process)
         self._r = None
 
-    def start(self):
+    def start(self, r):
+        self._r = r
         self._thread.start()
 
     def _process(self):
         self._change_status(STATUS_RUNNING)
-        success = self.process(self._r)
-        if success is None or success is False:
+        try:
+            success = self.process(self._r)
+            if success is None or success is False:
+                self._change_status(STATUS_ERROR)
+            else:
+                self._change_status(STATUS_FINISHED)
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
             self._change_status(STATUS_ERROR)
-        else:
-            self._change_status(STATUS_FINISHED)
-
 
     def process(self, r):
         return False
 
     def change_status_text(self, new_status_text):
         self.statusText = new_status_text
-        helper.CallObservers(self.statusTextChanged)
+        helper.CallObserversQT(self.statusTextChanged)
 
     def _change_status(self, newStatus):
         self.status = newStatus
-        helper.CallObservers(self.statusChanged)
+        helper.CallObserversQT(self.statusChanged)

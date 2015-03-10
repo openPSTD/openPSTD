@@ -32,9 +32,18 @@ class Simulate(operations.BaseOperation.LongOperation):
     def __init__(self):
         super(Simulate, self).__init__()
         self.pstd_meshdata = None
+        self.create_array = True
+        self.create_plots = False
 
     def process(self, r):
-        sp = subprocess.Popen([sys.executable, "kernel/pstd.py", '-a', '-c'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        arguments = [sys.executable, "kernel/pstd.py", '-c']
+        if self.create_array:
+            arguments.append('-a')
+        if self.create_plots:
+            arguments.append('-p')
+
+        sp = subprocess.Popen(arguments, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
         pickle.dump(r.model.SceneDesc, sp.stdin, 0)
         sp.stdin.flush()
 

@@ -19,6 +19,27 @@
 
 __author__ = 'michiel'
 
+from PySide import QtCore
+
+class InvokeEvent(QtCore.QEvent):
+    EVENT_TYPE = QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
+
+    def __init__(self, fn, *args):
+        QtCore.QEvent.__init__(self, InvokeEvent.EVENT_TYPE)
+        self.fn = fn
+        self.args = args
+
+class Invoker(QtCore.QObject):
+    def event(self, event):
+        event.fn(*event.args)
+        return True
+
+_invoker = Invoker()
+
 def CallObservers(observers, *args):
     for f in observers:
         f(*args)
+
+def CallObserversQT(observers, *args):
+    for f in observers:
+        QtCore.QCoreApplication.postEvent(_invoker, InvokeEvent(f, *args))

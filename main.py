@@ -32,7 +32,7 @@ from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMe
 
 from MainWindow_ui import Ui_MainWindow
 
-import operations.MenuFileOperations
+import operations.MenuFileOperations, operations.SceneOperations
 
 __version__ = '0.0.1'
 
@@ -49,6 +49,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.OpenOperation)
         self.actionSave.triggered.connect(self.SaveOperation)
         self.actionClose.triggered.connect(self.createRunOperation(operations.MenuFileOperations.Close))
+
+        self.btnSimulate.clicked.connect(self.simulate_operation)
 
     def createRunOperation(self, operationClass):
         mw = self
@@ -68,6 +70,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if(fname != ''):
             operation = operations.MenuFileOperations.Save(fname)
             operation.run(operations.BaseOperation.Reciever(self.m, self))
+
+    def simulate_operation(self):
+        operation = operations.SceneOperations.Simulate()
+        operation.create_array = False
+        s = self
+        def status_changed():
+            pass
+        def status_text_changed():
+            s.statusbar.showMessage(operation.statusText)
+        operation.statusChanged.append(status_changed)
+        operation.statusTextChanged.append(status_text_changed)
+        operation.start(operations.BaseOperation.Reciever(self.m, self))
 
     def updateViews(self):
         self.mainView.updateScene(self.m.SceneDesc)
