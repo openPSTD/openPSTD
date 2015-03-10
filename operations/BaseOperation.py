@@ -20,7 +20,8 @@
 __author__ = 'michiel'
 
 import abc
-
+import helper
+import threading
 
 class Reciever:
     def __init__(self, model, ui):
@@ -33,3 +34,41 @@ class operation:
 
     def run(self, r):
         pass
+
+STATUS_NONE = 1
+STATUS_RUNNING = 2
+STATUS_FINISHED = 3
+STATUS_ERROR = 4
+
+class LongOperation:
+    __metaclass__ = abc.ABCMeta
+    def __init__(self):
+        self.statusTextChanged = []
+        self.statusText = 'None'
+        self.statusChanged = []
+        self.status = STATUS_NONE
+        self._thread = threading.Thread(target=self.process)
+        self._r = None
+
+    def start(self):
+        self._thread.start()
+
+    def _process(self):
+        self._change_status(STATUS_RUNNING)
+        success = self.process(self._r)
+        if success is None or success is False:
+            self._change_status(STATUS_ERROR)
+        else:
+            self._change_status(STATUS_FINISHED)
+
+
+    def process(self, r):
+        return False
+
+    def change_status_text(self, new_status_text):
+        self.statusText = new_status_text
+        helper.CallObservers(self.statusTextChanged)
+
+    def _change_status(self, newStatus):
+        self.status = newStatus
+        helper.CallObservers(self.statusChanged)

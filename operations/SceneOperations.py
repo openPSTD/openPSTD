@@ -21,19 +21,37 @@ __author__ = 'michiel'
 
 
 import operations.BaseOperation
-import helper
-import json
+import sys
 import os
 import subprocess
+import json
+import pickle
+import pstd_data
 
-class Simulate(operations.BaseOperation.operation):
+class Simulate(operations.BaseOperation.LongOperation):
     def __init__(self):
-        pass
+        super(Simulate, self).__init__()
+        self.pstd_meshdata = None
 
-    def run(self, r):
-        process = subprocess.Popen(['kernel/pstd.py', '-a', '-s'])
-        process.wait()
-        pass
+    def process(self, r):
+        sp = subprocess.Popen([sys.executable, "kernel/pstd.py", '-a', '-c'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        pickle.dump(r.model.SceneDesc, sp.stdin, 0)
+        sp.stdin.flush()
+
+        self.pstd_meshdata = pstd_data.PickleStream(sp.stdout).get()
+
+        while True:
+            status = pstd_data.PickleStream(sp.stdout).get()
+            print(status['message'])
+            self.change_status_text(status['message'])
+            if status['status'] == 'running':
+                pass
+            elif status['status'] == 'success':
+                return True
+            elif status['status'] == 'error':
+                return False
+
+
 
 
 class CreateMovie(operations.BaseOperation.operation):
