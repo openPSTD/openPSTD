@@ -73,7 +73,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def simulate_operation(self):
         operation = operations.SceneOperations.Simulate()
-        operation.create_array = False
         s = self
         def status_changed():
             pass

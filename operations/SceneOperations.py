@@ -21,10 +21,10 @@ __author__ = 'michiel'
 
 
 import operations.BaseOperation
-import sys
 import os
+import sys
 import subprocess
-import json
+import copy
 import pickle
 import pstd_data
 
@@ -36,6 +36,10 @@ class Simulate(operations.BaseOperation.LongOperation):
         self.create_plots = False
 
     def process(self, r):
+        scene_desc = copy.deepcopy(r.model.SceneDesc)
+
+        scene_desc['plotdir'] = os.path.join(r.model.get_calculation_directory(), scene_desc['plotdir'])
+
         arguments = [sys.executable, "kernel/pstd.py", '-c']
         if self.create_array:
             arguments.append('-a')
@@ -44,14 +48,13 @@ class Simulate(operations.BaseOperation.LongOperation):
 
         sp = subprocess.Popen(arguments, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-        pickle.dump(r.model.SceneDesc, sp.stdin, 0)
+        pickle.dump(scene_desc, sp.stdin, 0)
         sp.stdin.flush()
 
         self.pstd_meshdata = pstd_data.PickleStream(sp.stdout).get()
 
         while True:
             status = pstd_data.PickleStream(sp.stdout).get()
-            print(status['message'])
             self.change_status_text(status['message'])
             if status['status'] == 'running':
                 pass
