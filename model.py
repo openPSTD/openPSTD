@@ -20,6 +20,8 @@
 import json
 import argparse
 import tempfile
+import SimulationReader
+import helper
 
 __author__ = 'michiel'
 
@@ -27,9 +29,11 @@ __author__ = 'michiel'
 class model:
     def __init__(self):
         self.SceneDesc = None
-        self.Simulation = None
+        self.Simulation = SimulationReader.reader()
         self.AppConfig = None
         self.Args = None
+
+        self.Simulation.frame_info_updated.append(self._Simulation_frame_info_updated)
 
         self.SceneDescChanged = []
         self.SimulationChanged = []
@@ -53,3 +57,6 @@ class model:
             return tempfile.gettempdir()
         else:
             return self.AppConfig['working_dir']
+
+    def _Simulation_frame_info_updated(self):
+        helper.CallObservers(self.SimulationChanged)

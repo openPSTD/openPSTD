@@ -27,6 +27,7 @@ import subprocess
 import copy
 import pickle
 import pstd_data
+import json
 
 class Simulate(operations.BaseOperation.LongOperation):
     def __init__(self):
@@ -40,6 +41,8 @@ class Simulate(operations.BaseOperation.LongOperation):
 
         scene_desc['plotdir'] = os.path.join(r.model.get_calculation_directory(), scene_desc['plotdir'])
 
+        print("Output directory: " + scene_desc['plotdir'])
+
         arguments = [sys.executable, "kernel/pstd.py", '-c']
         if self.create_array:
             arguments.append('-a')
@@ -52,12 +55,14 @@ class Simulate(operations.BaseOperation.LongOperation):
         sp.stdin.flush()
 
         self.pstd_meshdata = pstd_data.PickleStream(sp.stdout).get()
+        r.model.Simulation.simulation_result_pstd_mesh = self.pstd_meshdata
+        r.model.Simulation.simulation_result_path = scene_desc['plotdir']
 
         while True:
             status = pstd_data.PickleStream(sp.stdout).get()
             self.change_status_text(status['message'])
             if status['status'] == 'running':
-                pass
+                r.model.Simulation.update_frame_info()
             elif status['status'] == 'success':
                 return True
             elif status['status'] == 'error':
