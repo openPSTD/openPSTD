@@ -40,12 +40,6 @@ except ImportError:
     sys.exit(1)
 
 
-# Create vertices
-vPosition = gloo.VertexBuffer(np.array([[-0.8, -0.8], [+0.7, -0.7],
-                      [-0.7, +0.7], [+0.8, +0.8]], np.float32))
-
-vColors = gloo.VertexBuffer(np.array([colorScheme.editorLineColor()] * 4, np.float32))
-
 class Viewer2D(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         QtOpenGL.QGLWidget.__init__(self, parent)
@@ -53,6 +47,8 @@ class Viewer2D(QtOpenGL.QGLWidget):
         self.program = None
 
         self.viewPort = [640, 480]
+
+        self.renderInfo = {}
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -71,32 +67,40 @@ class Viewer2D(QtOpenGL.QGLWidget):
         # Build program & data
         # ----------------------------------------
         self.program = gloo.Program(vertex_code, fragment_code, count=4)
-        self.program['a_color'] = vColors
-        self.program['a_position'] = vPosition
         self.program['u_view'] = np.eye(3,dtype=np.float32)
+
 
         gl.glLineWidth(10.0)
 
     def paintGL(self):
         gl.glClearColor(1,1,1,1)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-        #self.program.draw(gl.GL_TRIANGLE_STRIP)
-        self.program.draw(gl.GL_LINES)
+
+        for domain, info in self.renderInfo.items():
+            self.program['a_color'] = info.color
+            self.program['a_position'] = info.position
+            self.program['a_texcoord'] = info.texcoord
+            self.program['image'] = info.texture
+
+            self.program.draw('triangle_strip')
 
     def resizeGL(self, width, height):
         gl.glViewport(0, 0, width, height)
         self.viewPort = [width, height]
 
-    def updateScene(self, scene):
-        edges = []
-        colors = []
-
-        absorptionColorScheme = colorScheme.editorLineAbsoptionColorGradient()
+    def updateScene(self, simulation, frame):
 
         sceneMax = [-float("inf"), -float("inf")]
         sceneMin = [float("inf"), float("inf")]
 
-        for domain in scene['domains']:
+        self.renderInfo = {}
+
+        for d in simulation.get_list_domains():
+
+            data = simulation.read_frame(d, frame)
+
+            domain = data['scene_desc']
+
             x = 0
             y = 1
             tl = [domain['topleft'][x],                     domain['topleft'][y]]
@@ -104,6 +108,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
             bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
             br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
 
+            # region min-maxing scene
             sceneMax[0] = max(sceneMax[0], tl[0])
             sceneMax[0] = max(sceneMax[0], tr[0])
             sceneMax[0] = max(sceneMax[0], bl[0])
@@ -123,33 +128,15 @@ class Viewer2D(QtOpenGL.QGLWidget):
             sceneMin[1] = min(sceneMin[1], tr[1])
             sceneMin[1] = min(sceneMin[1], bl[1])
             sceneMin[1] = min(sceneMin[1], br[1])
+            # endregion
 
-            color = absorptionColorScheme.CalculateColor(domain['edges']['t']['a'])
-            colors.append(color)
-            edges.append(tl)
-            colors.append(color)
-            edges.append(tr)
+            info = object()
+            info.texture = self._loadTexture(data['data'])
+            info.position = gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32))
+            info.texcoord = gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32))
+            info.colors = gloo.VertexBuffer(np.array([[0,1,0], [0,0,1], [0,1,1], [1,0,1]], np.float32))
 
-            color = absorptionColorScheme.CalculateColor(domain['edges']['r']['a'])
-            colors.append(color)
-            edges.append(tr)
-            colors.append(color)
-            edges.append(br)
-
-            color = absorptionColorScheme.CalculateColor(domain['edges']['b']['a'])
-            colors.append(color)
-            edges.append(br)
-            colors.append(color)
-            edges.append(bl)
-
-            color = absorptionColorScheme.CalculateColor(domain['edges']['l']['a'])
-            colors.append(color)
-            edges.append(bl)
-            colors.append(color)
-            edges.append(tl)
-
-        vPosition.set_data(np.array(edges, np.float32))
-        vColors.set_data(np.array(colors, np.float32))
+            self.renderInfo[d] = info
 
         self.updateViewMatrix(sceneMin, sceneMax)
 
@@ -166,4 +153,13 @@ class Viewer2D(QtOpenGL.QGLWidget):
         scale(view, scaleFactor)
 
         self.program['u_view'] = view
+
+    def _loadTexture(self, data):
+
+        for x in np.nditer(data, op_flags=['readwrite']):
+            x[...] = colorScheme.editorDomainSignalColorGradient().CalculateColor(x)
+
+        T = gloo.Texture2D(data=data, store=True, copy=False)
+
+        return T
 

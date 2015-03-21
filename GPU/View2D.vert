@@ -22,10 +22,14 @@ attribute vec2 a_position;
 attribute vec4 a_color;
 varying vec4 v_color;
 
+attribute vec2 a_texcoord;
+varying vec2 v_texcoord;
+
 void main()
 {
     vec2 position = (u_view * vec3(a_position, 1)).xy;
 
     gl_Position = vec4(position, 0.0, 1.0);
     v_color = a_color;
+    v_texcoord = a_texcoord;
 }

@@ -83,7 +83,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         operation.start(operations.BaseOperation.Reciever(self.m, self))
 
     def updateViews(self):
-        self.mainView.updateScene(self.m.SceneDesc)
+        self.mainView.updateScene(self.m.Simulation, 0)
 
     def about(self):
         '''Popup a box with about message.'''
