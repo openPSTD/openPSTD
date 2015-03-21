@@ -70,10 +70,10 @@ class reader:
         helper.CallObservers(self.frame_info_updated)
 
     def get_sequence_frame_numbers(self):
-        frame_set = set()
+        frame_set = set(self.frames[self.simulation_result_pstd_mesh['domains'][0]['id']])
         for d in self.simulation_result_pstd_mesh['domains']:
             id = d['id']
-            frame_set = frame_set | set(self.frames[id])
+            frame_set &= set(self.frames[id])
 
         result = list(frame_set)
         result.sort()
