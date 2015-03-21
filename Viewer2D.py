@@ -157,14 +157,15 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def _loadTexture(self, data):
 
         gradient = colorScheme.editorDomainSignalColorGradient()
-        textureData = np.zeros((data.shape[0], data.shape[1], 4))
+        textureData = np.zeros((data.shape[0], data.shape[1], 4), dtype=np.dtype('Float32'))
 
         for x in range(data.shape[0]):
             for y in range(data.shape[1]):
                 textureData[x, y] = gradient.CalculateColor(data[x, y])
 
 
-        T = gloo.Texture2D(data=data, store=True, copy=False)
+        T = gloo.Texture2D(data=textureData, store=True, copy=False)
+        T.interpolation = 'linear'
 
         return T
 

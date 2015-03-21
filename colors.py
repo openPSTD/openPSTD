@@ -91,6 +91,6 @@ class StandardColorScheme(BaseColorScheme):
         return Colors.red
 
     def editorDomainSignalColorGradient(self):
-        return TwoColorGradient(Colors.black, Colors.red)
+        return MultiColorGradient([0, 0.10], [Colors.black, Colors.red])
 
 activeColorScheme = StandardColorScheme()
