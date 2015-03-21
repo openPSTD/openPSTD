@@ -64,7 +64,7 @@ class LongOperation:
             else:
                 self._change_status(STATUS_FINISHED)
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            print("Unexpected error: ", sys.exc_info()[0])
             self._change_status(STATUS_ERROR)
 
     def process(self, r):

@@ -77,10 +77,10 @@ class Viewer2D(QtOpenGL.QGLWidget):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
         for domain, info in self.renderInfo.items():
-            self.program['a_color'] = info.color
-            self.program['a_position'] = info.position
-            self.program['a_texcoord'] = info.texcoord
-            self.program['image'] = info.texture
+            self.program['a_color'] = info['colors']
+            self.program['a_position'] = info['position']
+            self.program['a_texcoord'] = info['texcoord']
+            self.program['image'] = info['texture']
 
             self.program.draw('triangle_strip')
 
@@ -130,11 +130,11 @@ class Viewer2D(QtOpenGL.QGLWidget):
             sceneMin[1] = min(sceneMin[1], br[1])
             # endregion
 
-            info = object()
-            info.texture = self._loadTexture(data['data'])
-            info.position = gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32))
-            info.texcoord = gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32))
-            info.colors = gloo.VertexBuffer(np.array([[0,1,0], [0,0,1], [0,1,1], [1,0,1]], np.float32))
+            info = {}
+            info['texture'] = self._loadTexture(data['data'])
+            info['position'] = gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32))
+            info['texcoord'] = gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32))
+            info['colors'] = gloo.VertexBuffer(np.array([[0,1,0], [0,0,1], [0,1,1], [1,0,1]], np.float32))
 
             self.renderInfo[d] = info
 
@@ -156,8 +156,13 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
     def _loadTexture(self, data):
 
-        for x in np.nditer(data, op_flags=['readwrite']):
-            x[...] = colorScheme.editorDomainSignalColorGradient().CalculateColor(x)
+        gradient = colorScheme.editorDomainSignalColorGradient()
+        textureData = np.zeros((data.shape[0], data.shape[1], 4))
+
+        for x in range(data.shape[0]):
+            for y in range(data.shape[1]):
+                textureData[x, y] = gradient.CalculateColor(data[x, y])
+
 
         T = gloo.Texture2D(data=data, store=True, copy=False)
 

@@ -55,7 +55,7 @@ class Simulate(operations.BaseOperation.LongOperation):
         sp.stdin.flush()
 
         self.pstd_meshdata = pstd_data.PickleStream(sp.stdout).get()
-        r.model.Simulation.simulation_scene_desc = self.scene_desc
+        r.model.Simulation.simulation_scene_desc = scene_desc
         r.model.Simulation.simulation_result_pstd_mesh = self.pstd_meshdata
         r.model.Simulation.simulation_result_path = scene_desc['plotdir']
 

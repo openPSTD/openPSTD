@@ -39,7 +39,7 @@ class reader:
 
         flat_array = np.fromfile(filename, dtype=np.dtype('Float32'))
         data = np.reshape(flat_array, (int(domain_info['Nx']), int(domain_info['Nz'])))
-        return {'data': data, 'nx': 50, 'ny': 50, 'scene_desc': self._get_info_domain_scene(domain)}
+        return {'data': data, 'nx': int(domain_info['Nx']), 'nz': int(domain_info['Nz']), 'scene_desc': self._get_info_domain_scene(domain)}
 
     def _get_filename(self, domain, frame):
         return os.path.join(self.simulation_result_path, '%s-%06d.bin'%(domain,frame))
@@ -75,6 +75,9 @@ class reader:
         helper.CallObservers(self.frame_info_updated)
 
     def get_sequence_frame_numbers(self):
+        if self.simulation_scene_desc is None:
+            return []
+
         frame_set = set(self.frames[self.simulation_result_pstd_mesh['domains'][0]['id']])
         for d in self.get_list_domains():
             frame_set &= set(self.frames[d])
@@ -85,6 +88,9 @@ class reader:
         return result
 
     def get_list_domains(self):
+        if self.simulation_scene_desc is None:
+            return []
+
         domains = []
         for d in self.simulation_result_pstd_mesh['domains']:
             domains.append(d['id'])

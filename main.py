@@ -41,6 +41,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         self.m = model.model()
         self.m.SceneDescChanged.append(self.updateViews)
+        self.m.SimulationChanged.append(self.updateViews)
 
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
@@ -83,7 +84,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         operation.start(operations.BaseOperation.Reciever(self.m, self))
 
     def updateViews(self):
-        self.mainView.updateScene(self.m.Simulation, 0)
+        frames = self.m.Simulation.get_sequence_frame_numbers()
+        if(len(frames) > 0):
+            renderframe = frames[-1]
+            self.mainView.updateScene(self.m.Simulation, renderframe)
 
     def about(self):
         '''Popup a box with about message.'''
