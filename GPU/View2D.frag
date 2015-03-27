@@ -17,13 +17,28 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+uniform float vmin;
+uniform float vmax;
+
 varying vec4 v_color;
 varying vec2 v_texcoord;
 
 uniform sampler2D image;
+uniform sampler2D colormap;
 
 void main()
 {
-    //gl_FragColor = v_color;
-    gl_FragColor = texture2D(image, v_texcoord);
+    float value = texture2D(image, v_texcoord);
+
+    if(value < vmin)
+    {
+        value = vmin;
+    }
+    else if(value > vmax)
+    {
+        value = vmax;
+    }
+
+    value = (value-vmin)/(vmax-vmin);
+    gl_FragColor = texture2D(colormap, vec2(value, 0));
 }

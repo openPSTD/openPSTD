@@ -64,11 +64,15 @@ class Viewer2D(QtOpenGL.QGLWidget):
         vertex_code = readShader("GPU\View2D.vert")
         fragment_code = readShader("GPU\View2D.frag")
 
+        self._create_colormap()
+
         # Build program & data
         # ----------------------------------------
         self.program = gloo.Program(vertex_code, fragment_code, count=4)
         self.program['u_view'] = np.eye(3,dtype=np.float32)
-
+        self.program['vmin'] = 0.00
+        self.program['vmax'] = 0.10
+        self.program['colormap'] = self.colormap
 
         gl.glLineWidth(10.0)
 
@@ -175,3 +179,14 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def _update_texture(self, data, T):
 
         T[:] = data[:]
+
+    def _create_colormap(self):
+        gradient = colorScheme.editorDomainSignalColorGradient()
+        colormap = gradient.create_color_map(0, 0.10, 512)
+        colormap2 = [colormap]
+
+        T = gloo.Texture2D(data=colormap2, store=True, copy=False)
+        T.interpolation = 'linear'
+
+        self.colormap = T
+

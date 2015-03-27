@@ -32,11 +32,22 @@ class Colors:
     purple = (1, 0, 1, 1)
 
 
+
+
+
 class BaseColorGradient:
     __metaclass__ = abc.ABCMeta
 
     def CalculateColor(self, value):
         return Colors.white
+
+    def create_color_map(self, start, stop, count):
+        colormap = np.ones((count, 4)).astype(np.float32)
+
+        for i, f in enumerate(np.linspace(start, stop, count)):
+            colormap[i] = self.CalculateColor(f)
+
+        return colormap
 
 class MultiColorGradient(BaseColorGradient):
     def __init__(self, colorPositions, colors):
