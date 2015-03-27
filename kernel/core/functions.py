@@ -234,15 +234,8 @@ def nearest_2power(n):
 def warn(s):
     print("s")
 
-def exit_with_error(e,pickle_output):
-    if not pickle_output:
-        print('\n')
-        print('Error encountered while running openPSTD:')
-        traceback.print_exc()
-        exit(1)
-    else:
-        pickle.dump({'status':'error', 'message':str(e)},sys.stdout,0)
-        exit(0)
+def output_error(e,output_fn):
+    output_fn({'status':'error', 'message':str(e), 'exception':e})
 
 def safe_float(s):
     try: return float(s)

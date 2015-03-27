@@ -39,12 +39,10 @@ P,V = CalculationType.PRESSURE, CalculationType.VELOCITY
 
 
 class SingleThreaded:
-    def __init__(self,cfg,scene,stand_alone,data_writer,receiver_files):
+    def __init__(self,cfg,scene,data_writer,receiver_files,output_fn):
         # Loop over time steps
         for frame in range(int(cfg.TRK)):
-            if stand_alone:
-                sys.stdout.write("\r%d"%(frame+1))
-                sys.stdout.flush()
+            output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame+1), 'frame': frame+1})
 
             # Keep a reference to current matrix contents
             for d in scene.domains: d.push_values()
@@ -88,12 +86,10 @@ class SingleThreaded:
 
 
 class MultiThreaded:
-    def __init__(self,cfg,scene,stand_alone,data_writer,receiver_files):
+    def __init__(self,cfg,scene,data_writer,receiver_files,output_fn):
         # Loop over time steps
         for frame in range(int(cfg.TRK)):
-            if stand_alone:
-                sys.stdout.write("\r%d"%(frame+1))
-                sys.stdout.flush()
+            output_fn({'status':'running', 'message':"Calculation frame:%d"%(frame+1), 'frame':frame+1})
 
             # Keep a reference to current matrix contents
             for d in scene.domains: d.push_values()
@@ -110,7 +106,7 @@ class MultiThreaded:
                                 def calc(domain, bt, ct):
                                     domain.calc(bt, ct)
                                 try: calc(d, boundary_type, calculation_type)
-                                except Exception as e: exit_with_error(e)
+                                except Exception as e: output_error(e, output_fn)
 
                 for domain in scene.domains:
                     if not domain.is_rigid():

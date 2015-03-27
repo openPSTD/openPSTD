@@ -52,38 +52,17 @@ pstd_dir = os.path.dirname(os.path.abspath(__file__))
 if pstd_dir not in sys.path:
     sys.path.insert(0, pstd_dir)
 class PSTD:
-    def __init__(self,multi_threaded,write_plot,write_array,scene_file = None):
+    def __init__(self,multi_threaded,write_plot,write_array,scene_desc,output_fn):
         self.multi_threaded = multi_threaded
         self.write_plot = write_plot
         self.write_array = write_array
         self.pstd_desc = None
         self.scene = None
-        self.scene_file = scene_file
-        interpreter = os.path.basename(sys.executable)
-        self.stand_alone = not(interpreter.startswith("blender"))
+        self.output_fn = output_fn
 
-        # Use binary mode IO in Python 3+
-        if not self.stand_alone:
-            if hasattr(sys.stdin, 'detach'): sys.stdin = sys.stdin.detach()
-            if hasattr(sys.stdout, 'detach'): sys.stdout = sys.stdout.detach()
+        self.__load_config(scene_desc)
 
-        if not has_matplotlib and self.stand_alone and self.write_plot:
-            print('Warning: matplotlib not installed, plotting to image files not supported')
-
-        self.__load_config()
-
-    def __load_config(self):
-        scene_desc = None
-        if self.stand_alone:
-            if self.scene_file:
-                f = open(self.scene_file, 'r')
-                scene_desc = json.load(f)
-                f.close()
-                os.chdir(os.path.dirname(os.path.abspath(self.scene_file)))
-            else:
-                exit_with_error("Specify scene file",self.stand_alone)
-        else:
-            scene_desc = pickle.load(sys.stdin)
+    def __load_config(self, scene_desc):
 
         plotdir = scene_desc['plotdir']
         visualisation_subsampling = scene_desc.get('visualisation_subsampling', 1)
@@ -138,28 +117,19 @@ class PSTD:
     def run(self):
         self.pstd_desc['dump'] = repr(self.scene)
 
-        if self.stand_alone:
-            print("\n%s\n"%("-"*20))
-            print(self.scene)
-            print("\n%s\n"%("-"*20))
-        else:
-            pickle.dump(self.pstd_desc,sys.stdout,0)
-            sys.stdout.flush()
+        self.output_fn({'status':'starting', 'message':repr(self.scene), 'scene':self.scene, 'pstd_desc': self.pstd_desc})
 
         # Calculate rho and pml matrices for all domains
         self.scene.calc_rho_matrices()
         self.scene.calc_pml_matrices()
-        data_writer = DataWriter(self.cfgd,self.scene,self.write_plot and has_matplotlib,self.write_array)
+        data_writer = DataWriter(self.cfgd, self.scene, self.write_plot and has_matplotlib, self.write_array)
         t0 = time.time()
 
         # Run the simulation (multi-threaded not supported yet)
         if self.multi_threaded:
             with Exception as e:
-                exit_with_error(e,self.stand_alone)
+                output_error(e,self.output_fn)
         else:
-            solver = solvers.SingleThreaded(self.cfg,self.scene,self.stand_alone,data_writer,self.receiver_files)
+            solver = solvers.SingleThreaded(self.cfg, self.scene, data_writer, self.receiver_files, self.output_fn)
 
-        if self.stand_alone:
-            print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
-        else:
-            pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+        self.output_fn({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)})
