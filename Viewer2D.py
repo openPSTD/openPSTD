@@ -162,22 +162,12 @@ class Viewer2D(QtOpenGL.QGLWidget):
         self.program['u_view'] = view
 
     def _load_texture(self, data):
-
-        #gradient = colorScheme.editorDomainSignalColorGradient()
-        #textureData = np.zeros((data.shape[0], data.shape[1], 4), dtype=np.dtype('Float32'))
-
-        #for x in range(data.shape[0]):
-        #    for y in range(data.shape[1]):
-        #        textureData[x, y] = gradient.CalculateColor(data[x, y])
-
-
         T = gloo.Texture2D(data=data, store=True, copy=False)
         T.interpolation = 'linear'
 
         return T
 
     def _update_texture(self, data, T):
-
         T[:] = data[:]
 
     def _create_colormap(self):
