@@ -38,7 +38,56 @@ h,v = BoundaryType.HORIZONTAL,  BoundaryType.VERTICAL
 P,V = CalculationType.PRESSURE, CalculationType.VELOCITY
 
 
-class PSTDSolver:
+class SingleThreaded:
+    def __init__(self,cfg,scene,stand_alone,data_writer,receiver_files):
+        # Loop over time steps
+        for frame in range(int(cfg.TRK)):
+            if stand_alone:
+                sys.stdout.write("\r%d"%(frame+1))
+                sys.stdout.flush()
+
+            # Keep a reference to current matrix contents
+            for d in scene.domains: d.push_values()
+
+            # Loop over subframes
+            for subframe in range(6):
+                # Loop over calculation directions and measures
+                for boundary_type, calculation_type in [(h,P),(v,P),(h,V),(v,V)]:
+                    # Loop over domains
+                    for d in scene.domains:
+                        if not d.is_rigid():
+                            # Calculate sound propagations for non-rigid domains
+                            if d.should_update(boundary_type):
+                                def calc(domain, bt, ct):
+                                    domain.calc(bt, ct)
+                                calc(d, boundary_type, calculation_type)
+
+                for domain in scene.domains:
+                    if not domain.is_rigid():
+                        def calc(d):
+                            d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
+                            d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
+                            d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
+                            d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
+                        calc(domain)
+
+
+                # Sum the pressure components
+                for d in scene.domains:
+                    d.p0 = d.px0 + d.pz0
+
+            # Apply pml matrices to boundary domains
+            scene.apply_pml_matrices()
+
+            for rf,r in zip(receiver_files, scene.receivers):
+                rf.write(struct.pack('f',r.calc()))
+                rf.flush()
+
+            if frame % cfg.save_nth_frame == 0:
+                data_writer.write_to_file(frame)
+
+
+class MultiThreaded:
     def __init__(self,cfg,scene,stand_alone,data_writer,receiver_files):
         # Loop over time steps
         for frame in range(int(cfg.TRK)):

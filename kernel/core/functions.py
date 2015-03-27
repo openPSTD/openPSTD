@@ -21,7 +21,12 @@ import numpy as np
 import traceback
 import pickle
 import sys
-from math import ceil, log2
+from math import ceil
+try:
+    from math import log2
+except:
+    from math import log
+    log2 = lambda x: log(x, 2)
 
 try:
     # Use the pyfftw library if available: Due to the better
