@@ -95,9 +95,9 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.renderInfo = {}
 
-        for d in simulation.get_list_domains():
+        for id in simulation.get_list_domain_ids():
 
-            data = simulation.read_frame(d, frame)
+            data = simulation.read_frame(id, frame)
 
             domain = data['scene_desc']
 
@@ -130,13 +130,16 @@ class Viewer2D(QtOpenGL.QGLWidget):
             sceneMin[1] = min(sceneMin[1], br[1])
             # endregion
 
-            info = {}
-            info['texture'] = self._loadTexture(data['data'])
-            info['position'] = gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32))
-            info['texcoord'] = gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32))
-            info['colors'] = gloo.VertexBuffer(np.array([[0,1,0], [0,0,1], [0,1,1], [1,0,1]], np.float32))
-
-            self.renderInfo[d] = info
+            if id in self.renderInfo:
+                self._update_texture(data['data'], self.renderInfo[id]['texture'])
+            else:
+                self.renderInfo[id] = \
+                    {
+                        'texture': self._load_texture(data['data']),
+                        'position': gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32)),
+                        'texcoord': gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32)),
+                        'colors': gloo.VertexBuffer(np.array([[0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1]], np.float32))
+                    }
 
         self.updateViewMatrix(sceneMin, sceneMax)
 
@@ -154,18 +157,21 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.program['u_view'] = view
 
-    def _loadTexture(self, data):
+    def _load_texture(self, data):
 
-        gradient = colorScheme.editorDomainSignalColorGradient()
-        textureData = np.zeros((data.shape[0], data.shape[1], 4), dtype=np.dtype('Float32'))
+        #gradient = colorScheme.editorDomainSignalColorGradient()
+        #textureData = np.zeros((data.shape[0], data.shape[1], 4), dtype=np.dtype('Float32'))
 
-        for x in range(data.shape[0]):
-            for y in range(data.shape[1]):
-                textureData[x, y] = gradient.CalculateColor(data[x, y])
+        #for x in range(data.shape[0]):
+        #    for y in range(data.shape[1]):
+        #        textureData[x, y] = gradient.CalculateColor(data[x, y])
 
 
-        T = gloo.Texture2D(data=textureData, store=True, copy=False)
+        T = gloo.Texture2D(data=data, store=True, copy=False)
         T.interpolation = 'linear'
 
         return T
 
+    def _update_texture(self, data, T):
+
+        T[:] = data[:]

@@ -59,7 +59,7 @@ class reader:
 
     def update_frame_info(self):
         frames = {}
-        for d in self.get_list_domains():
+        for d in self.get_list_domain_ids():
             frames[d] = []
 
         files = os.listdir(self.simulation_result_path)
@@ -79,7 +79,7 @@ class reader:
             return []
 
         frame_set = set(self.frames[self.simulation_result_pstd_mesh['domains'][0]['id']])
-        for d in self.get_list_domains():
+        for d in self.get_list_domain_ids():
             frame_set &= set(self.frames[d])
 
         result = list(frame_set)
@@ -87,7 +87,7 @@ class reader:
 
         return result
 
-    def get_list_domains(self):
+    def get_list_domain_ids(self):
         if self.simulation_scene_desc is None:
             return []
 
