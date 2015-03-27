@@ -31,7 +31,12 @@ import traceback
 import threading
 import argparse
 import subprocess
-
+import numpy as np
+from core import derived_config
+from core.functions import *
+from core.classes import *
+from core.kcalc import Kcalc
+import solvers
 '''Main class of the computational part of openPSTD. Can be run stand-alone or invoked by Blender.
 This class reads the scene description (from a .json file or a pickled object from Blender) containing the geometry
 and sources/receivers, augments it with instructions from the configuration file (in core/pstd.cfg) and initializes
@@ -46,144 +51,115 @@ pstd_dir = os.path.dirname(os.path.abspath(__file__))
 # the path so that the modules in core/ can be loaded
 if pstd_dir not in sys.path:
     sys.path.insert(0, pstd_dir)
+class PSTD:
+    def __init__(self,multi_threaded,write_plot,write_array,scene_file = None):
+        self.multi_threaded = multi_threaded
+        self.write_plot = write_plot
+        self.write_array = write_array
+        self.pstd_desc = None
+        self.scene = None
+        self.scene_file = scene_file
+        interpreter = os.path.basename(sys.executable)
+        self.stand_alone = not(interpreter.startswith("blender"))
 
-# Parse arguments from command line
-parser = argparse.ArgumentParser(prog="openPSTD",
-                                 description="Stand-alone application openPSTD")
-parser.add_argument('scene_file',help="JSON file containing scene description")
-parser.add_argument('-m','--multithreaded', action="store_true",help="Run openPSTD multithreaded")
-parser.add_argument('-p','--write-plot', action="store_true",help="Write plot to image (only when matplotlib is installed)")
-parser.add_argument('-a','--write-array',action="store_true",help="Write array to file")
+        # Use binary mode IO in Python 3+
+        if not self.stand_alone:
+            if hasattr(sys.stdin, 'detach'): sys.stdin = sys.stdin.detach()
+            if hasattr(sys.stdout, 'detach'): sys.stdout = sys.stdout.detach()
 
-interpreter = os.path.basename(sys.executable)
-# Blender is invoked differently: blender -b -P script.py [args]
-if interpreter.startswith("blender"):
-    parser.add_argument('-b',action="store_true",help="Flag from blender interpreter. Not for command-line use")
-    parser.add_argument('-P',action="store_true",help="Flag from blender interpreter. Not for command-line use")
-else:
-    stand_alone=True
+        if not has_matplotlib and self.stand_alone and self.write_plot:
+            print('Warning: matplotlib not installed, plotting to image files not supported')
 
-args = parser.parse_args()
+        self.__load_config()
 
-# Use binary mode IO in Python 3+
-if not stand_alone:
-    if hasattr(sys.stdin, 'detach'): sys.stdin = sys.stdin.detach()
-    if hasattr(sys.stdout, 'detach'): sys.stdout = sys.stdout.detach()
-    args.write_array = True
+    def __load_config(self):
+        scene_desc = None
+        if self.stand_alone:
+            if self.scene_file:
+                f = open(self.scene_file, 'r')
+                scene_desc = json.load(f)
+                f.close()
+                os.chdir(os.path.dirname(os.path.abspath(self.scene_file)))
+            else:
+                exit_with_error("Specify scene file",self.stand_alone)
+        else:
+            scene_desc = pickle.load(sys.stdin)
 
-# Numpy is neccesary
-try:
-    import numpy as np
-except Exception as e: exit_with_error(e)
+        plotdir = scene_desc['plotdir']
+        visualisation_subsampling = scene_desc.get('visualisation_subsampling', 1)
 
-# Import matplotlib for plotting images
-try:
-    import matplotlib
-    import matplotlib.pyplot as plt
-    from matplotlib.colors import Normalize, LogNorm
-    has_matplotlib = True
-except:
-    has_matplotlib = False
+        # Read the default configuration file, which is augmented
+        # with values obtained from the scene descriptor. Lastly
+        # an object is constructed that calculates the derived
+        # values based on the provided configuration.
+        config = configparser.ConfigParser()
+        config.optionxform = str
+        config.read(os.path.join(pstd_dir,'core','pstd.cfg'))
+        self.cfgd = dict([(x[0], safe_float(x[1])) for s in config.sections() for x in config.items(s)])
+        self.cfgd.update(scene_desc)
+        self.cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),self.cfgd)()
 
-# Import other openPSTD classes
-from core import derived_config
-from core.functions import *
-from core.classes import *
-from core.kcalc import Kcalc
-import sequential,concurrent
-if not has_matplotlib and stand_alone and args.write_plot:
-    print('Notice: matplotlib not installed, plotting to image files not supported')
+        dx = dz = scene_desc['grid_spacing']
 
-# Load scene description from .json file or Blender
-scene_desc = None
-if stand_alone:
-    f = open(args.scene_file, 'r')
-    scene_desc = json.load(f)
-    f.close()
-    
-    os.chdir(os.path.dirname(os.path.abspath(args.scene_file)))
-else:
-    scene_desc = pickle.load(sys.stdin)
+        self.pstd_desc = {'domains':[],'dx':float(dx),'dz':float(dz)}
+        self.scene = Scene(self.cfg)
 
+        # Initialize domains in geometry
+        for d in scene_desc['domains']:
+            x,y = [np.around(c/dx) for c in d['topleft']]
+            w,h = [np.around(c/dx) for c in d['size']]
+            self.scene.add_domain(Domain(self.cfg, d['id'], 1, Point(x,y), Size(w,h), d['edges']))
+            center = float((x + w/2) * dx), float((y + h/2) * dx)
+            size = float(w * dx), float(h * dx)
+            self.pstd_desc['domains'].append({
+                'Nx'    : float(np.ceil(w/visualisation_subsampling)),
+                'Nz'    : float(np.ceil(h/visualisation_subsampling)),
+                'center': center,
+                'size'  : size,
+                'id'    : d['id']
+            })
 
-plotdir = scene_desc['plotdir']
-visualisation_subsampling = scene_desc.get('visualisation_subsampling', 1)
+        self.scene.add_pml_domains()
 
-# Read the default configuration file, which is augmented
-# with values obtained from the scene descriptor. Lastly 
-# an object is constructed that calculates the derived
-# values based on the provided configuration.
-config = configparser.ConfigParser()
-config.optionxform = str
-config.read(os.path.join(pstd_dir,'core','pstd.cfg'))
-cfgd = dict([(x[0], safe_float(x[1])) for s in config.sections() for x in config.items(s)])
-cfgd.update(scene_desc)
-cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),cfgd)()
+        dx_2 = self.cfg.dx/2.
 
-dx = dz = scene_desc['grid_spacing']
+        # Add the speaker positions
+        speaker_positions = [(s[0] - dx_2, s[1] - dx_2) for s in scene_desc['speakers']]
+        for sx, sy in speaker_positions:
+            self.scene.add_source(sx, sy)
 
-pstd_desc = {'domains':[],'dx':float(dx),'dz':float(dz)}
-scene = Scene(cfg)
+        # Add the receiver positions, open files for storing the receiver perceptions
+        receiver_positions = [(s[0] - dx_2, s[1] - dx_2) for s in scene_desc['receivers']]
+        self.receiver_files = []
+        for i,(rx, ry) in enumerate(receiver_positions):
+            self.scene.add_receiver(rx, ry)
+            self.receiver_files.append(open(os.path.join(plotdir,'rec-%d.bin'%i),'wb'))
 
-# Initialize domains in geometry
-for d in scene_desc['domains']:
-    x,y = [np.around(c/dx) for c in d['topleft']]
-    w,h = [np.around(c/dx) for c in d['size']]
-    scene.add_domain(Domain(cfg, d['id'], 1, Point(x,y), Size(w,h), d['edges']))
-    center = float((x + w/2) * dx), float((y + h/2) * dx)
-    size = float(w * dx), float(h * dx)
-    pstd_desc['domains'].append({
-        'Nx'    : float(np.ceil(w/visualisation_subsampling)),
-        'Nz'    : float(np.ceil(h/visualisation_subsampling)),
-        'center': center,
-        'size'  : size,
-        'id'    : d['id']
-    })
+    def run(self):
+        self.pstd_desc['dump'] = repr(self.scene)
 
-scene.add_pml_domains()
+        if self.stand_alone:
+            print("\n%s\n"%("-"*20))
+            print(self.scene)
+            print("\n%s\n"%("-"*20))
+        else:
+            pickle.dump(self.pstd_desc,sys.stdout,0)
+            sys.stdout.flush()
 
-dx_2 = cfg.dx/2.
+        # Calculate rho and pml matrices for all domains
+        self.scene.calc_rho_matrices()
+        self.scene.calc_pml_matrices()
+        data_writer = DataWriter(self.cfgd,self.scene,self.write_plot and has_matplotlib,self.write_array)
+        t0 = time.time()
 
-# Add the speaker positions
-speaker_positions = [(s[0] - dx_2, s[1] - dx_2) for s in scene_desc['speakers']]
-for sx, sy in speaker_positions:
-    scene.add_source(sx, sy)
+        # Run the simulation (multi-threaded not supported yet)
+        if self.multi_threaded:
+            with Exception as e:
+                exit_with_error(e,self.stand_alone)
+        else:
+            solver = solvers.SingleThreaded(self.cfg,self.scene,self.stand_alone,data_writer,self.receiver_files)
 
-# Add the receiver positions, open files for storing the receiver perceptions
-receiver_positions = [(s[0] - dx_2, s[1] - dx_2) for s in scene_desc['receivers']]
-receiver_files = []
-for i,(rx, ry) in enumerate(receiver_positions):
-    scene.add_receiver(rx, ry)
-    receiver_files.append(open(os.path.join(plotdir,'rec-%d.bin'%i),'wb'))
-
-pstd_desc['dump'] = repr(scene)
-
-if stand_alone:
-    print("\n%s\n"%("-"*20))
-    print(scene)
-    print("\n%s\n"%("-"*20))
-else:
-    pickle.dump(pstd_desc,sys.stdout,0)
-    sys.stdout.flush()
-
-# Calculate rho and pml matrices for all domains
-scene.calc_rho_matrices()
-scene.calc_pml_matrices()
-data_writer = DataWriter(cfgd,scene,args.write_plot and has_matplotlib,args.write_array)
-t0 = time.time()
-
-# Run the simulation (multithreaded not imported yet)
-if args.multithreaded:
-    with Exception as e:
-        exit_with_error(e,stand_alone)
-else:
-    solver = sequential.PSTDSolver(cfg,scene,stand_alone,data_writer,receiver_files)
-
-if stand_alone:
-    print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
-else:
-    pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
-
-# Exit to prevent the Blender interpreter from processing
-# the subsequent command line arguments.
-exit()
+        if self.stand_alone:
+            print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+        else:
+            pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
