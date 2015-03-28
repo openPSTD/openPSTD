@@ -56,6 +56,9 @@ class Viewer2D(QtOpenGL.QGLWidget):
         return QtCore.QSize(400, 400)
 
     def initializeGL(self):
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
         for l in self.visibleLayers:
             l.initilizeGL()
 

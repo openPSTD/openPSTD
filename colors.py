@@ -30,10 +30,7 @@ class Colors:
     yellow = (1, 1, 0, 1)
     lightBlue = (0, 1, 1, 1)
     purple = (1, 0, 1, 1)
-
-
-
-
+    transparent = (0, 0, 0, 0)
 
 class BaseColorGradient:
     __metaclass__ = abc.ABCMeta
@@ -96,7 +93,7 @@ class StandardColorScheme(BaseColorScheme):
         return Colors.black
 
     def editorLineAbsoptionColorGradient(self):
-        return TwoColorGradient(Colors.red, Colors.blue)
+        return TwoColorGradient((0, 1, 0, 0), Colors.green)
 
     def editorDefualtDomainColor(self):
         return Colors.red
