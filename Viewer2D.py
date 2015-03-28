@@ -47,7 +47,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.viewPort = [640, 480]
 
-        self.visibleLayers = [SimulationLayer()]
+        self.visibleLayers = [SimulationLayer(), SceneLayer()]
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -133,8 +133,8 @@ class SimulationLayer(Layer):
             with open (filename, "r") as file:
                 return file.read()
 
-        vertex_code = readShader("GPU\View2D.vert")
-        fragment_code = readShader("GPU\View2D.frag")
+        vertex_code = readShader("GPU\Simulation2D.vert")
+        fragment_code = readShader("GPU\Simulation2D.frag")
 
         self._create_colormap()
 
@@ -220,5 +220,106 @@ class SimulationLayer(Layer):
 
         self.colormap = T
 
-class SceneLayer:
-    pass
+class SceneLayer(Layer):
+    def __init__(self):
+        self.program = None
+
+        self.renderInfo = {}
+
+        self.scene_min_max = {max: [0, 0], min: [0, 0]}
+
+    def initilizeGL(self):
+        def readShader(filename):
+            with open (filename, "r") as file:
+                return file.read()
+
+        vertex_code = readShader("GPU\Scene2D.vert")
+        fragment_code = readShader("GPU\Scene2D.frag")
+
+        self._create_colormap()
+
+        self.vPosition = gloo.VertexBuffer(np.array([[0, 0], [0, 0]], np.float32))
+        self.vValues = gloo.VertexBuffer(np.array([[0], [0]], np.float32))
+
+        # Build program & data
+        # ----------------------------------------
+        self.program = gloo.Program(vertex_code, fragment_code, count=4)
+        self.program['u_view'] = np.eye(3,dtype=np.float32)
+        self.program['vmin'] = 0.00
+        self.program['vmax'] = 1.00
+        self.program['colormap'] = self.colormap
+        self.program['a_position'] = self.vPosition
+        self.program['a_value'] = self.vValues
+
+    def paintGL(self):
+        gl.glLineWidth(5.0)
+        self.program.draw(gl.GL_LINES)
+
+    def update_scene(self, model):
+
+        edges = []
+        values = []
+
+        scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
+
+        for id in model.Simulation.get_list_domain_ids():
+
+            data = model.Simulation.read_frame(id, model.visible_frame)
+
+            domain = data['scene_desc']
+
+            x = 0
+            y = 1
+            tl = [domain['topleft'][x],                     domain['topleft'][y]]
+            tr = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]]
+            bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
+            br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
+
+            # region min-maxing scene
+            scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
+            scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
+
+            scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
+            scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
+            # endregion
+
+            values.append([domain['edges']['t']['a']])
+            edges.append(tl)
+            values.append([domain['edges']['t']['a']])
+            edges.append(tr)
+
+            values.append([domain['edges']['r']['a']])
+            edges.append(tr)
+            values.append([domain['edges']['r']['a']])
+            edges.append(br)
+
+            values.append([domain['edges']['b']['a']])
+            edges.append(br)
+            values.append([domain['edges']['b']['a']])
+            edges.append(bl)
+
+            values.append([domain['edges']['l']['a']])
+            edges.append(bl)
+            values.append([domain['edges']['l']['a']])
+            edges.append(tl)
+
+        self.vPosition.set_data(np.array(edges, np.float32))
+        self.vValues.set_data(np.array(values, np.float32))
+
+        self.scene_min_max = scene_min_max
+
+    def get_min_max(self):
+        return self.scene_min_max
+
+    def update_view_matrix(self, matrix):
+        self.program['u_view'] = matrix
+
+    def _create_colormap(self):
+        gradient = colorScheme.editorLineAbsoptionColorGradient()
+        colormap = gradient.create_color_map(0.0, 1.0, 512)
+        colormap2 = [colormap]
+
+        T = gloo.Texture2D(data=colormap2, store=True, copy=False)
+        T.interpolation = 'linear'
+
+        self.colormap = T
