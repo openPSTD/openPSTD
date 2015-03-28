@@ -22,7 +22,7 @@ __author__ = 'michiel'
 import abc
 import helper
 import threading
-import sys
+import traceback
 
 class Reciever:
     def __init__(self, model, ui):
@@ -67,7 +67,7 @@ class LongOperation:
             print(type(inst))
             print(inst.args)
             print(inst)
-            #print("Unexpected error: ", sys.exc_info()[0])
+            print(traceback.format_exc())
             self._change_status(STATUS_ERROR)
 
     def process(self, r):

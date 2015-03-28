@@ -19,17 +19,19 @@
 
 __author__ = 'michiel'
 
-
 import operations.BaseOperation
 import os
-import sys
-import subprocess
 import copy
-import pickle
-import pstd_data
-import json
+from pstd import PSTD
 
 class Simulate(operations.BaseOperation.LongOperation):
+
+    class PstdException(Exception):
+        def __init__(self, error_status):
+            self.error_status = error_status
+        def __str__(self):
+            return repr(self.error_status['message'])
+
     def __init__(self):
         super(Simulate, self).__init__()
         self.pstd_meshdata = None
@@ -43,34 +45,36 @@ class Simulate(operations.BaseOperation.LongOperation):
 
         print("Output directory: " + scene_desc['plotdir'])
 
-        arguments = [sys.executable, "kernel/pstd.py", '-c']
-        if self.create_array:
-            arguments.append('-a')
-        if self.create_plots:
-            arguments.append('-p')
-
-        sp = subprocess.Popen(arguments, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
-        pickle.dump(scene_desc, sp.stdin, 0)
-        sp.stdin.flush()
-
-        self.pstd_meshdata = pstd_data.PickleStream(sp.stdout).get()
         r.model.Simulation.simulation_scene_desc = scene_desc
-        r.model.Simulation.simulation_result_pstd_mesh = self.pstd_meshdata
         r.model.Simulation.simulation_result_path = scene_desc['plotdir']
 
-        while True:
-            status = pstd_data.PickleStream(sp.stdout).get()
+        result = False
+        def status_messages(status):
+            nonlocal result
+            nonlocal self
+
             self.change_status_text(status['message'])
-            if status['status'] == 'running':
+            if status['status'] == 'error':
+                result = False
+                raise Simulate.PstdException(status)
+
+            elif status['status'] == 'starting':
+                self.pstd_meshdata = status['pstd_desc']
+                r.model.Simulation.simulation_result_pstd_mesh = status['pstd_desc']
+
+            elif status['status'] == 'running':
                 r.model.Simulation.update_frame_info()
+
             elif status['status'] == 'success':
-                return True
-            elif status['status'] == 'error':
-                return False
+                result = True
 
+        try:
+            pstd = PSTD(False, self.create_plots, self.create_array, scene_desc, status_messages)
+            pstd.run()
+        except Simulate.PstdException as e:
+            pass
 
-
+        return result
 
 class CreateMovie(operations.BaseOperation.operation):
     def __init__(self):
