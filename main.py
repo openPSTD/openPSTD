@@ -86,8 +86,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateViews(self):
         frames = self.m.Simulation.get_sequence_frame_numbers()
         if(len(frames) > 0):
-            renderframe = frames[-1]
-            self.mainView.updateScene(self.m.Simulation, renderframe)
+            self.m.visible_frame = frames[-1]
+            self.mainView.updateScene(self.m)
 
     def about(self):
         '''Popup a box with about message.'''

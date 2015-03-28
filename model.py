@@ -32,6 +32,7 @@ class model:
         self.Simulation = SimulationReader.reader()
         self.AppConfig = None
         self.Args = None
+        self.visible_frame = 1
 
         self.Simulation.frame_info_updated.append(self._Simulation_frame_info_updated)
 

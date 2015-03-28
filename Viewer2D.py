@@ -26,6 +26,7 @@ from vispy import gloo
 import OpenGL.GL as gl
 import numpy as np
 from colors import activeColorScheme as colorScheme
+import abc
 
 from transforms2D import scale, translate
 
@@ -44,11 +45,9 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         QtOpenGL.QGLWidget.__init__(self, parent)
 
-        self.program = None
-
         self.viewPort = [640, 480]
 
-        self.renderInfo = {}
+        self.visibleLayers = [SimulationLayer()]
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -57,6 +56,79 @@ class Viewer2D(QtOpenGL.QGLWidget):
         return QtCore.QSize(400, 400)
 
     def initializeGL(self):
+        for l in self.visibleLayers:
+            l.initilizeGL()
+
+    def paintGL(self):
+        gl.glClearColor(1,1,1,1)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+
+        for l in self.visibleLayers:
+            l.paintGL()
+
+    def resizeGL(self, width, height):
+        gl.glViewport(0, 0, width, height)
+        self.viewPort = [width, height]
+
+    def updateScene(self, model):
+        for l in self.visibleLayers:
+            l.update_scene(model)
+
+        scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
+        for l in self.visibleLayers:
+            min_max = l.get_min_max()
+            scene_min_max['max'][0] = max(scene_min_max['max'][0], min_max['max'][0])
+            scene_min_max['max'][1] = max(scene_min_max['max'][1], min_max['max'][1])
+            scene_min_max['min'][0] = min(scene_min_max['min'][0], min_max['min'][0])
+            scene_min_max['min'][1] = min(scene_min_max['min'][1], min_max['min'][1])
+
+        self.updateViewMatrix(scene_min_max['min'], scene_min_max['max'])
+
+        self.update()
+
+    def updateViewMatrix(self, tl, br):
+        extraZoomFactor = 1.25
+
+        center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
+        scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
+
+        view = np.eye(3,dtype=np.float32)
+        translate(view, center[0], center[1])
+        scale(view, scaleFactor)
+
+        for l in self.visibleLayers:
+            l.update_view_matrix(view)
+
+class Layer:
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self):
+        self.view_matrix = np.eye(3,dtype=np.float32)
+
+    def initilizeGL(self):
+        pass
+
+    def paintGL(self):
+        pass
+
+    def update_scene(self, model):
+        pass
+
+    def get_min_max(self):
+        return {max: [0, 0], min: [0, 0]}
+
+    def update_view_matrix(self, matrix):
+        self.view_matrix = matrix
+
+class SimulationLayer(Layer):
+    def __init__(self):
+        self.program = None
+
+        self.renderInfo = {}
+
+        self.scene_min_max = {max: [0, 0], min: [0, 0]}
+
+    def initilizeGL(self):
         def readShader(filename):
             with open (filename, "r") as file:
                 return file.read()
@@ -74,12 +146,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
         self.program['vmax'] = 0.10
         self.program['colormap'] = self.colormap
 
-        gl.glLineWidth(10.0)
-
     def paintGL(self):
-        gl.glClearColor(1,1,1,1)
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-
         for domain, info in self.renderInfo.items():
             self.program['a_color'] = info['colors']
             self.program['a_position'] = info['position']
@@ -88,20 +155,15 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
             self.program.draw('triangle_strip')
 
-    def resizeGL(self, width, height):
-        gl.glViewport(0, 0, width, height)
-        self.viewPort = [width, height]
-
-    def updateScene(self, simulation, frame):
-
-        sceneMax = [-float("inf"), -float("inf")]
-        sceneMin = [float("inf"), float("inf")]
+    def update_scene(self, model):
 
         self.renderInfo = {}
 
-        for id in simulation.get_list_domain_ids():
+        scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
 
-            data = simulation.read_frame(id, frame)
+        for id in model.Simulation.get_list_domain_ids():
+
+            data = model.Simulation.read_frame(id, model.visible_frame)
 
             domain = data['scene_desc']
 
@@ -113,25 +175,11 @@ class Viewer2D(QtOpenGL.QGLWidget):
             br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
 
             # region min-maxing scene
-            sceneMax[0] = max(sceneMax[0], tl[0])
-            sceneMax[0] = max(sceneMax[0], tr[0])
-            sceneMax[0] = max(sceneMax[0], bl[0])
-            sceneMax[0] = max(sceneMax[0], br[0])
+            scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
+            scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
 
-            sceneMax[1] = max(sceneMax[1], tl[1])
-            sceneMax[1] = max(sceneMax[1], tr[1])
-            sceneMax[1] = max(sceneMax[1], bl[1])
-            sceneMax[1] = max(sceneMax[1], br[1])
-
-            sceneMin[0] = min(sceneMin[0], tl[0])
-            sceneMin[0] = min(sceneMin[0], tr[0])
-            sceneMin[0] = min(sceneMin[0], bl[0])
-            sceneMin[0] = min(sceneMin[0], br[0])
-
-            sceneMin[1] = min(sceneMin[1], tl[1])
-            sceneMin[1] = min(sceneMin[1], tr[1])
-            sceneMin[1] = min(sceneMin[1], bl[1])
-            sceneMin[1] = min(sceneMin[1], br[1])
+            scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
+            scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
             # endregion
 
             if id in self.renderInfo:
@@ -145,21 +193,13 @@ class Viewer2D(QtOpenGL.QGLWidget):
                         'colors': gloo.VertexBuffer(np.array([[0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1]], np.float32))
                     }
 
-        self.updateViewMatrix(sceneMin, sceneMax)
+        self.scene_min_max = scene_min_max
 
-        self.update()
+    def get_min_max(self):
+        return self.scene_min_max
 
-    def updateViewMatrix(self, tl, br):
-        extraZoomFactor = 1.25
-
-        center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
-        scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
-
-        view = np.eye(3,dtype=np.float32)
-        translate(view, center[0], center[1])
-        scale(view, scaleFactor)
-
-        self.program['u_view'] = view
+    def update_view_matrix(self, matrix):
+        self.program['u_view'] = matrix
 
     def _load_texture(self, data):
         T = gloo.Texture2D(data=data, store=True, copy=False)
@@ -180,3 +220,5 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.colormap = T
 
+class SceneLayer:
+    pass
