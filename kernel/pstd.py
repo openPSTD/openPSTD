@@ -127,8 +127,7 @@ class PSTD:
 
         # Run the simulation (multi-threaded not supported yet)
         if self.multi_threaded:
-            with Exception as e:
-                output_error(e,self.output_fn)
+           solver = solvers.MultiThreaded(self.cfg, self.scene, data_writer, self.receiver_files, self.output_fn)
         else:
             solver = solvers.SingleThreaded(self.cfg, self.scene, data_writer, self.receiver_files, self.output_fn)
 
