@@ -27,6 +27,7 @@ import OpenGL.GL as gl
 import numpy as np
 from colors import activeColorScheme as colorScheme
 import abc
+import copy
 
 from transforms2D import scale, translate
 
@@ -160,41 +161,45 @@ class SimulationLayer(Layer):
 
     def update_scene(self, model):
 
-        self.renderInfo = {}
-
         scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
 
         for id in model.Simulation.get_list_domain_ids():
 
-            data = model.Simulation.read_frame(id, model.visible_frame)
+            if model.Simulation.frame_exists(id, model.visible_frame):
 
-            domain = data['scene_desc']
+                data = model.Simulation.read_frame(id, model.visible_frame)
 
-            x = 0
-            y = 1
-            tl = [domain['topleft'][x],                     domain['topleft'][y]]
-            tr = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]]
-            bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
-            br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
+                domain = data['scene_desc']
 
-            # region min-maxing scene
-            scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
-            scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
+                x = 0
+                y = 1
+                tl = [domain['topleft'][x],                     domain['topleft'][y]]
+                tr = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]]
+                bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
+                br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
 
-            scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
-            scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
-            # endregion
+                # region min-maxing scene
+                scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
+                scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
 
-            if id in self.renderInfo:
-                self._update_texture(data['data'], self.renderInfo[id]['texture'])
-            else:
-                self.renderInfo[id] = \
-                    {
-                        'texture': self._load_texture(data['data']),
-                        'position': gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32)),
-                        'texcoord': gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32)),
-                        'colors': gloo.VertexBuffer(np.array([[0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1]], np.float32))
-                    }
+                scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
+                scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
+                # endregion
+
+                if id in self.renderInfo:
+                    self._update_texture(data['data'], self.renderInfo[id]['texture'])
+                else:
+                    self.renderInfo[id] = \
+                        {
+                            'texture': self._load_texture(data['data']),
+                            'position': gloo.VertexBuffer(np.array([tl, tr, bl, br], np.float32)),
+                            'texcoord': gloo.VertexBuffer(np.array([(0, 0), (0, +1), (+1, 0), (+1, +1)], np.float32)),
+                            'colors': gloo.VertexBuffer(np.array([[0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1]], np.float32))
+                        }
+
+        for key in copy.copy(self.renderInfo):
+            if not model.Simulation.frame_exists(key, model.visible_frame):
+                del self.renderInfo[key]
 
         self.scene_min_max = scene_min_max
 
@@ -260,16 +265,19 @@ class SceneLayer(Layer):
 
     def update_scene(self, model):
 
+        horizontalEdges = []
+        verticalEdges = []
+
+        horizontalvalues = []
+        verticalvalues = []
+
         edges = []
         values = []
 
         scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
 
-        for id in model.Simulation.get_list_domain_ids():
-
-            data = model.Simulation.read_frame(id, model.visible_frame)
-
-            domain = data['scene_desc']
+        # region reading domains
+        for domain in model.SceneDesc['domains']:
 
             x = 0
             y = 1
@@ -278,33 +286,34 @@ class SceneLayer(Layer):
             bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
             br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
 
-            # region min-maxing scene
+
             scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
             scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
 
             scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
             scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
-            # endregion
 
-            values.append([domain['edges']['t']['a']])
-            edges.append(tl)
-            values.append([domain['edges']['t']['a']])
-            edges.append(tr)
 
-            values.append([domain['edges']['r']['a']])
-            edges.append(tr)
-            values.append([domain['edges']['r']['a']])
-            edges.append(br)
+            horizontalvalues.append([domain['edges']['t']['a']])
+            horizontalEdges.append(tl)
+            horizontalvalues.append([domain['edges']['t']['a']])
+            horizontalEdges.append(tr)
 
-            values.append([domain['edges']['b']['a']])
-            edges.append(br)
-            values.append([domain['edges']['b']['a']])
-            edges.append(bl)
+            verticalvalues.append([domain['edges']['r']['a']])
+            verticalEdges.append(tr)
+            verticalvalues.append([domain['edges']['r']['a']])
+            verticalEdges.append(br)
 
-            values.append([domain['edges']['l']['a']])
-            edges.append(bl)
-            values.append([domain['edges']['l']['a']])
-            edges.append(tl)
+            horizontalvalues.append([domain['edges']['b']['a']])
+            horizontalEdges.append(br)
+            horizontalvalues.append([domain['edges']['b']['a']])
+            horizontalEdges.append(bl)
+
+            verticalvalues.append([domain['edges']['l']['a']])
+            verticalEdges.append(bl)
+            verticalvalues.append([domain['edges']['l']['a']])
+            verticalEdges.append(tl)
+        # endregion
 
         self.vPosition.set_data(np.array(edges, np.float32))
         self.vValues.set_data(np.array(values, np.float32))
