@@ -59,7 +59,8 @@ class reader:
 
     def update_frame_info(self):
         frames = {}
-        for d in self.get_list_domain_ids():
+        domain_ids = self.get_list_domain_ids()
+        for d in domain_ids:
             frames[d] = []
 
         files = os.listdir(self.simulation_result_path)
@@ -69,7 +70,8 @@ class reader:
                 name, extension = os.path.splitext(f)
                 domain, frame = name.split(sep="-")
                 frame = int(frame)
-                frames[domain].append(frame)
+                if domain in domain_ids:
+                    frames[domain].append(frame)
 
         self.frames = frames
         helper.CallObservers(self.frame_info_updated)

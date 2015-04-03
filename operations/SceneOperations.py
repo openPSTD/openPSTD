@@ -22,7 +22,7 @@ __author__ = 'michiel'
 import operations.BaseOperation
 import os
 import copy
-from pstd import PSTD
+from kernel.pstd import PSTD
 
 class Simulate(operations.BaseOperation.LongOperation):
 
