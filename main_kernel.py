@@ -18,8 +18,10 @@
 ########################################################################
 
 import argparse
-from core.classes import *
-from pstd import PSTD
+import os,sys
+import pickle
+from kernel.pstd import PSTD
+from kernel.core.functions import output_error
 import json
 
 # Parse arguments from command line
@@ -69,9 +71,6 @@ def ConsoleOutput(arg):
 if not stand_alone:
     if hasattr(sys.stdin, 'detach'): sys.stdin = sys.stdin.detach()
     if hasattr(sys.stdout, 'detach'): sys.stdout = sys.stdout.detach()
-
-if not has_matplotlib and stand_alone and args.write_plot:
-    print('Warning: matplotlib not installed, plotting to image files not supported')
 
 if stand_alone:
     if args.scene_file:
