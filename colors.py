@@ -93,7 +93,7 @@ class StandardColorScheme(BaseColorScheme):
         return Colors.black
 
     def editorLineAbsoptionColorGradient(self):
-        return TwoColorGradient((0, 1, 0, 0.5), Colors.green)
+        return TwoColorGradient(Colors.blue, Colors.green)
 
     def editorDefualtDomainColor(self):
         return Colors.red
