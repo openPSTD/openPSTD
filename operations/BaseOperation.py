@@ -29,6 +29,9 @@ class Receiver:
         self.model = model
         self.ui = ui
 
+    def run_another_operation(self, op):
+        op.run(self)
+
 
 class operation:
     __metaclass__ = abc.ABCMeta

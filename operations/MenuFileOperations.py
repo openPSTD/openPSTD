@@ -20,6 +20,7 @@
 __author__ = 'michiel'
 
 import operations.BaseOperation
+import operations.ViewOperations
 import helper
 import json
 
@@ -27,11 +28,12 @@ class Open(operations.BaseOperation.operation):
     def __init__(self, filename):
         self.filename = filename
 
-    def run(self, r):
+    def run(self, receiver):
         f = open(self.filename, 'r')
-        r.model.SceneDesc = json.load(f)
+        receiver.model.SceneDesc = json.load(f)
         f.close()
-        helper.CallObservers(r.model.SceneDescChanged)
+        helper.CallObservers(receiver.model.SceneDescChanged)
+        receiver.run_another_operation(operations.ViewOperations.ViewWholeScene())
 
 
 class Save(operations.BaseOperation.operation):
@@ -44,8 +46,8 @@ class Save(operations.BaseOperation.operation):
         f.close()
 
 class New(Open):
-    #emptyDocumentFilename = "emptyFile.jps"
-    emptyDocumentFilename = "testFile.jps"
+    emptyDocumentFilename = "emptyFile.jps"
+    #emptyDocumentFilename = "testFile.jps"
 
     def __init__(self):
         super(New, self).__init__(New.emptyDocumentFilename)

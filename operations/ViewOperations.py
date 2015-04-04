@@ -34,6 +34,7 @@ class ViewWholeScene(operations.BaseOperation.operation):
         scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
 
         view = np.eye(3, dtype=np.float32)
+        scale(view, 1, -1)
         translate(view, center[0], center[1])
         scale(view, scaleFactor)
 
