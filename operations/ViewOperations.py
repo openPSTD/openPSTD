@@ -46,9 +46,19 @@ class TranslateScene(operations.BaseOperation.operation):
         self.vector = vector
 
     def run(self, receiver):
-
         view = receiver.ui.mainView.getViewMatrix()
         translate(view, self.vector[0], self.vector[1])
+        receiver.ui.mainView.setViewMatrix(view)
+
+        receiver.ui.mainView.update()
+
+class ResizeScene(operations.BaseOperation.operation):
+    def __init__(self, scale):
+        self.scale = scale
+
+    def run(self, receiver):
+        view = receiver.ui.mainView.getViewMatrix()
+        scale(view, self.scale)
         receiver.ui.mainView.setViewMatrix(view)
 
         receiver.ui.mainView.update()

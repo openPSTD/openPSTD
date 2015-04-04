@@ -28,7 +28,10 @@ import platform
 import model
 
 import PySide
+from PySide import QtCore
 from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox, QFileDialog
+
+import numpy as np
 
 from MainWindow_ui import Ui_MainWindow
 
@@ -115,18 +118,37 @@ class MouseMoveSceneStrategy(MouseStrategy):
 
     def __init__(self, operation_runner):
         self.operation_runner = operation_runner
+        self.mouse_pos = np.array([0, 0])
 
     def mousePressEvent(self, event):
-        print("mousePressEvent")
+        pass
+
 
     def mouseMoveEvent(self, event):
-        print("mouseMoveEvent")
+        pos = event.pos()
+        pos = np.array([pos.x(), pos.y()])
+
+        offset = pos - self.mouse_pos
+        self.mouse_pos = pos
+
+        buttons = event.buttons()
+        if buttons & QtCore.Qt.LeftButton:
+            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[-1,1]*-0.005))
+        if buttons & QtCore.Qt.MiddleButton:
+            pass
+            #self.sph_demo.on_mouse_move(dx, dy, 1)
+        if buttons & QtCore.Qt.RightButton:
+            pass
+            #self.sph_demo.on_mouse_move(dx, dy, 2)
 
     def wheelEvent(self, event):
-        print("WheelEvent")
+        delta = event.delta()
+        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(pow(2, delta/120)))
 
     def mouseReleaseEvent(self, event):
-        print("mouseReleaseEvent")
+        self.mouseState = event.buttons()
+        if self.mouseState & (QtCore.Qt.LeftButton | QtCore.Qt.RightButton):
+            self.mouse_pos = event.pos()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
