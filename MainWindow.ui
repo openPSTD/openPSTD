@@ -27,36 +27,6 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>View</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnViewCompleteScene">
-        <property name="text">
-         <string>Complete Scene</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Operations</string>
@@ -278,8 +248,16 @@
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionViewerHand"/>
+    <addaction name="actionView_complete_scene"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOption"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -291,8 +269,10 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
+   <addaction name="actionViewerHand"/>
+   <addaction name="actionView_complete_scene"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -365,6 +345,30 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionViewerHand">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/noun_1476.png</normaloff>Images/noun_1476.png</iconset>
+   </property>
+   <property name="text">
+    <string>ViewerHand</string>
+   </property>
+   <property name="toolTip">
+    <string>Move the view</string>
+   </property>
+  </action>
+  <action name="actionView_complete_scene">
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/noun_70430_cc.png</normaloff>Images/noun_70430_cc.png</iconset>
+   </property>
+   <property name="text">
+    <string>View complete scene</string>
    </property>
   </action>
  </widget>

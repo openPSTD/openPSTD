@@ -24,7 +24,7 @@ import helper
 import threading
 import traceback
 
-class Reciever:
+class Receiver:
     def __init__(self, model, ui):
         self.model = model
         self.ui = ui

@@ -32,7 +32,10 @@ from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMe
 
 from MainWindow_ui import Ui_MainWindow
 
-import operations.MenuFileOperations, operations.SceneOperations
+import operations.MenuFileOperations
+import operations.SceneOperations
+import operations.ViewOperations
+from Viewer2D import MouseStrategy
 
 __version__ = '0.0.1'
 
@@ -50,27 +53,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.OpenOperation)
         self.actionSave.triggered.connect(self.SaveOperation)
         self.actionClose.triggered.connect(self.createRunOperation(operations.MenuFileOperations.Close))
+        self.actionView_complete_scene.triggered.connect(self.createRunOperation(operations.ViewOperations.ViewWholeScene))
 
         self.btnSimulate.clicked.connect(self.simulate_operation)
+
+        self.mainView.mouseHandler = MouseMoveSceneStrategy(self)
 
     def createRunOperation(self, operationClass):
         mw = self
         def RunOperation():
             operation = operationClass()
-            operation.run(operations.BaseOperation.Reciever(mw.m, mw))
+            mw.run_operation(operation)
         return RunOperation
 
     def OpenOperation(self):
         fname, _ = QFileDialog.getOpenFileName(self, 'Open file', '')
         if(fname != ''):
             operation = operations.MenuFileOperations.Open(fname)
-            operation.run(operations.BaseOperation.Reciever(self.m, self))
+            self.run_operation(operation)
 
     def SaveOperation(self):
         fname, _ = QFileDialog.getSaveFileName(self, 'Open file', '')
         if(fname != ''):
             operation = operations.MenuFileOperations.Save(fname)
-            operation.run(operations.BaseOperation.Reciever(self.m, self))
+            self.run_operation(operation)
+
+    def run_operation(self, operation):
+        operation.run(operations.BaseOperation.Receiver(self.m, self))
 
     def simulate_operation(self):
         operation = operations.SceneOperations.Simulate()
@@ -81,7 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             s.statusbar.showMessage(operation.statusText)
         operation.statusChanged.append(status_changed)
         operation.statusTextChanged.append(status_text_changed)
-        operation.start(operations.BaseOperation.Reciever(self.m, self))
+        operation.start(operations.BaseOperation.Receiver(self.m, self))
 
     def updateViews(self):
         frames = self.m.Simulation.get_sequence_frame_numbers()
@@ -101,6 +110,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                <p>Python %s -  PySide version %s - Qt version %s on %s""" % (__version__,
                 platform.python_version(), PySide.__version__,  PySide.QtCore.__version__,
                 platform.system()))
+
+class MouseMoveSceneStrategy(MouseStrategy):
+
+    def __init__(self, operation_runner):
+        self.operation_runner = operation_runner
+
+    def mousePressEvent(self, event):
+        print("mousePressEvent")
+
+    def mouseMoveEvent(self, event):
+        print("mouseMoveEvent")
+
+    def wheelEvent(self, event):
+        print("WheelEvent")
+
+    def mouseReleaseEvent(self, event):
+        print("mouseReleaseEvent")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

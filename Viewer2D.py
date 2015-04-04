@@ -45,10 +45,15 @@ except ImportError:
 class Viewer2D(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         QtOpenGL.QGLWidget.__init__(self, parent)
+        self.setMouseTracking(True)
 
         self.viewPort = [640, 480]
 
         self.visibleLayers = [SimulationLayer(), SceneLayer()]
+
+        self.mouseHandler = MouseStrategyConsole()
+
+        self._view_matrix = np.eye(3,dtype=np.float32)
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -74,6 +79,19 @@ class Viewer2D(QtOpenGL.QGLWidget):
         gl.glViewport(0, 0, width, height)
         self.viewPort = [width, height]
 
+    def mousePressEvent(self, event):
+        self.mouseHandler.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self.mouseHandler.mouseMoveEvent(event)
+
+    def wheelEvent(self, event):
+        self.mouseHandler.wheelEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.mouseHandler.mouseReleaseEvent(event)
+
+
     def updateScene(self, model):
         for l in self.visibleLayers:
             l.update_scene(model)
@@ -86,22 +104,19 @@ class Viewer2D(QtOpenGL.QGLWidget):
             scene_min_max['min'][0] = min(scene_min_max['min'][0], min_max['min'][0])
             scene_min_max['min'][1] = min(scene_min_max['min'][1], min_max['min'][1])
 
-        self.updateViewMatrix(scene_min_max['min'], scene_min_max['max'])
+        self.scene_min_max = scene_min_max
 
         self.update()
 
-    def updateViewMatrix(self, tl, br):
-        extraZoomFactor = 1.25
-
-        center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
-        scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
-
-        view = np.eye(3,dtype=np.float32)
-        translate(view, center[0], center[1])
-        scale(view, scaleFactor)
+    def setViewMatrix(self, M):
+        self._view_matrix = M
 
         for l in self.visibleLayers:
-            l.update_view_matrix(view)
+            l.update_view_matrix(self._view_matrix)
+
+    def getViewMatrix(self):
+        return self._view_matrix
+
 
 class Layer:
     __metaclass__ = abc.ABCMeta
@@ -315,6 +330,11 @@ class SceneLayer(Layer):
             verticalEdges.append(tl)
         # endregion
 
+        edges.extend(verticalEdges)
+        edges.extend(horizontalEdges)
+        values.extend(verticalvalues)
+        values.extend(horizontalvalues)
+
         self.vPosition.set_data(np.array(edges, np.float32))
         self.vValues.set_data(np.array(values, np.float32))
 
@@ -335,3 +355,30 @@ class SceneLayer(Layer):
         T.interpolation = 'linear'
 
         self.colormap = T
+
+class MouseStrategy(object):
+    __metaclass__ = abc.ABCMeta
+    def mousePressEvent(self, event):
+        pass
+
+    def mouseMoveEvent(self, event):
+        pass
+
+    def wheelEvent(self, event):
+        pass
+
+    def mouseReleaseEvent(self, event):
+        pass
+
+class MouseStrategyConsole(MouseStrategy):
+    def mousePressEvent(self, event):
+        print("mousePressEvent")
+
+    def mouseMoveEvent(self, event):
+        print("mouseMoveEvent")
+
+    def wheelEvent(self, event):
+        print("wheelEvent")
+
+    def mouseReleaseEvent(self, event):
+        print("mouseReleaseEvent")
