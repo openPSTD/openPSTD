@@ -1,11 +1,30 @@
 __author__ = 'michiel'
 
-from Viewer2D import MouseStrategy
 import operations.ViewOperations
 import operations.EditOperations
 
+
 from PySide import QtCore
 import numpy as np
+import abc
+
+class MouseStrategy(object):
+    __metaclass__ = abc.ABCMeta
+
+    def set_operation_runner(self, operation_runner):
+        self.operation_runner = operation_runner
+
+    def mousePressEvent(self, event):
+        pass
+
+    def mouseMoveEvent(self, event):
+        pass
+
+    def wheelEvent(self, event):
+        pass
+
+    def mouseReleaseEvent(self, event):
+        pass
 
 class MouseMoveSceneStrategy(MouseStrategy):
 
@@ -67,3 +86,15 @@ class MouseCreateDomainStragegy(MouseStrategy):
             self._create_domain_operation.end_point = pos
             self.operation_runner.run_operation(self._create_domain_operation)
 
+class MouseStrategyConsole(MouseStrategy):
+    def mousePressEvent(self, event):
+        print("mousePressEvent")
+
+    def mouseMoveEvent(self, event):
+        print("mouseMoveEvent")
+
+    def wheelEvent(self, event):
+        print("wheelEvent")
+
+    def mouseReleaseEvent(self, event):
+        print("mouseReleaseEvent")

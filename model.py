@@ -28,6 +28,14 @@ __author__ = 'michiel'
 
 class model:
     def __init__(self):
+        self.debug_data = {
+            'viewer':
+                {
+                    'positions':[ (-1,-1),   (-1,+1),   (+1,-1),   (+1,+1)   ],
+                    'Colors':[ (1,0,0,1), (0,1,0,1), (0,0,1,1), (1,1,0,1) ]
+                }
+        }
+
         self.SceneDesc = None
         self.Simulation = SimulationReader.reader()
         self.AppConfig = None

@@ -30,6 +30,7 @@ import abc
 import copy
 
 from transforms2D import Matrix
+import MouseHandlers
 
 try:
     from OpenGL import GL
@@ -49,9 +50,9 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.viewPort = [640, 480]
 
-        self.visibleLayers = [SimulationLayer(), SceneLayer()]
+        self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer()]
 
-        self.mouseHandler = MouseStrategyConsole()
+        self.mouseHandler = MouseHandlers.MouseStrategyConsole()
 
         self._view_matrix = Matrix()
 
@@ -91,7 +92,6 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def mouseReleaseEvent(self, event):
         self.mouseHandler.mouseReleaseEvent(event)
 
-
     def updateScene(self, model):
         for l in self.visibleLayers:
             l.update_scene(model)
@@ -99,10 +99,11 @@ class Viewer2D(QtOpenGL.QGLWidget):
         scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
         for l in self.visibleLayers:
             min_max = l.get_min_max()
-            scene_min_max['max'][0] = max(scene_min_max['max'][0], min_max['max'][0])
-            scene_min_max['max'][1] = max(scene_min_max['max'][1], min_max['max'][1])
-            scene_min_max['min'][0] = min(scene_min_max['min'][0], min_max['min'][0])
-            scene_min_max['min'][1] = min(scene_min_max['min'][1], min_max['min'][1])
+            if min_max is not None:
+                scene_min_max['max'][0] = max(scene_min_max['max'][0], min_max['max'][0])
+                scene_min_max['max'][1] = max(scene_min_max['max'][1], min_max['max'][1])
+                scene_min_max['min'][0] = min(scene_min_max['min'][0], min_max['min'][0])
+                scene_min_max['min'][1] = min(scene_min_max['min'][1], min_max['min'][1])
 
         self.scene_min_max = scene_min_max
 
@@ -356,33 +357,41 @@ class SceneLayer(Layer):
 
         self.colormap = T
 
-class MouseStrategy(object):
-    __metaclass__ = abc.ABCMeta
+class DebugLayer(Layer):
+    def __init__(self):
+        self.program = None
 
-    def set_operation_runner(self, operation_runner):
-        self.operation_runner = operation_runner
+    def initilizeGL(self):
+        def readShader(filename):
+            with open (filename, "r") as file:
+                return file.read()
 
-    def mousePressEvent(self, event):
-        pass
+        vertex_code = readShader("GPU\Debug2D.vert")
+        fragment_code = readShader("GPU\Debug2D.frag")
 
-    def mouseMoveEvent(self, event):
-        pass
+        self.vPosition = gloo.VertexBuffer(np.array([[0, 0], [0, 0], [0, 0], [0, 0]], np.float32))
+        self.vColors = gloo.VertexBuffer(np.array([[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]], np.float32))
 
-    def wheelEvent(self, event):
-        pass
+        # Build program & data
+        # ----------------------------------------
+        self.program = gloo.Program(vertex_code, fragment_code, count=4)
+        self.program['u_view'] = np.eye(3,dtype=np.float32)
+        self.program['a_position'] = self.vPosition
+        self.program['a_color'] = self.vColors
 
-    def mouseReleaseEvent(self, event):
-        pass
+    def paintGL(self):
+        self.program.draw(gl.GL_TRIANGLE_STRIP)
 
-class MouseStrategyConsole(MouseStrategy):
-    def mousePressEvent(self, event):
-        print("mousePressEvent")
+    def update_scene(self, model):
+        if 'viewer' not in model.debug_data:
+            return
 
-    def mouseMoveEvent(self, event):
-        print("mouseMoveEvent")
+        self.vPosition.set_data(np.array(model.debug_data['viewer']['positions'], np.float32))
+        self.vColors.set_data(np.array(model.debug_data['viewer']['Colors'], np.float32))
 
-    def wheelEvent(self, event):
-        print("wheelEvent")
+    def get_min_max(self):
+        return None
 
-    def mouseReleaseEvent(self, event):
-        print("mouseReleaseEvent")
+    def update_view_matrix(self, matrix):
+        self.program['u_view'] = matrix
+
