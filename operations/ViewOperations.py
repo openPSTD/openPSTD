@@ -20,8 +20,7 @@
 __author__ = 'michiel'
 
 import operations.BaseOperation
-from transforms2D import scale, translate
-import numpy as np
+from transforms2D import Matrix
 
 class ViewWholeScene(operations.BaseOperation.operation):
     def run(self, receiver):
@@ -33,10 +32,10 @@ class ViewWholeScene(operations.BaseOperation.operation):
         center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
         scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
 
-        view = np.eye(3, dtype=np.float32)
-        translate(view, center[0], center[1])
-        scale(view, 1, -1)
-        scale(view, scaleFactor)
+        view = Matrix()
+        view.translate(center[0], center[1])
+        view.scale(1, -1)
+        view.scale(scaleFactor)
 
         receiver.ui.mainView.setViewMatrix(view)
 
@@ -48,7 +47,7 @@ class TranslateScene(operations.BaseOperation.operation):
 
     def run(self, receiver):
         view = receiver.ui.mainView.getViewMatrix()
-        translate(view, self.vector[0], self.vector[1])
+        view.translate(self.vector[0], self.vector[1])
         receiver.ui.mainView.setViewMatrix(view)
 
         receiver.ui.mainView.update()
@@ -59,7 +58,7 @@ class ResizeScene(operations.BaseOperation.operation):
 
     def run(self, receiver):
         view = receiver.ui.mainView.getViewMatrix()
-        scale(view, self.scale)
+        view.scale(self.scale)
         receiver.ui.mainView.setViewMatrix(view)
 
         receiver.ui.mainView.update()

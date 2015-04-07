@@ -28,6 +28,27 @@ import numpy
 import numpy as np
 
 
+class Matrix:
+    def __init__(self):
+        self.M = np.eye(3,dtype=np.float32)
+        self.invM = np.eye(3,dtype=np.float32)
+
+    def translate(self, x, y=None):
+        if y is None: y = x
+
+        translate(self.M, x, y)
+        translate(self.invM, -x, -y)
+
+    def scale(self, x, y=None):
+        if y is None: y = x
+
+        scale(self.M, x, y)
+        scale(self.invM, 1/x, 1/y)
+
+    def rotate(self,theta):
+        rotate(self.M, theta)
+        translate(self.invM, -theta)
+
 def translate(M, x, y=None):
     """
     translate produces a translation by (x, y, z) .

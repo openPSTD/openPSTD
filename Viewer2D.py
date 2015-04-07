@@ -29,7 +29,7 @@ from colors import activeColorScheme as colorScheme
 import abc
 import copy
 
-from transforms2D import scale, translate
+from transforms2D import Matrix
 
 try:
     from OpenGL import GL
@@ -53,7 +53,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.mouseHandler = MouseStrategyConsole()
 
-        self._view_matrix = np.eye(3,dtype=np.float32)
+        self._view_matrix = Matrix()
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -112,7 +112,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
         self._view_matrix = M
 
         for l in self.visibleLayers:
-            l.update_view_matrix(self._view_matrix)
+            l.update_view_matrix(self._view_matrix.M)
 
     def getViewMatrix(self):
         return self._view_matrix
