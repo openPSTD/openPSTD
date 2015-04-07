@@ -33,7 +33,7 @@ class Open(operations.BaseOperation.operation):
         receiver.model.SceneDesc = json.load(f)
         f.close()
         helper.CallObservers(receiver.model.SceneDescChanged)
-        receiver.run_another_operation(operations.ViewOperations.ViewWholeScene())
+        receiver.run_operation(operations.ViewOperations.ViewWholeScene())
 
 
 class Save(operations.BaseOperation.operation):

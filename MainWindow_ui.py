@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Sat Apr  4 12:50:22 2015
+# Created: Tue Apr  7 11:00:49 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -118,7 +118,6 @@ class Ui_MainWindow(object):
         self.toolBar = QtGui.QToolBar(MainWindow)
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
-        MainWindow.insertToolBarBreak(self.toolBar)
         self.actionNew = QtGui.QAction(MainWindow)
         self.actionNew.setObjectName("actionNew")
         self.actionOpen = QtGui.QAction(MainWindow)
@@ -147,17 +146,23 @@ class Ui_MainWindow(object):
         self.actionOpenPSTD_help.setObjectName("actionOpenPSTD_help")
         self.actionAbout = QtGui.QAction(MainWindow)
         self.actionAbout.setObjectName("actionAbout")
-        self.actionViewerHand = QtGui.QAction(MainWindow)
-        self.actionViewerHand.setCheckable(True)
+        self.actionMove_scene = QtGui.QAction(MainWindow)
+        self.actionMove_scene.setCheckable(True)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("Images/noun_1476.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionViewerHand.setIcon(icon)
-        self.actionViewerHand.setObjectName("actionViewerHand")
+        self.actionMove_scene.setIcon(icon)
+        self.actionMove_scene.setObjectName("actionMove_scene")
         self.actionView_complete_scene = QtGui.QAction(MainWindow)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("Images/noun_70430_cc.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionView_complete_scene.setIcon(icon1)
         self.actionView_complete_scene.setObjectName("actionView_complete_scene")
+        self.actionAdd_Domain = QtGui.QAction(MainWindow)
+        self.actionAdd_Domain.setCheckable(True)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("Images/noun_40980_cc.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAdd_Domain.setIcon(icon2)
+        self.actionAdd_Domain.setObjectName("actionAdd_Domain")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -171,13 +176,15 @@ class Ui_MainWindow(object):
         self.menuHelp.addAction(self.actionOpenPSTD_help)
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.actionAbout)
-        self.menuView.addAction(self.actionViewerHand)
+        self.menuView.addAction(self.actionMove_scene)
         self.menuView.addAction(self.actionView_complete_scene)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuOption.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
-        self.toolBar.addAction(self.actionViewerHand)
+        self.toolBar.addAction(self.actionAdd_Domain)
+        self.toolBar.addAction(self.actionMove_scene)
+        self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionView_complete_scene)
 
         self.retranslateUi(MainWindow)
@@ -215,8 +222,9 @@ class Ui_MainWindow(object):
         self.actionAdvanced_options.setText(QtGui.QApplication.translate("MainWindow", "Advanced options", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpenPSTD_help.setText(QtGui.QApplication.translate("MainWindow", "OpenPSTD help", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionViewerHand.setText(QtGui.QApplication.translate("MainWindow", "ViewerHand", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionViewerHand.setToolTip(QtGui.QApplication.translate("MainWindow", "Move the view", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionMove_scene.setText(QtGui.QApplication.translate("MainWindow", "Move scene", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionMove_scene.setToolTip(QtGui.QApplication.translate("MainWindow", "Move the view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionView_complete_scene.setText(QtGui.QApplication.translate("MainWindow", "View complete scene", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAdd_Domain.setText(QtGui.QApplication.translate("MainWindow", "Add Domain", None, QtGui.QApplication.UnicodeUTF8))
 
 from Viewer2D import Viewer2D

@@ -32,16 +32,18 @@ from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMe
 
 from MainWindow_ui import Ui_MainWindow
 
+import operations.BaseOperation
 import operations.MenuFileOperations
 import operations.SceneOperations
 import operations.ViewOperations
+import operations.MouseHandlerOperations
 
 import MouseHandlers
 
 __version__ = '0.0.1'
 
 
-class MainWindow(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationRunner):
     def __init__(self, parent=None):
         self.m = model.model()
         self.m.SceneDescChanged.append(self.updateViews)
@@ -58,12 +60,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.btnSimulate.clicked.connect(self.simulate_operation)
 
-        self.mainView.mouseHandler = MouseHandlers.MouseMoveSceneStrategy(self)
+        mouse_handler = MouseHandlers.MouseMoveSceneStrategy()
+        mouse_handler.set_operation_runner(self)
+        self.mainView.mouseHandler = mouse_handler
+
+        self.actionAdd_Domain.triggered.connect(self.createChangeMouseHandlerOperation(MouseHandlers.MouseCreateDomainStragegy, self.actionAdd_Domain))
+        self.actionMove_scene.triggered.connect(self.createChangeMouseHandlerOperation(MouseHandlers.MouseMoveSceneStrategy, self.actionMove_scene))
+
+        self.MouseHandlerActions = [self.actionAdd_Domain, self.actionMove_scene]
 
     def createRunOperation(self, operationClass):
         mw = self
         def RunOperation():
             operation = operationClass()
+            mw.run_operation(operation)
+        return RunOperation
+
+    def createChangeMouseHandlerOperation(self, mouseHandlerClass, action):
+        mw = self
+        def RunOperation():
+            [action2.setChecked(False) for action2 in filter((lambda a: not a == action), mw.MouseHandlerActions)]
+            operation = operations.MouseHandlerOperations.ChangeMouseHandler(mouseHandlerClass())
             mw.run_operation(operation)
         return RunOperation
 

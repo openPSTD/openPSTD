@@ -358,6 +358,10 @@ class SceneLayer(Layer):
 
 class MouseStrategy(object):
     __metaclass__ = abc.ABCMeta
+
+    def set_operation_runner(self, operation_runner):
+        self.operation_runner = operation_runner
+
     def mousePressEvent(self, event):
         pass
 
