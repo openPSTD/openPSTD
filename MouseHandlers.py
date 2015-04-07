@@ -2,6 +2,7 @@ __author__ = 'michiel'
 
 import operations.ViewOperations
 import operations.EditOperations
+import operations.DebugOperations
 
 
 from PySide import QtCore
@@ -73,7 +74,22 @@ class MouseCreateDomainStragegy(MouseStrategy):
         self._create_domain_operation.start_point = pos
 
     def mouseMoveEvent(self, event):
-        pass
+        pos = event.pos()
+        pos = [pos.x(), pos.y()]
+        diff = 0.5
+
+        def change(debug_data):
+            debug_data['viewer']['positions'] = [
+                [pos[0]-diff, pos[1]-diff],
+                [pos[0]-diff, pos[1]+diff],
+                [pos[0]+diff, pos[1]-diff],
+                [pos[0]+diff, pos[1]+diff]
+            ]
+
+            print(pos)
+            print(debug_data)
+
+        self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
 
     def wheelEvent(self, event):
         pass
