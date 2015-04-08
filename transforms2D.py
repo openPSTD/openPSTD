@@ -19,76 +19,87 @@
 
 __author__ = 'michiel'
 
-"""
-Very simple transformation library that is needed for some examples.
-"""
-
 import math
 import numpy
 import numpy as np
 
-
 class Matrix:
-    def __init__(self):
-        self.M = np.eye(3,dtype=np.float32)
-        self.invM = np.eye(3,dtype=np.float32)
+    def __init__(self, oldMatrix=None):
+        if oldMatrix is None:
+            self.M = np.eye(3,dtype=np.float32)
+            self.invM = np.eye(3,dtype=np.float32)
+        else:
+            self.M = list(oldMatrix.M)
+            self.invM = list(oldMatrix.invM)
 
-    def translate(self, x, y=None):
+    @staticmethod
+    def translate(x, y=None):
         if y is None: y = x
 
-        translate(self.M, x, y)
-        translate(self.invM, -x, -y)
+        M = Matrix()
+        M.M = [[ 1, 0, x],
+               [ 0, 1, y],
+               [ 0, 0, 1]]
+        M.M = np.array(M.M, dtype=np.float32).T
+        M.invM = [[ 1, 0, -x],
+                  [ 0, 1, -y],
+                  [ 0, 0, 1]]
+        M.invM = np.array(M.invM, dtype=np.float32).T
 
-    def scale(self, x, y=None):
+        return M
+
+    @staticmethod
+    def scale(x, y=None):
         if y is None: y = x
 
-        scale(self.M, x, y)
-        scale(self.invM, 1/x, 1/y)
+        M = Matrix()
+        M.M = [[ x, 0, 0],
+               [ 0, y, 0],
+               [ 0, 0, 1]]
+        M.M = np.array(M.M, dtype=np.float32).T
+        M.invM = [[ 1/x, 0, 0],
+                  [ 0, 1/y, 0],
+                  [ 0, 0, 1]]
+        M.invM = np.array(M.invM, dtype=np.float32).T
 
-    def rotate(self,theta):
-        rotate(self.M, theta)
-        translate(self.invM, -theta)
+        return M
 
-def translate(M, x, y=None):
-    """
-    translate produces a translation by (x, y, z) .
+    @staticmethod
+    def rotate(theta):
+        cosT = math.cos(theta)
+        sinT = math.sin(theta)
 
-    Parameters
-    ----------
-    x, y, z
-        Specify the x, y, and z coordinates of a translation vector.
-    """
-    if y is None: y = x
-    T = [[ 1, 0, x],
-         [ 0, 1, y],
-         [ 0, 0, 1]]
-    T = np.array(T, dtype=np.float32).T
-    M[...] = np.dot(M,T)
+        M = Matrix()
+        M.M = numpy.array(
+            [[ cosT,-sinT, 0.0 ],
+             [ sinT, cosT, 0.0 ],
+             [ 0.0,  0.0,  1.0 ]], dtype=np.float32)
 
+        cosT = math.cos(-theta)
+        sinT = math.sin(-theta)
+        M.invM = numpy.array(
+            [[ cosT,-sinT, 0.0 ],
+             [ sinT, cosT, 0.0 ],
+             [ 0.0,  0.0,  1.0 ]], dtype=np.float32)
 
-def scale(M, x, y=None):
-    """
-    scale produces a non uniform scaling along the x, y, and z axes. The three
-    parameters indicate the desired scale factor along each of the three axes.
+        return M
 
-    Parameters
-    ----------
-    x, y, z
-        Specify scale factors along the x, y, and z axes, respectively.
-    """
-    if y is None: y = x
-    S = [[ x, 0, 0],
-         [ 0, y, 0],
-         [ 0, 0, 1]]
-    S = np.array(S,dtype=np.float32).T
-    M[...] = np.dot(M,S)
+    def __mul__(self, other):
+        if type(other) is Matrix:
+            result = Matrix()
+            result.M[...] = np.dot(self.M,other.M)
+            result.invM[...] = np.dot(other.invM, self.invM)
+            return result
+        elif type(other) is list:
+            result = list(other)
+            result.append(1)
+            result = np.dot(np.array(result), self.M)
+            return result[:-1]
+        else:
+            raise TypeError("unsupported operand type(s) for *: 'Matrix' and '" + str(type(other)) + "'")
 
-def rotate(M,theta):
-    t = math.pi*theta/180
-    cosT = math.cos( t )
-    sinT = math.sin( t )
-    R = numpy.array(
-        [[ cosT,-sinT, 0.0 ],
-         [ sinT, cosT, 0.0 ],
-         [ 0.0,  0.0,  1.0 ]], dtype=np.float32)
-    M[...] = np.dot(M,R)
+    def invMultipleVector(self, v):
+        result = list(v)
+        result.append(1)
+        result = np.dot(np.array(result), self.invM)
+        return result[:-1]

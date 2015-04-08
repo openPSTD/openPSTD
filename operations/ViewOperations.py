@@ -32,10 +32,7 @@ class ViewWholeScene(operations.BaseOperation.operation):
         center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
         scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
 
-        view = Matrix()
-        view.translate(center[0], center[1])
-        view.scale(1, -1)
-        view.scale(scaleFactor)
+        view = Matrix.translate(center[0], center[1])*Matrix.scale(1, -1)*Matrix.scale(scaleFactor)
 
         receiver.ui.mainView.setViewMatrix(view)
 
@@ -47,7 +44,7 @@ class TranslateScene(operations.BaseOperation.operation):
 
     def run(self, receiver):
         view = receiver.ui.mainView.getViewMatrix()
-        view.translate(self.vector[0], self.vector[1])
+        view = view*Matrix.translate(self.vector[0], self.vector[1])
         receiver.ui.mainView.setViewMatrix(view)
 
         receiver.ui.mainView.update()
@@ -58,7 +55,7 @@ class ResizeScene(operations.BaseOperation.operation):
 
     def run(self, receiver):
         view = receiver.ui.mainView.getViewMatrix()
-        view.scale(self.scale)
+        view = view*Matrix.scale(self.scale)
         receiver.ui.mainView.setViewMatrix(view)
 
         receiver.ui.mainView.update()
