@@ -118,6 +118,13 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def getViewMatrix(self):
         return self._view_matrix
 
+    def calculate_world_position(self, pos):
+        w = self.width()
+        h = self.height()
+        pos = [pos[0]/w*2-1, -(pos[1]/h*2-1)]
+        world_pos = self._view_matrix.invMultipleVector(pos)
+
+        return world_pos
 
 class Layer:
     __metaclass__ = abc.ABCMeta

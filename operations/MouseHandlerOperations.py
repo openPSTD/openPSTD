@@ -8,4 +8,5 @@ class ChangeMouseHandler(operations.BaseOperation.operation):
 
     def run(self, receiver):
         self.newHandler.set_operation_runner(receiver)
+        self.newHandler.set_calculate_world_position_fn(receiver.ui.mainView.calculate_world_position)
         receiver.ui.mainView.mouseHandler = self.newHandler

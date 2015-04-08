@@ -22,6 +22,21 @@ __author__ = 'michiel'
 import operations.BaseOperation
 from transforms2D import Matrix
 
+
+class ModifyViewMatrix(operations.BaseOperation.operation):
+    def __init__(self, M):
+        self.M = M
+
+    def run(self, receiver):
+        view = receiver.ui.mainView.getViewMatrix()
+        view = view*self.M
+        receiver.ui.mainView.setViewMatrix(view)
+
+        print(view.M)
+
+        receiver.ui.mainView.update()
+
+
 class ViewWholeScene(operations.BaseOperation.operation):
     def run(self, receiver):
         extraZoomFactor = 1.25
@@ -38,24 +53,12 @@ class ViewWholeScene(operations.BaseOperation.operation):
 
         receiver.ui.mainView.update()
 
-class TranslateScene(operations.BaseOperation.operation):
+
+class TranslateScene(ModifyViewMatrix):
     def __init__(self, vector):
-        self.vector = vector
+        super(TranslateScene, self).__init__(Matrix.translate(vector[0], vector[1]))
 
-    def run(self, receiver):
-        view = receiver.ui.mainView.getViewMatrix()
-        view = view*Matrix.translate(self.vector[0], self.vector[1])
-        receiver.ui.mainView.setViewMatrix(view)
 
-        receiver.ui.mainView.update()
-
-class ResizeScene(operations.BaseOperation.operation):
+class ResizeScene(ModifyViewMatrix):
     def __init__(self, scale):
-        self.scale = scale
-
-    def run(self, receiver):
-        view = receiver.ui.mainView.getViewMatrix()
-        view = view*Matrix.scale(self.scale)
-        receiver.ui.mainView.setViewMatrix(view)
-
-        receiver.ui.mainView.update()
+        super(ResizeScene, self).__init__(Matrix.scale(scale))

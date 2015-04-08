@@ -15,6 +15,23 @@ class MouseStrategy(object):
     def set_operation_runner(self, operation_runner):
         self.operation_runner = operation_runner
 
+    def set_calculate_world_position_fn(self, calculate_world_position_fn):
+        self.calculate_world_position_fn = calculate_world_position_fn
+
+    def mousePressEvent(self, event):
+        pass
+
+    def mouseMoveEvent(self, event):
+        pass
+
+    def wheelEvent(self, event):
+        pass
+
+    def mouseReleaseEvent(self, event):
+        pass
+
+class MouseVoidStrategy(MouseStrategy):
+
     def mousePressEvent(self, event):
         pass
 
@@ -38,13 +55,14 @@ class MouseMoveSceneStrategy(MouseStrategy):
     def mouseMoveEvent(self, event):
         pos = event.pos()
         pos = np.array([pos.x(), pos.y()])
+        pos = self.calculate_world_position_fn(pos)
 
         offset = pos - self.mouse_pos
         self.mouse_pos = pos
 
         buttons = event.buttons()
         if buttons & QtCore.Qt.LeftButton:
-            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[-1,1]*-0.005))
+            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[-1,1]*-0.1))
         if buttons & QtCore.Qt.MiddleButton:
             pass
             #self.sph_demo.on_mouse_move(dx, dy, 1)
@@ -75,7 +93,8 @@ class MouseCreateDomainStragegy(MouseStrategy):
 
     def mouseMoveEvent(self, event):
         pos = event.pos()
-        pos = [pos.x(), pos.y()]
+        pos = np.array([pos.x(), pos.y()])
+        pos = self.calculate_world_position_fn(pos)
         diff = 0.5
 
         def change(debug_data):
@@ -85,9 +104,6 @@ class MouseCreateDomainStragegy(MouseStrategy):
                 [pos[0]+diff, pos[1]-diff],
                 [pos[0]+diff, pos[1]+diff]
             ]
-
-            print(pos)
-            print(debug_data)
 
         self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
 
