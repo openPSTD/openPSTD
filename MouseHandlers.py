@@ -53,16 +53,17 @@ class MouseMoveSceneStrategy(MouseStrategy):
         pass
 
     def mouseMoveEvent(self, event):
-        pos = event.pos()
-        pos = np.array([pos.x(), pos.y()])
-        pos = self.calculate_world_position_fn(pos)
+        screen_pos = event.pos()
+        screen_pos = np.array([screen_pos.x(), screen_pos.y()])
+        world_pos = self.calculate_world_position_fn(screen_pos)
+        old_world_pos = self.calculate_world_position_fn(self.mouse_pos)
 
-        offset = pos - self.mouse_pos
-        self.mouse_pos = pos
+        offset = world_pos - old_world_pos
+        self.mouse_pos = screen_pos
 
         buttons = event.buttons()
         if buttons & QtCore.Qt.LeftButton:
-            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[-1,1]*-0.1))
+            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[1, -1]))
         if buttons & QtCore.Qt.MiddleButton:
             pass
             #self.sph_demo.on_mouse_move(dx, dy, 1)
@@ -72,7 +73,8 @@ class MouseMoveSceneStrategy(MouseStrategy):
 
     def wheelEvent(self, event):
         delta = event.delta()
-        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(pow(2, delta/120)))
+        delta2 = pow(2, delta/120)
+        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(delta2))
 
     def mouseReleaseEvent(self, event):
         self.mouseState = event.buttons()

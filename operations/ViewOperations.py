@@ -32,8 +32,6 @@ class ModifyViewMatrix(operations.BaseOperation.operation):
         view = view*self.M
         receiver.ui.mainView.setViewMatrix(view)
 
-        print(view.M)
-
         receiver.ui.mainView.update()
 
 
