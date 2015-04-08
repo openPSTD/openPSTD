@@ -66,10 +66,8 @@ class MouseMoveSceneStrategy(MouseStrategy):
             self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[1, -1]))
         if buttons & QtCore.Qt.MiddleButton:
             pass
-            #self.sph_demo.on_mouse_move(dx, dy, 1)
         if buttons & QtCore.Qt.RightButton:
             pass
-            #self.sph_demo.on_mouse_move(dx, dy, 2)
 
     def wheelEvent(self, event):
         delta = event.delta()
