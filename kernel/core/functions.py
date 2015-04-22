@@ -64,6 +64,7 @@ except:
     fft = np.fft.fft
     ifft = np.fft.ifft
 
+@profile
 def PML(cnf,PMLcells,rho):
     # PML coefficients in free air
     alphaPMLp = cnf.ampmax*np.power(np.arange(0.5,PMLcells-0.5+1.,1.)/PMLcells,4)  # attenuation coefficients of PMLcells for pressure
@@ -71,6 +72,7 @@ def PML(cnf,PMLcells,rho):
 
     return alphaPMLp, alphaPMLu
 
+@profile
 def Rmatrices(rho1,rho,rho2):
     Zn1 = rho1/rho
     Rlw1 = (Zn1-1.)/(Zn1+1.)
@@ -90,6 +92,7 @@ def Rmatrices(rho1,rho,rho2):
 
     return Rmatrix, Rmatrixvel
 
+@profile
 def Rmatrices2D(rholeft,rhoright,rholower,rhoupper,rho):
     # print rholeft,rhoright,rholower,rhoupper,rho
     Znleft = rholeft/rho
@@ -121,6 +124,7 @@ def Rmatrices2D(rholeft,rhoright,rholower,rhoupper,rho):
 
     return Rmatrix, Rmatrixvel
 
+@profile
 def kcalc_old(dx,N,cw,PMLcellsghost):
     # wavenumber discretization
     kmax = np.pi/dx
@@ -138,6 +142,7 @@ def kcalc_old(dx,N,cw,PMLcellsghost):
  
     return k, jfact, kcy, jfactcy, kgh, jfactgh
 
+@profile
 def kcalc(dx,N):
     # wavenumber discretization. We only compute k and jfact anylonger
     kmax = np.pi/dx
@@ -152,6 +157,7 @@ def kcalc(dx,N):
     
     return k, jfact
 
+@profile
 def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
@@ -223,7 +229,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     return Lp
 
-
+@profile
 def get_grid_spacing(cnf):
     dxv = np.array([0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.])
     return dxv.compress((dxv<cnf.c1/cnf.freqmax/2.).flat)[-1]
@@ -241,6 +247,7 @@ def safe_float(s):
     try: return float(s)
     except: return s
 
+@profile
 def subsample(a, n):
     final_shape = [int(ceil(float(x)/n)) for x in a.shape]
     padded_shape = [x * int(n) for x in final_shape]
