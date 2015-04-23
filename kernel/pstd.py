@@ -76,8 +76,8 @@ class PSTD:
         config.read(os.path.join(pstd_dir,'core','pstd.cfg'))
         self.cfgd = dict([(x[0], safe_float(x[1])) for s in config.sections() for x in config.items(s)])
         self.cfgd.update(scene_desc)
-        self.cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),self.cfgd)()
-
+        #self.cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),self.cfgd)() # Old formulation
+        self.cfg = derived_config.PSTD_Config_Base(self.cfgd)
         dx = dz = scene_desc['grid_spacing']
 
         self.pstd_desc = {'domains':[],'dx':float(dx),'dz':float(dz)}
