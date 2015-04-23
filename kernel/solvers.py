@@ -100,7 +100,7 @@ class SingleThreaded:
 class MultiThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
         # Loop over time steps
-        executor = concurrent.futures.ThreadPoolExecutor(8)
+        executor = concurrent.futures.ThreadPoolExecutor(4)
         for frame in range(int(cfg.TRK)):
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
