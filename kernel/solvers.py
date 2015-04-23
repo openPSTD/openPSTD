@@ -30,7 +30,7 @@ import concurrent.futures
 #from pstd import exit_with_error,subsample,write_array_to_file,write_plot_to_file
 
 
-from core.classes import *
+from kernel.core.classes import *
 
 try:
     import ConfigParser as configparser
