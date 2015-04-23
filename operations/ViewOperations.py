@@ -20,39 +20,46 @@
 __author__ = 'michiel'
 
 import operations.BaseOperation
-import operations.ViewOperations
-import helper
-import json
+from transforms2D import scale, translate
+import numpy as np
 
-class Open(operations.BaseOperation.operation):
-    def __init__(self, filename):
-        self.filename = filename
+class ViewWholeScene(operations.BaseOperation.operation):
+    def run(self, receiver):
+        extraZoomFactor = 1.25
+
+        tl = receiver.ui.mainView.scene_min_max['min']
+        br = receiver.ui.mainView.scene_min_max['max']
+
+        center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
+        scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
+
+        view = np.eye(3, dtype=np.float32)
+        translate(view, center[0], center[1])
+        scale(view, 1, -1)
+        scale(view, scaleFactor)
+
+        receiver.ui.mainView.setViewMatrix(view)
+
+        receiver.ui.mainView.update()
+
+class TranslateScene(operations.BaseOperation.operation):
+    def __init__(self, vector):
+        self.vector = vector
 
     def run(self, receiver):
-        f = open(self.filename, 'r')
-        receiver.model.SceneDesc = json.load(f)
-        f.close()
-        helper.CallObservers(receiver.model.SceneDescChanged)
-        receiver.run_operation(operations.ViewOperations.ViewWholeScene())
+        view = receiver.ui.mainView.getViewMatrix()
+        translate(view, self.vector[0], self.vector[1])
+        receiver.ui.mainView.setViewMatrix(view)
 
+        receiver.ui.mainView.update()
 
-class Save(operations.BaseOperation.operation):
-    def __init__(self, filename):
-        self.filename = filename
+class ResizeScene(operations.BaseOperation.operation):
+    def __init__(self, scale):
+        self.scale = scale
 
-    def run(self, r):
-        f = open(self.filename, 'w')
-        json.dump(r.model.SceneDesc, f, sort_keys=True, indent=4, separators=(',', ': '))
-        f.close()
+    def run(self, receiver):
+        view = receiver.ui.mainView.getViewMatrix()
+        scale(view, self.scale)
+        receiver.ui.mainView.setViewMatrix(view)
 
-class New(Open):
-    emptyDocumentFilename = "emptyFile.jps"
-    #emptyDocumentFilename = "testFile.jps"
-
-    def __init__(self):
-        super(New, self).__init__(New.emptyDocumentFilename)
-        print("WARNING: loading test file in place of the standard empty file")
-
-class Close(operations.BaseOperation.operation):
-    def run(self, r):
-        r.ui.close()
+        receiver.ui.mainView.update()

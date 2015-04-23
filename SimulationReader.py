@@ -33,12 +33,15 @@ class reader:
         self.frames = {}
         self.frame_info_updated = []
 
+    def frame_exists(self, domain, frame):
+        return os.path.isfile(self._get_filename(domain, frame))
+
     def read_frame(self, domain, frame):
         domain_info = self._get_info_domain_pstd(domain)
         filename = self._get_filename(domain, frame)
 
         flat_array = np.fromfile(filename, dtype=np.dtype('Float32'))
-        data = np.reshape(flat_array, (int(domain_info['Nx']), int(domain_info['Nz'])))
+        data = np.reshape(flat_array, (int(domain_info['Nx']), int(domain_info['Nz']), 1))
         return {'data': data, 'nx': int(domain_info['Nx']), 'nz': int(domain_info['Nz']), 'scene_desc': self._get_info_domain_scene(domain)}
 
     def _get_filename(self, domain, frame):
@@ -54,12 +57,10 @@ class reader:
             if item['id'] == domain:
                 return item
 
-    def _data_exits(self, domain, frame):
-        return os.path.isfile(self._get_filename(domain, frame))
-
     def update_frame_info(self):
         frames = {}
-        for d in self.get_list_domain_ids():
+        domain_ids = self.get_list_domain_ids()
+        for d in domain_ids:
             frames[d] = []
 
         files = os.listdir(self.simulation_result_path)
@@ -69,7 +70,8 @@ class reader:
                 name, extension = os.path.splitext(f)
                 domain, frame = name.split(sep="-")
                 frame = int(frame)
-                frames[domain].append(frame)
+                if domain in domain_ids:
+                    frames[domain].append(frame)
 
         self.frames = frames
         helper.CallObservers(self.frame_info_updated)

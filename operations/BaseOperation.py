@@ -24,10 +24,18 @@ import helper
 import threading
 import traceback
 
-class Reciever:
+class OperationRunner:
+    __metaclass__ = abc.ABCMeta
+    def run_operation(self, operation):
+        pass
+
+class Receiver(OperationRunner):
     def __init__(self, model, ui):
         self.model = model
         self.ui = ui
+
+    def run_operation(self, op):
+        op.run(self)
 
 
 class operation:
