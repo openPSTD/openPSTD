@@ -31,8 +31,8 @@ class model:
         self.debug_data = {
             'viewer':
                 {
-                    'positions':[ (-1,-1),   (-1,+1),   (+1,-1),   (+1,+1)   ],
-                    'Colors':[ (1,0,0,1), (0,1,0,1), (0,0,1,1), (1,1,0,1) ]
+                    'positions': [[0, 0] for _ in range(12)],
+                    'Colors': [(1, 0, 0, 1)for _ in range(12)]
                 }
         }
 
