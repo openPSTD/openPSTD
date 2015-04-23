@@ -45,8 +45,12 @@ def update_domain_values(domain,cfg,sub_frame):
     domain.update_values(cfg,sub_frame) # Note that cfg can be generalized to the solver.
 
 
-def calc_domain(domain,bt,ct):
-    domain.calc(bt,ct)
+def calc_domain(domain):
+    for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+        if not domain.is_rigid():
+            # Calculate sound propagations for non-rigid domains
+            if domain.should_update(boundary_type):
+                domain.calc(boundary_type,calculation_type)
 
 def update_domain(domain,sub_frame):
     domain.rk_update(sub_frame)
@@ -75,6 +79,7 @@ class SingleThreaded:
                     if not domain.is_rigid():
                         u0 = domain.u0
                         update_domain(domain,sub_frame)
+                        print(u0-domain.u0)
 
 
                 # Sum the pressure components
@@ -95,7 +100,7 @@ class SingleThreaded:
 class MultiThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
         # Loop over time steps
-        executor = concurrent.futures.ThreadPoolExecutor(2)
+        executor = concurrent.futures.ThreadPoolExecutor(8)
         for frame in range(int(cfg.TRK)):
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
@@ -105,14 +110,9 @@ class MultiThreaded:
             # Loop over sub-frames
             for sub_frame in range(2):
                 job_list = []
-                # Loop over calculation directions and measures
-                for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
-                    # Loop over domains
-                    for domain in scene.domains:
-                        if not domain.is_rigid():
-                            # Calculate sound propagations for non-rigid domains
-                            if domain.should_update(boundary_type):
-                                job_list.append(executor.submit(calc_domain, domain, boundary_type, calculation_type))
+                # Loop over domains
+                for domain in scene.domains:
+                    job_list.append(executor.submit(calc_domain, domain))
                 [job.result() for job in job_list]
                 job_list = []
                 for domain in scene.domains:
