@@ -1,12 +1,12 @@
 ########################################################################
 # #
 # This file is part of openPSTD.                                       #
-#                                                                      #
+# #
 # openPSTD is free software: you can redistribute it and/or modify     #
 # it under the terms of the GNU General Public License as published by #
 # the Free Software Foundation, either version 3 of the License, or    #
 # (at your option) any later version.                                  #
-#                                                                      #
+# #
 # openPSTD is distributed in the hope that it will be useful,          #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of       #
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        #
@@ -17,16 +17,10 @@
 #                                                                      #
 ########################################################################
 
-import os
-import sys
-import time
-import math
 import struct
-import multiprocessing as mp
-import shutil
-import pickle
-import threading
+
 import concurrent.futures
+
 #from pstd import exit_with_error,subsample,write_array_to_file,write_plot_to_file
 
 
@@ -41,8 +35,9 @@ except:
 h, v = BoundaryType.HORIZONTAL, BoundaryType.VERTICAL
 P, V = CalculationType.PRESSURE, CalculationType.VELOCITY
 
-def update_domain_values(domain,cfg,sub_frame):
-    domain.update_values(cfg,sub_frame) # Note that cfg can be generalized to the solver.
+
+def update_domain_values(domain, cfg, sub_frame):
+    domain.update_values(cfg, sub_frame)  # Note that cfg can be generalized to the solver.
 
 
 def calc_domain(domain):
@@ -50,10 +45,12 @@ def calc_domain(domain):
         if not domain.is_rigid():
             # Calculate sound propagations for non-rigid domains
             if domain.should_update(boundary_type):
-                domain.calc(boundary_type,calculation_type)
+                domain.calc(boundary_type, calculation_type)
 
-def update_domain(domain,sub_frame):
+
+def update_domain(domain, sub_frame):
     domain.rk_update(sub_frame)
+
 
 class SingleThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
@@ -67,20 +64,12 @@ class SingleThreaded:
             # Loop over subframes
             for sub_frame in range(6):
                 # Loop over calculation directions and measures
-                for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
-                    # Loop over domains
-                    for domain in scene.domains:
-                        if not domain.is_rigid():
-                            # Calculate sound propagations for non-rigid domains
-                            if domain.should_update(boundary_type):
-                                calc_domain(domain, boundary_type, calculation_type)
-
+                for domain in scene.domains:
+                    calc_domain(domain)
+                # Update acoustic values
                 for domain in scene.domains:
                     if not domain.is_rigid():
-                        u0 = domain.u0
-                        update_domain(domain,sub_frame)
-                        print(u0-domain.u0)
-
+                        update_domain(domain, sub_frame)
 
                 # Sum the pressure components
                 for domain in scene.domains:
@@ -105,7 +94,8 @@ class MultiThreaded:
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
             # Keep a reference to current matrix contents
-            for domain in scene.domains: domain.push_values()
+            for domain in scene.domains:
+                domain.push_values()
 
             # Loop over sub-frames
             for sub_frame in range(2):
@@ -117,7 +107,7 @@ class MultiThreaded:
                 job_list = []
                 for domain in scene.domains:
                     if not domain.is_rigid():
-                        job_list.append(executor.submit(update_domain, domain,sub_frame))
+                        job_list.append(executor.submit(update_domain, domain, sub_frame))
                 [job.result() for job in job_list]
 
                 # Sum the pressure components

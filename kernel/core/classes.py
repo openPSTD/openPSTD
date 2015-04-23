@@ -187,14 +187,14 @@ class Domain(object):
             self.is_horizontal = (len(self.left) > 0 and all([d.is_pml == False for d in self.left])) or (len(self.right) > 0 and all([d.is_pml == False for d in self.right]))
             # If this neighbour is located to the left or bottom the attenuation is reversed
             self.is_lower = (len(self.left) > 0 and all([d.is_pml == False for d in self.left])) or (len(self.bottom) > 0 and all([d.is_pml == False for d in self.bottom]))
-        def make_attenuation(horitontal, ascending):
+        def make_attenuation(horizontal, ascending):
             # Depending on the direction of the attenuation the matrices need to be left- or
             # right-multiplied
-            left = np.ones((self.size.height,1)) if horitontal else 1
-            right = 1 if horitontal else np.ones((1,self.size.width))
+            left = np.ones((self.size.height,1)) if horizontal else 1
+            right = 1 if horizontal else np.ones((1,self.size.width))
             pfact = self.cfg.pfact if ascending else self.cfg.pfact[::-1]
             ufact = self.cfg.ufact if ascending else self.cfg.ufact[::-1]
-            if not horitontal: 
+            if not horizontal:
                 pfact = pfact.reshape(-1,1)
                 ufact = ufact.reshape(-1,1)
             return left * pfact * right, left * ufact * right
@@ -223,7 +223,8 @@ class Domain(object):
                         opposites = getattr(domains[0], self.OPPOSITES[a])
                         assert len(opposites) == 1 and opposites[0] == self
                         return not domains[0].edges[self.OPPOSITES[a][0]]['lr']
-            else: return True
+            else:
+                return True
         self.update_for[d] = check()
         return self.update_for[d]
     def apply_pml(self):
@@ -314,7 +315,7 @@ class Domain(object):
             range_start, range_end = min(range_intersection), max(range_intersection)+1
 
             primary_dimension   = self.size.width if bt == BoundaryType.HORIZONTAL else self.size.height
-            secundary_dimension = range_end - range_start #self.size.height if bt == BoundaryType.HORIZONTAL else self.size.width
+            secondary_dimension = range_end - range_start #self.size.height if bt == BoundaryType.HORIZONTAL else self.size.width
 
             Ntot = 2. * self.cfg.Wlength + primary_dimension
             if ct == CalculationType.PRESSURE: Ntot += 1
@@ -368,7 +369,7 @@ class Domain(object):
                 matrix2_offset = domain2.topleft.x
                 matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
 
-            matrix = spatderp3(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b)
+            matrix = spatderp3(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secondary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b)
 
             if bt == BoundaryType.HORIZONTAL:
                 source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
