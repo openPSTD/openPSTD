@@ -97,7 +97,7 @@ class MultiThreaded:
         # Loop over time steps
         pool = mp.Pool(processes=8)
         for frame in range(int(cfg.TRK)):
-            print "Frame %d"%frame
+            print("Frame %d", frame)
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
             # Keep a reference to current matrix contents
