@@ -40,6 +40,15 @@ except:
 h, v = BoundaryType.HORIZONTAL, BoundaryType.VERTICAL
 P, V = CalculationType.PRESSURE, CalculationType.VELOCITY
 
+def update_domain_values(domain,cfg,sub_frame):
+    domain.update_values(cfg,sub_frame) # Note that cfg can be generalized to the solver.
+
+
+def calc_domain(domain,bt,ct):
+    domain.calc(bt,ct)
+
+def update_domain(domain,sub_frame):
+    domain.rk_update(sub_frame)
 
 class SingleThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
@@ -48,38 +57,29 @@ class SingleThreaded:
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
             # Keep a reference to current matrix contents
-            for d in scene.domains: d.push_values()
+            for domain in scene.domains: domain.push_values()
 
             # Loop over subframes
-            for subframe in range(6):
+            for sub_frame in range(6):
                 # Loop over calculation directions and measures
                 for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
                     # Loop over domains
-                    for d in scene.domains:
-                        if not d.is_rigid():
+                    for domain in scene.domains:
+                        if not domain.is_rigid():
                             # Calculate sound propagations for non-rigid domains
-                            if d.should_update(boundary_type):
-                                def calc(domain, bt, ct):
-                                    domain.calc(bt, ct)
-
-                                calc(d, boundary_type, calculation_type)
+                            if domain.should_update(boundary_type):
+                                calc_domain(domain, boundary_type, calculation_type)
 
                 for domain in scene.domains:
                     if not domain.is_rigid():
-                        def calc(d):
-                            d.u0 = d.u0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpx)).real
-                            d.w0 = d.w0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpz)).real
-                            d.px0 = d.px0_old + (
-                            -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvx)).real
-                            d.pz0 = d.pz0_old + (
-                            -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvz)).real
-
-                        calc(domain)
+                        u0 = domain.u0
+                        update_domain(domain,sub_frame)
+                        print(u0-domain.u0)
 
 
                 # Sum the pressure components
-                for d in scene.domains:
-                    d.p0 = d.px0 + d.pz0
+                for domain in scene.domains:
+                    domain.p0 = domain.px0 + domain.pz0
 
             # Apply pml matrices to boundary domains
             scene.apply_pml_matrices()
@@ -97,13 +97,14 @@ class MultiThreaded:
         # Loop over time steps
         pool = mp.Pool(processes=8)
         for frame in range(int(cfg.TRK)):
+            print "Frame %d"%frame
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
             # Keep a reference to current matrix contents
             for domain in scene.domains: domain.push_values()
 
             # Loop over sub-frames
-            for sub_frame in range(6):
+            for sub_frame in range(2):
                 job_list = []
                 # Loop over calculation directions and measures
                 for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
@@ -112,31 +113,13 @@ class MultiThreaded:
                         if not domain.is_rigid():
                             # Calculate sound propagations for non-rigid domains
                             if domain.should_update(boundary_type):
-                                def calc(domain, bt, ct):
-                                    domain.calc(bt, ct)
-                                try:
-                                    job_list.append(pool.apply_async(calc,[domain,boundary_type,calculation_type]))
-
-                                except Exception as e:
-                                    output_error(e, output_fn)
-                [job.wait() for job in job_list]
+                                job_list.append(pool.apply_async(calc_domain,[domain,boundary_type,calculation_type]))
+                [job.get() for job in job_list]
                 job_list = []
                 for domain in scene.domains:
                     if not domain.is_rigid():
-                        def calc(d):
-                            d.u0 = d.u0_old + (-cfg.dtRK * cfg.alfa[sub_frame] * ( 1 / d.rho * d.Lpx)).real
-                            d.w0 = d.w0_old + (-cfg.dtRK * cfg.alfa[sub_frame] * ( 1 / d.rho * d.Lpz)).real
-                            d.px0 = d.px0_old + (
-                            -cfg.dtRK * cfg.alfa[sub_frame] * (d.rho * pow(cfg.c1, 2.) * d.Lvx)).real
-                            d.pz0 = d.pz0_old + (
-                            -cfg.dtRK * cfg.alfa[sub_frame] * (d.rho * pow(cfg.c1, 2.) * d.Lvz)).real
-
-                        try:
-                            job_list.append(pool.apply_async(calc,[domain]))
-                        except Exception as e:
-                            output_error(e, output_fn)
-                [job.wait() for job in job_list]
-
+                        job_list.append(pool.apply_async(update_domain,[domain,sub_frame]))
+                [job.get() for job in job_list]
 
                 # Sum the pressure components
                 for domain in scene.domains:

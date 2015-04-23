@@ -24,8 +24,9 @@ try: from functools import reduce
 except: pass
 
 class PSTD_Config_Base(object):
-    def __init__(self):
-        # Window coefficients used for computing spatial dertivatives
+    def __init__(self,cfg):
+        self.__dict__.update(cfg)
+        # Window coefficients used for computing spatial derivatives
         self.Wlength = np.around(np.around((0.70*self.patcherror-17.)/2.)*2.)
         self.Walfa = (self.patcherror-40.)/20.+1.
         self.A = np.array([np.exp(-self.Walfa*np.log(10)*pow(np.arange(-self.Wlength,self.Wlength+1)/(self.Wlength),6))]).reshape(-1,1)
@@ -62,3 +63,6 @@ class PSTD_Config_Base(object):
         self.ufact = np.exp(-self.alphaPMLu/self.rho*self.dtRK)
         self.pfact = np.exp(-self.alphaPMLp*self.dtRK)
 
+
+    def __reduce__(self):
+        return (self.__class__,(self.__dict__,))
