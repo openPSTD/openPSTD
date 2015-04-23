@@ -134,4 +134,4 @@ class MultiThreaded:
 
             if frame % cfg.save_nth_frame == 0:
                 data_writer.write_to_file(frame)
-        pool.close()
+        executor.shutdown()
