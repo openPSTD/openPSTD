@@ -277,7 +277,6 @@ class Domain(object):
         # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
         # sys.stdout.write(str)
         # sys.stdout.flush()
-        print("Starting calculation domain %s", id)
         # Find the input matrices
         domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
         domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
@@ -375,11 +374,9 @@ class Domain(object):
                 source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
             else:
                 source[:,range_start-matrix0_offset:range_end-matrix0_offset] = matrix
-            print("Ending calculation %s", id)
         return source
 
     def rk_update(self,sub_frame):
-        print("Starting update %s", sub_frame)
         self.u0 = self.u0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.Lpx)).real
         self.w0 = self.w0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.Lpz)).real
         self.px0 = self.px0_old + (
@@ -387,8 +384,7 @@ class Domain(object):
         self.pz0 = self.pz0_old + (
         -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.Lvz)).real
         # sys.stdout.write("\b"*len(str))
-        print("Ending update %s", sub_frame)
-            
+
 
 class BoundaryType:
     HORIZONTAL = 'x'

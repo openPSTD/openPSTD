@@ -26,6 +26,7 @@ import multiprocessing as mp
 import shutil
 import pickle
 import threading
+import concurrent.futures
 #from pstd import exit_with_error,subsample,write_array_to_file,write_plot_to_file
 
 
@@ -95,9 +96,8 @@ class SingleThreaded:
 class MultiThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
         # Loop over time steps
-        pool = mp.Pool(processes=8)
+        executor = concurrent.futures.ThreadPoolExecutor(8)
         for frame in range(int(cfg.TRK)):
-            print("Frame %d", frame)
             output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
             # Keep a reference to current matrix contents
@@ -113,13 +113,13 @@ class MultiThreaded:
                         if not domain.is_rigid():
                             # Calculate sound propagations for non-rigid domains
                             if domain.should_update(boundary_type):
-                                job_list.append(pool.apply_async(calc_domain,[domain,boundary_type,calculation_type]))
-                [job.get() for job in job_list]
+                                job_list.append(executor.submit(calc_domain, domain, boundary_type, calculation_type))
+                [job.result() for job in job_list]
                 job_list = []
                 for domain in scene.domains:
                     if not domain.is_rigid():
-                        job_list.append(pool.apply_async(update_domain,[domain,sub_frame]))
-                [job.get() for job in job_list]
+                        job_list.append(executor.submit(update_domain, domain,sub_frame))
+                [job.result() for job in job_list]
 
                 # Sum the pressure components
                 for domain in scene.domains:
