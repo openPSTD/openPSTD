@@ -52,8 +52,9 @@ pstd_dir = os.path.dirname(os.path.abspath(__file__))
 if pstd_dir not in sys.path:
     sys.path.insert(0, pstd_dir)
 class PSTD:
-    def __init__(self,multi_threaded,write_plot,write_array,scene_desc,output_fn):
+    def __init__(self,multi_threaded, gpu_accelerated,write_plot,write_array,scene_desc,output_fn):
         self.multi_threaded = multi_threaded
+        self.gpu_accelerated = gpu_accelerated
         self.write_plot = write_plot
         self.write_array = write_array
         self.pstd_desc = None
@@ -128,6 +129,8 @@ class PSTD:
         # Run the simulation (multi-threaded not supported yet)
         if self.multi_threaded:
            solver = solvers.MultiThreaded(self.cfg, self.scene, data_writer, self.receiver_files, self.output_fn)
+        elif self.gpu_accelerated:
+            solver = solvers.GpuAccelerated(self.cfg, self.scene, data_writer, self.receiver_files, self.output_fn)
         else:
             solver = solvers.SingleThreaded(self.cfg, self.scene, data_writer, self.receiver_files, self.output_fn)
 

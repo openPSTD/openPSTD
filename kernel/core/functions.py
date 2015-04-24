@@ -64,7 +64,6 @@ except:
     fft = np.fft.fft
     ifft = np.fft.ifft
 
-@profile
 def PML(cnf,PMLcells,rho):
     # PML coefficients in free air
     alphaPMLp = cnf.ampmax*np.power(np.arange(0.5,PMLcells-0.5+1.,1.)/PMLcells,4)  # attenuation coefficients of PMLcells for pressure
@@ -72,7 +71,6 @@ def PML(cnf,PMLcells,rho):
 
     return alphaPMLp, alphaPMLu
 
-@profile
 def Rmatrices(rho1,rho,rho2):
     Zn1 = rho1/rho
     Rlw1 = (Zn1-1.)/(Zn1+1.)
@@ -92,7 +90,6 @@ def Rmatrices(rho1,rho,rho2):
 
     return Rmatrix, Rmatrixvel
 
-@profile
 def Rmatrices2D(rholeft,rhoright,rholower,rhoupper,rho):
     # print rholeft,rhoright,rholower,rhoupper,rho
     Znleft = rholeft/rho
@@ -124,7 +121,6 @@ def Rmatrices2D(rholeft,rhoright,rholower,rhoupper,rho):
 
     return Rmatrix, Rmatrixvel
 
-@profile
 def kcalc_old(dx,N,cw,PMLcellsghost):
     # wavenumber discretization
     kmax = np.pi/dx
@@ -142,7 +138,6 @@ def kcalc_old(dx,N,cw,PMLcellsghost):
  
     return k, jfact, kcy, jfactcy, kgh, jfactgh
 
-@profile
 def kcalc(dx,N):
     # wavenumber discretization. We only compute k and jfact anylonger
     kmax = np.pi/dx
@@ -157,7 +152,6 @@ def kcalc(dx,N):
     
     return k, jfact
 
-@profile
 def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
@@ -229,7 +223,77 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     return Lp
 
-@profile
+def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
+
+    #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
+
+    # spatial derivative across three media
+
+    # --------------|---------------|---------------
+    #   subdomain 1 |   subdomain 2 |   subomain 3
+    # --------------|---------------|---------------
+    #           interface 1         interface 3
+
+    # So far, we assume that only two subdomains meet at 1 interface !!
+
+    # Derivatives are computed in subdomain 2
+
+    # derfact = factor to compute derivative in wavenumber domain
+    # Wlength = length of window function
+    # A = window function
+    # Ns2 = number of pressure nodes in subdomain 2
+    # N1 = # of ffts that are applied
+    # N2 = dimension of the ffts
+    # Rmatrix = matrix of reflection coefficients
+    # p1 = variable matrix subdomain 1
+    # p3 = variable matrix subdomain 1
+    # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
+    # direct = direction for computation of derivative: 0,1 for z, x direction respectively
+
+
+    Ns1 = np.size(p1, axis=direct)
+    Ns3 = np.size(p3, axis=direct)
+
+    if direct == 0: # transpose variables to compute derivative in right direction
+        p1 = p1.transpose()
+        p2 = p2.transpose()
+        p3 = p3.transpose()
+
+
+    if var == 0: # pressure nodes: calculation for variable node staggered with boundary
+        # size 123 = number of pressure nodes
+        size123 = Wlength*2+Ns2
+        Lp = np.zeros((N1,Ns2+1))
+
+        G = np.ones((N1,size123))
+        G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
+        G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
+        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
+                                 p2[:,0:Ns2], \
+                                 Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G,int(N2), axis=1)
+        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
+        Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+
+
+    elif var > 0: # velocity node: calculation for variable node collocated with boundary
+        size123 = Wlength*2+Ns2
+        Lp = np.zeros((N1,Ns2-1))
+
+        G = np.ones((N1,size123))
+        G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
+        G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
+
+        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength-1:Ns1-1]+Rmatrix[0,0]*p2[:,Wlength:0:-1], \
+                                 p2[:,0:Ns2], \
+                                 Rmatrix[3,1]*p3[:,1:Wlength+1]+Rmatrix[1,0]*p2[:,Ns2-2:Ns2-Wlength-2:-1]), axis=1)*G,int(N2), axis=1)
+        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
+        Lp[0:N1,0:Ns2-1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2-1])
+
+    if direct == 0: # transpose Lp to get variables in right direction
+        Lp = Lp.transpose()
+
+    return Lp
+
 def get_grid_spacing(cnf):
     dxv = np.array([0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.])
     return dxv.compress((dxv<cnf.c1/cnf.freqmax/2.).flat)[-1]
@@ -247,7 +311,6 @@ def safe_float(s):
     try: return float(s)
     except: return s
 
-@profile
 def subsample(a, n):
     final_shape = [int(ceil(float(x)/n)) for x in a.shape]
     padded_shape = [x * int(n) for x in final_shape]

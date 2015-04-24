@@ -29,6 +29,7 @@ parser = argparse.ArgumentParser(prog="openPSTD",
                                  description="Stand-alone application openPSTD")
 parser.add_argument('scene_file',help="JSON file containing scene description")
 parser.add_argument('-m','--multi-threaded', action="store_true",help="Run openPSTD multi-threaded")
+parser.add_argument('-g','--gpu-accelerated', action="store_true",help="Run openPSTD with gpu acceleration")
 parser.add_argument('-p','--write-plot', action="store_true",help="Write plot to image (only when matplotlib is installed)")
 parser.add_argument('-a','--write-array',action="store_true",help="Write array to file")
 
@@ -84,7 +85,7 @@ if stand_alone:
 else:
     scene_desc = pickle.load(sys.stdin)
 
-pstd = PSTD(args.multi_threaded, args.write_plot, args.write_array, scene_desc, ConsoleOutput)
+pstd = PSTD(args.multi_threaded, args.gpu_accelerated, args.write_plot, args.write_array, scene_desc, ConsoleOutput)
 pstd.run()
 # Exit to prevent the Blender interpreter from processing
 # the subsequent command line arguments.
