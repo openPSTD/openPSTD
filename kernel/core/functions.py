@@ -223,7 +223,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     return Lp
 
-def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
+def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
 
@@ -268,11 +268,14 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         G = np.ones((N1,size123))
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
-                                 p2[:,0:Ns2], \
-                                 Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G,int(N2), axis=1)
-        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
-        Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+        
+        matemp = (Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], p2[:,0:Ns2],\
+                  Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
+        catemp = np.concatenate(matemp, axis=1)*G
+        Ktemp = plan.execute(catemp)
+        Ltemp = plan.execute((np.ones((N1,1))*derfact[0:N2]*Ktemp),inverse=True)
+        
+        Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
@@ -283,10 +286,11 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
 
-        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength-1:Ns1-1]+Rmatrix[0,0]*p2[:,Wlength:0:-1], \
+        catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength-1:Ns1-1]+Rmatrix[0,0]*p2[:,Wlength:0:-1], \
                                  p2[:,0:Ns2], \
-                                 Rmatrix[3,1]*p3[:,1:Wlength+1]+Rmatrix[1,0]*p2[:,Ns2-2:Ns2-Wlength-2:-1]), axis=1)*G,int(N2), axis=1)
-        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
+                                 Rmatrix[3,1]*p3[:,1:Wlength+1]+Rmatrix[1,0]*p2[:,Ns2-2:Ns2-Wlength-2:-1]), axis=1)*G
+        Ktemp = plan.execute(catemp)
+        Ltemp = plan((np.ones((N1,1))*derfact[0:N2]*Ktemp),inverse=True)
         Lp[0:N1,0:Ns2-1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2-1])
 
     if direct == 0: # transpose Lp to get variables in right direction
