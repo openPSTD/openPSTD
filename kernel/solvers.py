@@ -160,7 +160,7 @@ class GpuAccelerated:
             from pyfft.cuda import Plan
             cuda.init()
             context = make_default_context()
-        	stream = cuda.Stream()
+            stream = cuda.Stream()
 
             plan = Plan((16, 16), stream=stream)
 
