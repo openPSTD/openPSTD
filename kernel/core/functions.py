@@ -224,6 +224,11 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
     return Lp
 
 def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
+    from pyfft.cuda import Plan
+    import pycuda.driver as cuda
+    import pycuda.gpuarray as gpuarray
+
+    print plan
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
 
@@ -272,9 +277,19 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         matemp = (Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], p2[:,0:Ns2],\
                   Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
         catemp = np.concatenate(matemp, axis=1)*G
-        Ktemp = plan.execute(catemp)
-        Ltemp = plan.execute((np.ones((N1,1))*derfact[0:N2]*Ktemp),inverse=True)
-        
+
+        catemp_gpu = gpuarray.to_gpu(catemp)
+        #plan.execute(catemp_gpu)
+			#TODO: matrix multiply with the derivfactor
+        #plan.execute(catemp_gpu,inverse=True)
+        #Ltemp = catemp_gpu.get()
+
+        testmat = np.ones((50, 114), dtype=np.complex64)
+        gpu_testmat = gpuarray.to_gpu(testmat)
+        plan.execute(gpu_testmat)
+        plan.execute(gpu_testmat, inverse=True)
+        Ltemp = gpu_testmat.get()
+
         Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
 

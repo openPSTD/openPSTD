@@ -156,8 +156,12 @@ class MultiThreaded:
 
 class GpuAccelerated:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
-        try:
+#        try:
             from pyfft.cuda import Plan
+            import pycuda.driver as cuda
+            from pycuda.tools import make_default_context
+            import pycuda.gpuarray as gpuarray
+
             cuda.init()
             context = make_default_context()
             stream = cuda.Stream()
@@ -214,5 +218,5 @@ class GpuAccelerated:
 
             context.pop()
 
-        except:
+ #       except:
             print "pyfft.cuda does not seem to be available"
