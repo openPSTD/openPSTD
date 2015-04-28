@@ -23,7 +23,16 @@ import operations.BaseOperation
 from transforms2D import Matrix
 
 
-class ModifyViewMatrix(operations.BaseOperation.operation):
+class ChangeViewMatrix(operations.BaseOperation.operation):
+    def __init__(self, M):
+        self.M = M
+
+    def run(self, receiver):
+        receiver.ui.mainView.setViewMatrix(self.M)
+
+        receiver.ui.mainView.update()
+
+class ModifyViewMatrix(ChangeViewMatrix):
     def __init__(self, M):
         self.M = M
 

@@ -118,14 +118,6 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def getViewMatrix(self):
         return self._view_matrix
 
-    def calculate_world_position(self, pos):
-        w = self.width()
-        h = self.height()
-        pos = [pos[0]/w*2-1, -(pos[1]/h*2-1)]
-        world_pos = self._view_matrix.invMultipleVector(pos)
-
-        return world_pos
-
 class Layer:
     __metaclass__ = abc.ABCMeta
 
@@ -402,3 +394,23 @@ class DebugLayer(Layer):
     def update_view_matrix(self, matrix):
         self.program['u_view'] = matrix
 
+class CoordinateCalculator:
+    def __init__(self, Viewer2D):
+        self.Viewer2D = Viewer2D
+
+    def window_to_screen(self, pos):
+        w = self.Viewer2D.width()
+        h = self.Viewer2D.height()
+        pos2 = [pos[0], pos[1]]
+        pos3 = [pos2[0]/w, pos2[1]/h]
+        pos4 = [pos3[0]*2, pos3[1]*2]
+        pos5 = [pos4[0]-1, pos4[1]-1]
+        pos6 = np.array([pos5[0], -pos5[1]])
+        return pos6
+
+    def screen_to_world(self, pos):
+        world_pos = self.Viewer2D.getViewMatrix().invMultipleVector(pos)
+        return world_pos
+
+    def window_to_world(self, pos):
+        return self.screen_to_world(self.window_to_screen(pos))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Tue Apr  7 11:00:49 2015
+# Created: Tue Apr 28 14:41:33 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,6 +111,8 @@ class Ui_MainWindow(object):
         self.menuHelp.setObjectName("menuHelp")
         self.menuView = QtGui.QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
+        self.menuDebug = QtGui.QMenu(self.menubar)
+        self.menuDebug.setObjectName("menuDebug")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -163,6 +165,14 @@ class Ui_MainWindow(object):
         icon2.addPixmap(QtGui.QPixmap("Images/noun_40980_cc.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionAdd_Domain.setIcon(icon2)
         self.actionAdd_Domain.setObjectName("actionAdd_Domain")
+        self.actionDebug1 = QtGui.QAction(MainWindow)
+        self.actionDebug1.setObjectName("actionDebug1")
+        self.actionDebug2 = QtGui.QAction(MainWindow)
+        self.actionDebug2.setObjectName("actionDebug2")
+        self.actionDebug3 = QtGui.QAction(MainWindow)
+        self.actionDebug3.setObjectName("actionDebug3")
+        self.actionDebug4 = QtGui.QAction(MainWindow)
+        self.actionDebug4.setObjectName("actionDebug4")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -178,14 +188,24 @@ class Ui_MainWindow(object):
         self.menuHelp.addAction(self.actionAbout)
         self.menuView.addAction(self.actionMove_scene)
         self.menuView.addAction(self.actionView_complete_scene)
+        self.menuDebug.addAction(self.actionDebug1)
+        self.menuDebug.addAction(self.actionDebug2)
+        self.menuDebug.addAction(self.actionDebug3)
+        self.menuDebug.addAction(self.actionDebug4)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuOption.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
+        self.menubar.addAction(self.menuDebug.menuAction())
         self.toolBar.addAction(self.actionAdd_Domain)
         self.toolBar.addAction(self.actionMove_scene)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionView_complete_scene)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.actionDebug1)
+        self.toolBar.addAction(self.actionDebug2)
+        self.toolBar.addAction(self.actionDebug3)
+        self.toolBar.addAction(self.actionDebug4)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -210,6 +230,7 @@ class Ui_MainWindow(object):
         self.menuDimension.setTitle(QtGui.QApplication.translate("MainWindow", "Dimension", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuDebug.setTitle(QtGui.QApplication.translate("MainWindow", "Debug", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
@@ -226,5 +247,9 @@ class Ui_MainWindow(object):
         self.actionMove_scene.setToolTip(QtGui.QApplication.translate("MainWindow", "Move the view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionView_complete_scene.setText(QtGui.QApplication.translate("MainWindow", "View complete scene", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_Domain.setText(QtGui.QApplication.translate("MainWindow", "Add Domain", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDebug1.setText(QtGui.QApplication.translate("MainWindow", "Debug1", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDebug2.setText(QtGui.QApplication.translate("MainWindow", "Debug2", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDebug3.setText(QtGui.QApplication.translate("MainWindow", "Debug3", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDebug4.setText(QtGui.QApplication.translate("MainWindow", "Debug4", None, QtGui.QApplication.UnicodeUTF8))
 
 from Viewer2D import Viewer2D

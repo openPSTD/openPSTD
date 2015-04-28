@@ -67,6 +67,11 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
 
         self.createChangeMouseHandlerOperation(MouseHandlers.MouseMoveSceneStrategy, self.actionMove_scene)()
 
+        self.actionDebug1.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug1Action))
+        self.actionDebug2.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug2Action))
+        self.actionDebug3.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug3Action))
+        self.actionDebug4.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug4Action))
+
     def createRunOperation(self, operationClass):
         mw = self
         def RunOperation():
