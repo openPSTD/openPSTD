@@ -76,9 +76,13 @@ class MouseMoveSceneStrategy(MouseStrategy):
             pass
 
     def wheelEvent(self, event):
+        screen_pos = event.pos()
+        screen_pos = np.array([screen_pos.x(), screen_pos.y()])
+        world_pos = self.coordinate_calculator.window_to_screen(screen_pos)
+
         delta = event.delta()
         delta2 = pow(2, delta/120)
-        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(delta2))
+        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(delta2, world_pos))
 
 
 class MouseCreateDomainStragegy(MouseStrategy):
@@ -89,36 +93,18 @@ class MouseCreateDomainStragegy(MouseStrategy):
     def mousePressEvent(self, event):
         pos = event.pos()
         pos = [pos.x(), pos.y()]
+        pos = self.coordinate_calculator.window_to_world(pos)
 
         self._create_domain_operation = operations.EditOperations.CreateDomain()
         self._create_domain_operation.start_point = pos
 
     def mouseMoveEvent(self, event):
-        pos = event.pos()
-        pos = np.array([pos.x(), pos.y()])
-        pos = self.calculate_world_position_fn(pos)
-        diff = 0.5
-
-        def change(debug_data):
-            debug_data['viewer']['positions'] = [
-                [pos[0]-diff, pos[1]-diff],
-                [pos[0]-diff, pos[1]+diff],
-                [pos[0]+diff, pos[1]-diff],
-                [pos[0]+diff, pos[1]+diff]
-            ]
-
-            debug_data['viewer']['Colors'] = [
-                colors.Colors.green, colors.Colors.green, colors.Colors.green, colors.Colors.green
-            ]
-
-        self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
-
-    def wheelEvent(self, event):
         pass
 
     def mouseReleaseEvent(self, event):
         pos = event.pos()
         pos = [pos.x(), pos.y()]
+        pos = self.coordinate_calculator.window_to_world(pos)
 
         if self._create_domain_operation is not None:
             self._create_domain_operation.end_point = pos

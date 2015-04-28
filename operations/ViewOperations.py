@@ -67,5 +67,5 @@ class TranslateScene(ModifyViewMatrix):
 
 
 class ResizeScene(ModifyViewMatrix):
-    def __init__(self, scale):
-        super(ResizeScene, self).__init__(Matrix.scale(scale))
+    def __init__(self, scale, pos):
+        super(ResizeScene, self).__init__(Matrix.translate(-pos[0], -pos[1])*Matrix.scale(scale)*Matrix.translate(pos[0], pos[1]))
