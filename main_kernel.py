@@ -18,7 +18,7 @@
 ########################################################################
 
 import argparse
-import os,sys
+import os, sys
 import pickle
 from kernel.pstd import PSTD
 from kernel.core.functions import output_error
