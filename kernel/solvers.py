@@ -156,7 +156,7 @@ class MultiThreaded:
 
 class GpuAccelerated:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
-#        try:
+
             from pyfft.cuda import Plan
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
@@ -166,7 +166,7 @@ class GpuAccelerated:
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan = Plan((16, 16), stream=stream)
+            plan = Plan((64, 128), dtype=np.float64, context=context, stream=stream, fast_math=False)
 
             # Loop over time steps
             for frame in range(int(cfg.TRK)):
@@ -217,6 +217,3 @@ class GpuAccelerated:
                     data_writer.write_to_file(frame)
 
             context.pop()
-
- #       except:
-            print "pyfft.cuda does not seem to be available"

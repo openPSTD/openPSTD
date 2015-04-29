@@ -202,7 +202,6 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
                                  Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G,int(N2), axis=1)
         Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
-
  
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
@@ -220,15 +219,14 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     if direct == 0: # transpose Lp to get variables in right direction
         Lp = Lp.transpose()
-   
+
     return Lp
 
+@profile
 def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
     from pyfft.cuda import Plan
     import pycuda.driver as cuda
     import pycuda.gpuarray as gpuarray
-
-    print plan
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
 
@@ -278,17 +276,17 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
                   Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
         catemp = np.concatenate(matemp, axis=1)*G
 
+        #catemp_gpu = cuda.mem_alloc(catemp.nbytes)
+        #cuda.memcpy_htod(catemp_gpu, catemp)
         catemp_gpu = gpuarray.to_gpu(catemp)
-        #plan.execute(catemp_gpu)
-			#TODO: matrix multiply with the derivfactor
-        #plan.execute(catemp_gpu,inverse=True)
-        #Ltemp = catemp_gpu.get()
+        catempim_gpu = gpuarray.empty(catemp.shape, np.float64)
 
-        testmat = np.ones((50, 114), dtype=np.complex64)
-        gpu_testmat = gpuarray.to_gpu(testmat)
-        plan.execute(gpu_testmat)
-        plan.execute(gpu_testmat, inverse=True)
-        Ltemp = gpu_testmat.get()
+        plan.execute(catemp_gpu, catempim_gpu, batch=1)
+			#TODO: matrix multiply with the derivfactor
+                        #np.ones((N1,1))*derfact[0:N2]*Ktemp
+
+        plan.execute(catemp_gpu, catempim_gpu, inverse=True, batch=1)
+        Ltemp = catemp_gpu.get()
 
         Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
@@ -301,11 +299,10 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
 
-        catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength-1:Ns1-1]+Rmatrix[0,0]*p2[:,Wlength:0:-1], \
+        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength-1:Ns1-1]+Rmatrix[0,0]*p2[:,Wlength:0:-1], \
                                  p2[:,0:Ns2], \
-                                 Rmatrix[3,1]*p3[:,1:Wlength+1]+Rmatrix[1,0]*p2[:,Ns2-2:Ns2-Wlength-2:-1]), axis=1)*G
-        Ktemp = plan.execute(catemp)
-        Ltemp = plan((np.ones((N1,1))*derfact[0:N2]*Ktemp),inverse=True)
+                                 Rmatrix[3,1]*p3[:,1:Wlength+1]+Rmatrix[1,0]*p2[:,Ns2-2:Ns2-Wlength-2:-1]), axis=1)*G,int(N2), axis=1)
+        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
         Lp[0:N1,0:Ns2-1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2-1])
 
     if direct == 0: # transpose Lp to get variables in right direction
