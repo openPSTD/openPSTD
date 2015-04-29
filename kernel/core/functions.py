@@ -152,6 +152,7 @@ def kcalc(dx,N):
     
     return k, jfact
 
+@profile
 def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
@@ -200,7 +201,8 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
                                  p2[:,0:Ns2], \
                                  Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G,int(N2), axis=1)
-        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
+        Ktemp_der = (np.ones((N1,1))*derfact[0:N2]*Ktemp)
+        Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
  
@@ -272,9 +274,20 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         matemp = (Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], p2[:,0:Ns2],\
                   Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
         catemp = np.concatenate(matemp, axis=1)*G
-        Ktemp = plan.execute(catemp)
-        Ltemp = plan.execute((np.ones((N1,1))*derfact[0:N2]*Ktemp),inverse=True)
-        
+
+        catemp_gpu = cuda.mem_alloc(catemp.nbytes)
+        cuda.memcpy_htod(catemp_gpu, catemp)
+        #catemp_gpu = gpuarray.to_gpu(catemp)
+        #catempim_gpu = gpuarray.empty(catemp.shape, np.float64)
+
+        plan.execute(catemp_gpu, batch=1)
+			#TODO: matrix multiply with the derivfactor
+                        #np.ones((N1,1))*derfact[0:N2]*Ktemp
+
+        plan.execute(catemp_gpu, inverse=True, batch=1)
+	Ltemp = np.zeros(catemp.shape)
+        cuda.memcpy_dtoh(Ltemp, catemp_gpu)
+
         Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
 
