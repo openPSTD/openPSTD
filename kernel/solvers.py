@@ -166,7 +166,7 @@ class GpuAccelerated:
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan = Plan((64, 128), dtype=np.float64, context=context, stream=stream, fast_math=False)
+            plan = Plan((64, 128), dtype=np.complex64, context=context, stream=stream, fast_math=False)
 
             # Loop over time steps
             for frame in range(int(cfg.TRK)):
