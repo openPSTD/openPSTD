@@ -255,10 +255,20 @@
     <addaction name="actionMove_scene"/>
     <addaction name="actionView_complete_scene"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+    <addaction name="actionDebug1"/>
+    <addaction name="actionDebug2"/>
+    <addaction name="actionDebug3"/>
+    <addaction name="actionDebug4"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOption"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuDebug"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -275,6 +285,11 @@
    <addaction name="actionMove_scene"/>
    <addaction name="separator"/>
    <addaction name="actionView_complete_scene"/>
+   <addaction name="separator"/>
+   <addaction name="actionDebug1"/>
+   <addaction name="actionDebug2"/>
+   <addaction name="actionDebug3"/>
+   <addaction name="actionDebug4"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -383,6 +398,26 @@
    </property>
    <property name="text">
     <string>Add Domain</string>
+   </property>
+  </action>
+  <action name="actionDebug1">
+   <property name="text">
+    <string>Debug1</string>
+   </property>
+  </action>
+  <action name="actionDebug2">
+   <property name="text">
+    <string>Debug2</string>
+   </property>
+  </action>
+  <action name="actionDebug3">
+   <property name="text">
+    <string>Debug3</string>
+   </property>
+  </action>
+  <action name="actionDebug4">
+   <property name="text">
+    <string>Debug4</string>
    </property>
   </action>
  </widget>

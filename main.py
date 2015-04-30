@@ -67,6 +67,11 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
 
         self.createChangeMouseHandlerOperation(MouseHandlers.MouseMoveSceneStrategy, self.actionMove_scene)()
 
+        self.actionDebug1.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug1Action))
+        self.actionDebug2.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug2Action))
+        self.actionDebug3.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug3Action))
+        self.actionDebug4.triggered.connect(self.createRunOperation(operations.DebugOperations.Debug4Action))
+
     def createRunOperation(self, operationClass):
         mw = self
         def RunOperation():
@@ -113,7 +118,7 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
         frames = self.m.Simulation.get_sequence_frame_numbers()
         if(len(frames) > 0):
             self.m.visible_frame = frames[-1]
-        self.mainView.updateScene(self.m)
+        self.mainView.update_scene(self.m)
 
     def about(self):
         '''Popup a box with about message.'''

@@ -1,8 +1,10 @@
 __author__ = 'michiel'
 
+import operations.BaseOperation
 import operations.ViewOperations
 import operations.EditOperations
 import operations.DebugOperations
+import Viewer2D
 
 import colors
 
@@ -14,11 +16,15 @@ import abc
 class MouseStrategy(object):
     __metaclass__ = abc.ABCMeta
 
+    def __init__(self):
+        self.operation_runner = operations.BaseOperation.OperationRunner()
+        self.coordinate_calculator = Viewer2D.CoordinateCalculator(None)
+
     def set_operation_runner(self, operation_runner):
         self.operation_runner = operation_runner
 
-    def set_calculate_world_position_fn(self, calculate_world_position_fn):
-        self.calculate_world_position_fn = calculate_world_position_fn
+    def set_coordinate_calculator(self, calculator):
+        self.coordinate_calculator = calculator
 
     def mousePressEvent(self, event):
         pass
@@ -51,91 +57,33 @@ class MouseMoveSceneStrategy(MouseStrategy):
     def __init__(self):
         self.mouse_pos = np.array([0, 0])
 
-    def mousePressEvent(self, event):
-        screen_pos = event.pos()
-        screen_pos = np.array([screen_pos.x(), screen_pos.y()])
-        world_pos = self.calculate_world_position_fn(screen_pos)
-        old_world_pos = self.calculate_world_position_fn(self.mouse_pos)
-
-        diff = 0.1
-
-        def change(debug_data):
-            debug_data['viewer']['positions'][4] = [world_pos[0]-diff, world_pos[1]-diff]
-            debug_data['viewer']['positions'][5] = [world_pos[0]-diff, world_pos[1]+diff]
-            debug_data['viewer']['positions'][6] = [world_pos[0]+diff, world_pos[1]-diff]
-            debug_data['viewer']['positions'][7] = [world_pos[0]+diff, world_pos[1]+diff]
-
-            debug_data['viewer']['Colors'] = [
-                colors.Colors.red, colors.Colors.red, colors.Colors.red, colors.Colors.red,
-                colors.Colors.green, colors.Colors.green, colors.Colors.green, colors.Colors.green,
-                colors.Colors.blue, colors.Colors.blue, colors.Colors.blue, colors.Colors.blue
-            ]
-
-        self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
-
     def mouseMoveEvent(self, event):
         screen_pos = event.pos()
         screen_pos = np.array([screen_pos.x(), screen_pos.y()])
-        world_pos = self.calculate_world_position_fn(screen_pos)
-        old_world_pos = self.calculate_world_position_fn(self.mouse_pos)
 
+        world_pos = self.coordinate_calculator.window_to_screen(screen_pos)
+        old_world_pos = self.coordinate_calculator.window_to_screen(self.mouse_pos)
         offset = world_pos - old_world_pos
+
         self.mouse_pos = screen_pos
 
         buttons = event.buttons()
         if buttons & QtCore.Qt.LeftButton:
-            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset*[1, -1]))
+            self.operation_runner.run_operation(operations.ViewOperations.TranslateScene(offset))
         if buttons & QtCore.Qt.MiddleButton:
             pass
         if buttons & QtCore.Qt.RightButton:
             pass
 
-        diff = 0.1
-
-        def change(debug_data):
-            debug_data['viewer']['positions'][0] = [world_pos[0]-diff, world_pos[1]-diff]
-            debug_data['viewer']['positions'][1] = [world_pos[0]-diff, world_pos[1]+diff]
-            debug_data['viewer']['positions'][2] = [world_pos[0]+diff, world_pos[1]-diff]
-            debug_data['viewer']['positions'][3] = [world_pos[0]+diff, world_pos[1]+diff]
-
-            debug_data['viewer']['Colors'] = [
-                colors.Colors.red, colors.Colors.red, colors.Colors.red, colors.Colors.red,
-                colors.Colors.green, colors.Colors.green, colors.Colors.green, colors.Colors.green,
-                colors.Colors.blue, colors.Colors.blue, colors.Colors.blue, colors.Colors.blue
-            ]
-        self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
-
     def wheelEvent(self, event):
-        delta = event.delta()
-        delta2 = pow(2, delta/120)
-        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(delta2))
-
-    def mouseReleaseEvent(self, event):
-        self.mouseState = event.buttons()
-        if self.mouseState & (QtCore.Qt.LeftButton | QtCore.Qt.RightButton):
-            #self.mouse_pos = event.pos()
-            pass
-
         screen_pos = event.pos()
         screen_pos = np.array([screen_pos.x(), screen_pos.y()])
-        world_pos = self.calculate_world_position_fn(screen_pos)
-        old_world_pos = self.calculate_world_position_fn(self.mouse_pos)
+        world_pos = self.coordinate_calculator.window_to_screen(screen_pos)
 
-        diff = 0.1
+        delta = event.delta()
+        delta2 = pow(2, delta/120)
+        self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(delta2, world_pos))
 
-        def change(debug_data):
-            debug_data['viewer']['positions'][8] = [world_pos[0]-diff, world_pos[1]-diff]
-            debug_data['viewer']['positions'][9] = [world_pos[0]-diff, world_pos[1]+diff]
-            debug_data['viewer']['positions'][10] = [world_pos[0]+diff, world_pos[1]-diff]
-            debug_data['viewer']['positions'][11] = [world_pos[0]+diff, world_pos[1]+diff]
-
-            debug_data['viewer']['Colors'] = [
-                colors.Colors.red, colors.Colors.red, colors.Colors.red, colors.Colors.red,
-                colors.Colors.green, colors.Colors.green, colors.Colors.green, colors.Colors.green,
-                colors.Colors.blue, colors.Colors.blue, colors.Colors.blue, colors.Colors.blue
-            ]
-
-        self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
 
 class MouseCreateDomainStragegy(MouseStrategy):
 
@@ -145,36 +93,18 @@ class MouseCreateDomainStragegy(MouseStrategy):
     def mousePressEvent(self, event):
         pos = event.pos()
         pos = [pos.x(), pos.y()]
+        pos = self.coordinate_calculator.window_to_world(pos)
 
         self._create_domain_operation = operations.EditOperations.CreateDomain()
         self._create_domain_operation.start_point = pos
 
     def mouseMoveEvent(self, event):
-        pos = event.pos()
-        pos = np.array([pos.x(), pos.y()])
-        pos = self.calculate_world_position_fn(pos)
-        diff = 0.5
-
-        def change(debug_data):
-            debug_data['viewer']['positions'] = [
-                [pos[0]-diff, pos[1]-diff],
-                [pos[0]-diff, pos[1]+diff],
-                [pos[0]+diff, pos[1]-diff],
-                [pos[0]+diff, pos[1]+diff]
-            ]
-
-            debug_data['viewer']['Colors'] = [
-                colors.Colors.green, colors.Colors.green, colors.Colors.green, colors.Colors.green
-            ]
-
-        self.operation_runner.run_operation(operations.DebugOperations.ChangeDebugData(change))
-
-    def wheelEvent(self, event):
         pass
 
     def mouseReleaseEvent(self, event):
         pos = event.pos()
         pos = [pos.x(), pos.y()]
+        pos = self.coordinate_calculator.window_to_world(pos)
 
         if self._create_domain_operation is not None:
             self._create_domain_operation.end_point = pos

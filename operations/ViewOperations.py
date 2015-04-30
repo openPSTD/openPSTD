@@ -23,14 +23,23 @@ import operations.BaseOperation
 from transforms2D import Matrix
 
 
-class ModifyViewMatrix(operations.BaseOperation.operation):
+class ChangeViewMatrix(operations.BaseOperation.operation):
     def __init__(self, M):
         self.M = M
 
     def run(self, receiver):
-        view = receiver.ui.mainView.getViewMatrix()
+        receiver.ui.mainView.set_view_matrix(self.M)
+
+        receiver.ui.mainView.update()
+
+class ModifyViewMatrix(ChangeViewMatrix):
+    def __init__(self, M):
+        self.M = M
+
+    def run(self, receiver):
+        view = receiver.ui.mainView.get_view_matrix()
         view = view*self.M
-        receiver.ui.mainView.setViewMatrix(view)
+        receiver.ui.mainView.set_view_matrix(view)
 
         receiver.ui.mainView.update()
 
@@ -39,15 +48,15 @@ class ViewWholeScene(operations.BaseOperation.operation):
     def run(self, receiver):
         extraZoomFactor = 1.25
 
-        tl = receiver.ui.mainView.scene_min_max['min']
-        br = receiver.ui.mainView.scene_min_max['max']
+        tl = receiver.ui.mainView.scene_min_max.pos_min
+        br = receiver.ui.mainView.scene_min_max.pos_max
 
         center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
         scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
 
         view = Matrix.translate(center[0], center[1])*Matrix.scale(1, -1)*Matrix.scale(scaleFactor)
 
-        receiver.ui.mainView.setViewMatrix(view)
+        receiver.ui.mainView.set_view_matrix(view)
 
         receiver.ui.mainView.update()
 
@@ -58,5 +67,5 @@ class TranslateScene(ModifyViewMatrix):
 
 
 class ResizeScene(ModifyViewMatrix):
-    def __init__(self, scale):
-        super(ResizeScene, self).__init__(Matrix.scale(scale))
+    def __init__(self, scale, pos):
+        super(ResizeScene, self).__init__(Matrix.translate(-pos[0], -pos[1])*Matrix.scale(scale)*Matrix.translate(pos[0], pos[1]))
