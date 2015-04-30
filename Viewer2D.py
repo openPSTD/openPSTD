@@ -20,7 +20,6 @@
 __author__ = 'michiel'
 
 import sys
-import math
 from PySide import QtCore, QtGui, QtOpenGL
 from vispy import gloo
 import OpenGL.GL as gl
@@ -521,7 +520,7 @@ class CoordinateCalculator:
         """
         self._viewer = viewer
 
-    def window_to_screen(self, pos: list[float]) -> list[float]:
+    def window_to_screen(self, pos: list) -> list:
         """
         Calculates from window space to screen space.
         Window space is from [0, 0] to [width, height] of the gl view.
@@ -541,7 +540,7 @@ class CoordinateCalculator:
         pos6 = np.array([pos5[0], -pos5[1]])
         return pos6
 
-    def screen_to_world(self, pos: list[float]) -> list[float]:
+    def screen_to_world(self, pos: list) -> list:
         """
         Calculates from screen space to world space.
         Screen space is from [-1, -1] to [1, 1].
@@ -554,7 +553,7 @@ class CoordinateCalculator:
         world_pos = self._viewer.get_view_matrix().invMultipleVector(pos)
         return world_pos
 
-    def window_to_world(self, pos: list[float]) -> list[float]:
+    def window_to_world(self, pos: list) -> list:
         """
         Calculates from screen space to world space.
         Window space is from [0, 0] to [width, height] of the gl view.
