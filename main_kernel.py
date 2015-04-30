@@ -38,15 +38,11 @@ if __name__ == "__main__":
     if interpreter.startswith("blender"):
         parser.add_argument('-b',action="store_true",help="Flag from blender interpreter. Not for stand-alone use")
         parser.add_argument('-P',action="store_true",help="Flag from blender interpreter. Not for stand-alone use")
-    else:
-        stand_alone=True
-
     args = parser.parse_args()
-
     interpreter = os.path.basename(sys.executable)
     stand_alone = not(interpreter.startswith("blender"))
 
-    def ConsoleOutput(arg):
+    def output_to_console(arg):
         if not stand_alone:
             pickle.dump(arg,sys.stdout,0)
             if arg['status']=='error':
@@ -80,12 +76,12 @@ if __name__ == "__main__":
             f.close()
             os.chdir(os.path.dirname(os.path.abspath(args.scene_file)))
         else:
-            output_error("Specify scene file", ConsoleOutput)
+            output_error("Specify scene file", output_to_console)
             exit(1)
     else:
         scene_desc = pickle.load(sys.stdin)
 
-    pstd = PSTD(args.multi_threaded, args.write_plot, args.write_array, scene_desc, ConsoleOutput)
+    pstd = PSTD(args.multi_threaded, args.write_plot, args.write_array, scene_desc, output_to_console)
     pstd.run()
     # Exit to prevent the Blender interpreter from processing
     # the subsequent command line arguments.

@@ -17,21 +17,7 @@
 #                                                                      #
 ########################################################################
 
-import os
-import sys
-import math
-import wave
 import time
-import json
-import array
-import struct
-import shutil
-import pickle
-import traceback
-import threading
-import argparse
-import subprocess
-import numpy as np
 from kernel.core import derived_config
 from kernel.core.functions import *
 from kernel.core.classes import *
@@ -51,7 +37,11 @@ pstd_dir = os.path.dirname(os.path.abspath(__file__))
 # the path so that the modules in core/ can be loaded
 if pstd_dir not in sys.path:
     sys.path.insert(0, pstd_dir)
+
 class PSTD:
+    '''
+    API for the openPSTD simulation
+    '''
     def __init__(self,multi_threaded,write_plot,write_array,scene_desc,output_fn):
         self.multi_threaded = multi_threaded
         self.write_plot = write_plot
@@ -76,7 +66,6 @@ class PSTD:
         config.read(os.path.join(pstd_dir,'core','pstd.cfg'))
         self.cfgd = dict([(x[0], safe_float(x[1])) for s in config.sections() for x in config.items(s)])
         self.cfgd.update(scene_desc)
-        #self.cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),self.cfgd)() # Old formulation
         self.cfg = derived_config.PSTD_Config_Base(self.cfgd)
         dx = dz = scene_desc['grid_spacing']
 

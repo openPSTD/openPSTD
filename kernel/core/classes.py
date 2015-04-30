@@ -34,10 +34,6 @@ try:
     has_matplotlib = True
 except: has_matplotlib = False
 
-# Only for python 2.*
-try: range = xrange
-except: pass
-
 from .functions import *
 from .kcalc import Kcalc
 
