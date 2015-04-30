@@ -28,7 +28,7 @@ class ChangeViewMatrix(operations.BaseOperation.operation):
         self.M = M
 
     def run(self, receiver):
-        receiver.ui.mainView.setViewMatrix(self.M)
+        receiver.ui.mainView.set_view_matrix(self.M)
 
         receiver.ui.mainView.update()
 
@@ -37,9 +37,9 @@ class ModifyViewMatrix(ChangeViewMatrix):
         self.M = M
 
     def run(self, receiver):
-        view = receiver.ui.mainView.getViewMatrix()
+        view = receiver.ui.mainView.get_view_matrix()
         view = view*self.M
-        receiver.ui.mainView.setViewMatrix(view)
+        receiver.ui.mainView.set_view_matrix(view)
 
         receiver.ui.mainView.update()
 
@@ -56,7 +56,7 @@ class ViewWholeScene(operations.BaseOperation.operation):
 
         view = Matrix.translate(center[0], center[1])*Matrix.scale(1, -1)*Matrix.scale(scaleFactor)
 
-        receiver.ui.mainView.setViewMatrix(view)
+        receiver.ui.mainView.set_view_matrix(view)
 
         receiver.ui.mainView.update()
 

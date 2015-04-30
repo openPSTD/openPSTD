@@ -54,8 +54,10 @@ class Viewer2D(QtOpenGL.QGLWidget):
         self.viewPort = [640, 480]
 
         self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer()]
+        """:type: list[Layer]"""
 
         self.mouseHandler = MouseHandlers.MouseStrategyConsole()
+        """:type: MouseHandlers.MouseStrategy"""
 
         self._view_matrix = Matrix()
         self.scene_min_max = MinMaxLayer([-1, -1], [1, 1])
@@ -96,7 +98,13 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def mouseReleaseEvent(self, event):
         self.mouseHandler.mouseReleaseEvent(event)
 
-    def updateScene(self, model):
+    def update_scene(self, model: m.model):
+        """
+        Updates all the layers with new information in the model
+
+        :type model: m.model
+        :param model: the current model
+        """
         for l in self.visibleLayers:
             l.update_scene(model)
 
@@ -104,13 +112,24 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.update()
 
-    def setViewMatrix(self, M):
-        self._view_matrix = M
+    def set_view_matrix(self, matrix: Matrix):
+        """
+        Replaces the current matrix with a new matrix.
+
+        :param matrix: the matrix that has to replace the current matrix
+        """
+        self._view_matrix = matrix
 
         for l in self.visibleLayers:
             l.update_view_matrix(self._view_matrix.M)
 
-    def getViewMatrix(self):
+    def get_view_matrix(self) -> Matrix:
+        """
+        Returns the current matrix.
+
+        :rtype : Matrix
+        :return: The current matrix.
+        """
         return self._view_matrix
 
 
@@ -142,7 +161,15 @@ class MinMaxLayer(object):
         else:
             self.pos_max = [-float("inf"), -float("inf")]
 
-    def min(self, *values, dimension=-1):
+    def min(self, *values: float, dimension: int=-1):
+        """
+        Calculates the min of 2 dimensional points or in a certain dimension
+
+        :type dimension: int
+        :param values: the 2 dimensional points or single scaler values
+        :param dimension: if 2 dimensional points are given, then this should be -1, else it should specify the
+        dimension in which it should minimize the values.
+        """
         if dimension == -1:
             for d in range(2):
                 self.min([v[d] for v in values], dimension=d)
@@ -152,7 +179,14 @@ class MinMaxLayer(object):
             self.pos_min[dimension] = min(*values2)
 
 
-    def max(self, *values, dimension=-1):
+    def max(self, *values: float, dimension: int=-1):
+        """
+        Calculates the max of 2 dimensional points or in a certain dimension
+
+        :param values: the 2 dimensional points or single scaler values
+        :param dimension: if 2 dimensional points are given, then this should be -1, else it should specify the
+        dimension in which it should maximize the values.
+        """
         if dimension == -1:
             for d in range(2):
                 self.max([v[d] for v in values], dimension=d)
@@ -225,7 +259,6 @@ class Layer:
         """
         pass
 
-    @property
     def get_min_max(self) -> MinMaxLayer:
         """
         Returns the min and max of the layer, with this information the view whole scene is created. If this layer
@@ -236,7 +269,13 @@ class Layer:
         """
         return MinMaxLayer()
 
-    def update_view_matrix(self, matrix):
+    def update_view_matrix(self, matrix: Matrix):
+        """
+        Changes the matrix for this layer.
+
+        :type matrix: Matrix
+        :param matrix: The new matrix
+        """
         self.view_matrix = matrix
 
 class SimulationLayer(Layer):
@@ -473,22 +512,56 @@ class DebugLayer(Layer):
         self.program['u_view'] = matrix
 
 class CoordinateCalculator:
-    def __init__(self, Viewer2D):
-        self.Viewer2D = Viewer2D
+    def __init__(self, viewer: Viewer2D):
+        """
+        Creates a coordinate calculator, that can calculates coordinates
 
-    def window_to_screen(self, pos):
-        w = self.Viewer2D.width()
-        h = self.Viewer2D.height()
+        :type viewer: Viewer2D
+        :param viewer: the viewer where the coordinates are based on
+        """
+        self._viewer = viewer
+
+    def window_to_screen(self, pos: list[float]) -> list[float]:
+        """
+        Calculates from window space to screen space.
+        Window space is from [0, 0] to [width, height] of the gl view.
+        Screen space is from [-1, -1] to [1, 1].
+
+        :rtype : list[float]
+        :type pos: list[float]
+        :param pos: the window space coordinates
+        :return: the screen space coordinates
+        """
+        w = self._viewer.width()
+        h = self._viewer.height()
         pos2 = [pos[0], pos[1]]
-        pos3 = [pos2[0]/w, pos2[1]/h]
-        pos4 = [pos3[0]*2, pos3[1]*2]
-        pos5 = [pos4[0]-1, pos4[1]-1]
+        pos3 = [pos2[0] / w, pos2[1] / h]
+        pos4 = [pos3[0] * 2, pos3[1] * 2]
+        pos5 = [pos4[0] - 1, pos4[1] - 1]
         pos6 = np.array([pos5[0], -pos5[1]])
         return pos6
 
-    def screen_to_world(self, pos):
-        world_pos = self.Viewer2D.getViewMatrix().invMultipleVector(pos)
+    def screen_to_world(self, pos: list[float]) -> list[float]:
+        """
+        Calculates from screen space to world space.
+        Screen space is from [-1, -1] to [1, 1].
+        world space are the coordinates from within the scene, that is rendered
+
+        :rtype : list[float]
+        :param pos: the screen space coordinates
+        :return: the world space coordinates
+        """
+        world_pos = self._viewer.get_view_matrix().invMultipleVector(pos)
         return world_pos
 
-    def window_to_world(self, pos):
+    def window_to_world(self, pos: list[float]) -> list[float]:
+        """
+        Calculates from screen space to world space.
+        Window space is from [0, 0] to [width, height] of the gl view.
+        world space are the coordinates from within the scene, that is rendered
+
+        :rtype : list[float]
+        :param pos: the window space coordinates
+        :return: the world space coordinates
+        """
         return self.screen_to_world(self.window_to_screen(pos))
