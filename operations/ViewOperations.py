@@ -48,8 +48,8 @@ class ViewWholeScene(operations.BaseOperation.operation):
     def run(self, receiver):
         extraZoomFactor = 1.25
 
-        tl = receiver.ui.mainView.scene_min_max['min']
-        br = receiver.ui.mainView.scene_min_max['max']
+        tl = receiver.ui.mainView.scene_min_max.pos_min
+        br = receiver.ui.mainView.scene_min_max.pos_max
 
         center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
         scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))

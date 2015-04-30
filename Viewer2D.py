@@ -28,6 +28,7 @@ import numpy as np
 from colors import activeColorScheme as colorScheme
 import abc
 import copy
+import model as m
 
 from transforms2D import Matrix
 import MouseHandlers
@@ -43,6 +44,8 @@ except ImportError:
     sys.exit(1)
 
 
+
+
 class Viewer2D(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         QtOpenGL.QGLWidget.__init__(self, parent)
@@ -55,6 +58,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
         self.mouseHandler = MouseHandlers.MouseStrategyConsole()
 
         self._view_matrix = Matrix()
+        self.scene_min_max = MinMaxLayer([-1, -1], [1, 1])
 
     def minimumSizeHint(self):
         return QtCore.QSize(50, 50)
@@ -67,14 +71,14 @@ class Viewer2D(QtOpenGL.QGLWidget):
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         for l in self.visibleLayers:
-            l.initilizeGL()
+            l.initialize_gl()
 
     def paintGL(self):
         gl.glClearColor(1,1,1,1)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
         for l in self.visibleLayers:
-            l.paintGL()
+            l.paint_gl()
 
     def resizeGL(self, width, height):
         gl.glViewport(0, 0, width, height)
@@ -96,16 +100,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
         for l in self.visibleLayers:
             l.update_scene(model)
 
-        scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
-        for l in self.visibleLayers:
-            min_max = l.get_min_max()
-            if min_max is not None:
-                scene_min_max['max'][0] = max(scene_min_max['max'][0], min_max['max'][0])
-                scene_min_max['max'][1] = max(scene_min_max['max'][1], min_max['max'][1])
-                scene_min_max['min'][0] = min(scene_min_max['min'][0], min_max['min'][0])
-                scene_min_max['min'][1] = min(scene_min_max['min'][1], min_max['min'][1])
-
-        self.scene_min_max = scene_min_max
+        self.scene_min_max = MinMaxLayer.combineList([x.get_min_max() for x in self.visibleLayers])
 
         self.update()
 
@@ -118,23 +113,128 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def getViewMatrix(self):
         return self._view_matrix
 
+
+def read_shader(filename: str) -> str:
+    """
+    Read file into a stream for reading a shader
+    :rtype : str
+    :param filename: a filename of the shader
+    :return: the contents of that file
+    """
+    with open(filename, "r") as file:
+        return file.read()
+
+
+class MinMaxLayer(object):
+    def __init__(self, pos_min: list=None, pos_max: list=None):
+        """
+        Creates an info object that can be used to calculate the minimum and maximum of an layer
+
+        :param pos_min: the minimum of the layer, defaults to positive infinity
+        :param pos_max: the maximum of the layer, defaults to negative infinity
+        """
+        if pos_min is not None:
+            self.pos_min = pos_min
+        else:
+            self.pos_min = [float("inf"), float("inf")]
+        if pos_min is not None:
+            self.pos_max = pos_max
+        else:
+            self.pos_max = [-float("inf"), -float("inf")]
+
+    def min(self, *values, dimension=-1):
+        if dimension == -1:
+            for d in range(2):
+                self.min([v[d] for v in values], dimension=d)
+        else:
+            values2 = list(*values)
+            values2.append(self.pos_min[dimension])
+            self.pos_min[dimension] = min(*values2)
+
+
+    def max(self, *values, dimension=-1):
+        if dimension == -1:
+            for d in range(2):
+                self.max([v[d] for v in values], dimension=d)
+        else:
+            values2 = list(*values)
+            values2.append(self.pos_max[dimension])
+            self.pos_max[dimension] = max(*values2)
+
+
+    def combine(self, other):
+        """
+        The combine method combines 2 different min and max of layers together
+
+        :rtype : MinMaxLayer
+        :param other: the other layers information
+        :return: a new object with layer information
+        """
+        result = MinMaxLayer()
+        if other is not None:
+            result.pos_max[0] = max(self.pos_max[0], other.pos_max[0])
+            result.pos_max[1] = max(self.pos_max[1], other.pos_max[1])
+            result.pos_min[0] = min(self.pos_min[0], other.pos_min[0])
+            result.pos_min[1] = min(self.pos_min[1], other.pos_min[1])
+        else:
+            result.pos_max[0] = self.pos_max[0]
+            result.pos_max[1] = self.pos_max[1]
+            result.pos_min[0] = self.pos_min[0]
+            result.pos_min[1] = self.pos_min[1]
+        return result
+
+
+    @staticmethod
+    def combineList(l: list):
+        """
+        Combines a list of MinMaxLayer to generate a complete info for multiple layers, None elements are ignored.
+
+        :rtype : MinMaxLayer
+        :param l: list of MinMaxLayer
+        :return: The resulting minimum and maximum
+        """
+        total = MinMaxLayer([float("inf"), float("inf")], [-float("inf"), -float("inf")])
+        for info in l:
+            if info is not None:
+                total = total.combine(info)
+        return total
+
 class Layer:
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.view_matrix = np.eye(3,dtype=np.float32)
 
-    def initilizeGL(self):
+    def initialize_gl(self):
+        """
+        Initilizes everything from GL, like loading shaders and creating buffers
+        """
         pass
 
-    def paintGL(self):
+    def paint_gl(self):
+        """
+        Does the draw actions, these methods can't be big
+
+        """
         pass
 
-    def update_scene(self, model):
+    def update_scene(self, model: m.model):
+        """
+        Updates all the scene information
+        :param model: the model where the scene has to be based on
+        """
         pass
 
-    def get_min_max(self):
-        return {max: [0, 0], min: [0, 0]}
+    @property
+    def get_min_max(self) -> MinMaxLayer:
+        """
+        Returns the min and max of the layer, with this information the view whole scene is created. If this layer
+        should not be accounted for, then return None.
+
+        :rtype : MinMaxLayer
+        :return: the min and maximum of the layer.
+        """
+        return MinMaxLayer()
 
     def update_view_matrix(self, matrix):
         self.view_matrix = matrix
@@ -145,15 +245,11 @@ class SimulationLayer(Layer):
 
         self.renderInfo = {}
 
-        self.scene_min_max = {max: [0, 0], min: [0, 0]}
+        self.scene_min_max = MinMaxLayer([0, 0], [0, 0])
 
-    def initilizeGL(self):
-        def readShader(filename):
-            with open (filename, "r") as file:
-                return file.read()
-
-        vertex_code = readShader("GPU\Simulation2D.vert")
-        fragment_code = readShader("GPU\Simulation2D.frag")
+    def initialize_gl(self):
+        vertex_code = read_shader("GPU\Simulation2D.vert")
+        fragment_code = read_shader("GPU\Simulation2D.frag")
 
         self._create_colormap()
 
@@ -165,7 +261,7 @@ class SimulationLayer(Layer):
         self.program['vmax'] = 0.10
         self.program['colormap'] = self.colormap
 
-    def paintGL(self):
+    def paint_gl(self):
         for domain, info in self.renderInfo.items():
             self.program['a_color'] = info['colors']
             self.program['a_position'] = info['position']
@@ -176,7 +272,7 @@ class SimulationLayer(Layer):
 
     def update_scene(self, model):
 
-        scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
+        scene_min_max = MinMaxLayer()
 
         for id in model.Simulation.get_list_domain_ids():
 
@@ -193,13 +289,8 @@ class SimulationLayer(Layer):
                 bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
                 br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
 
-                # region min-maxing scene
-                scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
-                scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
-
-                scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
-                scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
-                # endregion
+                scene_min_max.max(tl, tr, bl, br)
+                scene_min_max.min(tl, tr, bl, br)
 
                 if id in self.renderInfo:
                     self._update_texture(data['data'], self.renderInfo[id]['texture'])
@@ -249,15 +340,11 @@ class SceneLayer(Layer):
 
         self.renderInfo = {}
 
-        self.scene_min_max = {max: [0, 0], min: [0, 0]}
+        self.scene_min_max = MinMaxLayer([0, 0], [0, 0])
 
-    def initilizeGL(self):
-        def readShader(filename):
-            with open (filename, "r") as file:
-                return file.read()
-
-        vertex_code = readShader("GPU\Scene2D.vert")
-        fragment_code = readShader("GPU\Scene2D.frag")
+    def initialize_gl(self):
+        vertex_code = read_shader("GPU\Scene2D.vert")
+        fragment_code = read_shader("GPU\Scene2D.frag")
 
         self._create_colormap()
 
@@ -274,7 +361,7 @@ class SceneLayer(Layer):
         self.program['a_position'] = self.vPosition
         self.program['a_value'] = self.vValues
 
-    def paintGL(self):
+    def paint_gl(self):
         gl.glLineWidth(5.0)
         self.program.draw(gl.GL_LINES)
 
@@ -289,7 +376,7 @@ class SceneLayer(Layer):
         edges = []
         values = []
 
-        scene_min_max = {'max': [-float("inf"), -float("inf")], 'min': [float("inf"), float("inf")]}
+        scene_min_max = MinMaxLayer()
 
         # region reading domains
         for domain in model.SceneDesc['domains']:
@@ -301,13 +388,8 @@ class SceneLayer(Layer):
             bl = [domain['topleft'][x],                     domain['topleft'][y]+domain['size'][y]]
             br = [domain['topleft'][x]+domain['size'][x],   domain['topleft'][y]+domain['size'][y]]
 
-
-            scene_min_max['max'][0] = max(scene_min_max['max'][0], tl[0], tr[0], bl[0], br[0])
-            scene_min_max['max'][1] = max(scene_min_max['max'][1], tl[1], tr[1], bl[1], br[1])
-
-            scene_min_max['min'][0] = min(scene_min_max['min'][0], tl[0], tr[0], bl[0], br[0])
-            scene_min_max['min'][1] = min(scene_min_max['min'][1], tl[1], tr[1], bl[1], br[1])
-
+            scene_min_max.max(tl, tr, bl, br)
+            scene_min_max.min(tl, tr, bl, br)
 
             horizontalvalues.append([domain['edges']['t']['a']])
             horizontalEdges.append(tl)
@@ -360,13 +442,9 @@ class DebugLayer(Layer):
     def __init__(self):
         self.program = None
 
-    def initilizeGL(self):
-        def readShader(filename):
-            with open (filename, "r") as file:
-                return file.read()
-
-        vertex_code = readShader("GPU\Debug2D.vert")
-        fragment_code = readShader("GPU\Debug2D.frag")
+    def initialize_gl(self):
+        vertex_code = read_shader("GPU\Debug2D.vert")
+        fragment_code = read_shader("GPU\Debug2D.frag")
 
         self.vPosition = gloo.VertexBuffer(np.array([[0, 0], [0, 0], [0, 0], [0, 0]], np.float32))
         self.vColors = gloo.VertexBuffer(np.array([[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]], np.float32))
@@ -378,7 +456,7 @@ class DebugLayer(Layer):
         self.program['a_position'] = self.vPosition
         self.program['a_color'] = self.vColors
 
-    def paintGL(self):
+    def paint_gl(self):
         self.program.draw(gl.GL_TRIANGLE_STRIP)
 
     def update_scene(self, model):
