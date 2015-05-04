@@ -67,6 +67,7 @@ class PSTD:
         self.cfgd = dict([(x[0], safe_float(x[1])) for s in config.sections() for x in config.items(s)])
         self.cfgd.update(scene_desc)
         self.cfg = derived_config.PSTD_Config_Base(self.cfgd)
+        # 0mar: todo: move configuration file settings to json or application.
         dx = dz = scene_desc['grid_spacing']
 
         self.pstd_desc = {'domains':[],'dx':float(dx),'dz':float(dz)}
@@ -76,7 +77,7 @@ class PSTD:
         for d in scene_desc['domains']:
             x,y = [np.around(c/dx) for c in d['topleft']]
             w,h = [np.around(c/dx) for c in d['size']]
-            self.scene.add_domain(Domain(self.cfg, d['id'], 1, Point(x,y), Size(w,h), d['edges']))
+            self.scene.add_domain(Domain(self.cfg, d['id'], 1, Point(x,y), Point(w,h), d['edges']))
             center = float((x + w/2) * dx), float((y + h/2) * dx)
             size = float(w * dx), float(h * dx)
             self.pstd_desc['domains'].append({

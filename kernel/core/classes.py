@@ -43,8 +43,11 @@ EPSILON = 1e-9
 class Point(object):
     def __init__(self, x, *args):
         self._array = np.array([x] + list(args)) if len(args) else np.array(list(x))
-        self.type = self.__class__.__name__
-
+        def isinteger(x):
+            return np.equal(np.mod(x, 1), 0)
+        for el in self._array:
+            if not isinteger(el):
+                print("Warning: %s is not integer valued"%self)
     @property
     def array(self):
         return self._array
@@ -87,7 +90,7 @@ class Point(object):
         return any(self.array < other.array)
 
     def __repr__(self):
-        return "%s(%s)" % (self.type + " " * (5 - len(self.type)), ", ".join("%3d" % f for f in self.array))
+        return "%s(%s)" % ("Point", ", ".join("%.1f" % f for f in self.array))
 
 
 # A rectangular domain; the building block of the scene geometry
@@ -97,7 +100,7 @@ class Domain(object):
     HORIZONTAL = set(ADJACENCIES[:2])
     VERTICAL = set(ADJACENCIES[2:])
 
-    def __init__(self, cfg, id: str, alpha, top_left: Point, size: Point, edges, t='air', pml_for=None):
+    def __init__(self, cfg, id: str, alpha, top_left: Point, size: Point, edges: dict, t='air', pml_for=None):
         """
         Initialization for the domain object. This represents a rectangular building block of a scene.
         :param cfg: Configuration object of the scene (PSTD_Config_Base instance)
@@ -108,7 +111,7 @@ class Domain(object):
         :param edges: dictionary with edge information (locally reacting and absorption)
         :param t: material of domain interior. Either air or pml
         :param pml_for: which domain this one is a perfectly matched layer
-        :return: domain object
+        :return: Domain instance with specified attributes.
         """
         self.id = id
         self.alpha = alpha
@@ -125,16 +128,16 @@ class Domain(object):
         self.px0 = self.domain_size_zeros()
         self.pz0 = self.domain_size_zeros()
         self.u0_old = self.w0_old = self.p0_old = self.px0_old = self.pz0_old = None
-
-        self.left, self.right, self.top, self.bottom = [], [], [], []
-        self.leftB, self.rightB, self.topB, self.bottomB = [], [], [], []
+        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # self.left, self.right, self.top, self.bottom = [], [], [], []
+        # self.leftB, self.rightB, self.topB, self.bottomB = [], [], [], []
 
         # TK: TODO: This is probably wrong.. especially with two neighbouring PML domains
         self.impedance = -((math.sqrt(1. - self.alpha) + 1.) / (math.sqrt(1. - self.alpha) - 1))
         self.rho = self.cfg.rho * self.impedance if self.impedance < 1000 else 1e200
 
         self.is_pml = t == 'pml'
-        self.pml_for = pml_for or []
+        self.pml_for = [] if pml_for is None else pml_for
 
         pml_for_is_pml = [d.is_pml for d in self.pml_for]
         assert (len(self.pml_for) == 0 or pml_for_is_pml.count(pml_for_is_pml[0]) == len(pml_for_is_pml))
@@ -155,9 +158,10 @@ class Domain(object):
         self.id, self.top_left, self.size, self.bottom_right)
 
     def __lt__(self, other):
-        return self.top_left < other.topleft
+        return self.top_left < other.top_left
 
     def domain_size_zeros(self, a=0, b=0):
+        # Note that this implies only integer-sized grids are allowed.
         return np.zeros((self.size.y + a, self.size.x + b))
 
     def push_values(self):
@@ -174,10 +178,10 @@ class Domain(object):
         self.Lvz = self.domain_size_zeros()
 
     def calc_rho_matrices(self):
-        l = self.left if len(self.left) else [None]
-        r = self.right if len(self.right) else [None]
-        b = self.bottom if len(self.bottom) else [None]
-        t = self.top if len(self.top) else [None]
+        l = self.neighbour_dict['left'] if len(self.neighbour_dict['left']) else [None]
+        r = self.neighbour_dict['right'] if len(self.neighbour_dict['right']) else [None]
+        b = self.neighbour_dict['bottom'] if len(self.neighbour_dict['bottom']) else [None]
+        t = self.neighbour_dict['top'] if len(self.neighbour_dict['top']) else [None]
         for pair in ((l, r), (b, t)):
             for p in itertools.product(*pair):
                 rhos = [d.rho if d else 1e200 for d in p]
@@ -185,16 +189,18 @@ class Domain(object):
                 self.rho_matrices[frozenset(d for d in p if d)] = {'p': rp, 'v': rv}
 
     def contains_point(self, p):
-        return p.x > self.top_left.x and p.x < self.bottom_right.x and p.y > self.top_left.y and p.y < self.bottom_right.y
+        # 0mar: Todo: Integer values. Using lt instead of le. bug?
+        return (self.bottom_right.x > p.x > self.top_left.x) and (self.bottom_right.y > p.y > self.top_left.y)
 
-    def neighbours(self):
-        return [self.left, self.right, self.top, self.bottom]
+    def neighbour_list(self):
+        return [self.neighbour_dict[adj] for adj in Domain.ADJACENCIES]
+        # return [self.left, self.right, self.top, self.bottom]
 
     def is_neighbour_of(self, other):
-        return other in sum(self.neighbours(), [])
+        return other in sum(self.neighbour_list(), [])
 
     def num_neighbours(self, with_pml=True):
-        return len([n for n in sum(self.neighbours(), []) if n is not None and (not n.is_pml or with_pml)])
+        return len([n for n in sum(self.neighbour_list(), []) if n is not None and (not n.is_pml or with_pml)])
 
     def is_rigid(self):
         return self.impedance > 1000
@@ -202,31 +208,35 @@ class Domain(object):
     def calc_pml(self):
         # Only calculate PML matrices for pml domains with a single non-pml neighbour
         # or for secondary PML domains with a single PML neighbour
-        num_air_neighbours = self.num_neighbours(False)
-        num_neighbours = self.num_neighbours(True)
+        left = self.neighbour_dict['left']
+        right = self.neighbour_dict['right']
+        top = self.neighbour_dict['top']
+        bottom = self.neighbour_dict['bottom']
+        num_air_neighbours = self.num_neighbours(with_pml=False)
+        num_neighbours = self.num_neighbours(with_pml=True)
         assert (num_air_neighbours == 1 and self.is_pml) or (num_neighbours <= 2 and self.is_sec_pml)
         if self.is_sec_pml:
             self.is_2d = num_neighbours == 2
             # If this domain has its neighbour to the left or to the right a PML 
             # matrix is obtained for horizontal attenuation
-            self.is_horizontal = len(self.left) > 0 or len(self.right) > 0
+            self.is_horizontal = len(left) > 0 or len(right) > 0
             if self.is_2d:
                 # Corner PML domains should have a horizontal as well as a vertical component
                 # In particular not two neighbours in the same direction.
-                assert self.is_horizontal and (len(self.top) > 0 or len(self.bottom) > 0)
-                self.is_lower = len(self.left) > 0, len(self.bottom) > 0
+                assert self.is_horizontal and (len(top) > 0 or len(bottom) > 0)
+                self.is_lower = len(left) > 0, len(bottom) > 0
             else:
                 # If this neighbour is located to the left or bottom the attenuation is reversed
-                self.is_lower = len(self.left) > 0 or len(self.bottom) > 0
+                self.is_lower = len(left) > 0 or len(bottom) > 0
         else:
             self.is_2d = False
             # If this domain has a neighbour to the left or to the right and this neighbour
             # is not a PML domain, a PML matrix is obtained for horizontal attenuation
-            self.is_horizontal = (len(self.left) > 0 and all([d.is_pml == False for d in self.left])) or (
-            len(self.right) > 0 and all([d.is_pml == False for d in self.right]))
+            self.is_horizontal = (len(left) > 0 and all([d.is_pml == False for d in left])) or (
+            len(right) > 0 and all([d.is_pml == False for d in right]))
             # If this neighbour is located to the left or bottom the attenuation is reversed
-            self.is_lower = (len(self.left) > 0 and all([d.is_pml == False for d in self.left])) or (
-            len(self.bottom) > 0 and all([d.is_pml == False for d in self.bottom]))
+            self.is_lower = (len(left) > 0 and all([d.is_pml == False for d in left])) or (
+            len(bottom) > 0 and all([d.is_pml == False for d in bottom]))
 
         def make_attenuation(horizontal, ascending):
             # Depending on the direction of the attenuation the matrices need to be left- or
@@ -261,12 +271,13 @@ class Domain(object):
                 if self.local: return False
 
                 # Find my non-PML neighbour
-                for a in self.ADJACENCIES:
-                    domains = getattr(self, a)
+                for adjacency in self.ADJACENCIES:
+                    domains = self.neighbour_dict[adjacency]
+                    opposite_adjacency = Domain.OPPOSITES[adjacency]
                     if len(domains) == 1 and not domains[0].is_pml:
-                        opposites = getattr(domains[0], self.OPPOSITES[a])
-                        assert len(opposites) == 1 and opposites[0] == self
-                        return not domains[0].edges[self.OPPOSITES[a][0]]['lr']
+                        opposite_domains = domains[0].neighbour_dict[opposite_adjacency]
+                        assert len(opposite_domains) == 1 and opposite_domains[0] == self
+                        return not domains[0].edges[opposite_adjacency[0]]['lr']
             else:
                 return True
 
@@ -298,8 +309,8 @@ class Domain(object):
     def get_detached(self, adj):
         bt = BoundaryType.ortho(BoundaryType.from_domain_adjacency(adj))
         own = set(self.get_range(bt))
-        for neighbor in getattr(self, adj):
-            own -= set(neighbor.get_range(bt))
+        for neighbour in self.neighbour_dict[adj]:
+            own -= set(neighbour.get_range(bt))
 
         def decompose(s):
             s = sorted(s)
@@ -319,7 +330,7 @@ class Domain(object):
         domains = getattr(self, adj)
         coord = 'y' if adj in Domain.HORIZONTAL else 'x'
         for domain in domains:
-            lower, upper = sorted(map(int, [getattr(domain.topleft, coord), getattr(domain.bottomright, coord)]))
+            lower, upper = sorted(map(int, [getattr(domain.top_left, coord), getattr(domain.bottom_right, coord)]))
             if d >= lower and d <= upper: return domain
         raise LookupError("No domain found at %s for %.2f" % (adj, d))
 
@@ -328,8 +339,8 @@ class Domain(object):
         # sys.stdout.write(str)
         # sys.stdout.flush()
         # Find the input matrices
-        domains1 = self.left if bt == BoundaryType.HORIZONTAL else self.bottom
-        domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
+        domains1 = self.neighbour_dict['left'] if bt == BoundaryType.HORIZONTAL else self.neighbour_dict['bottom']
+        domains2 = self.neighbour_dict['right'] if bt == BoundaryType.HORIZONTAL else self.neighbour_dict['top']
 
         if len(domains1) == 0: domains1 = [None]
         if len(domains2) == 0: domains2 = [None]
@@ -353,9 +364,9 @@ class Domain(object):
             for other_domain in (domain1, domain2):
                 if other_domain is not None:
                     if bt == BoundaryType.HORIZONTAL:
-                        other_range = range(int(other_domain.topleft.y), int(other_domain.bottomright.y))
+                        other_range = range(int(other_domain.top_left.y), int(other_domain.bottom_right.y))
                     else:
-                        other_range = range(int(other_domain.topleft.x), int(other_domain.bottomright.x))
+                        other_range = range(int(other_domain.top_left.x), int(other_domain.bottom_right.x))
                     # print (other_domain.id, bt, 'other', other_range)
                     range_intersection &= set(other_range)
 
@@ -468,16 +479,16 @@ class CalculationType:
 # Class representing a boundary of a domain. A boundary is shared between two domains.
 class Boundary(object):
     def __init__(self, a, b, t):
-        order = a.topleft < b.topleft  # delivers trouble in arbitrary domain configurations
+        order = a.top_left < b.top_left  # delivers trouble in arbitrary domain configurations
         self.domain1 = a if order else b
         self.domain2 = b if order else a
         self.boundary_type = t
         if self.boundary_type == BoundaryType.HORIZONTAL:
-            self.line = (self.domain1.topleft.x, self.domain1.bottomright.x), (
-            self.domain1.bottomright.y, self.domain1.bottomright.y)
+            self.line = (self.domain1.top_left.x, self.domain1.bottom_right.x), (
+            self.domain1.bottom_right.y, self.domain1.bottom_right.y)
         else:
-            self.line = (self.domain1.bottomright.x, self.domain1.bottomright.x), (
-            self.domain1.topleft.y, self.domain1.bottomright.y)
+            self.line = (self.domain1.bottom_right.x, self.domain1.bottom_right.x), (
+            self.domain1.top_left.y, self.domain1.bottom_right.y)
 
     def create_line(self, fig, tl):
         if not has_matplotlib: return
@@ -490,8 +501,8 @@ class Boundary(object):
         fig.add_line(lines.Line2D([x - tl.x for x in self.line[0]], [y - tl.y for y in self.line[1]], color=c))
 
     def __repr__(self):
-        attrs = ('x', self.domain1.bottomright.x) if self.boundary_type == BoundaryType.HORIZONTAL else (
-        'y', self.domain1.bottomright.y)
+        attrs = ('x', self.domain1.bottom_right.x) if self.boundary_type == BoundaryType.HORIZONTAL else (
+        'y', self.domain1.bottom_right.y)
         return "Boundary at %s=%d" % attrs
 
 
@@ -510,7 +521,7 @@ class Receiver(object):
         if self.nearest_neighbour:
             # Nearest neighbour interpolation
 
-            p = self.grid_location - self.container.topleft
+            p = self.grid_location - self.container.top_left
             value = self.container.p0[p.y, p.x]
         else:
             # Spectral interpolation 
@@ -535,9 +546,9 @@ class Receiver(object):
             p0dx_top = calc(top_domain, BoundaryType.HORIZONTAL)
             p0dx_bottom = calc(bottom_domain, BoundaryType.HORIZONTAL)
 
-            dx = (self.grid_location - self.container.topleft).x
-            dx_top = (self.grid_location - top_domain.topleft).x
-            dx_bottom = (self.grid_location - bottom_domain.topleft).x
+            dx = (self.grid_location - self.container.top_left).x
+            dx_top = (self.grid_location - top_domain.top_left).x
+            dx_bottom = (self.grid_location - bottom_domain.top_left).x
 
             zfact = calc_fact(Point(1, self.container.size.y), BoundaryType.VERTICAL)
 
@@ -549,7 +560,7 @@ class Receiver(object):
                                 nearest_2power(Ntot), rho, p0dx_bottom[:, dx_bottom:dx_bottom + 1],
                                 p0dx_top[:, dx_top:dx_top + 1], 0, 0)
 
-            dy = self.grid_location.y - self.container.topleft.y
+            dy = self.grid_location.y - self.container.top_left.y
 
             value = p0shift[dy, 0]
 
@@ -558,7 +569,8 @@ class Receiver(object):
         return value
 
     def create_annotation(self, fig, tl):
-        if not has_matplotlib: return
+        if not has_matplotlib:
+            return
         fig.add_patch(
             patches.Circle((self.location.x - tl.x, self.location.y - tl.y), radius=2, color='#8899bb', fill=False))
 
@@ -573,8 +585,8 @@ class Scene(object):
         self.boundaries = []
         self.receivers = []
         self.source_positions = []
-        self.topleft = Point(1e9, 1e9)
-        self.bottomright = Point(-1e9, -1e9)
+        self.top_left = Point(1e9, 1e9)
+        self.bottom_right = Point(-1e9, -1e9)
         self.size = Point(0, 0)
         self.subplot = None
 
@@ -597,32 +609,32 @@ class Scene(object):
         receiver = Receiver(self.cfg, "receiver%d" % (len(self.receivers) + 1), location, container)
         self.receivers.append(receiver)
 
-    def add_domain(self, b):
-        self.topleft = Point(min(self.topleft.x, b.topleft.x), min(self.topleft.y, b.topleft.y))
-        self.bottomright = Point(max(self.bottomright.x, b.bottomright.x), max(self.bottomright.y, b.bottomright.y))
-        self.size = Point(self.bottomright - self.topleft)
+    def add_domain(self, domain: Domain):
+        self.top_left = Point(min(self.top_left.x, domain.top_left.x), min(self.top_left.y, domain.top_left.y))
+        self.bottom_right = Point(max(self.bottom_right.x, domain.bottom_right.x), max(self.bottom_right.y, domain.bottom_right.y))
+        self.size = Point(self.bottom_right - self.top_left)
 
         opposite = {'left': 'right', 'top': 'bottom', 'right': 'left', 'bottom': 'top'}
 
-        for a in self.domains:
+        for other_domain in self.domains:
             # TK: Not entirely sure whether this is always correct, for
             # the use cases for openPSTD, in which the PML layers are
             # always added implicitly at the end, it is sufficient:
             # A PML domain can only be a neighbour of another PML domain
             # in case they both connect to a set of two non-PML domains
             # that are neighbours of each other too.
-            if b.is_sec_pml and a.is_sec_pml:
+            if domain.is_sec_pml and other_domain.is_sec_pml:
                 continue
-            if b.is_sec_pml and not a.is_pml:
+            if domain.is_sec_pml and not other_domain.is_pml:
                 continue
-            if a.is_sec_pml and not b.is_pml:
+            if other_domain.is_sec_pml and not domain.is_pml:
                 continue
-            if b.is_pml and a.is_pml:
-                if (b.is_sec_pml and a in b.pml_for) or (a.is_sec_pml and b in a.pml_for):
+            if domain.is_pml and other_domain.is_pml:
+                if (domain.is_sec_pml and other_domain in domain.pml_for) or (other_domain.is_sec_pml and domain in other_domain.pml_for):
                     # secondary pml layers should have a single pml neighbour
                     pass
-                elif not (len(a.pml_for) == 1 and len(b.pml_for) == 1 and a.pml_for[0].is_neighbour_of(
-                        b.pml_for[0]) and a.is_sec_pml == b.is_sec_pml):
+                elif not (len(other_domain.pml_for) == 1 and len(domain.pml_for) == 1 and other_domain.pml_for[0].is_neighbour_of(
+                        domain.pml_for[0]) and other_domain.is_sec_pml == domain.is_sec_pml):
                     continue
 
             # Test for the following situations:
@@ -635,43 +647,44 @@ class Scene(object):
             B = None
             orientation = None
 
-            if a.topleft.x == b.bottomright.x and len(set(range(int(a.topleft.y), int(a.bottomright.y))) & set(
-                    range(int(b.topleft.y),
-                          int(b.bottomright.y)))):  # and a.topleft.y == b.topleft.y and a.size.y == b.size.y: # (3)
-                B = Boundary(a, b, BoundaryType.VERTICAL)
+            if other_domain.top_left.x == domain.bottom_right.x and len(set(range(int(other_domain.top_left.y), int(other_domain.bottom_right.y))) & set(
+                    range(int(domain.top_left.y),
+                          int(domain.bottom_right.y)))):  # and a.top_left.y == b.top_left.y and a.size.y == b.size.y: # (3)
+                B = Boundary(other_domain, domain, BoundaryType.VERTICAL)
                 orientation = 'left'
-            if a.bottomright.x == b.topleft.x and len(set(range(int(a.topleft.y), int(a.bottomright.y))) & set(
-                    range(int(b.topleft.y),
-                          int(b.bottomright.y)))):  # and a.topleft.y == b.topleft.y and a.size.y == b.size.y: # (4)
-                B = Boundary(a, b, BoundaryType.VERTICAL)
+            if other_domain.bottom_right.x == domain.top_left.x and len(set(range(int(other_domain.top_left.y), int(other_domain.bottom_right.y))) & set(
+                    range(int(domain.top_left.y),
+                          int(domain.bottom_right.y)))):  # and a.top_left.y == b.top_left.y and a.size.y == b.size.y: # (4)
+                B = Boundary(other_domain, domain, BoundaryType.VERTICAL)
                 orientation = 'right'
-            if a.topleft.y == b.bottomright.y and len(set(range(int(a.topleft.x), int(a.bottomright.x))) & set(
-                    range(int(b.topleft.x),
-                          int(b.bottomright.x)))):  # and a.topleft.x == b.topleft.x and a.size.x == b.size.x: # (1)
-                B = Boundary(a, b, BoundaryType.HORIZONTAL)
+            if other_domain.top_left.y == domain.bottom_right.y and len(set(range(int(other_domain.top_left.x), int(other_domain.bottom_right.x))) & set(
+                    range(int(domain.top_left.x),
+                          int(domain.bottom_right.x)))):  # and a.top_left.x == b.top_left.x and a.size.x == b.size.x: # (1)
+                B = Boundary(other_domain, domain, BoundaryType.HORIZONTAL)
                 orientation = 'bottom'
-            if a.bottomright.y == b.topleft.y and len(set(range(int(a.topleft.x), int(a.bottomright.x))) & set(
-                    range(int(b.topleft.x),
-                          int(b.bottomright.x)))):  # and a.topleft.x == b.topleft.x and a.size.x == b.size.x: # (2)
-                B = Boundary(a, b, BoundaryType.HORIZONTAL)
+            if other_domain.bottom_right.y == domain.top_left.y and len(set(range(int(other_domain.top_left.x), int(other_domain.bottom_right.x))) & set(
+                    range(int(domain.top_left.x),
+                          int(domain.bottom_right.x)))):  # and a.top_left.x == b.top_left.x and a.size.x == b.size.x: # (2)
+                B = Boundary(other_domain, domain, BoundaryType.HORIZONTAL)
                 orientation = 'top'
 
             # PML layers can only have a single non-PML neighbour
             is_neighbour = bool(orientation)
-            a_is_pml_for_other_domain = a.is_pml and not b.is_pml and b not in a.pml_for
-            b_is_pml_for_other_domain = b.is_pml and not a.is_pml and a not in b.pml_for
+            a_is_pml_for_other_domain = other_domain.is_pml and not domain.is_pml and domain not in other_domain.pml_for
+            b_is_pml_for_other_domain = domain.is_pml and not other_domain.is_pml and other_domain not in domain.pml_for
             if orientation and not (a_is_pml_for_other_domain or b_is_pml_for_other_domain):
                 self.boundaries.append(B)
-                getattr(a, orientation).append(b)
-                getattr(b, opposite[orientation]).append(a)
+                other_domain.neighbour_dict[orientation].append(domain)
+                domain.neighbour_dict[opposite[orientation]].append(other_domain)
 
-        self.domains.append(b)
+        self.domains.append(domain)
 
     def calc_rho_matrices(self):
         for d in self.domains: d.calc_rho_matrices()
 
     def add_pml_domains(self, n=None):
-        if n is None: n = self.cfg.PMLcells
+        if n is None:
+            n = self.cfg.PMLcells
         D = []
         D2 = []
         for d in self.domains:
@@ -686,10 +699,10 @@ class Scene(object):
                     if len(rs) > 1: pml_id += '_%d' % idx
                     a = d.edges[adj[0]]['a']
                     pml_a = max(EPSILON, a)
-                    if adj == 'left': pml_offset = Point(-n, range[0] - d.topleft.y)
-                    if adj == 'right': pml_offset = Point(d.size.x, range[0] - d.topleft.y)
-                    if adj == 'bottom': pml_offset = Point(range[0] - d.topleft.x, -n)
-                    if adj == 'top': pml_offset = Point(range[0] - d.topleft.x, d.size.y)
+                    if adj == 'left': pml_offset = Point(-n, range[0] - d.top_left.y)
+                    if adj == 'right': pml_offset = Point(d.size.x, range[0] - d.top_left.y)
+                    if adj == 'bottom': pml_offset = Point(range[0] - d.top_left.x, -n)
+                    if adj == 'top': pml_offset = Point(range[0] - d.top_left.x, d.size.y)
 
                     if adj == 'left' or adj == 'right':
                         pml_size = Point(n, range[1] - range[0])
@@ -701,11 +714,11 @@ class Scene(object):
                     # otherwise the PML layer is set to be locally reacting.
                     bt = BoundaryType.ortho(BoundaryType.from_domain_adjacency(adj))
                     if bt == BoundaryType.VERTICAL:
-                        full_overlap = range[0] == d.topleft.x and range[1] == d.bottomright.x
+                        full_overlap = range[0] == d.top_left.x and range[1] == d.bottom_right.x
                     else:
-                        full_overlap = range[0] == d.topleft.y and range[1] == d.bottomright.y
+                        full_overlap = range[0] == d.top_left.y and range[1] == d.bottom_right.y
 
-                    pml_domain = Domain(self.cfg, pml_id, pml_a, d.topleft + pml_offset, pml_size, {}, 'pml', [d])
+                    pml_domain = Domain(self.cfg, pml_id, pml_a, d.top_left + pml_offset, pml_size, {}, 'pml', [d])
 
                     if not full_overlap: pml_domain.local = True
 
@@ -729,18 +742,20 @@ class Scene(object):
                             if sec_adj == 'top': sec_pml_offset = Point(0, pml_domain.size.y)
                             sec_pml_size = Point(n, n)
                             D2.append((pml_domain, sec_adj,
-                                       Domain(self.cfg, sec_pml_id, sec_pml_a, d.topleft + pml_offset + sec_pml_offset,
+                                       Domain(self.cfg, sec_pml_id, sec_pml_a, d.top_left + pml_offset + sec_pml_offset,
                                               sec_pml_size, {}, 'pml', [pml_domain])))
-        for d in D: self.add_domain(d)
+        for d in D:
+            self.add_domain(d)
 
         # Sort the domains according to their top-left position and size.
         # The sole purpose is to find duplicates in N log N time.
+        # OR: Todo: Is there still a well defined ordering with arbitrary domain configurations...?
         def coord_pairs(d1, d2):
             return [
-                (d1.topleft.x, d2.topleft.x    ),
-                (d1.topleft.y, d2.topleft.y    ),
-                (d1.bottomright.x, d2.bottomright.x),
-                (d1.bottomright.y, d2.bottomright.y)
+                (d1.top_left.x, d2.top_left.x),
+                (d1.top_left.y, d2.top_left.y),
+                (d1.bottom_right.x, d2.bottom_right.x),
+                (d1.bottom_right.y, d2.bottom_right.y)
             ]
 
         def sort_func(d1t, d2t):
@@ -752,7 +767,7 @@ class Scene(object):
             return 0
 
         def key_func(d):
-            return d[0].id, d[2].topleft.x, d[2].topleft.y, d[2].bottomright.x, d[2].bottomright.y
+            return d[0].id, d[2].top_left.x, d[2].top_left.y, d[2].bottom_right.x, d[2].bottom_right.y
 
         D3 = []
         prev = None
@@ -766,7 +781,7 @@ class Scene(object):
             parent, adj, pml_domain = D
             # Check if the domain for which this domain is a PML layer
             # has been assigned a domain on that edge by now.
-            if getattr(parent, adj): continue
+            if parent.neighbour_dict[adj]: continue
 
             # Check whether it completely overlaps with the previous
             # entry in the list and whether the domain has the same ancestor
@@ -799,7 +814,7 @@ class Scene(object):
     def add_source(self, sx, sy):
         self.source_positions.append(Point(sx, sy))
         for d in [_d for _d in self.domains if not _d.is_pml]:
-            Sx, Sy = sx - d.topleft.x * self.cfg.dx, sy - d.topleft.y * self.cfg.dx
+            Sx, Sy = sx - d.top_left.x * self.cfg.dx, sy - d.top_left.y * self.cfg.dx
             dS = np.fromfunction(lambda y, x: np.sqrt((x * self.cfg.dx - Sx) ** 2 + (y * self.cfg.dx - Sy) ** 2),
                                  (d.size.y, d.size.x))
             p0 = np.exp(-self.cfg.bwidth * np.power(np.abs(dS), 2.))
@@ -810,24 +825,24 @@ class Scene(object):
     def draw_boundaries(self, fig):
         self.subplot = self.subplot if self.subplot else fig.add_subplot(111)
         for b in self.boundaries:
-            b.create_line(self.subplot, self.topleft)
+            b.create_line(self.subplot, self.top_left)
 
     def draw_receivers(self, fig):
         self.subplot = self.subplot if self.subplot else fig.add_subplot(111)
         for b in self.receivers:
-            b.create_annotation(self.subplot, self.topleft)
+            b.create_annotation(self.subplot, self.top_left)
 
     def draw_domain_ids(self, fig):
         self.subplot = self.subplot if self.subplot else fig.add_subplot(111)
         prefix_len = len(commonprefix([d.id for d in self.domains]))
         for d in self.domains:
-            self.subplot.text(d.topleft.x - self.topleft.x + 1, d.bottomright.y - self.topleft.y - 1, d.id[prefix_len:],
+            self.subplot.text(d.top_left.x - self.top_left.x + 1, d.bottom_right.y - self.top_left.y - 1, d.id[prefix_len:],
                               fontsize=10)
 
     def get(self, field):
         a = np.zeros((self.size.y, self.size.x))
         for b in self.domains:
-            tl = b.topleft - self.topleft
+            tl = b.top_left - self.top_left
             a[tl.y:tl.y + b.size.y, tl.x:tl.x + b.size.x] += getattr(b, field)
         return a
 

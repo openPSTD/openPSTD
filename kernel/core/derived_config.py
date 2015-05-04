@@ -19,7 +19,6 @@
 
 import operator
 import numpy as np
-
 try: from functools import reduce
 except: pass
 
