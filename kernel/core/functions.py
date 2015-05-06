@@ -206,7 +206,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
-        ''' 
+        
         #plot and quit
         np.set_printoptions(threshold=np.nan)
         print "catemp: ",catemp
@@ -218,7 +218,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         a[2].plot(Ltemp.transpose())
         plt.show()
         raise SystemExit
-        '''
+        
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2-1))
@@ -253,7 +253,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
     import pycuda.gpuarray as gpuarray
 
-    reusecontext = True
+    reusecontext = False
 
     if reusecontext == False:
         from pyfft.cuda import Plan
@@ -293,16 +293,61 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
         catempim = np.zeros(catemp.shape)
 
-        catemp_gpu = gpuarray.to_gpu(catemp.transpose())
-        catempim_gpu = gpuarray.to_gpu(catempim.transpose())
+        #dubious debuggin start
+        carow1 = catemp[:,0]
+        carow1 = np.array(carow1.reshape(128,1),np.float64)
+        carowim1 = catempim[:,0]
+        carowim1 = np.array(carowim1.reshape(128,1),np.float64)
+        carow5 = catemp[:,0:2]
+        print "ccr: ",carow5.shape
+        carow5 = np.array(carow5.reshape(128,2),np.float64)
+        carowim5 = catempim[:,0:2]
+        carowim5 = np.array(carowim5.reshape(128,2),np.float64)
+
+        np.set_printoptions(threshold=np.nan)
+        print "carow1: ",carow1
+        print carow1.shape
+        print "carow5: ",carow5
+        print carow5.shape
+        
+        carow1gpu = gpuarray.to_gpu(carow1)
+        carowim1gpu = gpuarray.to_gpu(carowim1)
+        plan.execute(carow1gpu, carowim1gpu, batch=1)
+        row1fftres = carow1gpu.get()
+        rowim1fftres = carowim1gpu.get()
+
+        carow5gpu = gpuarray.to_gpu(carow5)
+        carowim5gpu = gpuarray.to_gpu(carowim5)
+        plan.execute(data_in_re=carow5gpu, data_in_im=carowim5gpu, batch=2)
+        row5fftres = carow5gpu.get()
+        rowim5fftres = carowim5gpu.get()
+
+        #plot and quit
+        import matplotlib.pyplot as plt
+        f, a = plt.subplots(6, sharex=False)
+        a[0].plot(carow1)
+        a[1].plot(row1fftres)
+        a[2].plot(rowim1fftres)
+        a[3].plot(carow5)
+        a[4].plot(row5fftres)
+        a[5].plot(rowim5fftres)
+        plt.show()
+        raise SystemExit
+
+        catemp_gpu = gpuarray.to_gpu(catemp)
+        catempim_gpu = gpuarray.to_gpu(catempim)
         
         derfact_gpu = gpuarray.to_gpu(derfact[0:N2])
         
         #execute the fft
-        plan.execute(catemp_gpu, catempim_gpu, inverse=False, batch=N1)
+        plan.execute(catemp_gpu, catempim_gpu, inverse=False, batch=1)
         
         #TEMPORARY solution: get back to cpu to multiply by derivfactor
         Ktemp = catemp_gpu.get().astype(np.float64) #!!!!!!!!! wrong values !!!!!!!!!
+        import matplotlib.pyplot as plt
+        plt.plot(Ktemp)
+        plt.show()
+        raise SystemExit
         Ktempi = Ktemp.astype(np.complex64)
         Ktempi.imag = catempim_gpu.get()
         derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktempi.transpose())).transpose()
@@ -314,7 +359,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         plan.execute(catemp_gpu, catempim_gpu, inverse=True, batch=N1)
         Ltemp = catemp_gpu.get()
         Ltemp = Ltemp.transpose() #return to original shape
-        ''' 
+         
         #plot and quit
         import matplotlib.pyplot as plt
         f, a = plt.subplots(4, sharex=False)
@@ -324,7 +369,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         a[3].plot(Ltemp.transpose())
         plt.show()
         raise SystemExit
-        '''
+        
 
         Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
