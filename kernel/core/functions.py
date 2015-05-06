@@ -206,8 +206,11 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
-        
+        ''' 
         #plot and quit
+        np.set_printoptions(threshold=np.nan)
+        print "catemp: ",catemp
+
         import matplotlib.pyplot as plt
         f, a = plt.subplots(3)
         a[0].plot(catemp.transpose())
@@ -215,7 +218,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         a[2].plot(Ltemp.transpose())
         plt.show()
         raise SystemExit
-        
+        '''
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2-1))
@@ -290,60 +293,19 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
         catempim = np.zeros(catemp.shape)
 
-        #dubious debug start
-        print "N1,N2: ",N1,N2
-        N1=5
-        N2=114
-        x = np.linspace(0, 2 * np.pi, N2)
-        y = np.sin(2 * x)
-        y = np.concatenate((y,np.zeros(nearest_2power(N2)-N2)))
-        y = y.reshape(1,nearest_2power(N2))
-
-        for i in xrange(N1-1): #append N1-1 sines
-            yi = np.sin(2 * i * x)
-            yi = np.concatenate((yi,np.zeros(nearest_2power(N2)-N2)))
-            yi = yi.reshape(1,nearest_2power(N2))
-            y = np.concatenate(((y),(yi)),0)
-
-        y = y.transpose()
-        yim= np.zeros(y.shape)
-        y = np.array(y,np.float64)
-
-        gpu_testmat = gpuarray.to_gpu(y)
-        gpu_testmatim = gpuarray.to_gpu(yim)
-        plan.execute(gpu_testmat, gpu_testmatim, batch=N1)
-        c = gpu_testmat.get() #get fft result
-        plan.execute(gpu_testmat, gpu_testmatim, inverse=True, batch=N1)
-        d = np.real(gpu_testmat.get()) #get ifft result
-
-        import matplotlib.pyplot as plt
-        f, axarr = plt.subplots(3, sharex=False)
-        axarr[0].plot(y)
-        axarr[0].set_title('input padded')
-        axarr[1].plot(c)
-        axarr[1].set_title('output Plan(input)')
-        axarr[2].plot(d)
-        axarr[2].set_title('output Plan(input, inverse=True)')
-        plt.show()
-        raise SystemExit
-
-
-        #dubious debug end
-
-
-
-        catemp_gpu = gpuarray.to_gpu(catemp)
-        catempim_gpu = gpuarray.to_gpu(catempim)
+        catemp_gpu = gpuarray.to_gpu(catemp.transpose())
+        catempim_gpu = gpuarray.to_gpu(catempim.transpose())
         
         derfact_gpu = gpuarray.to_gpu(derfact[0:N2])
         
         #execute the fft
-        plan.execute(catemp_gpu, catempim_gpu, batch=N1)
+        plan.execute(catemp_gpu, catempim_gpu, inverse=False, batch=N1)
         
         #TEMPORARY solution: get back to cpu to multiply by derivfactor
-        Ktemp = catemp_gpu.get().astype(np.complex64) #!!! wrong values !!!
-        Ktemp.imag = catempim_gpu.get()
-        derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose())).transpose()
+        Ktemp = catemp_gpu.get().astype(np.float64) #!!!!!!!!! wrong values !!!!!!!!!
+        Ktempi = Ktemp.astype(np.complex64)
+        Ktempi.imag = catempim_gpu.get()
+        derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktempi.transpose())).transpose()
 
         catemp_gpu = gpuarray.to_gpu((derpart.real).astype(np.float64))
         catempim_gpu = gpuarray.to_gpu((derpart.imag).astype(np.float64))                
@@ -355,10 +317,11 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         ''' 
         #plot and quit
         import matplotlib.pyplot as plt
-        f, a = plt.subplots(3, sharex=False)
+        f, a = plt.subplots(4, sharex=False)
         a[0].plot(catemp)
         a[1].plot(Ktemp)
-        a[2].plot(Ltemp.transpose())
+        a[2].plot(Ktempi)
+        a[3].plot(Ltemp.transpose())
         plt.show()
         raise SystemExit
         '''
