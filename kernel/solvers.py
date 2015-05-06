@@ -165,7 +165,7 @@ class GpuAccelerated:
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan = Plan((64, 128), dtype=np.complex64, context=context, stream=stream, fast_math=False)
+            plan = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
 
             # Loop over time steps
             for frame in range(int(cfg.TRK)):
@@ -183,14 +183,14 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct):
+                                    def calc_gpu(domain, bt, ct, plan):
                                         domain.calc_gpu(bt, ct, plan)
 
-                                    calc_gpu(d, boundary_type, calculation_type)
+                                    calc_gpu(d, boundary_type, calculation_type, plan)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():
-                            def calc_gpu(d):
+                            def calc(d):
                                 d.u0 = d.u0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpx)).real
                                 d.w0 = d.w0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpz)).real
                                 d.px0 = d.px0_old + (
@@ -198,7 +198,7 @@ class GpuAccelerated:
                                 d.pz0 = d.pz0_old + (
                                 -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvz)).real
 
-                            calc_gpu(domain)
+                            calc(domain)
 
 
                     # Sum the pressure components

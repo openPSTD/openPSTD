@@ -152,7 +152,6 @@ def kcalc(dx,N):
     
     return k, jfact
 
-@profile
 def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
@@ -198,13 +197,25 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         G = np.ones((N1,size123))
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
+        catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
                                  p2[:,0:Ns2], \
-                                 Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G,int(N2), axis=1)
+                                 Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
+        Ktemp = fft(catemp,int(N2), axis=1)
         Ktemp_der = (np.ones((N1,1))*derfact[0:N2]*Ktemp)
+        #print "Ktemp = ", Ktemp
+        
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
- 
+        
+        #plot and quit
+        import matplotlib.pyplot as plt
+        f, a = plt.subplots(3)
+        a[0].plot(catemp.transpose())
+        a[1].plot(Ktemp.transpose())
+        a[2].plot(Ltemp.transpose())
+        plt.show()
+        raise SystemExit
+        
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2-1))
@@ -223,26 +234,9 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         Lp = Lp.transpose()
 
     return Lp
-
 @profile
 def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
-    from pyfft.cuda import Plan
-    import pycuda.driver as cuda
-    import pycuda.gpuarray as gpuarray
-
-    #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
-
-    # spatial derivative across three media
-
-    # --------------|---------------|---------------
-    #   subdomain 1 |   subdomain 2 |   subomain 3
-    # --------------|---------------|---------------
-    #           interface 1         interface 3
-
-    # So far, we assume that only two subdomains meet at 1 interface !!
-
-    # Derivatives are computed in subdomain 2
-
+    #equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
     # Wlength = length of window function
     # A = window function
@@ -252,9 +246,22 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
     # Rmatrix = matrix of reflection coefficients
     # p1 = variable matrix subdomain 1
     # p3 = variable matrix subdomain 1
-    # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
+    # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity 
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
+    import pycuda.gpuarray as gpuarray
 
+    reusecontext = True
+
+    if reusecontext == False:
+        from pyfft.cuda import Plan
+        import pycuda.driver as cuda
+        from pycuda.tools import make_default_context
+        cuda.init()
+        context = make_default_context()
+        stream = cuda.Stream()
+        plan = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
+
+    #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
 
     Ns1 = np.size(p1, axis=direct)
     Ns3 = np.size(p3, axis=direct)
@@ -276,20 +283,85 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         
         matemp = (Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], p2[:,0:Ns2],\
                   Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
-        catemp = np.concatenate(matemp, axis=1)*G
+        catemp = np.concatenate(matemp, axis=1)*G   #identical to original until here
 
-        catemp_gpu = cuda.mem_alloc(catemp.nbytes)
-        cuda.memcpy_htod(catemp_gpu, catemp)
-        #catemp_gpu = gpuarray.to_gpu(catemp)
-        #catempim_gpu = gpuarray.empty(catemp.shape, np.float64)
+        catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
+        (xshape, yshape) = catemprev.shape
+        catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
+        catempim = np.zeros(catemp.shape)
 
-        plan.execute(catemp_gpu, batch=1)
-			#TODO: matrix multiply with the derivfactor
-                        #np.ones((N1,1))*derfact[0:N2]*Ktemp
+        #dubious debug start
+        print "N1,N2: ",N1,N2
+        N1=5
+        N2=114
+        x = np.linspace(0, 2 * np.pi, N2)
+        y = np.sin(2 * x)
+        y = np.concatenate((y,np.zeros(nearest_2power(N2)-N2)))
+        y = y.reshape(1,nearest_2power(N2))
 
-        plan.execute(catemp_gpu, inverse=True, batch=1)
-	Ltemp = np.zeros(catemp.shape)
-        cuda.memcpy_dtoh(Ltemp, catemp_gpu)
+        for i in xrange(N1-1): #append N1-1 sines
+            yi = np.sin(2 * i * x)
+            yi = np.concatenate((yi,np.zeros(nearest_2power(N2)-N2)))
+            yi = yi.reshape(1,nearest_2power(N2))
+            y = np.concatenate(((y),(yi)),0)
+
+        y = y.transpose()
+        yim= np.zeros(y.shape)
+        y = np.array(y,np.float64)
+
+        gpu_testmat = gpuarray.to_gpu(y)
+        gpu_testmatim = gpuarray.to_gpu(yim)
+        plan.execute(gpu_testmat, gpu_testmatim, batch=N1)
+        c = gpu_testmat.get() #get fft result
+        plan.execute(gpu_testmat, gpu_testmatim, inverse=True, batch=N1)
+        d = np.real(gpu_testmat.get()) #get ifft result
+
+        import matplotlib.pyplot as plt
+        f, axarr = plt.subplots(3, sharex=False)
+        axarr[0].plot(y)
+        axarr[0].set_title('input padded')
+        axarr[1].plot(c)
+        axarr[1].set_title('output Plan(input)')
+        axarr[2].plot(d)
+        axarr[2].set_title('output Plan(input, inverse=True)')
+        plt.show()
+        raise SystemExit
+
+
+        #dubious debug end
+
+
+
+        catemp_gpu = gpuarray.to_gpu(catemp)
+        catempim_gpu = gpuarray.to_gpu(catempim)
+        
+        derfact_gpu = gpuarray.to_gpu(derfact[0:N2])
+        
+        #execute the fft
+        plan.execute(catemp_gpu, catempim_gpu, batch=N1)
+        
+        #TEMPORARY solution: get back to cpu to multiply by derivfactor
+        Ktemp = catemp_gpu.get().astype(np.complex64) #!!! wrong values !!!
+        Ktemp.imag = catempim_gpu.get()
+        derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose())).transpose()
+
+        catemp_gpu = gpuarray.to_gpu((derpart.real).astype(np.float64))
+        catempim_gpu = gpuarray.to_gpu((derpart.imag).astype(np.float64))                
+        
+        #execute the ifft
+        plan.execute(catemp_gpu, catempim_gpu, inverse=True, batch=N1)
+        Ltemp = catemp_gpu.get()
+        Ltemp = Ltemp.transpose() #return to original shape
+        ''' 
+        #plot and quit
+        import matplotlib.pyplot as plt
+        f, a = plt.subplots(3, sharex=False)
+        a[0].plot(catemp)
+        a[1].plot(Ktemp)
+        a[2].plot(Ltemp.transpose())
+        plt.show()
+        raise SystemExit
+        '''
 
         Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
