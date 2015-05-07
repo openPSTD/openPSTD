@@ -91,8 +91,17 @@ class UpdateInteractivity(operation):
         :param receiver: The receiver that the operation should use.
         """
         assert isinstance(receiver.model.interactivity, InteractiveView)
+
+        grid_spacing = receiver.model.SceneDesc["grid_spacing"]
+        self.br[0] = round(self.br[0]/grid_spacing)*grid_spacing
+        self.br[1] = round(self.br[1]/grid_spacing)*grid_spacing
+        self.tl[0] = round(self.tl[0]/grid_spacing)*grid_spacing
+        self.tl[1] = round(self.tl[1]/grid_spacing)*grid_spacing
+
         receiver.model.interactivity.draw_square.br = self.br
         receiver.model.interactivity.draw_square.tl = self.tl
+
+
 
         helper.CallObservers(receiver.model.SceneDescChanged)
 
