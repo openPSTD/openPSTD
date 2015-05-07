@@ -18,8 +18,10 @@
 ########################################################################
 __author__ = 'michiel'
 
-import numpy as np
 import abc
+
+import numpy as np
+
 
 class Colors:
     black = (0, 0, 0, 1)
@@ -100,5 +102,8 @@ class StandardColorScheme(BaseColorScheme):
 
     def editorDomainSignalColorGradient(self):
         return MultiColorGradient([0, 0.10], [Colors.black, Colors.red])
+
+    def editorCreateDomainColor(self):
+        return Colors.red
 
 activeColorScheme = StandardColorScheme()

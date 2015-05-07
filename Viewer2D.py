@@ -20,24 +20,34 @@
 __author__ = 'michiel'
 
 import sys
+import abc
+import copy
+
 from PySide import QtCore, QtGui, QtOpenGL
 from vispy import gloo
 import OpenGL.GL as gl
 import numpy as np
+
 from colors import activeColorScheme as colorScheme
-import abc
-import copy
-import model as m
+
+
+
+
+#from model import Model
+
+import InteractiveView
 
 from transforms2D import Matrix
 import MouseHandlers
 
 try:
+    # noinspection PyUnresolvedReferences
     from OpenGL import GL
 except ImportError:
     app = QtGui.QApplication(sys.argv)
-    QtGui.QMessageBox.critical(None, "OpenGL hellogl",
-                            "PyOpenGL must be installed to run this example.",
+    # noinspection PyTypeChecker
+    QtGui.QMessageBox.critical(None, "OpenPSTD",
+                            "PyOpenGL must be installed to run this application.",
                             QtGui.QMessageBox.Ok | QtGui.QMessageBox.Default,
                             QtGui.QMessageBox.NoButton)
     sys.exit(1)
@@ -52,7 +62,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.viewPort = [640, 480]
 
-        self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer()]
+        self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer()]
         """:type: list[Layer]"""
 
         self.mouseHandler = MouseHandlers.MouseStrategyConsole()
@@ -97,11 +107,11 @@ class Viewer2D(QtOpenGL.QGLWidget):
     def mouseReleaseEvent(self, event):
         self.mouseHandler.mouseReleaseEvent(event)
 
-    def update_scene(self, model: m.model):
+    def update_scene(self, model):
         """
         Updates all the layers with new information in the model
 
-        :type model: m.model
+        :type model: Model
         :param model: the current model
         """
         for l in self.visibleLayers:
@@ -160,10 +170,11 @@ class MinMaxLayer(object):
         else:
             self.pos_max = [-float("inf"), -float("inf")]
 
-    def min(self, *values: float, dimension: int=-1):
+    def min(self, *values: list, dimension: int=-1):
         """
         Calculates the min of 2 dimensional points or in a certain dimension
 
+        :type values: list[float]
         :type dimension: int
         :param values: the 2 dimensional points or single scaler values
         :param dimension: if 2 dimensional points are given, then this should be -1, else it should specify the
@@ -178,10 +189,11 @@ class MinMaxLayer(object):
             self.pos_min[dimension] = min(*values2)
 
 
-    def max(self, *values: float, dimension: int=-1):
+    def max(self, *values: list, dimension: int=-1):
         """
         Calculates the max of 2 dimensional points or in a certain dimension
 
+        :type values: list[float]
         :param values: the 2 dimensional points or single scaler values
         :param dimension: if 2 dimensional points are given, then this should be -1, else it should specify the
         dimension in which it should maximize the values.
@@ -251,7 +263,7 @@ class Layer:
         """
         pass
 
-    def update_scene(self, model: m.model):
+    def update_scene(self, model):
         """
         Updates all the scene information
         :param model: the model where the scene has to be based on
@@ -266,7 +278,7 @@ class Layer:
         :rtype : MinMaxLayer
         :return: the min and maximum of the layer.
         """
-        return MinMaxLayer()
+        return None
 
     def update_view_matrix(self, matrix: Matrix):
         """
@@ -279,6 +291,7 @@ class Layer:
 
 class SimulationLayer(Layer):
     def __init__(self):
+        super(SimulationLayer, self).__init__()
         self.program = None
 
         self.renderInfo = {}
@@ -374,6 +387,7 @@ class SimulationLayer(Layer):
 
 class SceneLayer(Layer):
     def __init__(self):
+        super(SceneLayer, self).__init__()
         self.program = None
 
         self.renderInfo = {}
@@ -478,6 +492,7 @@ class SceneLayer(Layer):
 
 class DebugLayer(Layer):
     def __init__(self):
+        super(DebugLayer, self).__init__()
         self.program = None
 
     def initialize_gl(self):
