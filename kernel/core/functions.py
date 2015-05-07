@@ -293,23 +293,23 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
         catempim = np.zeros(catemp.shape)
 
-        #dubious debuggin start
+        #dubious debuggin start 
         carow1 = catemp[:,0]
         carow1 = np.array(carow1.reshape(128,1),np.float64)
         carowim1 = catempim[:,0]
         carowim1 = np.array(carowim1.reshape(128,1),np.float64)
+
         carow5 = catemp[:,0:2]
-        print "ccr: ",carow5.shape
         carow5 = np.array(carow5.reshape(128,2),np.float64)
         carowim5 = catempim[:,0:2]
         carowim5 = np.array(carowim5.reshape(128,2),np.float64)
 
         np.set_printoptions(threshold=np.nan)
-        print "carow1: ",carow1
-        print carow1.shape
-        print "carow5: ",carow5
+        #print carow1
+        #print carow1.shape
+        print carow5
         print carow5.shape
-        
+
         carow1gpu = gpuarray.to_gpu(carow1)
         carowim1gpu = gpuarray.to_gpu(carowim1)
         plan.execute(carow1gpu, carowim1gpu, batch=1)
@@ -318,7 +318,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
 
         carow5gpu = gpuarray.to_gpu(carow5)
         carowim5gpu = gpuarray.to_gpu(carowim5)
-        plan.execute(data_in_re=carow5gpu, data_in_im=carowim5gpu, batch=2)
+        plan1.execute(data_in_re=carow5gpu,data_in_im=carowim5gpu,data_out_re=None, data_out_im=None, inverse=False, batch=2)
         row5fftres = carow5gpu.get()
         rowim5fftres = carowim5gpu.get()
 
@@ -330,9 +330,15 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan):
         a[2].plot(rowim1fftres)
         a[3].plot(carow5)
         a[4].plot(row5fftres)
-        a[5].plot(rowim5fftres)
+        #a[5].plot(rowim5fftres)
+        a[5].plot(fft(carow5,128,0))
+        
+        print "gpuresrow5: \n",row5fftres,"\ncpuresr5:\n",np.real(fft(carow5,128,0))
+
         plt.show()
         raise SystemExit
+
+        #end dubious debugging
 
         catemp_gpu = gpuarray.to_gpu(catemp)
         catempim_gpu = gpuarray.to_gpu(catempim)
