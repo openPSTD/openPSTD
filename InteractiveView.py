@@ -7,10 +7,16 @@ import OpenGL.GL as gl
 from Viewer2D import Layer, read_shader
 from colors import activeColorScheme as colorScheme
 import model as m
+from operations.BaseOperation import Receiver, operation
+import helper
 
 
 class InteractiveView(object):
     def __init__(self):
+        """
+
+        :rtype : InteractiveView
+        """
         self.draw_square = Square()
 
 class Square(object):
@@ -62,3 +68,31 @@ class InteractiveViewLayer(Layer):
 
     def update_view_matrix(self, matrix):
         self.program['u_view'] = matrix
+
+
+
+class UpdateInteractivity(operation):
+    def __init__(self, tl, br):
+        """
+
+
+        :type br: list[float]
+        :type tl: list[float]
+        """
+        super(UpdateInteractivity, self).__init__()
+        self.br = br
+        self.tl = tl
+
+    def run(self, receiver: Receiver):
+        """
+        Updates the interactivity class
+
+        :type receiver: Receiver
+        :param receiver: The receiver that the operation should use.
+        """
+        assert isinstance(receiver.model.interactivity, InteractiveView)
+        receiver.model.interactivity.draw_square.br = self.br
+        receiver.model.interactivity.draw_square.tl = self.tl
+
+        helper.CallObservers(receiver.model.SceneDescChanged)
+

@@ -19,14 +19,24 @@
 
 __author__ = 'michiel'
 
-import abc
-import helper
+from abc import ABCMeta, abstractmethod
 import threading
 import traceback
 
+import helper
+
+
 class OperationRunner:
-    __metaclass__ = abc.ABCMeta
-    def run_operation(self, operation):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def run_operation(self, op):
+        """
+        Run an operation. This is an empty method and should be overridden in a subclass
+
+        :rtype : operation
+        :param op: The operation that has to be executed.
+        """
         pass
 
 class Receiver(OperationRunner):
@@ -35,13 +45,25 @@ class Receiver(OperationRunner):
         self.ui = ui
 
     def run_operation(self, op):
+        """
+        Run an operation on the same receiver.
+
+        :type op: operation
+        :param op: The operation that has to be executed.
+        """
         op.run(self)
 
 
-class operation:
-    __metaclass__ = abc.ABCMeta
+class operation(metaclass=ABCMeta):
 
-    def run(self, r):
+    @abstractmethod
+    def run(self, r: Receiver):
+        """
+        Makes the operation run. This is an empty method in the base class and should be overridden in the subclass.
+
+        :type r: Receiver
+        :param r: The receiver that the operation should use.
+        """
         pass
 
 STATUS_NONE = 1
@@ -49,8 +71,8 @@ STATUS_RUNNING = 2
 STATUS_FINISHED = 3
 STATUS_ERROR = 4
 
-class LongOperation:
-    __metaclass__ = abc.ABCMeta
+class LongOperation(metaclass=ABCMeta):
+
     def __init__(self):
         self.statusTextChanged = []
         self.statusText = 'None'
@@ -58,8 +80,16 @@ class LongOperation:
         self.status = STATUS_NONE
         self._thread = threading.Thread(target=self._process)
         self._r = None
+        """:type: Receiver"""
 
-    def start(self, r):
+
+    def start(self, r: Receiver):
+        """
+        starts the operation
+
+        :type r: Receiver
+        :param r: the receiver that the operation must run on.
+        """
         self._r = r
         self._thread.start()
 
@@ -78,13 +108,32 @@ class LongOperation:
             print(traceback.format_exc())
             self._change_status(STATUS_ERROR)
 
-    def process(self, r):
+    @abstractmethod
+    def process(self, r: Receiver):
+        """
+        The process that is called when this operation is run. This operation is run in a seperate thread, so that other
+        threads still can continue for UX.
+
+        :type r: Receiver
+        :param r: the receiver that the operation can run on.
+        """
         return False
 
-    def change_status_text(self, new_status_text):
+    def change_status_text(self, new_status_text: str):
+        """
+        Change the status text
+
+        :type new_status_text: str
+        """
         self.statusText = new_status_text
         helper.CallObserversQT(self.statusTextChanged)
 
-    def _change_status(self, newStatus):
-        self.status = newStatus
+    def _change_status(self, new_status: int):
+        """
+        Change the status of the operation. This can be the following values: STATUS_NONE, STATUS_RUNNING,
+        STATUS_FINISHED, STATUS_ERROR.
+
+        :param new_status: The new status.
+        """
+        self.status = new_status
         helper.CallObserversQT(self.statusChanged)

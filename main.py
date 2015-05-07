@@ -99,8 +99,8 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
             operation = operations.MenuFileOperations.Save(fname)
             self.run_operation(operation)
 
-    def run_operation(self, operation):
-        operation.run(operations.BaseOperation.Receiver(self.m, self))
+    def run_operation(self, op):
+        op.run(operations.BaseOperation.Receiver(self.m, self))
 
     def simulate_operation(self):
         operation = operations.SceneOperations.Simulate()
