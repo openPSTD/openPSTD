@@ -33,6 +33,7 @@ from colors import activeColorScheme as colorScheme
 
 
 
+
 #from model import Model
 
 import InteractiveView
@@ -62,7 +63,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.viewPort = [640, 480]
 
-        self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer()]
+        self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer(), GridLayer()]
         """:type: list[Layer]"""
 
         self.mouseHandler = MouseHandlers.MouseStrategyConsole()
@@ -489,6 +490,56 @@ class SceneLayer(Layer):
         T.interpolation = 'linear'
 
         self.colormap = T
+
+class GridLayer(Layer):
+    def __init__(self):
+        super(GridLayer, self).__init__()
+        self.program = None
+        self.renderInfo = {}
+        self.scene_min_max = {max: [0, 0], min: [0, 0]}
+
+    def initialize_gl(self):
+        vertex_code = read_shader("GPU\Debug2D.vert")
+        fragment_code = read_shader("GPU\Debug2D.frag")
+
+
+        self.vPosition = gloo.VertexBuffer(np.array([[0, 0], [5, 0]], np.float32))
+        self.vColors = gloo.VertexBuffer(np.array(
+            [
+                (0.5, 0.5, 0.5, 0.5),
+                (0.5, 0.5, 0.5, 0.5)], np.float32))
+
+        # Build program & data
+        # ----------------------------------------
+        self.program = gloo.Program(vertex_code, fragment_code, count=4)
+        self.program['u_view'] = np.eye(3, dtype=np.float32)
+        self.program['a_position'] = self.vPosition
+        self.program['a_color'] = self.vColors
+
+    def paint_gl(self):
+        gl.glLineWidth(1.0)
+        self.program.draw('lines')
+
+    def update_scene(self, model):
+        """
+
+        :type model: m.Model
+        """
+        grid_spacing = model.SceneDesc["grid_spacing"]
+
+        positions = [x for x in range(800)]
+        positions[  0:400:2] = [[-100, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[  1:401:2] = [[100, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[400:800:2] = [[x, -100] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[401:801:2] = [[x, 100] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        colors = [(0.5, 0.5, 0.5, 0.5) for _ in range(len(positions))]
+
+        self.vPosition.set_data(np.array(positions, np.float32))
+        self.vColors.set_data(np.array(colors, np.float32))
+
+    def update_view_matrix(self, matrix):
+        self.program['u_view'] = matrix
+
 
 class DebugLayer(Layer):
     def __init__(self):
