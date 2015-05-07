@@ -232,7 +232,7 @@ def nearest_2power(n):
     return np.power(2.,(np.ceil(np.log2(n))))
 
 def warn(s):
-    print("s")
+    print(s)
 
 def output_error(e,output_fn):
     output_fn({'status':'error', 'message':str(e), 'exception':e})
