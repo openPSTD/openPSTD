@@ -241,7 +241,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     return Lp
 @profile
-def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan,g_bufr,g_bufi):
+def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufr,g_bufi):
     #equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
     # Wlength = length of window function
@@ -261,9 +261,9 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         g_bufr = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
         g_bufi = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
 
-    if int(N2)!=128:
+    if str(int(N2)) not in plan_set.keys():
         from pyfft.cuda import Plan
-        plan = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
+        plan_set[str(int(N2))] = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
 
     Ns1 = np.size(p1, axis=direct)
     Ns3 = np.size(p3, axis=direct)
@@ -283,12 +283,11 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
         
-        matemp = (Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], p2[:,0:Ns2],\
-                  Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
-        catemp = np.concatenate(matemp, axis=1)*G   #identical to original until here
+        #identical to original until here
+        catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1],\
+                                 p2[:,0:Ns2], Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
 
         batch_it = True
-        np.set_printoptions(threshold=np.nan)
         if batch_it:
             (xshape,yshape) = catemp.shape
             ncatemp = np.concatenate((catemp,np.zeros((N1,N2-yshape))),1)
@@ -299,7 +298,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             cuda.memcpy_htod(g_bufi, nfcatempim)
 
             #execute the fft
-            plan.execute(g_bufr, g_bufi, batch=N1)
+            plan_set[str(int(N2))].execute(g_bufr, g_bufi, batch=N1)
         
             #TEMPORARY solution: get back to cpu to multiply by derivfactor
             Ktempr = np.empty_like(ncatemp)
@@ -318,7 +317,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             cuda.memcpy_htod(g_bufi, nderparti)
         
             #execute the ifft
-            plan.execute(g_bufr, g_bufi, inverse=True, batch=N1)
+            plan_set[str(int(N2))].execute(g_bufr, g_bufi, inverse=True, batch=N1)
             Ltemp = np.empty_like(ncatemp)
             cuda.memcpy_dtoh(Ltemp, g_bufr)
             Ltemp = Ltemp.transpose() #return to original shape
@@ -340,7 +339,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
                 g_bufil.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
                 cuda.memcpy_htod(g_bufrl[i], ncatemp[:,i].copy())
                 cuda.memcpy_htod(g_bufil[i], ncatempim[:,i].copy())
-                plan.execute(g_bufrl[i], g_bufil[i], inverse=False, batch=1)
+                plan_set[str(int(N2))].execute(g_bufrl[i], g_bufil[i], inverse=False, batch=1)
                 res_bufrl.append(np.empty_like(ncatemp[:,i]))
                 res_bufil.append(np.empty_like(ncatempim[:,i]))
                 cuda.memcpy_dtoh(res_bufrl[i], g_bufrl[i])
@@ -358,7 +357,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             for i in xrange(N1):
                 cuda.memcpy_htod(g_bufrl[i], derpart.real[:,i].copy())
                 cuda.memcpy_htod(g_bufil[i], derpart.imag[:,i].copy())
-                plan.execute(g_bufrl[i], g_bufil[i], inverse=True, batch=1)
+                plan_set[str(int(N2))].execute(g_bufrl[i], g_bufil[i], inverse=True, batch=1)
                 cuda.memcpy_dtoh(res_bufrl[i], g_bufrl[i])
                 cuda.memcpy_dtoh(res_bufil[i], g_bufil[i])
 

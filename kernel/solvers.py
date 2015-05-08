@@ -156,7 +156,6 @@ class MultiThreaded:
 
 class GpuAccelerated:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
-            from pyfft.cuda import Plan
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
 
@@ -164,7 +163,7 @@ class GpuAccelerated:
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
+            plan_set = {}
             g_bufr = cuda.mem_alloc(int(8*500*128))
             g_bufi = cuda.mem_alloc(int(8*500*128))            
 
@@ -184,10 +183,10 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct, context, stream, plan,g_bufr,g_bufi):
-                                        domain.calc_gpu(bt, ct, context, stream, plan,g_bufr,g_bufi)
+                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufr,g_bufi):
+                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufr,g_bufi)
 
-                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan,g_bufr,g_bufi)
+                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufr,g_bufi)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():
