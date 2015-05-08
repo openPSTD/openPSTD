@@ -269,46 +269,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         stream = cuda.Stream()
         plan = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
 
-    ''' 
-    #test with some sine
-    x = np.linspace(0, 2 * np.pi, N2)
-
-    y = np.sin(2 * x)
-    ys = y
-    ys = ys.reshape(1,N2)
-    y = np.concatenate((y,np.zeros(nearest_2power(N2)-N2)))
-    y = y.reshape(1,nearest_2power(N2))
-
-    for i in xrange(N1-1): #append N1-1 sines
-        yi = np.sin(2 * (i+2) * x)
-        yis = yi
-        yis = yis.reshape(1,N2)
-        ys = np.concatenate(((ys),(yis)),0)
-        yi = np.concatenate((yi,np.zeros(nearest_2power(N2)-N2)))
-        yi = yi.reshape(1,nearest_2power(N2))
-        y = np.concatenate(((y),(yi)),0)
-
-    y = y.transpose()
-    yim= np.zeros(y.shape)
-    y = np.array(y,np.float64)
-    yw = y.transpose()
-    yimw = yim.transpose()
-
-    cuda.memcpy_htod(g_bufr, y)
-    cuda.memcpy_htod(g_bufi, yim) #again. This function only works for 32 bit, so we need twice as many
-    plan.execute(g_bufr, g_bufi, batch=N1)
-    grfft=np.empty_like(y)
-    cuda.memcpy_dtoh(grfft, g_bufr)#re  #fft result
-    plan.execute(g_bufr, g_bufi, inverse=True, batch=N1)
-    grifft=np.empty_like(y)
-    cuda.memcpy_dtoh(grifft, g_bufr) #ifft result
-
-    import matplotlib.pyplot as plt
-    plt.plot(grfft) #incorrect?!
-    plt.show()
-    raise SystemExit
-    '''
-    
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
 
     Ns1 = np.size(p1, axis=direct)
@@ -336,25 +296,20 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         batch_it = True
         np.set_printoptions(threshold=np.nan)
         if batch_it:
-            ncatemp = np.concatenate((catemp[0,:],np.zeros(int(N2)-catemp[0,:].size)))
-            ncatemp = ncatemp.reshape(1,N2)
-            for i in xrange(N1-1):
-                ni = np.concatenate((catemp[i,:],np.zeros(int(N2)-catemp[i,:].size)))
-                ni = ni.reshape(1,N2)
-                ncatemp = np.concatenate(((ncatemp),(ni)),0)
-
-            ncatemp = ncatemp.transpose()
-            
-            ncatempim = np.zeros_like(ncatemp)
-            cuda.memcpy_htod(g_bufr, ncatemp)
-            cuda.memcpy_htod(g_bufi, ncatempim)
+            (xshape,yshape) = catemp.shape
+            ncatemp = np.concatenate((catemp,np.zeros((N1,N2-yshape))),1)
+            nfcatemp = np.ravel(ncatemp)
+            ncatemp = ncatemp.transpose() #for plot
+            nfcatempim = np.zeros_like(nfcatemp)
+            cuda.memcpy_htod(g_bufr, nfcatemp)
+            cuda.memcpy_htod(g_bufi, nfcatempim)
 
             #execute the fft
             plan.execute(g_bufr, g_bufi, batch=N1)
         
             #TEMPORARY solution: get back to cpu to multiply by derivfactor
             Ktempr = np.empty_like(ncatemp)
-            Ktempi = np.empty_like(ncatempim)
+            Ktempi = np.empty_like(ncatemp)
             cuda.memcpy_dtoh(Ktempr,g_bufr)
             cuda.memcpy_dtoh(Ktempi,g_bufi)
 
@@ -370,7 +325,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             Ktemp.imag = Ktempi
 
             derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
-
             nderpartr = np.ravel(derpart.real)
             nderparti = np.ravel(derpart.imag)
             ''' 
