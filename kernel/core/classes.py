@@ -115,7 +115,7 @@ class Domain(object):
         """
         self.id = id
         self.alpha = alpha
-        # 0mar: todo: Is alpha really acoustic absorption coefficient/same as wiki?
+        # 0mar: todo: Is alpha actually acoustic absorption coefficient/same as wiki?
         self.top_left = top_left
         self.cfg = cfg
         self.size = size
@@ -148,7 +148,8 @@ class Domain(object):
         self.rho_matrices = {}
 
         self.update_for = {}
-
+        # Dictionary for speed and pressure matrices.
+        self.matrix_dict = {}
         self.clear_matrices()
 
         self.local = False
@@ -158,10 +159,10 @@ class Domain(object):
         self.id, self.top_left, self.size, self.bottom_right)
 
     def __lt__(self, other):
+        # OR: Todo: Not sure about the ordering this method implies
         return self.top_left < other.top_left
 
     def domain_size_zeros(self, a=0, b=0):
-        # Note that this implies only integer-sized grids are allowed.
         return np.zeros((self.size.y + a, self.size.x + b))
 
     def push_values(self):
@@ -172,10 +173,10 @@ class Domain(object):
         self.pz0_old = self.pz0
 
     def clear_matrices(self):
-        self.Lpx = self.domain_size_zeros(0, 1)
-        self.Lpz = self.domain_size_zeros(1, 0)
-        self.Lvx = self.domain_size_zeros()
-        self.Lvz = self.domain_size_zeros()
+        self.matrix_dict['Lpx'] = self.domain_size_zeros(0, 1)
+        self.matrix_dict['Lpz'] = self.domain_size_zeros(1, 0)
+        self.matrix_dict['Lvx'] = self.domain_size_zeros()
+        self.matrix_dict['Lvz'] = self.domain_size_zeros()
 
     def calc_rho_matrices(self):
         l = self.neighbour_dict['left'] if len(self.neighbour_dict['left']) else [None]
@@ -188,9 +189,8 @@ class Domain(object):
                 rp, rv = Rmatrices(rhos[0], self.rho, rhos[1])
                 self.rho_matrices[frozenset(d for d in p if d)] = {'p': rp, 'v': rv}
 
-    def contains_point(self, p):
-        # 0mar: Todo: Integer values. Using lt instead of le. bug?
-        return (self.bottom_right.x > p.x > self.top_left.x) and (self.bottom_right.y > p.y > self.top_left.y)
+    def contains_point(self, p: Point) -> bool:
+        return (self.bottom_right.x >= p.x >= self.top_left.x) and (self.bottom_right.y >= p.y >= self.top_left.y)
 
     def neighbour_list(self):
         return [self.neighbour_dict[adj] for adj in Domain.ADJACENCIES]
@@ -258,17 +258,19 @@ class Domain(object):
         else:
             self.pml_p, self.pml_u = make_attenuation(self.is_horizontal, self.is_lower)
 
-    def should_update(self, d):
+    def should_update(self, bt) -> bool:
         # Cache this value, it's not changing anyway and we're in Python after all
-        if d in self.update_for: return self.update_for[d]
+        if bt in self.update_for:
+            return self.update_for[bt]
 
         def check():
             if self.num_neighbours(False) == 1 and self.is_pml:
                 # Always calculate in direction orthogonal to boundary
-                if self.is_horizontal and d == BoundaryType.HORIZONTAL: return True
-                if not self.is_horizontal and d == BoundaryType.VERTICAL: return True
+                if self.is_horizontal and bt == BoundaryType.HORIZONTAL: return True
+                if not self.is_horizontal and bt == BoundaryType.VERTICAL: return True
 
-                if self.local: return False
+                if self.local:
+                    return False
 
                 # Find my non-PML neighbour
                 for adjacency in self.ADJACENCIES:
@@ -281,8 +283,8 @@ class Domain(object):
             else:
                 return True
 
-        self.update_for[d] = check()
-        return self.update_for[d]
+        self.update_for[bt] = check()
+        return self.update_for[bt]
 
     def apply_pml(self):
         assert (self.num_neighbours(False) == 1 and self.is_pml) or (self.num_neighbours(True) <= 2 and self.is_sec_pml)
@@ -353,8 +355,7 @@ class Domain(object):
             else:
                 source = self.domain_size_zeros(1, 0)
         else:
-            source = getattr(self, "L%s%s" % (ct, bt))
-
+            source = self.matrix_dict["L%s%s" % (ct, bt)]
         for domain1, domain2 in itertools.product(domains1, domains2):
             rho_matrix_key = frozenset(d for d in (domain1, domain2) if d)
 
@@ -382,7 +383,6 @@ class Domain(object):
                 Ntot += 1
             else:
                 primary_dimension += 1
-
             matrix1 = matrix2 = None
             if ct == CalculationType.VELOCITY and domain1 is None and domain2 is None:
                 # For a PML layer parallel to its interface direction the matrix is concatenated with zeros
@@ -447,12 +447,12 @@ class Domain(object):
         return source
 
     def rk_update(self, sub_frame):
-        self.u0 = self.u0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.Lpx)).real
-        self.w0 = self.w0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.Lpz)).real
+        self.u0 = self.u0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.matrix_dict['Lpx'])).real
+        self.w0 = self.w0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.matrix_dict['Lpz'])).real
         self.px0 = self.px0_old + (
-            -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.Lvx)).real
+            -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.matrix_dict['Lvx'])).real
         self.pz0 = self.pz0_old + (
-            -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.Lvz)).real
+            -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.matrix_dict['Lvz'])).real
         # sys.stdout.write("\b"*len(str))
 
 
