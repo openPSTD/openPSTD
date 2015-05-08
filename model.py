@@ -20,13 +20,16 @@
 import json
 import argparse
 import tempfile
+
 import SimulationReader
 import helper
+import InteractiveView
+
 
 __author__ = 'michiel'
 
 
-class model:
+class Model:
     def __init__(self):
         self.debug_data = {
             'viewer':
@@ -41,6 +44,7 @@ class model:
         self.AppConfig = None
         self.Args = None
         self.visible_frame = 1
+        self.interactivity = InteractiveView.InteractiveView()
 
         self.Simulation.frame_info_updated.append(self._Simulation_frame_info_updated)
 

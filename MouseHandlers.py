@@ -1,24 +1,25 @@
 __author__ = 'michiel'
 
-import operations.BaseOperation
-import operations.ViewOperations
-import operations.EditOperations
-import operations.DebugOperations
-import Viewer2D
-
-import colors
-
+import abc
 
 from PySide import QtCore
 import numpy as np
-import abc
+
+import operations.ViewOperations
+import operations.EditOperations
+import operations.DebugOperations
+import InteractiveView
+
 
 class MouseStrategy(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
-        self.operation_runner = operations.BaseOperation.OperationRunner()
-        self.coordinate_calculator = Viewer2D.CoordinateCalculator(None)
+        self.operation_runner = None
+        """:type :operations.BaseOperation.OperationRunner """
+
+        self.coordinate_calculator = None
+        """:type :Viewer2D.CoordinateCalculator """
 
     def set_operation_runner(self, operation_runner):
         self.operation_runner = operation_runner
@@ -38,8 +39,8 @@ class MouseStrategy(object):
     def mouseReleaseEvent(self, event):
         pass
 
-class MouseVoidStrategy(MouseStrategy):
 
+class MouseVoidStrategy(MouseStrategy):
     def mousePressEvent(self, event):
         pass
 
@@ -52,17 +53,18 @@ class MouseVoidStrategy(MouseStrategy):
     def mouseReleaseEvent(self, event):
         pass
 
-class MouseMoveSceneStrategy(MouseStrategy):
 
+class MouseMoveSceneStrategy(MouseStrategy):
     def __init__(self):
+        super(MouseMoveSceneStrategy, self).__init__()
         self.mouse_pos = np.array([0, 0])
 
     def mouseMoveEvent(self, event):
         screen_pos = event.pos()
-        screen_pos = np.array([screen_pos.x(), screen_pos.y()])
+        screen_pos = [screen_pos.x(), screen_pos.y()]
 
-        world_pos = self.coordinate_calculator.window_to_screen(screen_pos)
-        old_world_pos = self.coordinate_calculator.window_to_screen(self.mouse_pos)
+        world_pos = np.array(self.coordinate_calculator.window_to_screen(screen_pos))
+        old_world_pos = np.array(self.coordinate_calculator.window_to_screen(self.mouse_pos))
         offset = world_pos - old_world_pos
 
         self.mouse_pos = screen_pos
@@ -77,17 +79,17 @@ class MouseMoveSceneStrategy(MouseStrategy):
 
     def wheelEvent(self, event):
         screen_pos = event.pos()
-        screen_pos = np.array([screen_pos.x(), screen_pos.y()])
+        screen_pos = [screen_pos.x(), screen_pos.y()]
         world_pos = self.coordinate_calculator.window_to_screen(screen_pos)
 
         delta = event.delta()
-        delta2 = pow(2, delta/120)
+        delta2 = pow(2, delta / 120)
         self.operation_runner.run_operation(operations.ViewOperations.ResizeScene(delta2, world_pos))
 
 
 class MouseCreateDomainStragegy(MouseStrategy):
-
     def __init__(self):
+        super(MouseCreateDomainStragegy, self).__init__()
         self._create_domain_operation = None
 
     def mousePressEvent(self, event):
@@ -99,7 +101,14 @@ class MouseCreateDomainStragegy(MouseStrategy):
         self._create_domain_operation.start_point = pos
 
     def mouseMoveEvent(self, event):
-        pass
+        if self._create_domain_operation is not None:
+            pos = event.pos()
+            pos = [pos.x(), pos.y()]
+            pos = self.coordinate_calculator.window_to_world(pos)
+
+            change_interactivity = InteractiveView.UpdateInteractivity(
+                self._create_domain_operation.start_point, pos)
+            self.operation_runner.run_operation(change_interactivity)
 
     def mouseReleaseEvent(self, event):
         pos = event.pos()
@@ -109,6 +118,12 @@ class MouseCreateDomainStragegy(MouseStrategy):
         if self._create_domain_operation is not None:
             self._create_domain_operation.end_point = pos
             self.operation_runner.run_operation(self._create_domain_operation)
+            self._create_domain_operation = None
+
+        change_interactivity = InteractiveView.UpdateInteractivity(
+            [0, 0], [0, 0])
+        self.operation_runner.run_operation(change_interactivity)
+
 
 class MouseStrategyConsole(MouseStrategy):
     def mousePressEvent(self, event):

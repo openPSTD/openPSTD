@@ -25,27 +25,26 @@ __author__ = 'michiel'
 import sys
 import platform
 
-import model
-
 import PySide
-from PySide.QtGui import QApplication, QMainWindow, QTextEdit, QPushButton,  QMessageBox, QFileDialog
+from PySide.QtGui import QApplication, QMainWindow, QMessageBox, QFileDialog
 
+import model
 from MainWindow_ui import Ui_MainWindow
-
 import operations.BaseOperation
 import operations.MenuFileOperations
 import operations.SceneOperations
 import operations.ViewOperations
 import operations.MouseHandlerOperations
-
 import MouseHandlers
+
 
 __version__ = '0.0.1'
 
 
 class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationRunner):
+    # noinspection PyUnresolvedReferences
     def __init__(self, parent=None):
-        self.m = model.model()
+        self.m = model.Model()
         self.m.SceneDescChanged.append(self.updateViews)
         self.m.SimulationChanged.append(self.updateViews)
 
@@ -100,8 +99,8 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
             operation = operations.MenuFileOperations.Save(fname)
             self.run_operation(operation)
 
-    def run_operation(self, operation):
-        operation.run(operations.BaseOperation.Receiver(self.m, self))
+    def run_operation(self, op):
+        op.run(operations.BaseOperation.Receiver(self.m, self))
 
     def simulate_operation(self):
         operation = operations.SceneOperations.Simulate()
