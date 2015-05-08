@@ -241,7 +241,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     return Lp
 @profile
-def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g_bufr=None,g_bufi=None):
+def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan,g_bufr,g_bufi):
     #equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
     # Wlength = length of window function
@@ -254,24 +254,16 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
     # p3 = variable matrix subdomain 1
     # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity 
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
-    import pycuda.gpuarray as gpuarray
     import pycuda.driver as cuda
 
-    if N1>50 or N2>128 or g_bufr==None or g_bufi==None:
+    # TODO: replace this with an expanding list of buffers and plans
+    if N1*N2 > 500*128:
         g_bufr = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
         g_bufi = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
 
-    reusecontext = True
-
-    if reusecontext == False:
+    if int(N2)!=128:
         from pyfft.cuda import Plan
-        from pycuda.tools import make_default_context
-        cuda.init()
-        context = make_default_context()
-        stream = cuda.Stream()
         plan = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
-
-    #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct
 
     Ns1 = np.size(p1, axis=direct)
     Ns3 = np.size(p3, axis=direct)

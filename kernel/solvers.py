@@ -159,13 +159,14 @@ class GpuAccelerated:
             from pyfft.cuda import Plan
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
-            import pycuda.gpuarray as gpuarray
 
             cuda.init()
             context = make_default_context()
             stream = cuda.Stream()
 
             plan = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
+            g_bufr = cuda.mem_alloc(int(8*500*128))
+            g_bufi = cuda.mem_alloc(int(8*500*128))            
 
             # Loop over time steps
             for frame in range(int(cfg.TRK)):
@@ -183,10 +184,10 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct, plan):
-                                        domain.calc_gpu(bt, ct, plan)
+                                    def calc_gpu(domain, bt, ct, context, stream, plan,g_bufr,g_bufi):
+                                        domain.calc_gpu(bt, ct, context, stream, plan,g_bufr,g_bufi)
 
-                                    calc_gpu(d, boundary_type, calculation_type, plan)
+                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan,g_bufr,g_bufi)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():

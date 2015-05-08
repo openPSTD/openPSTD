@@ -382,7 +382,7 @@ class Domain(object):
         
         # sys.stdout.write("\b"*len(str))
 
-    def calc_gpu(self, bt, ct, plan, dest = None):
+    def calc_gpu(self, bt, ct, context, stream, plan, g_bufr, g_bufi, dest = None):
 
         # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
         # sys.stdout.write(str)
@@ -479,7 +479,7 @@ class Domain(object):
                 matrix2_offset = domain2.topleft.x
                 matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
 
-            matrix = spatderp3_gpu(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,plan)
+            matrix = spatderp3_gpu(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,stream,plan,g_bufr,g_bufi)
 
             if bt == BoundaryType.HORIZONTAL:
                 source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
