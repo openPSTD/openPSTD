@@ -207,18 +207,20 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
-        #plot and quit
-        np.set_printoptions(threshold=np.nan)
-        print "catemp: ",catemp
+        Debug = False
+        if Debug:
+            #plot and quit
+            np.set_printoptions(threshold=np.nan)
+            print "catemp: ",catemp
 
-        import matplotlib.pyplot as plt
-        f, a = plt.subplots(4)
-        a[0].plot(catemp.transpose())
-        a[1].plot(Ktemp.transpose())
-        a[2].plot(Ktemp_der.transpose())
-        a[3].plot(Ltemp.transpose())
-        plt.show()
-        raise SystemExit
+            import matplotlib.pyplot as plt
+            f, a = plt.subplots(4)
+            a[0].plot(catemp.transpose())
+            a[1].plot(Ktemp.transpose())
+            a[2].plot(Ktemp_der.transpose())
+            a[3].plot(Ltemp.transpose())
+            plt.show()
+            raise SystemExit
 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
@@ -313,13 +315,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             cuda.memcpy_dtoh(Ktempr,g_bufr)
             cuda.memcpy_dtoh(Ktempi,g_bufi)
 
-            ''' check result with cpu version --> seems correct
-            tmpr = fft(ncatemp,int(N2),0).real
-            print "np.fft res: ", tmpr[:,8]
-            print "plan res: ", Ktempr[:,8]
-            print "diff: ", (tmpr-Ktempr)[:,8]
-            raise SystemExit
-            '''
             Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
             Ktemp.real = Ktempr
             Ktemp.imag = Ktempi
@@ -327,14 +322,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
             nderpartr = np.ravel(derpart.real)
             nderparti = np.ravel(derpart.imag)
-            ''' 
-            ncatemp = ncatemp.reshape(1,N2)
-            for i in xrange(N1-1):
-                ni = np.concatenate((catemp[i,:],np.zeros(int(N2)-catemp[i,:].size)))
-                ni = ni.reshape(1,N2)
-                ncatemp = np.concatenate(((ncatemp),(ni)),0)
-            ncatemp = ncatemp.transpose()
-            '''
             cuda.memcpy_htod(g_bufr, nderpartr)
             cuda.memcpy_htod(g_bufi, nderparti)
         
@@ -386,15 +373,17 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             Ltemp = np.asarray(res_bufrl, np.float64) #this also effectively transposes
             Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
-        #plot and quit
-        import matplotlib.pyplot as plt
-        f, a = plt.subplots(4, sharex=False)
-        a[0].plot(ncatemp)
-        a[1].plot(Ktemp.real)
-        a[2].plot(derpart)
-        a[3].plot(Ltemp.transpose())
-        plt.show()
-        raise SystemExit
+        Debug = False
+        if Debug:
+            #plot and quit
+            import matplotlib.pyplot as plt
+            f, a = plt.subplots(4, sharex=False)
+            a[0].plot(ncatemp)
+            a[1].plot(Ktemp.real)
+            a[2].plot(derpart)
+            a[3].plot(Ltemp.transpose())
+            plt.show()
+            raise SystemExit
 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
