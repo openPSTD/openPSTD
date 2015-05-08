@@ -206,7 +206,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
-         
+
         #plot and quit
         np.set_printoptions(threshold=np.nan)
         print "catemp: ",catemp
@@ -219,7 +219,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         a[3].plot(Ltemp.transpose())
         plt.show()
         raise SystemExit
-        
+
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2-1))
@@ -259,7 +259,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         g_bufr = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
         g_bufi = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
 
-    reusecontext = False
+    reusecontext = True
 
     if reusecontext == False:
         from pyfft.cuda import Plan
@@ -268,6 +268,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         context = make_default_context()
         stream = cuda.Stream()
         plan = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
+
     ''' 
     #test with some sine
     x = np.linspace(0, 2 * np.pi, N2)
@@ -332,24 +333,43 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
                   Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1])
         catemp = np.concatenate(matemp, axis=1)*G   #identical to original until here
 
-        catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
-        (xshape, yshape) = catemprev.shape
-        catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
-        catempim = np.zeros_like(catemp)
-        
-        batch_it = False
+        batch_it = True
         if batch_it:
-            cuda.memcpy_htod(g_bufr, catemp)
-            cuda.memcpy_htod(g_bufi, catempim)
-        
+            ncatemp = np.concatenate((catemp[0,:],np.zeros(int(N2)-catemp[0,:].size)))
+            ncatemp = ncatemp.reshape(1,N2)
+            for i in xrange(N1-1):
+                ni = np.concatenate((catemp[i,:],np.zeros(int(N2)-catemp[i,:].size)))
+                ni = ni.reshape(1,N2)
+                ncatemp = np.concatenate(((ncatemp),(ni)),0)
+
+            ncatemp = ncatemp.transpose()
+            
+            ncatempim = np.zeros_like(ncatemp)
+            cuda.memcpy_htod(g_bufr, ncatemp)
+            cuda.memcpy_htod(g_bufi, ncatempim)
+            ''' check if data on gpu is correct. -->It seems correct.
+            tmpr = np.empty_like(catemp)
+            tmpi = np.empty_like(catempim)
+            cuda.memcpy_dtoh(tmpr,g_bufr)
+            cuda.memcpy_dtoh(tmpi,g_bufi)
+            np.set_printoptions(threshold=np.nan)
+            print "real diff: ",tmpr-catemp
+            print "max real diff",(tmpr-catemp).max()
+            raise SystemExit
+            '''
             #execute the fft
-            plan.execute(g_bufr, g_bufi, inverse=False, batch=N1)
+            plan.execute(g_bufr, g_bufi, batch=N1)
         
             #TEMPORARY solution: get back to cpu to multiply by derivfactor
-            Ktempr = np.empty_like(catemp)
-            Ktempi = np.empty_like(catemp)
+            Ktempr = np.empty_like(ncatemp)
+            Ktempi = np.empty_like(ncatempim)
             cuda.memcpy_dtoh(Ktempr,g_bufr)
             cuda.memcpy_dtoh(Ktempi,g_bufi)
+    
+            import matplotlib.pyplot as plt
+            plt.plot(Ktempr)
+            plt.show()
+            raise SystemExit
 
             Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
             Ktemp.real = Ktempr
@@ -369,13 +389,18 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
             
         else:
+            catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
+            (xshape, yshape) = catemprev.shape
+            catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
+            catempim = np.zeros_like(catemp)
+        
             g_bufrl = []
             g_bufil = []
             res_bufrl = []
             res_bufil = []
             for i in xrange(N1):
-                g_bufrl.append(cuda.mem_alloc(int(2*8*N1*nearest_2power(N2))))
-                g_bufil.append(cuda.mem_alloc(int(2*8*N1*nearest_2power(N2))))
+                g_bufrl.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
+                g_bufil.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
                 cuda.memcpy_htod(g_bufrl[i], catemp[:,i].copy())
                 cuda.memcpy_htod(g_bufil[i], catempim[:,i].copy())
                 plan.execute(g_bufrl[i], g_bufil[i], inverse=False, batch=1)
@@ -401,7 +426,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
                 cuda.memcpy_dtoh(res_bufil[i], g_bufil[i])
 
             Ltemp = np.asarray(res_bufrl, np.float64) #this also effectively transposes
-            print derpart
             Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
         #plot and quit
@@ -413,7 +437,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         a[3].plot(Ltemp.transpose())
         plt.show()
         raise SystemExit
-
 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
