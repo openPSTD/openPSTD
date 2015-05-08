@@ -334,6 +334,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         catemp = np.concatenate(matemp, axis=1)*G   #identical to original until here
 
         batch_it = True
+        np.set_printoptions(threshold=np.nan)
         if batch_it:
             ncatemp = np.concatenate((catemp[0,:],np.zeros(int(N2)-catemp[0,:].size)))
             ncatemp = ncatemp.reshape(1,N2)
@@ -347,16 +348,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             ncatempim = np.zeros_like(ncatemp)
             cuda.memcpy_htod(g_bufr, ncatemp)
             cuda.memcpy_htod(g_bufi, ncatempim)
-            ''' check if data on gpu is correct. -->It seems correct.
-            tmpr = np.empty_like(catemp)
-            tmpi = np.empty_like(catempim)
-            cuda.memcpy_dtoh(tmpr,g_bufr)
-            cuda.memcpy_dtoh(tmpi,g_bufi)
-            np.set_printoptions(threshold=np.nan)
-            print "real diff: ",tmpr-catemp
-            print "max real diff",(tmpr-catemp).max()
-            raise SystemExit
-            '''
+
             #execute the fft
             plan.execute(g_bufr, g_bufi, batch=N1)
         
@@ -365,24 +357,36 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             Ktempi = np.empty_like(ncatempim)
             cuda.memcpy_dtoh(Ktempr,g_bufr)
             cuda.memcpy_dtoh(Ktempi,g_bufi)
-    
-            import matplotlib.pyplot as plt
-            plt.plot(Ktempr)
-            plt.show()
-            raise SystemExit
 
+            ''' check result with cpu version --> seems correct
+            tmpr = fft(ncatemp,int(N2),0).real
+            print "np.fft res: ", tmpr[:,8]
+            print "plan res: ", Ktempr[:,8]
+            print "diff: ", (tmpr-Ktempr)[:,8]
+            raise SystemExit
+            '''
             Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
             Ktemp.real = Ktempr
             Ktemp.imag = Ktempi
 
-            derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose())).transpose()
+            derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
 
-            cuda.memcpy_htod(g_bufr, derpart.real.copy())
-            cuda.memcpy_htod(g_bufi, derpart.imag.copy())
+            nderpartr = np.ravel(derpart.real)
+            nderparti = np.ravel(derpart.imag)
+            ''' 
+            ncatemp = ncatemp.reshape(1,N2)
+            for i in xrange(N1-1):
+                ni = np.concatenate((catemp[i,:],np.zeros(int(N2)-catemp[i,:].size)))
+                ni = ni.reshape(1,N2)
+                ncatemp = np.concatenate(((ncatemp),(ni)),0)
+            ncatemp = ncatemp.transpose()
+            '''
+            cuda.memcpy_htod(g_bufr, nderpartr)
+            cuda.memcpy_htod(g_bufi, nderparti)
         
             #execute the ifft
             plan.execute(g_bufr, g_bufi, inverse=True, batch=N1)
-            Ltemp = np.empty_like(catemp)
+            Ltemp = np.empty_like(ncatemp)
             cuda.memcpy_dtoh(Ltemp, g_bufr)
             Ltemp = Ltemp.transpose() #return to original shape
         
@@ -391,8 +395,8 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         else:
             catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
             (xshape, yshape) = catemprev.shape
-            catemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
-            catempim = np.zeros_like(catemp)
+            ncatemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
+            ncatempim = np.zeros_like(ncatemp)
         
             g_bufrl = []
             g_bufil = []
@@ -401,11 +405,11 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
             for i in xrange(N1):
                 g_bufrl.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
                 g_bufil.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
-                cuda.memcpy_htod(g_bufrl[i], catemp[:,i].copy())
-                cuda.memcpy_htod(g_bufil[i], catempim[:,i].copy())
+                cuda.memcpy_htod(g_bufrl[i], ncatemp[:,i].copy())
+                cuda.memcpy_htod(g_bufil[i], ncatempim[:,i].copy())
                 plan.execute(g_bufrl[i], g_bufil[i], inverse=False, batch=1)
-                res_bufrl.append(np.empty_like(catemp[:,i]))
-                res_bufil.append(np.empty_like(catempim[:,i]))
+                res_bufrl.append(np.empty_like(ncatemp[:,i]))
+                res_bufil.append(np.empty_like(ncatempim[:,i]))
                 cuda.memcpy_dtoh(res_bufrl[i], g_bufrl[i])
                 cuda.memcpy_dtoh(res_bufil[i], g_bufil[i])
 
@@ -431,7 +435,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,plan,g
         #plot and quit
         import matplotlib.pyplot as plt
         f, a = plt.subplots(4, sharex=False)
-        a[0].plot(catemp)
+        a[0].plot(ncatemp)
         a[1].plot(Ktemp.real)
         a[2].plot(derpart)
         a[3].plot(Ltemp.transpose())
