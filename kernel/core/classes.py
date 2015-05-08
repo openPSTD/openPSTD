@@ -92,10 +92,59 @@ class Point(object):
     def __repr__(self):
         return "%s(%s)" % ("Point", ", ".join("%.1f" % f for f in self.array))
 
+class DomainCommunication(object):  # Anyone proposing a better name?
+    """
+    Class that contains the numerical values of a domain as well as its neighbouring values.
+    This class is required for implementing a multiprocessing structure within openPSTD,
+    for a Domain instance is too large to communicate between processors.
+    Information is sent to the neighbouring domains used in the calculation. Because of symmetry,
+    these domains are all the domains that require the information.
+    """
+    def __init__(self, id, size):
+        """
+        Initializing a DomainCommunication instance.
+        :param id: Unique identifier for the DomainCommunication instance which should correspond with its domain
+        :param size: Size of the corresponding Domain
+        :return: A DomainCommunication object with the numerical values of the domain.
+        """
+        # Domain properties
+        self.id = id
+        self.size = size
+
+        # Neigbour information
+        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # Numeric information
+        self.matrix_dict = {}
+        self.field_dict = {value:0 for value in Domain.VALUES}
+        self.clear_matrices()
+        self.clear_fields()
+        # self.u0_old = self.w0_old = self.p0_old = self.px0_old = self.pz0_old = None
+
+    def clear_matrices(self):
+        self.matrix_dict['Lpx'] = self._domain_size_zeros(0, 1)
+        self.matrix_dict['Lpz'] = self._domain_size_zeros(1, 0)
+        self.matrix_dict['Lvx'] = self._domain_size_zeros()
+        self.matrix_dict['Lvz'] = self._domain_size_zeros()
+
+    def clear_fields(self):
+        self.field_dict['u0'] = self._domain_size_zeros(0, 1)
+        self.field_dict['w0'] = self._domain_size_zeros(1, 0)
+        self.field_dict['p0'] = self._domain_size_zeros()
+        self.field_dict['px0'] = self._domain_size_zeros()
+        self.field_dict['pz0'] = self._domain_size_zeros()
+
+    def add_depending_domain(self, other: str):
+        self.depending_domains.append(other)
+
+    def _domain_size_zeros(self, a=0, b=0):
+        return np.zeros((self.size.y + a, self.size.x + b))
+
+
 
 # A rectangular domain; the building block of the scene geometry
 class Domain(object):
     ADJACENCIES = ['left', 'right', 'top', 'bottom']
+    VALUES = ['u0','w0','p0','px0','pz0']
     OPPOSITES = dict((ADJACENCIES[0:2], ADJACENCIES[2:4], ADJACENCIES[0:2][::-1], ADJACENCIES[2:4][::-1]))
     HORIZONTAL = set(ADJACENCIES[:2])
     VERTICAL = set(ADJACENCIES[2:])
@@ -119,16 +168,19 @@ class Domain(object):
         self.top_left = top_left
         self.cfg = cfg
         self.size = size
+        self.dom_obj = DomainCommunication(id,size)
         self.bottom_right = self.top_left + self.size
+        self.old_field_dict = {value:0 for value in Domain.VALUES}
         # Initialize the zero matrices. For velocity matrices
         # an additional cell is needed
-        self.u0 = self.domain_size_zeros(0, 1)
-        self.w0 = self.domain_size_zeros(1, 0)
-        self.p0 = self.domain_size_zeros()
-        self.px0 = self.domain_size_zeros()
-        self.pz0 = self.domain_size_zeros()
-        self.u0_old = self.w0_old = self.p0_old = self.px0_old = self.pz0_old = None
-        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # self.u0 = property(self.dom_obj.value_dict['u0'])
+        # self.w0 = property(self.dom_obj.value_dict['w0'])
+        # self.p0 = 0
+        # # self.p0 = property(self.dom_obj.value_dict['p0'])
+        # self.px0 = property(self.dom_obj.value_dict['px0'])
+        # self.pz0 = property(self.dom_obj.value_dict['pz0'])
+        # self.u0_old = self.w0_old = self.p0_old = self.px0_old = self.pz0_old = None
+
         # self.left, self.right, self.top, self.bottom = [], [], [], []
         # self.leftB, self.rightB, self.topB, self.bottomB = [], [], [], []
 
@@ -148,35 +200,34 @@ class Domain(object):
         self.rho_matrices = {}
 
         self.update_for = {}
-        # Dictionary for speed and pressure matrices.
-        self.matrix_dict = {}
-        self.clear_matrices()
-
         self.local = False
+
+    @property
+    def neighbour_dict(self):
+        return self.dom_obj.neighbour_dict
+
+    @property
+    def matrix_dict(self):
+        return self.dom_obj.matrix_dict
+
+    @property
+    def field_dict(self):
+        return self.dom_obj.field_dict
 
     def __repr__(self):
         return "%s:\n %s\n o-------------------o\n |  %s  | \n o-------------------o\n      %s\n" % (
         self.id, self.top_left, self.size, self.bottom_right)
 
     def __lt__(self, other):
-        # OR: Todo: Not sure about the ordering this method implies
+        # 0mar: Todo: Not sure about the ordering this method implies
         return self.top_left < other.top_left
 
     def domain_size_zeros(self, a=0, b=0):
         return np.zeros((self.size.y + a, self.size.x + b))
 
     def push_values(self):
-        self.u0_old = self.u0
-        self.w0_old = self.w0
-        self.p0_old = self.p0
-        self.px0_old = self.px0
-        self.pz0_old = self.pz0
-
-    def clear_matrices(self):
-        self.matrix_dict['Lpx'] = self.domain_size_zeros(0, 1)
-        self.matrix_dict['Lpz'] = self.domain_size_zeros(1, 0)
-        self.matrix_dict['Lvx'] = self.domain_size_zeros()
-        self.matrix_dict['Lvz'] = self.domain_size_zeros()
+        for value in Domain.VALUES:
+            self.old_field_dict[value] = self.field_dict[value]
 
     def calc_rho_matrices(self):
         l = self.neighbour_dict['left'] if len(self.neighbour_dict['left']) else [None]
@@ -290,16 +341,16 @@ class Domain(object):
         assert (self.num_neighbours(False) == 1 and self.is_pml) or (self.num_neighbours(True) <= 2 and self.is_sec_pml)
         # The pressure and velocity matrices are multiplied by the PML values
         if self.is_sec_pml and self.is_2d:
-            self.px0 *= self.pml_p[0]
-            self.pz0 *= self.pml_p[1]
-            self.u0 *= self.pml_u[0]
-            self.w0 *= self.pml_u[1]
+            self.field_dict['px0'] *= self.pml_p[0]
+            self.field_dict['pz0'] *= self.pml_p[1]
+            self.field_dict['u0'] *= self.pml_u[0]
+            self.field_dict['w0'] *= self.pml_u[1]
         elif self.is_horizontal:
-            self.px0 *= self.pml_p
-            self.u0 *= self.pml_u
+            self.field_dict['px0'] *= self.pml_p
+            self.field_dict['u0'] *= self.pml_u
         else:
-            self.pz0 *= self.pml_p
-            self.w0 *= self.pml_u
+            self.field_dict['pz0'] *= self.pml_p
+            self.field_dict['w0'] *= self.pml_u
 
     def get_range(self, bt):
         if bt == BoundaryType.HORIZONTAL:
@@ -401,14 +452,28 @@ class Domain(object):
                 if domain1 is None: domain1 = self
                 if domain2 is None: domain2 = self
 
-            matrix0 = self.p0 if ct == CalculationType.PRESSURE else getattr(self,
-                                                                             'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+            if ct == CalculationType.PRESSURE:
+                matrix0 = self.field_dict['p0']
+            elif bt == BoundaryType.HORIZONTAL: # and ct == CalculationType.VELOCITY
+                matrix0 = self.field_dict['u0']
+            else:
+                matrix0 = self.field_dict['w0']
+
             if matrix1 is None:
-                matrix1 = domain1.p0 if ct == CalculationType.PRESSURE else getattr(domain1,
-                                                                                    'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
-            if matrix2 is None:
-                matrix2 = domain2.p0 if ct == CalculationType.PRESSURE else getattr(domain2,
-                                                                                    'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+                if ct == CalculationType.PRESSURE:
+                    matrix1 = domain1.field_dict['p0']
+                elif bt == BoundaryType.HORIZONTAL:
+                    matrix1 = domain1.field_dict['u0']
+                else:
+                    matrix1 = domain1.field_dict['w0']
+
+            if matrix2 is None:     # Could be done more subtle if you ask me...
+                if ct == CalculationType.PRESSURE:
+                    matrix2 = domain2.field_dict['p0']
+                elif bt == BoundaryType.HORIZONTAL:
+                    matrix2 = domain2.field_dict['u0']
+                else:
+                    matrix2 = domain2.field_dict['w0']
 
             a = 0 if ct == CalculationType.PRESSURE else 1
             b = 1 if bt == BoundaryType.HORIZONTAL else 0
@@ -447,11 +512,11 @@ class Domain(object):
         return source
 
     def rk_update(self, sub_frame):
-        self.u0 = self.u0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.matrix_dict['Lpx'])).real
-        self.w0 = self.w0_old + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.matrix_dict['Lpz'])).real
-        self.px0 = self.px0_old + (
+        self.field_dict['u0'] = self.old_field_dict['u0'] + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.matrix_dict['Lpx'])).real
+        self.field_dict['w0'] = self.old_field_dict['w0'] + (-self.cfg.dtRK * self.cfg.alfa[sub_frame] * ( 1 / self.rho * self.matrix_dict['Lpz'])).real
+        self.field_dict['px0'] = self.old_field_dict['px0'] + (
             -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.matrix_dict['Lvx'])).real
-        self.pz0 = self.pz0_old + (
+        self.field_dict['pz0'] = self.old_field_dict['pz0'] + (
             -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.matrix_dict['Lvz'])).real
         # sys.stdout.write("\b"*len(str))
 
@@ -749,7 +814,7 @@ class Scene(object):
 
         # Sort the domains according to their top-left position and size.
         # The sole purpose is to find duplicates in N log N time.
-        # OR: Todo: Is there still a well defined ordering with arbitrary domain configurations...?
+        # 0mar: Todo: Is there still a well defined ordering with arbitrary domain configurations...?
         def coord_pairs(d1, d2):
             return [
                 (d1.top_left.x, d2.top_left.x),
@@ -818,9 +883,9 @@ class Scene(object):
             dS = np.fromfunction(lambda y, x: np.sqrt((x * self.cfg.dx - Sx) ** 2 + (y * self.cfg.dx - Sy) ** 2),
                                  (d.size.y, d.size.x))
             p0 = np.exp(-self.cfg.bwidth * np.power(np.abs(dS), 2.))
-            d.p0 += p0
-            d.px0 += np.power(np.cos(np.angle(dS)), 2.) * p0
-            d.pz0 += np.power(np.sin(np.angle(dS)), 2.) * p0
+            d.field_dict['p0'] += p0
+            d.field_dict['px0'] += np.power(np.cos(np.angle(dS)), 2.) * p0
+            d.field_dict['pz0'] += np.power(np.sin(np.angle(dS)), 2.) * p0
 
     def draw_boundaries(self, fig):
         self.subplot = self.subplot if self.subplot else fig.add_subplot(111)
@@ -840,11 +905,11 @@ class Scene(object):
                               fontsize=10)
 
     def get(self, field):
-        a = np.zeros((self.size.y, self.size.x))
-        for b in self.domains:
-            tl = b.top_left - self.top_left
-            a[tl.y:tl.y + b.size.y, tl.x:tl.x + b.size.x] += getattr(b, field)
-        return a
+        field_matrix = np.zeros((self.size.y, self.size.x))
+        for domain in self.domains:
+            tl = domain.top_left - self.top_left
+            field_matrix[tl.y:tl.y + domain.size.y, tl.x:tl.x + domain.size.x] += domain.field_dict[field]
+        return field_matrix
 
     def set(self, field, t, Lp):
         raise Exception("Do not use")
