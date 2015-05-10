@@ -158,14 +158,39 @@ class GpuAccelerated:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
+            from pycuda.compiler import SourceModule
+            from pycuda.driver import Function
 
             cuda.init()
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan_set = {}
-            g_bufr = cuda.mem_alloc(int(8*500*128))
+            plan_set = {} #will be filled as needed in spatderp3_gpu(~)
+            g_bufr = cuda.mem_alloc(int(8*500*128)) #temporary buffers. TODO: dynamically grow them
             g_bufi = cuda.mem_alloc(int(8*500*128))            
+
+            kernelcode = SourceModule(""" 
+              __global__ void derifact_multiplication(double *matr, double *mati, double *vecr, double *veci, int fftlen, int fftnum)
+              {
+                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
+                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
+
+                int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
+                
+                // if N1%16>0, we're starting too many threads.
+                // There is probably a better way to do this, but just eating the surplus should work.
+                if (matindex < fftlen*fftnum) {
+                    double matreal = matr[matindex];
+                    double matimag = mati[matindex];
+                    double vecreal = vecr[index_x];
+                    double vecimag = veci[index_x];
+
+                    matr[matindex] = matreal*vecreal - matimag*vecimag;
+                    mati[matindex] = matreal*vecimag + matimag*vecreal;
+                }
+              }
+              """)
+            mulfunc = kernelcode.get_function("derifact_multiplication")
 
             # Loop over time steps
             for frame in range(int(cfg.TRK)):
@@ -183,10 +208,10 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufr,g_bufi):
-                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufr,g_bufi)
+                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufr,g_bufi,mulfunc):
+                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufr,g_bufi,mulfunc)
 
-                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufr,g_bufi)
+                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufr,g_bufi,mulfunc)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():

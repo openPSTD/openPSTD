@@ -241,7 +241,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     return Lp
 @profile
-def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufr,g_bufi):
+def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufr,g_bufi,mulfunc):
     #equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
     # Wlength = length of window function
@@ -258,8 +258,8 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
 
     # TODO: replace this with an expanding list of buffers and plans
     if N1*N2 > 500*128:
-        g_bufr = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
-        g_bufi = cuda.mem_alloc(int(8*N1*nearest_2power(N2)))
+        g_bufr = cuda.mem_alloc(int(8*N1*int(N2)))
+        g_bufi = cuda.mem_alloc(int(8*N1*int(N2)))
 
     if str(int(N2)) not in plan_set.keys():
         from pyfft.cuda import Plan
@@ -292,29 +292,41 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             (xshape,yshape) = catemp.shape
             ncatemp = np.concatenate((catemp,np.zeros((N1,N2-yshape))),1)
             nfcatemp = np.ravel(ncatemp)
-            ncatemp = ncatemp.transpose() #for plot
+            ncatemp = ncatemp.transpose() #TODO: remove in final version. Only useful for plotting while debugging)
             nfcatempim = np.zeros_like(nfcatemp)
             cuda.memcpy_htod(g_bufr, nfcatemp)
             cuda.memcpy_htod(g_bufi, nfcatempim)
 
-            #execute the fft
+            #select the N2-length plan from the set and execute the fft
             plan_set[str(int(N2))].execute(g_bufr, g_bufi, batch=N1)
-        
-            #TEMPORARY solution: get back to cpu to multiply by derivfactor
-            Ktempr = np.empty_like(ncatemp)
-            Ktempi = np.empty_like(ncatemp)
-            cuda.memcpy_dtoh(Ktempr,g_bufr)
-            cuda.memcpy_dtoh(Ktempi,g_bufi)
+            
+            deriv_on_gpu = True
+            if deriv_on_gpu:
+                #TODO: reuse derfact (or at least a derfact buffer, probably worth it)
+                g_derfactr = cuda.mem_alloc(int(8*int(N2)))
+                g_derfacti = cuda.mem_alloc(int(8*int(N2)))
 
-            Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
-            Ktemp.real = Ktempr
-            Ktemp.imag = Ktempi
+                cuda.memcpy_htod(g_derfactr, derfact.real.copy())
+                cuda.memcpy_htod(g_derfacti, derfact.imag.copy())
 
-            derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
-            nderpartr = np.ravel(derpart.real)
-            nderparti = np.ravel(derpart.imag)
-            cuda.memcpy_htod(g_bufr, nderpartr)
-            cuda.memcpy_htod(g_bufi, nderparti)
+                mulfunc(g_bufr, g_bufi, g_derfactr, g_derfactr, np.int32(N2), np.int32(N1), block=(16,16,1))
+
+            else:
+                #TEMPORARY solution: get back to cpu to multiply by derivfactor
+                Ktempr = np.empty_like(ncatemp)
+                Ktempi = np.empty_like(ncatemp)
+                cuda.memcpy_dtoh(Ktempr,g_bufr)
+                cuda.memcpy_dtoh(Ktempi,g_bufi)
+
+                Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
+                Ktemp.real = Ktempr
+                Ktemp.imag = Ktempi
+
+                derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
+                nderpartr = np.ravel(derpart.real)
+                nderparti = np.ravel(derpart.imag)
+                cuda.memcpy_htod(g_bufr, nderpartr)
+                cuda.memcpy_htod(g_bufi, nderparti)
         
             #execute the ifft
             plan_set[str(int(N2))].execute(g_bufr, g_bufi, inverse=True, batch=N1)
@@ -335,8 +347,8 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             res_bufrl = []
             res_bufil = []
             for i in xrange(N1):
-                g_bufrl.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
-                g_bufil.append(cuda.mem_alloc(int(2*8*nearest_2power(N2))))
+                g_bufrl.append(cuda.mem_alloc(int(2*8*int(N2))))
+                g_bufil.append(cuda.mem_alloc(int(2*8*int(N2))))
                 cuda.memcpy_htod(g_bufrl[i], ncatemp[:,i].copy())
                 cuda.memcpy_htod(g_bufil[i], ncatempim[:,i].copy())
                 plan_set[str(int(N2))].execute(g_bufrl[i], g_bufil[i], inverse=False, batch=1)
