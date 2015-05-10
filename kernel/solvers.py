@@ -170,13 +170,14 @@ class GpuAccelerated:
             g_bufi = cuda.mem_alloc(int(8*500*128))            
 
             kernelcode = SourceModule(""" 
+              #include <stdio.h>
               __global__ void derifact_multiplication(double *matr, double *mati, double *vecr, double *veci, int fftlen, int fftnum)
               {
                 int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
                 int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
                 int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
-                
+                //printf("Block(x,y): (%d,%d). Thread(x,y): (%d,%d)\\n",blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
                 // if N1%16>0, we're starting too many threads.
                 // There is probably a better way to do this, but just eating the surplus should work.
                 if (matindex < fftlen*fftnum) {

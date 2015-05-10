@@ -292,24 +292,25 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             (xshape,yshape) = catemp.shape
             ncatemp = np.concatenate((catemp,np.zeros((N1,N2-yshape))),1)
             nfcatemp = np.ravel(ncatemp)
-            ncatemp = ncatemp.transpose() #TODO: remove in final version. Only useful for plotting while debugging)
+            ncatemp = ncatemp.transpose()
             nfcatempim = np.zeros_like(nfcatemp)
             cuda.memcpy_htod(g_bufr, nfcatemp)
             cuda.memcpy_htod(g_bufi, nfcatempim)
 
-            #select the N2-length plan from the set and execute the fft
+            #select the N2 length plan from the set and execute the fft
             plan_set[str(int(N2))].execute(g_bufr, g_bufi, batch=N1)
             
             deriv_on_gpu = True
             if deriv_on_gpu:
-                #TODO: reuse derfact (or at least a derfact buffer, probably worth it)
                 g_derfactr = cuda.mem_alloc(int(8*int(N2)))
                 g_derfacti = cuda.mem_alloc(int(8*int(N2)))
 
-                cuda.memcpy_htod(g_derfactr, derfact.real.copy())
-                cuda.memcpy_htod(g_derfacti, derfact.imag.copy())
+                cuda.memcpy_htod(g_derfactr, np.ravel(derfact.real))
+                cuda.memcpy_htod(g_derfacti, np.ravel(derfact.imag))
 
-                mulfunc(g_bufr, g_bufi, g_derfactr, g_derfactr, np.int32(N2), np.int32(N1), block=(16,16,1))
+                grdx = int(N2)/16
+                grdy = int(nearest_2power(N1)/16)
+                mulfunc(g_bufr, g_bufi, g_derfactr, g_derfacti,np.int32(N2), np.int32(N1), block=(16,16,1), grid=(grdx,grdy))
 
             else:
                 #TEMPORARY solution: get back to cpu to multiply by derivfactor
