@@ -335,7 +335,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             cuda.memcpy_dtoh(Ltemp, g_bufr)
             Ltemp = Ltemp.transpose() #return to original shape
         
-            Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+            Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
             
         else:
             catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
