@@ -346,22 +346,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
 
         Lp = Ltemp[:,Wlength:Wlength+Ns2-1]
 
-        cpuvelo = False
-        if cpuvelo:
-            size123 = Wlength*2+Ns2
-            Lpg = np.zeros((N1,Ns2-1))
-
-            G = np.ones((N1,size123))
-            G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
-            G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-
-            Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength-1:Ns1-1]+Rmatrix[0,0]*p2[:,Wlength:0:-1], \
-                                     p2[:,0:Ns2], \
-                                     Rmatrix[3,1]*p3[:,1:Wlength+1]+Rmatrix[1,0]*p2[:,Ns2-2:Ns2-Wlength-2:-1]), axis=1)*G,int(N2), axis=1)
-            Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
-            Lpg[0:N1,0:Ns2-1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2-1])
-            print np.amax(Lpg-Lp)
-
     if direct == 0: # transpose Lp to get variables in right direction
         Lp = Lp.transpose()
 
