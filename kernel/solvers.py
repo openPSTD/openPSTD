@@ -160,14 +160,24 @@ class GpuAccelerated:
             from pycuda.tools import make_default_context
             from pycuda.compiler import SourceModule
             from pycuda.driver import Function
+            from pyfft.cuda import Plan
 
             cuda.init()
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan_set = {} #will be filled as needed in spatderp3_gpu(~)
-            g_bufr = cuda.mem_alloc(int(8*500*128)) #temporary buffers. TODO: dynamically grow them
-            g_bufi = cuda.mem_alloc(int(8*500*128))            
+            plan_set = {} #will be filled as needed in spatderp3_gpu(~), prefill with 128, 256 and 512
+            plan_set[str(128)] = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float64, context=context, stream=stream, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float64, context=context, stream=stream, fast_math=False)
+            
+            g_bufl = {} #r/i/d -> real/imag/derfact buffers. spatderp3 will expand them if needed
+            g_bufl["mr"] = cuda.mem_alloc(8*128*128)
+            g_bufl["mi"] = cuda.mem_alloc(8*128*128)
+            g_bufl["m_size"] = 8*128*128
+            g_bufl["dr"] = cuda.mem_alloc(8*128)
+            g_bufl["di"] = cuda.mem_alloc(8*128)
+            g_bufl["d_size"] = 8*128
 
             kernelcode = SourceModule(""" 
               #include <stdio.h>
@@ -209,10 +219,10 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufr,g_bufi,mulfunc):
-                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufr,g_bufi,mulfunc)
+                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufl,mulfunc):
+                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufl,mulfunc)
 
-                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufr,g_bufi,mulfunc)
+                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufl,mulfunc)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():

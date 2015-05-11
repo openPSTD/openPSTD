@@ -241,7 +241,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     return Lp
 @profile
-def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufr,g_bufi,mulfunc):
+def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufl,mulfunc):
     #equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
     # Wlength = length of window function
@@ -255,11 +255,21 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
     # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity 
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
     import pycuda.driver as cuda
+    
+    #some timers to trakc the kernels
+    t_start = cuda.Event()
+    t_end = cuda.Event()
 
     # TODO: replace this with an expanding list of buffers and plans
-    if N1*N2 > 500*128:
-        g_bufr = cuda.mem_alloc(int(8*N1*int(N2)))
-        g_bufi = cuda.mem_alloc(int(8*N1*int(N2)))
+    if 8*N1*int(N2) > g_bufl["m_size"]:
+        g_bufl["mr"] = cuda.mem_alloc(int(8*N1*int(N2)))
+        g_bufl["mi"] = cuda.mem_alloc(int(8*N1*int(N2)))
+        g_bufl["m_size"] = int(8*N1*int(N2))
+
+    if 8*int(N2) > g_bufl["d_size"]:
+        g_bufl["dr"] = cuda.mem_alloc(8*int(N2))
+        g_bufl["di"] = cuda.mem_alloc(8*int(N2))
+        g_bufl["d_size"] = 8*int(N2)
 
     if str(int(N2)) not in plan_set.keys():
         from pyfft.cuda import Plan
@@ -294,30 +304,39 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             nfcatemp = np.ravel(ncatemp)
             ncatemp = ncatemp.transpose()
             nfcatempim = np.zeros_like(nfcatemp)
-            cuda.memcpy_htod(g_bufr, nfcatemp)
-            cuda.memcpy_htod(g_bufi, nfcatempim)
+            
+            cuda.memcpy_htod(g_bufl["mr"], nfcatemp)
+            cuda.memcpy_htod(g_bufl["mi"], nfcatempim)
 
             #select the N2 length plan from the set and execute the fft
-            plan_set[str(int(N2))].execute(g_bufr, g_bufi, batch=N1)
-            
+            t_start.record()
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+            t_end.record()
+            t_end.synchronize()
+            secs = t_start.time_till(t_end)*1e-3
+            #print "Plan took:", secs
+
             deriv_on_gpu = True
             if deriv_on_gpu:
-                g_derfactr = cuda.mem_alloc(int(8*int(N2)))
-                g_derfacti = cuda.mem_alloc(int(8*int(N2)))
-
-                cuda.memcpy_htod(g_derfactr, np.ravel(derfact.real))
-                cuda.memcpy_htod(g_derfacti, np.ravel(derfact.imag))
+                cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
+                cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
 
                 grdx = int(N2)/16
                 grdy = int(nearest_2power(N1)/16)
-                mulfunc(g_bufr, g_bufi, g_derfactr, g_derfacti,np.int32(N2), np.int32(N1), block=(16,16,1), grid=(grdx,grdy))
+                
+                t_start.record()
+                mulfunc(g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(16,16,1), grid=(grdx,grdy))
+                t_end.record()
+                t_end.synchronize()
+                secs = t_start.time_till(t_end)*1e-3
+                #print "Mulfunc took:", secs
 
             else:
                 #TEMPORARY solution: get back to cpu to multiply by derivfactor
                 Ktempr = np.empty_like(ncatemp)
                 Ktempi = np.empty_like(ncatemp)
-                cuda.memcpy_dtoh(Ktempr,g_bufr)
-                cuda.memcpy_dtoh(Ktempi,g_bufi)
+                cuda.memcpy_dtoh(Ktempr,g_bufl["mr"])
+                cuda.memcpy_dtoh(Ktempi,g_bufl["mi"])
 
                 Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
                 Ktemp.real = Ktempr
@@ -326,17 +345,22 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
                 derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
                 nderpartr = np.ravel(derpart.real)
                 nderparti = np.ravel(derpart.imag)
-                cuda.memcpy_htod(g_bufr, nderpartr)
-                cuda.memcpy_htod(g_bufi, nderparti)
+                cuda.memcpy_htod(g_bufl["mr"], nderpartr)
+                cuda.memcpy_htod(g_bufl["i"], nderparti)
         
             #execute the ifft
-            plan_set[str(int(N2))].execute(g_bufr, g_bufi, inverse=True, batch=N1)
+            t_start.record()
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+            t_end.record()
+            t_end.synchronize()
+            secs = t_start.time_till(t_end)*1e-3
+            #print "Plan inverse took:", secs
+
             Ltemp = np.empty_like(ncatemp)
-            cuda.memcpy_dtoh(Ltemp, g_bufr)
+            cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
             Ltemp = Ltemp.transpose() #return to original shape
         
             Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
-            
         else:
             catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
             (xshape, yshape) = catemprev.shape
