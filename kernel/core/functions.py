@@ -207,21 +207,6 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
-        Debug = False
-        if Debug:
-            #plot and quit
-            np.set_printoptions(threshold=np.nan)
-            print "catemp: ",catemp
-
-            import matplotlib.pyplot as plt
-            f, a = plt.subplots(4)
-            a[0].plot(catemp.transpose())
-            a[1].plot(Ktemp.transpose())
-            a[2].plot(Ktemp_der.transpose())
-            a[3].plot(Ltemp.transpose())
-            plt.show()
-            raise SystemExit
-
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2-1))
@@ -256,13 +241,15 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
     import pycuda.driver as cuda
     
-    #some timers to track the kernels
-    t_start = cuda.Event()
-    t_end = cuda.Event()
+    #used to sync the gpu as to get an accurate timing report
+    t_sync = cuda.Event()
 
     if 8*N1*int(N2) > g_bufl["m_size"]:
         g_bufl["mr"] = cuda.mem_alloc(int(8*N1*int(N2)))
         g_bufl["mi"] = cuda.mem_alloc(int(8*N1*int(N2)))
+        g_bufl["m1"] = cuda.mem_alloc(int(8*N1*int(N2)))
+        g_bufl["m2"] = cuda.mem_alloc(int(8*N1*int(N2)))
+        g_bufl["m3"] = cuda.mem_alloc(int(8*N1*int(N2)))
         g_bufl["m_size"] = int(8*N1*int(N2))
 
     if 8*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
@@ -282,134 +269,45 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         p2 = p2.transpose()
         p3 = p3.transpose()
 
-
     if var == 0: # pressure nodes: calculation for variable node staggered with boundary
         # size 123 = number of pressure nodes
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2+1))
 
-        G = np.ones((N1,size123))
-        G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
-        G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-        #identical to original until here
-        catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1],\
-                                 p2[:,0:Ns2], Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
+        #prepare data needed for applying window function
+        cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
+        cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
+        cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
+        cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
+        t_sync.synchronize()
+
+        blksize = 8
+        grdx = int(N2)/blksize
+        grdy = int(nearest_2power(N1)/blksize)
+
+        mulfunc["window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.int32(Rmatrix[2,1]), np.int32(Rmatrix[0,0]), np.int32(Rmatrix[3,1]), np.int32(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
+        t_sync.synchronize()
+
+        #select the N2 length plan from the set and execute the fft
+        plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+        t_sync.synchronize()
+
+        cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
+        cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
+        t_sync.synchronize()
+
+        mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(blksize,blksize,1), grid=(grdx,grdy))
+        t_sync.synchronize()
+
+        #execute the ifft
+        plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+        t_sync.synchronize()
+
+        Ltemp = np.empty((N2,N1), dtype=np.float32)
+        cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
+        Ltemp = Ltemp.transpose() #return to original shape
         
-        batch_it = True
-        if batch_it:
-            (xshape,yshape) = catemp.shape
-            ncatemp = np.concatenate((catemp,np.zeros((N1,N2-yshape))),1)
-            nfcatemp = np.ravel(ncatemp)
-            ncatemp = ncatemp.transpose()
-            nfcatempim = np.zeros_like(nfcatemp)
-            
-            cuda.memcpy_htod(g_bufl["mr"], nfcatemp)
-            cuda.memcpy_htod(g_bufl["mi"], nfcatempim)
-
-            #select the N2 length plan from the set and execute the fft
-            t_start.record()
-            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
-            t_end.record()
-            t_end.synchronize()
-            secs = t_start.time_till(t_end)*1e-3
-            #print "Plan took:", secs
-
-            deriv_on_gpu = True
-            if deriv_on_gpu:
-                cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
-                cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
-
-                grdx = int(N2)/16
-                grdy = int(nearest_2power(N1)/16)
-                
-                t_start.record()
-                mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(16,16,1), grid=(grdx,grdy))
-                t_end.record()
-                t_end.synchronize()
-                secs = t_start.time_till(t_end)*1e-3
-                #print "Mulfunc took:", secs
-
-            else:
-                #TEMPORARY solution: get back to cpu to multiply by derivfactor
-                Ktempr = np.empty_like(ncatemp)
-                Ktempi = np.empty_like(ncatemp)
-                cuda.memcpy_dtoh(Ktempr,g_bufl["mr"])
-                cuda.memcpy_dtoh(Ktempi,g_bufl["mi"])
-
-                Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
-                Ktemp.real = Ktempr
-                Ktemp.imag = Ktempi
-
-                derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose()))
-                nderpartr = np.ravel(derpart.real)
-                nderparti = np.ravel(derpart.imag)
-                cuda.memcpy_htod(g_bufl["mr"], nderpartr)
-                cuda.memcpy_htod(g_bufl["i"], nderparti)
-        
-            #execute the ifft
-            t_start.record()
-            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
-            t_end.record()
-            t_end.synchronize()
-            secs = t_start.time_till(t_end)*1e-3
-            #print "Plan inverse took:", secs
-
-            Ltemp = np.empty_like(ncatemp)
-            cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
-            Ltemp = Ltemp.transpose() #return to original shape
-        
-            Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
-        else:
-            catemprev = catemp.transpose()  #original np.fft had axis=1, plan works on axis=0
-            (xshape, yshape) = catemprev.shape
-            ncatemp = np.concatenate((catemprev, np.zeros((N2-xshape,N1))),0)    #plan does not do zero padding for us
-            ncatempim = np.zeros_like(ncatemp)
-        
-            g_bufrl = []
-            g_bufil = []
-            res_bufrl = []
-            res_bufil = []
-            for i in xrange(N1):
-                g_bufrl.append(cuda.mem_alloc(int(2*8*int(N2))))
-                g_bufil.append(cuda.mem_alloc(int(2*8*int(N2))))
-                cuda.memcpy_htod(g_bufrl[i], ncatemp[:,i].copy())
-                cuda.memcpy_htod(g_bufil[i], ncatempim[:,i].copy())
-                plan_set[str(int(N2))].execute(g_bufrl[i], g_bufil[i], inverse=False, batch=1)
-                res_bufrl.append(np.empty_like(ncatemp[:,i]))
-                res_bufil.append(np.empty_like(ncatempim[:,i]))
-                cuda.memcpy_dtoh(res_bufrl[i], g_bufrl[i])
-                cuda.memcpy_dtoh(res_bufil[i], g_bufil[i])
-
-            Ktempr = np.asarray(res_bufrl, np.float64).transpose()
-            Ktempi = np.asarray(res_bufil, np.float64).transpose()
-
-            Ktemp = np.empty(Ktempr.shape, dtype=np.complex128)
-            Ktemp.real = Ktempr
-            Ktemp.imag = Ktempi
-
-            derpart = (np.ones((N1,1))*derfact[0:N2]*(Ktemp.transpose())).transpose()
-            
-            for i in xrange(N1):
-                cuda.memcpy_htod(g_bufrl[i], derpart.real[:,i].copy())
-                cuda.memcpy_htod(g_bufil[i], derpart.imag[:,i].copy())
-                plan_set[str(int(N2))].execute(g_bufrl[i], g_bufil[i], inverse=True, batch=1)
-                cuda.memcpy_dtoh(res_bufrl[i], g_bufrl[i])
-                cuda.memcpy_dtoh(res_bufil[i], g_bufil[i])
-
-            Ltemp = np.asarray(res_bufrl, np.float64) #this also effectively transposes
-            Lp[0:N1,0:Ns2+1] = np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
-
-        Debug = False
-        if Debug:
-            #plot and quit
-            import matplotlib.pyplot as plt
-            f, a = plt.subplots(4, sharex=False)
-            a[0].plot(ncatemp)
-            a[1].plot(Ktemp.real)
-            a[2].plot(derpart)
-            a[3].plot(Ltemp.transpose())
-            plt.show()
-            raise SystemExit
+        Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
