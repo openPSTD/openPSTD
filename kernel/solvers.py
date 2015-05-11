@@ -203,30 +203,31 @@ class GpuAccelerated:
                 }
               }
 
-              __global__ void window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, int R21, int R00, int R31, int R10) //passing a few by value seems to be more efficient than building an array first in pycuda
+              __global__ void window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, double R21, double R00, double R31, double R10) //passing a few by value seems to be more efficient than building an array first in pycuda
               {
                 int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
                 int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
                 int matindex = index_y*fftlen+index_x;
 
-                int G = 1;
+                double G = 1;
                 if (index_x < winlen) {
                     G = A[index_x];
-                } else if (index_x > winlen+Ns2) {
+                } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
                     G = A[index_x-Ns2];
                 }
                 if (index_y < fftnum) { //eat the surplus
                     mi[matindex] = 0;
                     if (index_x < winlen) {
-                        mr[matindex] = G*(R21*p1[index_x] + R00*p2[winlen-1-index_x]);
+                        mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1] + R00*p2[Ns2*index_y+winlen-1-index_x]);
                     } else if (index_x < winlen + Ns2) {
-                        mr[matindex] = p2[index_x-winlen];
+                        mr[matindex] = p2[Ns2*index_y+index_x-winlen];
                     } else if (index_x < winlen*2+Ns2) {
-                        mr[matindex] = G*(R31*p3[index_x-winlen-Ns2] + R10*p2[2*Ns2+winlen-1-index_x]);
+                        mr[matindex] = G*(R31*p3[Ns3*index_y+index_x-winlen-Ns2] + R10*p2[Ns2*index_y+2*Ns2+winlen-1-index_x]);
                     } else {
                         mr[matindex] = 0; //zero padding
                     }
+                    if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
                 }
               }
               """)

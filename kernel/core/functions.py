@@ -200,6 +200,11 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
                                  p2[:,0:Ns2], \
                                  Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
+        import matplotlib.pyplot as plt
+        plt.plot(catemp.transpose())
+        plt.show()
+        print catemp[25,:]
+        raise SystemExit
         Ktemp = fft(catemp,int(N2), axis=1)
         Ktemp_der = (np.ones((N1,1))*derfact[0:N2]*Ktemp)
         #print "Ktemp = ", Ktemp
@@ -275,9 +280,9 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         Lp = np.zeros((N1,Ns2+1))
 
         #prepare data needed for applying window function
-        cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1[:,Ns1-Wlength:-1]))
+        cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
         cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
-        cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3[:,0:Wlength]))
+        cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
         cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
         t_sync.synchronize()
 
@@ -285,8 +290,17 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         grdx = int(N2)/blksize
         grdy = int(nearest_2power(N1)/blksize)
 
-        mulfunc["window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.int32(Rmatrix[2,1]), np.int32(Rmatrix[0,0]), np.int32(Rmatrix[3,1]), np.int32(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
+        print np.amin(A)
+        #raise SystemExit
+        mulfunc["window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
         t_sync.synchronize()
+        tmpr = np.empty((N1,N2), dtype=np.float64)
+        cuda.memcpy_dtoh(tmpr, g_bufl["mr"])
+        import matplotlib.pyplot as plt
+        plt.plot(tmpr.transpose())
+        plt.show() 
+        print tmpr[25,:]
+        raise SystemExit
 
         #select the N2 length plan from the set and execute the fft
         plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
@@ -303,7 +317,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
         t_sync.synchronize()
 
-        Ltemp = np.empty((N2,N1), dtype=np.float32)
+        Ltemp = np.empty((N2,N1), dtype=np.float64)
         cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
         Ltemp = Ltemp.transpose() #return to original shape
         
