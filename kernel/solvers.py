@@ -210,7 +210,6 @@ class GpuAccelerated:
 
                 int matindex = index_y*fftlen+index_x;
 
-                int size123 = winlen*2+Ns2;
                 int G = 1;
                 if (index_x < winlen) {
                     G = A[index_x];
@@ -220,11 +219,11 @@ class GpuAccelerated:
                 if (index_y < fftnum) { //eat the surplus
                     mi[matindex] = 0;
                     if (index_x < winlen) {
-                        mr[matindex] = R21*p1[index_x+Ns1-winlen] + R00*p2[winlen-1-index_x];
+                        mr[matindex] = G*(R21*p1[index_x] + R00*p2[winlen-1-index_x]);
                     } else if (index_x < winlen + Ns2) {
                         mr[matindex] = p2[index_x-winlen];
                     } else if (index_x < winlen*2+Ns2) {
-                        mr[matindex] = R31*p3[index_x-winlen-Ns2] + R10*p2[2*Ns2+winlen-1-index_x];
+                        mr[matindex] = G*(R31*p3[index_x-winlen-Ns2] + R10*p2[2*Ns2+winlen-1-index_x]);
                     } else {
                         mr[matindex] = 0; //zero padding
                     }

@@ -275,9 +275,9 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         Lp = np.zeros((N1,Ns2+1))
 
         #prepare data needed for applying window function
-        cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
+        cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1[:,Ns1-Wlength:-1]))
         cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
-        cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
+        cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3[:,0:Wlength]))
         cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
         t_sync.synchronize()
 
