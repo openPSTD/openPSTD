@@ -274,15 +274,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2+1))
 
-        cpuwind = False
-        if cpuwind:
-            G = np.ones((N1,size123))
-            G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
-            G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-            catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
-                                     p2[:,0:Ns2], \
-                                     Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
-
         #prepare data needed for applying window function
         cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
         cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
@@ -299,16 +290,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         
         tmpr = np.empty((N1,N2),dtype=np.float64)
         cuda.memcpy_dtoh(tmpr,g_bufl["mr"])
-
-        if cpuwind:
-            (xshape,yshape) = catemp.shape
-            ncatemp = np.concatenate((catemp,np.zeros((N1,N2-yshape))),1)
-            nfcatemp = np.ravel(ncatemp)
-            ncatemp = ncatemp.transpose()
-            nfcatempim = np.zeros_like(nfcatemp)
-            
-            cuda.memcpy_htod(g_bufl["mr"], nfcatemp)
-            cuda.memcpy_htod(g_bufl["mi"], nfcatempim)
 
         #select the N2 length plan from the set and execute the fft
         plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
@@ -327,11 +308,9 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
 
         Ltemp = np.empty((N1,N2), dtype=np.float64)
         cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
-        
-        #Ltemp = Ltemp.transpose() #return to original shape
-        
-        Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
-        #Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
+                
+        #Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+        Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
