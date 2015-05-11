@@ -18,7 +18,8 @@
 ########################################################################
 
 import struct
-import concurrent.futures
+import concurrent
+import multiprocessing as mp
 from kernel.core.classes import *
 
 try:
@@ -100,7 +101,7 @@ class MultiThreaded:
                     job_list.append(executor.submit(calc_domain, domain))
                 [job.result() for job in job_list]
                 job_list = []
-                for domain in scene.domains:
+                for domain in scene.doains:
                     if not domain.is_rigid():
                         job_list.append(executor.submit(update_domain, domain, sub_frame))
                 [job.result() for job in job_list]
@@ -119,3 +120,47 @@ class MultiThreaded:
             if frame % cfg.save_nth_frame == 0:
                 data_writer.write_to_file(frame)
         executor.shutdown()
+
+    def _distribute_domains(self,scene,num_workers):
+        self.domain_solver_list = []
+        for i in num_workers:
+            self.domain_solver_list[i] = DomainWorker()
+        worker = 0
+        for domain in scene.domains:
+            # if not domain.is_rigid()
+            self.domain_solver_list[worker].add_domain(domain)
+            worker += 1
+            worker %= num_workers
+
+
+class DomainWorker(mp.Process):
+    def __init__(self):
+        super()
+        self.domain_list = []
+
+    def add_domain(self,domain: Domain):
+        assert domain not in self.domain_list
+        self.domain_list.append(domain)
+
+    def get_dependencies(self):
+        return [neighbour.id for domain in self.domain_list for neighbour in domain.neighbour_dict.values()]
+
+    def calc_domains(self):
+        for domain in self.domain_list:
+            for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+                if not domain.is_rigid():  # should be checked earlier
+                    if domain.should_update(boundary_type):
+                        source = "L%s%s" % calculation_type,boundary_type
+                        domain.dom_obj[source] = domain.calc(boundary_type, calculation_type)
+
+    def update_domains(self,sub_frame):
+        for domain in self.domain_list:
+            domain.rk_update(sub_frame)
+
+    def get_numerical_data_dict(self):
+        return {domain.id:domain.dom_obj for domain in self.domain_list}
+
+    def set_numerical_data_dict(self,data: dict):
+        assert data.keys() == set(self.get_dependencies()) # move to unit testing
+        for key in data:
+            pass

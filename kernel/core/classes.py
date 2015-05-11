@@ -68,7 +68,7 @@ class Point(object):
     @y.setter
     @z.setter
     @array.setter
-    def set_dimension(self):
+    def set_dimension(self, other):
         raise AttributeError("Points are immutable")
 
     def __len__(self):
@@ -111,11 +111,13 @@ class DomainCommunication(object):  # Anyone proposing a better name?
         self.id = id
         self.size = size
 
-        # Neigbour information
-        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # Neighbour information
+        self.dependencies = []
         # Numeric information
         self.matrix_dict = {}
         self.field_dict = {value:0 for value in Domain.VALUES}
+        # Not sure if i want keys to be adj's or id's.
+        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
         self.clear_matrices()
         self.clear_fields()
         # self.u0_old = self.w0_old = self.p0_old = self.px0_old = self.pz0_old = None
@@ -133,8 +135,8 @@ class DomainCommunication(object):  # Anyone proposing a better name?
         self.field_dict['px0'] = self._domain_size_zeros()
         self.field_dict['pz0'] = self._domain_size_zeros()
 
-    def add_depending_domain(self, other: str):
-        self.depending_domains.append(other)
+    def add_dependency(self, id: str):
+        self.dependencies.append(id)
 
     def _domain_size_zeros(self, a=0, b=0):
         return np.zeros((self.size.y + a, self.size.x + b))
@@ -168,6 +170,9 @@ class Domain(object):
         self.top_left = top_left
         self.cfg = cfg
         self.size = size
+        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # 0mar: todo: We could replace object references with strings...
+        3
         self.dom_obj = DomainCommunication(id,size)
         self.bottom_right = self.top_left + self.size
         self.old_field_dict = {value:0 for value in Domain.VALUES}
@@ -202,9 +207,9 @@ class Domain(object):
         self.update_for = {}
         self.local = False
 
-    @property
-    def neighbour_dict(self):
-        return self.dom_obj.neighbour_dict
+    # @property
+    # def neighbour_dict(self):
+    #     return self.dom_obj.neighbour_dict
 
     @property
     def matrix_dict(self):
@@ -213,6 +218,11 @@ class Domain(object):
     @property
     def field_dict(self):
         return self.dom_obj.field_dict
+
+    def set_neighbour_numerics(self):
+        for key in self.neighbour_dict:
+            self.dom_obj.neighbour_dict[key] = [dom_obj for dom_obj in self.neighbour_dict[key]]
+
 
     def __repr__(self):
         return "%s:\n %s\n o-------------------o\n |  %s  | \n o-------------------o\n      %s\n" % (
@@ -392,8 +402,8 @@ class Domain(object):
         # sys.stdout.write(str)
         # sys.stdout.flush()
         # Find the input matrices
-        domains1 = self.neighbour_dict['left'] if bt == BoundaryType.HORIZONTAL else self.neighbour_dict['bottom']
-        domains2 = self.neighbour_dict['right'] if bt == BoundaryType.HORIZONTAL else self.neighbour_dict['top']
+        domains1 = self.dom_obj.neighbour_dict['left'] if bt == BoundaryType.HORIZONTAL else self.dom_obj.neighbour_dict['bottom']
+        domains2 = self.dom_obj.neighbour_dict['right'] if bt == BoundaryType.HORIZONTAL else self.dom_obj.neighbour_dict['top']
 
         if len(domains1) == 0: domains1 = [None]
         if len(domains2) == 0: domains2 = [None]

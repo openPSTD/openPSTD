@@ -89,7 +89,7 @@ class PSTD:
             })
 
         self.scene.add_pml_domains()
-
+        [domain.set_neighbour_numerics() for domain in self.scene.domains]
         dx_2 = self.cfg.dx/2.
 
         # Add the speaker positions
