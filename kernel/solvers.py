@@ -227,7 +227,7 @@ class GpuAccelerated:
                     } else {
                         mr[matindex] = 0; //zero padding
                     }
-                    if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
+                    //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
                 }
               }
               """)
