@@ -256,20 +256,19 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
     import pycuda.driver as cuda
     
-    #some timers to trakc the kernels
+    #some timers to track the kernels
     t_start = cuda.Event()
     t_end = cuda.Event()
 
-    # TODO: replace this with an expanding list of buffers and plans
     if 8*N1*int(N2) > g_bufl["m_size"]:
         g_bufl["mr"] = cuda.mem_alloc(int(8*N1*int(N2)))
         g_bufl["mi"] = cuda.mem_alloc(int(8*N1*int(N2)))
         g_bufl["m_size"] = int(8*N1*int(N2))
 
-    if 8*int(N2) > g_bufl["d_size"]:
-        g_bufl["dr"] = cuda.mem_alloc(8*int(N2))
-        g_bufl["di"] = cuda.mem_alloc(8*int(N2))
-        g_bufl["d_size"] = 8*int(N2)
+    if 8*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
+        g_bufl["dr"] = cuda.mem_alloc(np.maximum(8*int(N2),A.size))
+        g_bufl["di"] = cuda.mem_alloc(np.maximum(8*int(N2),A.size))
+        g_bufl["d_size"] = np.maximum(8*int(N2),A.size)
 
     if str(int(N2)) not in plan_set.keys():
         from pyfft.cuda import Plan
@@ -292,11 +291,10 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         G = np.ones((N1,size123))
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-        
         #identical to original until here
         catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1],\
                                  p2[:,0:Ns2], Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
-
+        
         batch_it = True
         if batch_it:
             (xshape,yshape) = catemp.shape
@@ -325,7 +323,7 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
                 grdy = int(nearest_2power(N1)/16)
                 
                 t_start.record()
-                mulfunc(g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(16,16,1), grid=(grdx,grdy))
+                mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(16,16,1), grid=(grdx,grdy))
                 t_end.record()
                 t_end.synchronize()
                 secs = t_start.time_till(t_end)*1e-3

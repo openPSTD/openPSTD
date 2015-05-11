@@ -153,7 +153,6 @@ class MultiThreaded:
                 data_writer.write_to_file(frame)
         pool.close()
 
-
 class GpuAccelerated:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
             import pycuda.driver as cuda
@@ -171,11 +170,14 @@ class GpuAccelerated:
             plan_set[str(256)] = Plan(256, dtype=np.float64, context=context, stream=stream, fast_math=False)
             plan_set[str(512)] = Plan(512, dtype=np.float64, context=context, stream=stream, fast_math=False)
             
-            g_bufl = {} #r/i/d -> real/imag/derfact buffers. spatderp3 will expand them if needed
+            g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
             g_bufl["mr"] = cuda.mem_alloc(8*128*128)
             g_bufl["mi"] = cuda.mem_alloc(8*128*128)
+            g_bufl["m1"] = cuda.mem_alloc(8*128*128)
+            g_bufl["m2"] = cuda.mem_alloc(8*128*128)
+            g_bufl["m3"] = cuda.mem_alloc(8*128*128)
             g_bufl["m_size"] = 8*128*128
-            g_bufl["dr"] = cuda.mem_alloc(8*128)
+            g_bufl["dr"] = cuda.mem_alloc(8*128) #dr also used by A (window matrix)
             g_bufl["di"] = cuda.mem_alloc(8*128)
             g_bufl["d_size"] = 8*128
 
@@ -200,8 +202,38 @@ class GpuAccelerated:
                     mati[matindex] = matreal*vecimag + matimag*vecreal;
                 }
               }
+
+              __global__ void window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, int R21, int R00, int R31, int R10) //passing a few by value seems to be more efficient than building an array first in pycuda
+              {
+                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
+                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
+
+                int matindex = index_y*fftlen+index_x;
+
+                int size123 = winlen*2+Ns2;
+                int G = 1;
+                if (index_x < winlen) {
+                    G = A[index_x];
+                } else if (index_x > winlen+Ns2) {
+                    G = A[index_x-Ns2];
+                }
+                if (index_y < fftnum) { //eat the surplus
+                    mi[matindex] = 0;
+                    if (index_x < winlen) {
+                        mr[matindex] = R21*p1[index_x+Ns1-winlen] + R00*p2[winlen-1-index_x];
+                    } else if (index_x < winlen + Ns2) {
+                        mr[matindex] = p2[index_x-winlen];
+                    } else if (index_x < winlen*2+Ns2) {
+                        mr[matindex] = R31*p3[index_x-winlen-Ns2] + R10*p2[2*Ns2+winlen-1-index_x];
+                    } else {
+                        mr[matindex] = 0; //zero padding
+                    }
+                }
+              }
               """)
-            mulfunc = kernelcode.get_function("derifact_multiplication")
+            mulfunc = {}
+            mulfunc["window"] = kernelcode.get_function("window_multiplication")
+            mulfunc["derifact"] = kernelcode.get_function("derifact_multiplication")
 
             # Loop over time steps
             for frame in range(int(cfg.TRK)):
