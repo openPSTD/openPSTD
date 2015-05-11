@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser(prog="openPSTD",
                                  description="Stand-alone application openPSTD")
 parser.add_argument('scene_file',help="JSON file containing scene description")
 parser.add_argument('-m','--multi-threaded', action="store_true",help="Run openPSTD multi-threaded")
-parser.add_argument('-g','--gpu-accelerated', action="store_true",help="Run openPSTD with gpu acceleration")
+parser.add_argument('-g','--gpu-accelerated', action="store_true",help="Run openPSTD with gpu acceleration (requires PyCuda)")
 parser.add_argument('-p','--write-plot', action="store_true",help="Write plot to image (only when matplotlib is installed)")
 parser.add_argument('-a','--write-array',action="store_true",help="Write array to file")
 
