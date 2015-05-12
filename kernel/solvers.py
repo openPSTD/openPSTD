@@ -68,7 +68,7 @@ class SingleThreaded:
 
                 # Sum the pressure components
                 for domain in scene.domains:
-                    domain.p0 = domain.px0 + domain.pz0
+                    domain.field_dict['p0'] = domain.field_dict['px0'] + domain.field_dict['pz0']
 
             # Apply pml matrices to boundary domains
             scene.apply_pml_matrices()
@@ -107,7 +107,7 @@ class MultiThreaded:
 
                 # Sum the pressure components
                 for domain in scene.domains:
-                    domain.p0 = domain.px0 + domain.pz0
+                    domain.field_dict['p0'] = domain.field_dict['px0'] + domain.field_dict['pz0']
 
             # Apply pml matrices to boundary domains
             scene.apply_pml_matrices()
