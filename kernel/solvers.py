@@ -11,14 +11,13 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of       #
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        #
 # GNU General Public License for more details.                         #
-#                                                                      #
+# #
 # You should have received a copy of the GNU General Public License    #
 # along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    #
 #                                                                      #
 ########################################################################
 
 import struct
-import concurrent
 import multiprocessing as mp
 from kernel.core.classes import *
 
@@ -84,53 +83,73 @@ class SingleThreaded:
 
 class MultiThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
+        self.cfg = cfg
+        self.scene = scene
+        self.data_writer = data_writer
+        self.receiver_files = receiver_files
+        self.output_fn = output_fn
+        self.domain_worker_list = []
+        self._distribute_domains(4)
+        self.run()
+        self.dom_obj_dict = {}
+
+    def _distribute_domains(self, num_workers):
+        for i in num_workers:
+            self.domain_worker_list[i] = DomainWorker()
+        worker = 0
+        for domain in self.scene.domains:
+            # if not domain.is_rigid()
+            self.domain_worker_list[worker].add_domain(domain)
+            worker += 1
+            worker %= num_workers
+
+    def run(self):
         # Loop over time steps
-        executor = concurrent.futures.ThreadPoolExecutor(4)
-        for frame in range(int(cfg.TRK)):
-            output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
+
+        for frame in range(int(self.cfg.TRK)):
+            self.output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
             # Keep a reference to current matrix contents
-            for domain in scene.domains:
+            for domain in self.scene.domains:
                 domain.push_values()
 
             # Loop over sub-frames
-            for sub_frame in range(2):
-                job_list = []
-                # Loop over domains
-                for domain in scene.domains:
+            for sub_frame in range(6):
+                # Loop over workers
+                for worker in self.domain_worker_list:
+                    worker.calc_domains()
+                    self.dom_obj_dict.update(worker.get_numerical_data_dict)
+                for worker in self.domain_worker_list:
+                    worker.update_domains(sub_frame)
+
+
+
+
+
+                for domain in self.scene.domains:
                     job_list.append(executor.submit(calc_domain, domain))
                 [job.result() for job in job_list]
                 job_list = []
-                for domain in scene.doains:
+                for domain in self.scene.doains:
                     if not domain.is_rigid():
                         job_list.append(executor.submit(update_domain, domain, sub_frame))
                 [job.result() for job in job_list]
 
                 # Sum the pressure components
-                for domain in scene.domains:
+                for domain in self.scene.domains:
                     domain.field_dict['p0'] = domain.field_dict['px0'] + domain.field_dict['pz0']
 
             # Apply pml matrices to boundary domains
-            scene.apply_pml_matrices()
+            self.scene.apply_pml_matrices()
 
-            for rf, r in zip(receiver_files, scene.receivers):
+            for rf, r in zip(self.receiver_files, self.scene.receivers):
                 rf.write(struct.pack('f', r.calc()))
                 rf.flush()
 
-            if frame % cfg.save_nth_frame == 0:
-                data_writer.write_to_file(frame)
-        executor.shutdown()
+            if frame % self.cfg.save_nth_frame == 0:
+                self.data_writer.write_to_file(frame)
 
-    def _distribute_domains(self,scene,num_workers):
-        self.domain_solver_list = []
-        for i in num_workers:
-            self.domain_solver_list[i] = DomainWorker()
-        worker = 0
-        for domain in scene.domains:
-            # if not domain.is_rigid()
-            self.domain_solver_list[worker].add_domain(domain)
-            worker += 1
-            worker %= num_workers
+
 
 
 class DomainWorker(mp.Process):
@@ -138,29 +157,62 @@ class DomainWorker(mp.Process):
         super()
         self.domain_list = []
 
-    def add_domain(self,domain: Domain):
+    def add_domain(self, domain: Domain):
+        """
+        Add a domain to the domain worker
+        :param domain: domain to be added. Should not already be in the list
+        """
         assert domain not in self.domain_list
         self.domain_list.append(domain)
 
     def get_dependencies(self):
-        return [neighbour.id for domain in self.domain_list for neighbour in domain.neighbour_dict.values()]
+        """
+        Obtain id's of the domains this domain must know to update its values
+        :return: list with id's
+        """
+        dep = []
+        for domain in self.domain_list:
+            for adj in domain.neighbour_dict:
+                for neighbour in domain.neighbour_dict[adj]:
+                    dep.append(neighbour.id)
+        return dep
 
     def calc_domains(self):
+        """
+        Perform one computing step for all domains owned by the worker.
+        Stores the result in the domains corresponding numerical object
+        """
         for domain in self.domain_list:
             for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
                 if not domain.is_rigid():  # should be checked earlier
                     if domain.should_update(boundary_type):
-                        source = "L%s%s" % calculation_type,boundary_type
+                        source = "L%s%s" % calculation_type, boundary_type
                         domain.dom_obj[source] = domain.calc(boundary_type, calculation_type)
 
-    def update_domains(self,sub_frame):
+    def update_domains(self, sub_frame):
+        """
+        Updates the domains value for the Runge-Kutta time step
+        :param sub_frame:
+        """
         for domain in self.domain_list:
             domain.rk_update(sub_frame)
 
     def get_numerical_data_dict(self):
-        return {domain.id:domain.dom_obj for domain in self.domain_list}
+        """
+        Obtain the numerical data objects for each domain owned by the worker
+        :return:
+        """
+        return {domain.id: domain.dom_obj for domain in self.domain_list}
 
-    def set_numerical_data_dict(self,data: dict):
-        assert data.keys() == set(self.get_dependencies()) # move to unit testing
-        for key in data:
-            pass
+    def set_numerical_data_dict(self, data: dict):
+        """
+        Set the numerical date object for each domain the worker needs to calculate.
+        data parameter must cater to the needs of the dependencies exactly.
+        :param data: dictionary with domain ids as keys and numerical objects as values
+        :return:
+        """
+        assert data.keys() == set(self.get_dependencies())  # move to unit testing
+        for domain in self.domain_list:
+            for adj in domain.neighbour_dict:
+                for neighbour in domain.neighbour_dict[adj]:
+                    domain.dom_obj = data[neighbour.id]

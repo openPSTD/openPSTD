@@ -528,10 +528,10 @@ class GridLayer(Layer):
         grid_spacing = model.SceneDesc["grid_spacing"]
 
         positions = [x for x in range(800)]
-        positions[  0:400:2] = [[-100, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        positions[  1:401:2] = [[100, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        positions[400:800:2] = [[x, -100] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        positions[401:801:2] = [[x, 100] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[  0:400:2] = [[-100*grid_spacing, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[  1:401:2] = [[100*grid_spacing, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[400:800:2] = [[x, -100*grid_spacing] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
+        positions[401:801:2] = [[x, 100*grid_spacing] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
         colors = [(0.5, 0.5, 0.5, 0.5) for _ in range(len(positions))]
 
         self.vPosition.set_data(np.array(positions, np.float32))
