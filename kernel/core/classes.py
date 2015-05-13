@@ -172,7 +172,6 @@ class Domain(object):
         self.size = size
         self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
         # 0mar: todo: We could replace object references with strings...
-        3
         self.dom_obj = DomainCommunication(id,size)
         self.bottom_right = self.top_left + self.size
         self.old_field_dict = {value:0 for value in Domain.VALUES}
@@ -942,7 +941,7 @@ class Scene(object):
 
 
 # Class to write data from simulation to file (array to bin or plot to file)
-class DataWriter:
+class DataWriter: # 0mar: # Todo: Change domain data!
     def __init__(self, cfgd, scene, write_plot, write_array):
         self.plotdir = cfgd['plotdir']
         self.scene = scene
@@ -983,12 +982,13 @@ class DataWriter:
     # Write binary data to file
     def _write_array(self, frame):
         for d in (_d for _d in self.scene.domains if not _d.is_pml):
+            p0 = d.field_dict['p0']
             array_filename = os.path.join(self.plotdir, '%s-%06d.bin' % (d.id, (frame + 1)))
             array_file = open(array_filename, 'wb')
             if self.visualisation_subsampling > 1:
                 numpy_array = subsample(d.p0, self.visualisation_subsampling)
             else:
-                numpy_array = d.p0
+                numpy_array = p0
             pa = array.array('f', numpy_array.flatten(order='F'))
             pa.tofile(array_file)
             array_file.close()
