@@ -490,7 +490,6 @@ class Domain(object):
 
 
         # sys.stdout.write("\b"*len(str))
-            
 
 class BoundaryType:
     HORIZONTAL = 'x'
@@ -562,7 +561,7 @@ class Receiver(object):
                 k = Kcalc.k((Ntot, self.cfg.dx))                
                 offset = getattr(self.grid_offset, 'x' if bt == BoundaryType.HORIZONTAL else 'y')                
                 return np.exp(jfact * k * offset * self.cfg.dx)
-
+                
             def calc(domain, bt):
                 return domain.calc(bt, CalculationType.PRESSURE, {
                     'fact': calc_fact(domain.size, bt)

@@ -202,7 +202,6 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
                                  Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
         Ktemp = fft(catemp,int(N2), axis=1)
         Ktemp_der = (np.ones((N1,1))*derfact[0:N2]*Ktemp)
-        #print "Ktemp = ", Ktemp
         
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
@@ -225,9 +224,9 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         Lp = Lp.transpose()
 
     return Lp
-@profile
+
 def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufl,mulfunc):
-    #equivalent of spatderp3(~)
+    # equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
     # Wlength = length of window function
     # A = window function
