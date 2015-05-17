@@ -240,9 +240,6 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
     # direct = direction for computation of derivative: 0,1 for z, x direction respectively
     import pycuda.driver as cuda
     
-    #used to sync the gpu as to get an accurate timing report
-    t_sync = cuda.Event()
-
     if 8*N1*int(N2) > g_bufl["m_size"]:
         g_bufl["mr"] = cuda.mem_alloc(int(8*N1*int(N2)))
         g_bufl["mi"] = cuda.mem_alloc(int(8*N1*int(N2)))
@@ -275,35 +272,29 @@ def spatderp3_gpu(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
         cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
         cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
-        t_sync.synchronize()
 
         blksize = 8
         grdx = int(N2)/blksize
-        grdy = int(nearest_2power(N1)/blksize)
+        grdy = int(np.maximum(nearest_2power(N1)/blksize, 1))
 
         mulfunc["pres_window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
             np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
             np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
-        t_sync.synchronize()
-        
+
         #select the N2 length plan from the set and execute the fft
         plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
-        t_sync.synchronize()
 
         cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
         cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
-        t_sync.synchronize()
 
         mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(blksize,blksize,1), grid=(grdx,grdy))
-        t_sync.synchronize()
 
         #execute the ifft
         plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
-        t_sync.synchronize()
 
         Ltemp = np.empty((N1,N2), dtype=np.float64)
         cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
-                
+
         #Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
         Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
 
