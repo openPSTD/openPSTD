@@ -157,7 +157,7 @@ class DomainWorker(mp.Process):
         super()
         self.domain_list = []
 
-    def add_domain(self, domain: Domain):
+    def add_domain(self, domain):
         """
         Add a domain to the domain worker
         :param domain: domain to be added. Should not already be in the list
@@ -204,7 +204,7 @@ class DomainWorker(mp.Process):
         """
         return {domain.id: domain.dom_obj for domain in self.domain_list}
 
-    def set_numerical_data_dict(self, data: dict):
+    def set_numerical_data_dict(self, data):
         """
         Set the numerical date object for each domain the worker needs to calculate.
         data parameter must cater to the needs of the dependencies exactly.

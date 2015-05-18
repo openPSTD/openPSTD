@@ -135,7 +135,7 @@ class DomainCommunication(object):  # Anyone proposing a better name?
         self.field_dict['px0'] = self._domain_size_zeros()
         self.field_dict['pz0'] = self._domain_size_zeros()
 
-    def add_dependency(self, id: str):
+    def add_dependency(self, id):
         self.dependencies.append(id)
 
     def _domain_size_zeros(self, a=0, b=0):
@@ -151,7 +151,7 @@ class Domain(object):
     HORIZONTAL = set(ADJACENCIES[:2])
     VERTICAL = set(ADJACENCIES[2:])
 
-    def __init__(self, cfg, id: str, alpha, top_left: Point, size: Point, edges: dict, t='air', pml_for=None):
+    def __init__(self, cfg, id, alpha, top_left, size, edges, t='air', pml_for=None):
         """
         Initialization for the domain object. This represents a rectangular building block of a scene.
         :param cfg: Configuration object of the scene (PSTD_Config_Base instance)
@@ -249,7 +249,7 @@ class Domain(object):
                 rp, rv = Rmatrices(rhos[0], self.rho, rhos[1])
                 self.rho_matrices[frozenset(d for d in p if d)] = {'p': rp, 'v': rv}
 
-    def contains_point(self, p: Point) -> bool:
+    def contains_point(self, p):
         return (self.bottom_right.x >= p.x >= self.top_left.x) and (self.bottom_right.y >= p.y >= self.top_left.y)
 
     def neighbour_list(self):
@@ -318,7 +318,7 @@ class Domain(object):
         else:
             self.pml_p, self.pml_u = make_attenuation(self.is_horizontal, self.is_lower)
 
-    def should_update(self, bt) -> bool:
+    def should_update(self, bt):
         # Cache this value, it's not changing anyway and we're in Python after all
         if bt in self.update_for:
             return self.update_for[bt]
@@ -792,7 +792,7 @@ class Scene(object):
         receiver = Receiver(self.cfg, "receiver%d" % (len(self.receivers) + 1), location, container)
         self.receivers.append(receiver)
 
-    def add_domain(self, domain: Domain):
+    def add_domain(self, domain):
         self.top_left = Point(min(self.top_left.x, domain.top_left.x), min(self.top_left.y, domain.top_left.y))
         self.bottom_right = Point(max(self.bottom_right.x, domain.bottom_right.x), max(self.bottom_right.y, domain.bottom_right.y))
         self.size = Point(self.bottom_right - self.top_left)
