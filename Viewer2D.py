@@ -38,6 +38,7 @@ from colors import activeColorScheme as colorScheme
 
 
 
+
 #from model import Model
 
 import InteractiveView
@@ -67,10 +68,18 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.viewPort = [640, 480]
 
-        self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer(), GridLayer()]
-        """:type: list[Layer]"""
+        self.layers = {
+            "simulation": SimulationLayer(),
+            "Scene": SceneLayer(),
+            "Debug": DebugLayer(),
+            "Interactive": InteractiveView.InteractiveViewLayer(),
+            "Grid": GridLayer()
+        }
 
-        [x.set_viewer_2d(self) for x in self.visibleLayers]
+        #self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer(), GridLayer()]
+        #""":type: list[Layer]"""
+
+        [v.set_viewer_2d(self) for k, v in self.layers.items()]
 
         self.mouseHandler = MouseHandlers.MouseStrategyConsole()
         """:type: MouseHandlers.MouseStrategy"""
@@ -88,15 +97,13 @@ class Viewer2D(QtOpenGL.QGLWidget):
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
-        for l in self.visibleLayers:
-            l.initialize_gl()
+        [v.initialize_gl() for k, v in self.layers.items()]
 
     def paintGL(self):
         gl.glClearColor(1,1,1,1)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-        for l in self.visibleLayers:
-            l.paint_gl_visibility_check()
+        [v.paint_gl_visibility_check() for k, v in self.layers.items()]
 
     def resizeGL(self, width, height):
         view = self.get_view_matrix()
@@ -125,10 +132,9 @@ class Viewer2D(QtOpenGL.QGLWidget):
         :type model: Model
         :param model: the current model
         """
-        for l in self.visibleLayers:
-            l.update_scene(model)
+        [v.update_scene(model) for k, v in self.layers.items()]
 
-        self.scene_min_max = MinMaxLayer.combineList([x.get_min_max() for x in self.visibleLayers])
+        self.scene_min_max = MinMaxLayer.combineList([v.get_min_max() for k, v in self.layers.items()])
 
         self.update()
 
@@ -140,8 +146,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
         """
         self._view_matrix = matrix
 
-        for l in self.visibleLayers:
-            l.update_view_matrix(self._view_matrix.M)
+        [v.update_view_matrix(self._view_matrix.M) for k, v in self.layers.items()]
 
     def get_view_matrix(self) -> Matrix:
         """
