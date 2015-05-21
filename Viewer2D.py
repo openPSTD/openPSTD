@@ -39,6 +39,7 @@ from colors import activeColorScheme as colorScheme
 
 
 
+
 #from model import Model
 
 import InteractiveView
@@ -75,9 +76,6 @@ class Viewer2D(QtOpenGL.QGLWidget):
             "Interactive": InteractiveView.InteractiveViewLayer(),
             "Grid": GridLayer()
         }
-
-        #self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer(), GridLayer()]
-        #""":type: list[Layer]"""
 
         [v.set_viewer_2d(self) for k, v in self.layers.items()]
 
