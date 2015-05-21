@@ -21,7 +21,7 @@ __author__ = 'michiel'
 
 import operations.BaseOperation
 from transforms2D import Matrix
-
+import helper
 
 class ChangeViewMatrix(operations.BaseOperation.operation):
     def __init__(self, M):
@@ -29,10 +29,10 @@ class ChangeViewMatrix(operations.BaseOperation.operation):
 
     def run(self, receiver):
         receiver.ui.mainView.set_view_matrix(self.M)
-
+        helper.CallObservers(receiver.model.SceneDescChanged)
         receiver.ui.mainView.update()
 
-class ModifyViewMatrix(ChangeViewMatrix):
+class ModifyViewMatrix:
     def __init__(self, M):
         self.M = M
 
@@ -41,7 +41,9 @@ class ModifyViewMatrix(ChangeViewMatrix):
         view = view*self.M
         receiver.ui.mainView.set_view_matrix(view)
 
+        helper.CallObservers(receiver.model.SceneDescChanged)
         receiver.ui.mainView.update()
+
 
 
 class ViewWholeScene(operations.BaseOperation.operation):
@@ -69,6 +71,7 @@ class ViewWholeScene(operations.BaseOperation.operation):
 
         receiver.ui.mainView.set_view_matrix(view)
 
+        helper.CallObservers(receiver.model.SceneDescChanged)
         receiver.ui.mainView.update()
 
 

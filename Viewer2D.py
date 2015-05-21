@@ -27,6 +27,7 @@ from PySide import QtCore, QtGui, QtOpenGL
 from vispy import gloo
 import OpenGL.GL as gl
 import numpy as np
+import math
 
 from colors import activeColorScheme as colorScheme
 
@@ -65,6 +66,8 @@ class Viewer2D(QtOpenGL.QGLWidget):
 
         self.visibleLayers = [SimulationLayer(), SceneLayer(), DebugLayer(), InteractiveView.InteractiveViewLayer(), GridLayer()]
         """:type: list[Layer]"""
+
+        [x.set_viewer_2d(self) for x in self.visibleLayers]
 
         self.mouseHandler = MouseHandlers.MouseStrategyConsole()
         """:type: MouseHandlers.MouseStrategy"""
@@ -253,7 +256,12 @@ class Layer:
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
+        self.viewer_2d = None
+        """:type: Viewer2D"""
         self.view_matrix = np.eye(3,dtype=np.float32)
+
+    def set_viewer_2d(self, viewer_2d):
+        self.viewer_2d = viewer_2d
 
     def initialize_gl(self):
         """
@@ -506,7 +514,6 @@ class GridLayer(Layer):
         vertex_code = read_shader("GPU\Debug2D.vert")
         fragment_code = read_shader("GPU\Debug2D.frag")
 
-
         self.vPosition = gloo.VertexBuffer(np.array([[0, 0], [5, 0]], np.float32))
         self.vColors = gloo.VertexBuffer(np.array(
             [
@@ -530,16 +537,34 @@ class GridLayer(Layer):
         :type model: m.Model
         """
         grid_spacing = model.SceneDesc["grid_spacing"]
+        coordCalc = CoordinateCalculator(self.viewer_2d)
 
-        positions = [x for x in range(800)]
-        positions[  0:400:2] = [[-100*grid_spacing, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        positions[  1:401:2] = [[100*grid_spacing, x] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        positions[400:800:2] = [[x, -100*grid_spacing] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        positions[401:801:2] = [[x, 100*grid_spacing] for x in np.arange(-100*grid_spacing, 100*grid_spacing, grid_spacing)]
-        colors = [(0.5, 0.5, 0.5, 0.5) for _ in range(len(positions))]
+        tl = coordCalc.screen_to_world([-1, -1])
+        br = coordCalc.screen_to_world([1, 1])
 
-        self.vPosition.set_data(np.array(positions, np.float32))
-        self.vColors.set_data(np.array(colors, np.float32))
+        tl[0] = math.floor(tl[0]/grid_spacing)
+        tl[1] = math.ceil(tl[1]/grid_spacing)
+        br[0] = math.ceil(br[0]/grid_spacing)
+        br[1] = math.floor(br[1]/grid_spacing)
+
+        vertical_lines = abs(int(br[0])-int(tl[0]))
+        horizontal_lines = abs(int(br[1])-int(tl[1]))
+
+        lines = vertical_lines+horizontal_lines
+
+        tl[0] = tl[0]*grid_spacing
+        tl[1] = tl[1]*grid_spacing
+        br[0] = br[0]*grid_spacing
+        br[1] = br[1]*grid_spacing
+
+        positions = [x for x in range(lines)]
+        positions[0:vertical_lines] = [[(tl[0]+x*grid_spacing, tl[1]), (tl[0]+x*grid_spacing, br[1])] for x in range(vertical_lines)]
+        positions[vertical_lines:vertical_lines+horizontal_lines] = [[(tl[0], tl[1]-x*grid_spacing), (br[0], tl[1]-x*grid_spacing)] for x in range(horizontal_lines)]
+        positions = np.array(positions, np.float32).flatten().reshape((lines*2, 2))
+        colors = np.array([(0.5, 0.5, 0.5, 0.5) for _ in range(len(positions))], np.float32)
+
+        self.vPosition.set_data(positions)
+        self.vColors.set_data(colors)
 
     def update_view_matrix(self, matrix):
         self.program['u_view'] = matrix
