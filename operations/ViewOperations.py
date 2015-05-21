@@ -46,7 +46,18 @@ class ModifyViewMatrix(ChangeViewMatrix):
 
 class ViewWholeScene(operations.BaseOperation.operation):
     def run(self, receiver):
+        """
+        Makes sure that that the whole scene is visible
+
+        :type receiver: Receiver
+        :param receiver: The receiver that the operation should use.
+        """
         extraZoomFactor = 1.25
+
+        if(receiver.ui.mainView.viewPort[0]/receiver.ui.mainView.viewPort[1] > 1):
+            aspect = Matrix.scale(receiver.ui.mainView.viewPort[1]/receiver.ui.mainView.viewPort[0], 1)
+        else:
+            aspect = Matrix.scale(1, receiver.ui.mainView.viewPort[0]/receiver.ui.mainView.viewPort[1])
 
         tl = receiver.ui.mainView.scene_min_max.pos_min
         br = receiver.ui.mainView.scene_min_max.pos_max
@@ -54,7 +65,7 @@ class ViewWholeScene(operations.BaseOperation.operation):
         center = [-(tl[0]+br[0])/2, -(tl[1]+br[1])/2]
         scaleFactor = 2/(extraZoomFactor*max(abs(br[0]-tl[0]), abs(br[1]-tl[1])))
 
-        view = Matrix.translate(center[0], center[1])*Matrix.scale(1, -1)*Matrix.scale(scaleFactor)
+        view = Matrix.translate(center[0], center[1])*Matrix.scale(1, -1)*Matrix.scale(scaleFactor)*aspect
 
         receiver.ui.mainView.set_view_matrix(view)
 

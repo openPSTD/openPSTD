@@ -93,6 +93,10 @@ class Viewer2D(QtOpenGL.QGLWidget):
             l.paint_gl()
 
     def resizeGL(self, width, height):
+        view = self.get_view_matrix()
+        view = view*Matrix.scale(self.viewPort[0]/width, self.viewPort[1]/height)
+        self.set_view_matrix(view)
+
         gl.glViewport(0, 0, width, height)
         self.viewPort = [width, height]
 
