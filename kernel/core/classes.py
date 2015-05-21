@@ -1,5 +1,5 @@
 ########################################################################
-# #
+#                                                                      #
 # This file is part of openPSTD.                                       #
 #                                                                      #
 # openPSTD is free software: you can redistribute it and/or modify     #
@@ -68,7 +68,7 @@ class Point(object):
     @y.setter
     @z.setter
     @array.setter
-    def set_dimension(self):
+    def set_dimension(self, other):
         raise AttributeError("Points are immutable")
 
     def __len__(self):
@@ -111,11 +111,13 @@ class DomainCommunication(object):  # Anyone proposing a better name?
         self.id = id
         self.size = size
 
-        # Neigbour information
-        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # Neighbour information
+        self.dependencies = []
         # Numeric information
         self.matrix_dict = {}
         self.field_dict = {value:0 for value in Domain.VALUES}
+        # Not sure if i want keys to be adj's or id's.
+        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
         self.clear_matrices()
         self.clear_fields()
         # self.u0_old = self.w0_old = self.p0_old = self.px0_old = self.pz0_old = None
@@ -133,8 +135,8 @@ class DomainCommunication(object):  # Anyone proposing a better name?
         self.field_dict['px0'] = self._domain_size_zeros()
         self.field_dict['pz0'] = self._domain_size_zeros()
 
-    def add_depending_domain(self, other: str):
-        self.depending_domains.append(other)
+    def add_dependency(self, id):
+        self.dependencies.append(id)
 
     def _domain_size_zeros(self, a=0, b=0):
         return np.zeros((self.size.y + a, self.size.x + b))
@@ -149,7 +151,7 @@ class Domain(object):
     HORIZONTAL = set(ADJACENCIES[:2])
     VERTICAL = set(ADJACENCIES[2:])
 
-    def __init__(self, cfg, id: str, alpha, top_left: Point, size: Point, edges: dict, t='air', pml_for=None):
+    def __init__(self, cfg, id, alpha, top_left, size, edges, t='air', pml_for=None):
         """
         Initialization for the domain object. This represents a rectangular building block of a scene.
         :param cfg: Configuration object of the scene (PSTD_Config_Base instance)
@@ -168,6 +170,8 @@ class Domain(object):
         self.top_left = top_left
         self.cfg = cfg
         self.size = size
+        self.neighbour_dict = {adjacency:[] for adjacency in Domain.ADJACENCIES}
+        # 0mar: todo: We could replace object references with strings...
         self.dom_obj = DomainCommunication(id,size)
         self.bottom_right = self.top_left + self.size
         self.old_field_dict = {value:0 for value in Domain.VALUES}
@@ -202,9 +206,9 @@ class Domain(object):
         self.update_for = {}
         self.local = False
 
-    @property
-    def neighbour_dict(self):
-        return self.dom_obj.neighbour_dict
+    # @property
+    # def neighbour_dict(self):
+    #     return self.dom_obj.neighbour_dict
 
     @property
     def matrix_dict(self):
@@ -213,6 +217,11 @@ class Domain(object):
     @property
     def field_dict(self):
         return self.dom_obj.field_dict
+
+    def set_neighbour_numerics(self):
+        for key in self.neighbour_dict:
+            self.dom_obj.neighbour_dict[key] = [dom_obj for dom_obj in self.neighbour_dict[key]]
+
 
     def __repr__(self):
         return "%s:\n %s\n o-------------------o\n |  %s  | \n o-------------------o\n      %s\n" % (
@@ -240,7 +249,7 @@ class Domain(object):
                 rp, rv = Rmatrices(rhos[0], self.rho, rhos[1])
                 self.rho_matrices[frozenset(d for d in p if d)] = {'p': rp, 'v': rv}
 
-    def contains_point(self, p: Point) -> bool:
+    def contains_point(self, p):
         return (self.bottom_right.x >= p.x >= self.top_left.x) and (self.bottom_right.y >= p.y >= self.top_left.y)
 
     def neighbour_list(self):
@@ -309,7 +318,7 @@ class Domain(object):
         else:
             self.pml_p, self.pml_u = make_attenuation(self.is_horizontal, self.is_lower)
 
-    def should_update(self, bt) -> bool:
+    def should_update(self, bt):
         # Cache this value, it's not changing anyway and we're in Python after all
         if bt in self.update_for:
             return self.update_for[bt]
@@ -392,8 +401,8 @@ class Domain(object):
         # sys.stdout.write(str)
         # sys.stdout.flush()
         # Find the input matrices
-        domains1 = self.neighbour_dict['left'] if bt == BoundaryType.HORIZONTAL else self.neighbour_dict['bottom']
-        domains2 = self.neighbour_dict['right'] if bt == BoundaryType.HORIZONTAL else self.neighbour_dict['top']
+        domains1 = self.dom_obj.neighbour_dict['left'] if bt == BoundaryType.HORIZONTAL else self.dom_obj.neighbour_dict['bottom']
+        domains2 = self.dom_obj.neighbour_dict['right'] if bt == BoundaryType.HORIZONTAL else self.dom_obj.neighbour_dict['top']
 
         if len(domains1) == 0: domains1 = [None]
         if len(domains2) == 0: domains2 = [None]
@@ -520,6 +529,114 @@ class Domain(object):
             -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.matrix_dict['Lvz'])).real
         # sys.stdout.write("\b"*len(str))
 
+    def calc_gpu(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, dest = None):
+
+        # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
+        # sys.stdout.write(str)
+        # sys.stdout.flush()
+
+        # Find the input matrices
+        domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
+        domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
+
+        if len(domains1) == 0: domains1 = [None]
+        if len(domains2) == 0: domains2 = [None]
+
+        own_range = self.get_range(bt)
+
+        if dest:
+            if bt == BoundaryType.HORIZONTAL:
+                source = self.Z(0,1)
+            else:
+                source = self.Z(1,0)
+        else:
+            source = getattr(self,"L%s%s"%(ct,bt))
+
+        for domain1, domain2 in itertools.product(domains1, domains2):
+            rho_matrix_key = frozenset(d for d in (domain1, domain2) if d)
+
+            range_intersection = set(own_range)
+            # print (self.id, bt, 'own', own_range)
+
+            for other_domain in (domain1, domain2):
+                if other_domain is not None:
+                    if bt == BoundaryType.HORIZONTAL:
+                        other_range = range(int(other_domain.topleft.y), int(other_domain.bottomright.y))
+                    else:
+                        other_range = range(int(other_domain.topleft.x), int(other_domain.bottomright.x))
+                    # print (other_domain.id, bt, 'other', other_range)
+                    range_intersection &= set(other_range)
+
+            if not len(range_intersection): continue
+
+            range_start, range_end = min(range_intersection), max(range_intersection)+1
+
+            primary_dimension   = self.size.width if bt == BoundaryType.HORIZONTAL else self.size.height
+            secundary_dimension = range_end - range_start #self.size.height if bt == BoundaryType.HORIZONTAL else self.size.width
+
+            Ntot = 2. * self.cfg.Wlength + primary_dimension
+            if ct == CalculationType.PRESSURE: Ntot += 1
+            else: primary_dimension += 1
+
+            matrix1 = matrix2 = None
+            if ct == CalculationType.VELOCITY and domain1 is None and domain2 is None:
+                # For a PML layer parallel to its interface direction the matrix is concatenated with zeros
+                # TK: TODO: This statement is probably no longer correct, with arbitrary domain configurations
+                # a PML domain can also have a neighbour
+                #   |             |
+                # __|_____________|___
+                #   |     PML     |
+                #  <--------------->
+                matrix1 = self.Z(0 if bt == BoundaryType.HORIZONTAL else 1, 1 if bt == BoundaryType.HORIZONTAL else 0)
+                matrix2 = self.Z(0 if bt == BoundaryType.HORIZONTAL else 1, 1 if bt == BoundaryType.HORIZONTAL else 0)
+                domain1 = domain2 = self
+            else:
+                if domain1 is None: domain1 = self
+                if domain2 is None: domain2 = self
+
+            matrix0 = self.p0 if ct == CalculationType.PRESSURE else getattr(self,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+            if matrix1 is None:
+                matrix1 = domain1.p0 if ct == CalculationType.PRESSURE else getattr(domain1,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+            if matrix2 is None:
+                matrix2 = domain2.p0 if ct == CalculationType.PRESSURE else getattr(domain2,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+
+            a = 0 if ct == CalculationType.PRESSURE else 1
+            b = 1 if bt == BoundaryType.HORIZONTAL else 0
+
+            if dest:
+                kc = dest['fact']
+            else:
+                kc = Kcalc.derfactp((Ntot, self.cfg.dx)) if ct == CalculationType.PRESSURE else Kcalc.derfactu((Ntot, self.cfg.dx))
+
+            # Determine which rho matrix instance to use
+            rmat = self.rho_matrices[rho_matrix_key][ct]
+
+            if bt == BoundaryType.HORIZONTAL:
+                matrix0_offset = self.topleft.y
+                matrix0_indexed = matrix0[range_start-matrix0_offset:range_end-matrix0_offset,:]
+                matrix1_offset = domain1.topleft.y
+                matrix1_indexed = matrix1[range_start-matrix1_offset:range_end-matrix1_offset,:]
+                matrix2_offset = domain2.topleft.y
+                matrix2_indexed = matrix2[range_start-matrix2_offset:range_end-matrix2_offset,:]
+            else:
+                matrix0_offset = self.topleft.x
+                matrix0_indexed = matrix0[:,range_start-matrix0_offset:range_end-matrix0_offset]
+                matrix1_offset = domain1.topleft.x
+                matrix1_indexed = matrix1[:,range_start-matrix1_offset:range_end-matrix1_offset]
+                matrix2_offset = domain2.topleft.x
+                matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
+
+            matrix = spatderp3_gpu(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,stream,plan_set,g_bufl,mulfunc)
+
+            if bt == BoundaryType.HORIZONTAL:
+                source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
+            else:
+                source[:,range_start-matrix0_offset:range_end-matrix0_offset] = matrix
+
+        return source
+
+
+        # sys.stdout.write("\b"*len(str))
 
 class BoundaryType:
     HORIZONTAL = 'x'
@@ -569,6 +686,7 @@ class Boundary(object):
         attrs = ('x', self.domain1.bottom_right.x) if self.boundary_type == BoundaryType.HORIZONTAL else (
         'y', self.domain1.bottom_right.y)
         return "Boundary at %s=%d" % attrs
+
 
 
 class Receiver(object):
@@ -674,7 +792,7 @@ class Scene(object):
         receiver = Receiver(self.cfg, "receiver%d" % (len(self.receivers) + 1), location, container)
         self.receivers.append(receiver)
 
-    def add_domain(self, domain: Domain):
+    def add_domain(self, domain):
         self.top_left = Point(min(self.top_left.x, domain.top_left.x), min(self.top_left.y, domain.top_left.y))
         self.bottom_right = Point(max(self.bottom_right.x, domain.bottom_right.x), max(self.bottom_right.y, domain.bottom_right.y))
         self.size = Point(self.bottom_right - self.top_left)
@@ -932,7 +1050,7 @@ class Scene(object):
 
 
 # Class to write data from simulation to file (array to bin or plot to file)
-class DataWriter:
+class DataWriter: # 0mar: # Todo: Change domain data!
     def __init__(self, cfgd, scene, write_plot, write_array):
         self.plotdir = cfgd['plotdir']
         self.scene = scene
@@ -973,12 +1091,13 @@ class DataWriter:
     # Write binary data to file
     def _write_array(self, frame):
         for d in (_d for _d in self.scene.domains if not _d.is_pml):
+            p0 = d.field_dict['p0']
             array_filename = os.path.join(self.plotdir, '%s-%06d.bin' % (d.id, (frame + 1)))
             array_file = open(array_filename, 'wb')
             if self.visualisation_subsampling > 1:
                 numpy_array = subsample(d.p0, self.visualisation_subsampling)
             else:
-                numpy_array = d.p0
+                numpy_array = p0
             pa = array.array('f', numpy_array.flatten(order='F'))
             pa.tofile(array_file)
             array_file.close()
