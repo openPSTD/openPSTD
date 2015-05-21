@@ -51,7 +51,7 @@ class ViewWholeScene(operations.BaseOperation.operation):
         """
         Makes sure that that the whole scene is visible
 
-        :type receiver: Receiver
+        :type receiver: operations.BaseOperation.Receiver
         :param receiver: The receiver that the operation should use.
         """
         extraZoomFactor = 1.25
@@ -83,3 +83,12 @@ class TranslateScene(ModifyViewMatrix):
 class ResizeScene(ModifyViewMatrix):
     def __init__(self, scale, pos):
         super(ResizeScene, self).__init__(Matrix.translate(-pos[0], -pos[1])*Matrix.scale(scale)*Matrix.translate(pos[0], pos[1]))
+
+class SetVisibilityLayer(operations.BaseOperation.operation):
+    def __init__(self, layer_name, visible):
+        self.layer_name = layer_name
+        self.visible = visible
+
+    def run(self, receiver: operations.BaseOperation.Receiver):
+        receiver.ui.mainView.layers[self.layer_name].set_visible(self.visible)
+        receiver.ui.mainView.update()

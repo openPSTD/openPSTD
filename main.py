@@ -37,7 +37,6 @@ import operations.ViewOperations
 import operations.MouseHandlerOperations
 import MouseHandlers
 
-
 __version__ = '0.0.1'
 
 
@@ -50,12 +49,16 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
 
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+
+        self.actionShow_grid.setChecked(True)
+
         self.actionAbout.triggered.connect(self.about)
         self.actionNew.triggered.connect(self.createRunOperation(operations.MenuFileOperations.New))
         self.actionOpen.triggered.connect(self.OpenOperation)
         self.actionSave.triggered.connect(self.SaveOperation)
         self.actionClose.triggered.connect(self.createRunOperation(operations.MenuFileOperations.Close))
         self.actionView_complete_scene.triggered.connect(self.createRunOperation(operations.ViewOperations.ViewWholeScene))
+        self.actionShow_grid.triggered.connect(self.ToggleGrid)
 
         self.btnSimulate.clicked.connect(self.simulate_operation)
 
@@ -98,6 +101,11 @@ class MainWindow(QMainWindow, Ui_MainWindow, operations.BaseOperation.OperationR
         if(fname != ''):
             operation = operations.MenuFileOperations.Save(fname)
             self.run_operation(operation)
+
+    def ToggleGrid(self):
+        operation = operations.ViewOperations.SetVisibilityLayer("Grid", self.actionShow_grid.isChecked())
+        self.run_operation(operation)
+
 
     def run_operation(self, op):
         op.run(operations.BaseOperation.Receiver(self.m, self))
