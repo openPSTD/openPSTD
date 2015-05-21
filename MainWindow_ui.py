@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Tue Apr 28 14:41:33 2015
+# Created: Thu May 21 14:45:32 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -173,6 +173,9 @@ class Ui_MainWindow(object):
         self.actionDebug3.setObjectName("actionDebug3")
         self.actionDebug4 = QtGui.QAction(MainWindow)
         self.actionDebug4.setObjectName("actionDebug4")
+        self.actionShow_grid = QtGui.QAction(MainWindow)
+        self.actionShow_grid.setCheckable(True)
+        self.actionShow_grid.setObjectName("actionShow_grid")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -188,6 +191,7 @@ class Ui_MainWindow(object):
         self.menuHelp.addAction(self.actionAbout)
         self.menuView.addAction(self.actionMove_scene)
         self.menuView.addAction(self.actionView_complete_scene)
+        self.menuView.addAction(self.actionShow_grid)
         self.menuDebug.addAction(self.actionDebug1)
         self.menuDebug.addAction(self.actionDebug2)
         self.menuDebug.addAction(self.actionDebug3)
@@ -251,5 +255,6 @@ class Ui_MainWindow(object):
         self.actionDebug2.setText(QtGui.QApplication.translate("MainWindow", "Debug2", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDebug3.setText(QtGui.QApplication.translate("MainWindow", "Debug3", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDebug4.setText(QtGui.QApplication.translate("MainWindow", "Debug4", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionShow_grid.setText(QtGui.QApplication.translate("MainWindow", "Show grid", None, QtGui.QApplication.UnicodeUTF8))
 
 from Viewer2D import Viewer2D

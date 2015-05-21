@@ -254,6 +254,7 @@
     </property>
     <addaction name="actionMove_scene"/>
     <addaction name="actionView_complete_scene"/>
+    <addaction name="actionShow_grid"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
@@ -418,6 +419,14 @@
   <action name="actionDebug4">
    <property name="text">
     <string>Debug4</string>
+   </property>
+  </action>
+  <action name="actionShow_grid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show grid</string>
    </property>
   </action>
  </widget>

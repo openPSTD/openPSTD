@@ -22,14 +22,17 @@ __author__ = 'michiel'
 import sys
 import abc
 import copy
+import math
 
 from PySide import QtCore, QtGui, QtOpenGL
 from vispy import gloo
 import OpenGL.GL as gl
 import numpy as np
-import math
 
 from colors import activeColorScheme as colorScheme
+
+
+
 
 
 
@@ -93,7 +96,7 @@ class Viewer2D(QtOpenGL.QGLWidget):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
         for l in self.visibleLayers:
-            l.paint_gl()
+            l.paint_gl_visibility_check()
 
     def resizeGL(self, width, height):
         view = self.get_view_matrix()
@@ -182,7 +185,7 @@ class MinMaxLayer(object):
         """
         Calculates the min of 2 dimensional points or in a certain dimension
 
-        :type values: list[float]
+        :type values: list[list[float]]
         :type dimension: int
         :param values: the 2 dimensional points or single scaler values
         :param dimension: if 2 dimensional points are given, then this should be -1, else it should specify the
@@ -201,7 +204,7 @@ class MinMaxLayer(object):
         """
         Calculates the max of 2 dimensional points or in a certain dimension
 
-        :type values: list[float]
+        :type values: list[list[float]]
         :param values: the 2 dimensional points or single scaler values
         :param dimension: if 2 dimensional points are given, then this should be -1, else it should specify the
         dimension in which it should maximize the values.
@@ -256,6 +259,7 @@ class Layer:
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
+        self.visible = True
         self.viewer_2d = None
         """:type: Viewer2D"""
         self.view_matrix = np.eye(3,dtype=np.float32)
@@ -263,11 +267,37 @@ class Layer:
     def set_viewer_2d(self, viewer_2d):
         self.viewer_2d = viewer_2d
 
+    def set_visible(self, value):
+        """
+        set's the visibility property
+
+        :type value: bool
+        :param value: the new value
+        """
+        self.visible = value
+
+    def get_visible(self):
+        """
+        returns the value of the visibility property
+
+        :return: true if the layer is visible
+        :rtype: bool
+        """
+        return self.visible
+
     def initialize_gl(self):
         """
         Initilizes everything from GL, like loading shaders and creating buffers
         """
         pass
+
+    def paint_gl_visibility_check(self):
+        """
+        Checks if this layer is visible, if so calls the paint_gl method
+
+        """
+        if self.visible:
+            self.paint_gl()
 
     def paint_gl(self):
         """
