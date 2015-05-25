@@ -42,6 +42,12 @@ def calc_domain(domain):
             if domain.should_update(boundary_type):
                 domain.calc(boundary_type, calculation_type)
 
+def calc_domain_gpu(domain, context, stream, plan_set, g_bufl, mulfunc):
+    for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+        if not domain.is_rigid():
+            # Calculate sound propagations for non-rigid domains
+            if domain.should_update(boundary_type):
+                domain.calc_gpu(boundary_type, calculation_type, context, stream, plan_set, g_bufl, mulfunc)
 
 def update_domain(domain, sub_frame):
     domain.rk_update(sub_frame)
@@ -219,33 +225,33 @@ class DomainWorker(mp.Process):
 
 class GpuAccelerated:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
-            import pycuda.driver as cuda
-            from pycuda.tools import make_default_context
-            from pycuda.compiler import SourceModule
-            from pycuda.driver import Function
-            from pyfft.cuda import Plan
+        import pycuda.driver as cuda
+        from pycuda.tools import make_default_context
+        from pycuda.compiler import SourceModule
+        from pycuda.driver import Function
+        from pyfft.cuda import Plan
 
-            cuda.init()
-            context = make_default_context()
-            stream = cuda.Stream()
+        cuda.init()
+        context = make_default_context()
+        stream = cuda.Stream()
 
-            plan_set = {} #will be filled as needed in spatderp3_gpu(~), prefill with 128, 256 and 512
-            plan_set[str(128)] = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float64, context=context, stream=stream, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float64, context=context, stream=stream, fast_math=False)
+        plan_set = {} #will be filled as needed in spatderp3_gpu(~), prefill with 128, 256 and 512
+        plan_set[str(128)] = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
+        plan_set[str(256)] = Plan(256, dtype=np.float64, context=context, stream=stream, fast_math=False)
+        plan_set[str(512)] = Plan(512, dtype=np.float64, context=context, stream=stream, fast_math=False)
             
-            g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
-            g_bufl["mr"] = cuda.mem_alloc(8*128*128)
-            g_bufl["mi"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m1"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m2"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m3"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m_size"] = 8*128*128
-            g_bufl["dr"] = cuda.mem_alloc(8*128) #dr also used by A (window matrix)
-            g_bufl["di"] = cuda.mem_alloc(8*128)
-            g_bufl["d_size"] = 8*128
+        g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+        g_bufl["mr"] = cuda.mem_alloc(8*128*128)
+        g_bufl["mi"] = cuda.mem_alloc(8*128*128)
+        g_bufl["m1"] = cuda.mem_alloc(8*128*128)
+        g_bufl["m2"] = cuda.mem_alloc(8*128*128)
+        g_bufl["m3"] = cuda.mem_alloc(8*128*128)
+        g_bufl["m_size"] = 8*128*128
+        g_bufl["dr"] = cuda.mem_alloc(8*128) #dr also used by A (window matrix)
+        g_bufl["di"] = cuda.mem_alloc(8*128)
+        g_bufl["d_size"] = 8*128
 
-            kernelcode = SourceModule(""" 
+        kernelcode = SourceModule(""" 
               #include <stdio.h>
               __global__ void derifact_multiplication(double *matr, double *mati, double *vecr, double *veci, int fftlen, int fftnum)
               {
@@ -323,57 +329,40 @@ class GpuAccelerated:
                 }
               }
               """)
-            mulfunc = {}
-            mulfunc["pres_window"] = kernelcode.get_function("pressure_window_multiplication")
-            mulfunc["velo_window"] = kernelcode.get_function("velocity_window_multiplication")
-            mulfunc["derifact"] = kernelcode.get_function("derifact_multiplication")
+        mulfunc = {}
+        mulfunc["pres_window"] = kernelcode.get_function("pressure_window_multiplication")
+        mulfunc["velo_window"] = kernelcode.get_function("velocity_window_multiplication")
+        mulfunc["derifact"] = kernelcode.get_function("derifact_multiplication")
 
-            # Loop over time steps
-            for frame in range(int(cfg.TRK)):
-                output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
+        # Loop over time steps
+        for frame in range(int(cfg.TRK)):
+            output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
 
-                # Keep a reference to current matrix contents
-                for d in scene.domains: d.push_values()
+            # Keep a reference to current matrix contents
+            for domain in scene.domains: domain.push_values()
 
-                # Loop over subframes
-                for subframe in range(6):
-                    # Loop over calculation directions and measures
-                    for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
-                        # Loop over domains
-                        for d in scene.domains:
-                            if not d.is_rigid():
-                                # Calculate sound propagations for non-rigid domains
-                                if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufl,mulfunc):
-                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufl,mulfunc)
+            # Loop over subframes
+            for sub_frame in range(6):
+                # Loop over calculation directions and measures
+                for domain in scene.domains:
+                    calc_domain_gpu(domain, context, stream, plan_set, g_bufl, mulfunc)
+                # Update acoustic values
+                for domain in scene.domains:
+                    if not domain.is_rigid():
+                        update_domain(domain, sub_frame)
 
-                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufl,mulfunc)
+                # Sum the pressure components
+                for domain in scene.domains:
+                    domain.field_dict['p0'] = domain.field_dict['px0'] + domain.field_dict['pz0']
 
-                    for domain in scene.domains:
-                        if not domain.is_rigid():
-                            def calc(d):
-                                d.u0 = d.u0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpx)).real
-                                d.w0 = d.w0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpz)).real
-                                d.px0 = d.px0_old + (
-                                -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvx)).real
-                                d.pz0 = d.pz0_old + (
-                                -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvz)).real
+            # Apply pml matrices to boundary domains
+            scene.apply_pml_matrices()
 
-                            calc(domain)
+            for rf, r in zip(receiver_files, scene.receivers):
+                rf.write(struct.pack('f', r.calc()))
+                rf.flush()
 
+            if frame % cfg.save_nth_frame == 0:
+                data_writer.write_to_file(frame)
 
-                    # Sum the pressure components
-                    for d in scene.domains:
-                        d.p0 = d.px0 + d.pz0
-
-                # Apply pml matrices to boundary domains
-                scene.apply_pml_matrices()
-
-                for rf, r in zip(receiver_files, scene.receivers):
-                    rf.write(struct.pack('f', r.calc()))
-                    rf.flush()
-
-                if frame % cfg.save_nth_frame == 0:
-                    data_writer.write_to_file(frame)
-
-            context.pop()
+        context.pop()
