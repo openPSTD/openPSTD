@@ -529,15 +529,13 @@ class Domain(object):
             -self.cfg.dtRK * self.cfg.alfa[sub_frame] * (self.rho * pow(self.cfg.c1, 2.) * self.matrix_dict['Lvz'])).real
         # sys.stdout.write("\b"*len(str))
 
-    def calc_gpu(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, dest = None):
-
+    def calc_gpu(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, dest=None):
         # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
         # sys.stdout.write(str)
         # sys.stdout.flush()
-
         # Find the input matrices
-        domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
-        domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
+        domains1 = self.dom_obj.neighbour_dict['left'] if bt == BoundaryType.HORIZONTAL else self.dom_obj.neighbour_dict['bottom']
+        domains2 = self.dom_obj.neighbour_dict['right'] if bt == BoundaryType.HORIZONTAL else self.dom_obj.neighbour_dict['top']
 
         if len(domains1) == 0: domains1 = [None]
         if len(domains2) == 0: domains2 = [None]
@@ -546,12 +544,11 @@ class Domain(object):
 
         if dest:
             if bt == BoundaryType.HORIZONTAL:
-                source = self.Z(0,1)
+                source = self.domain_size_zeros(0, 1)
             else:
-                source = self.Z(1,0)
+                source = self.domain_size_zeros(1, 0)
         else:
-            source = getattr(self,"L%s%s"%(ct,bt))
-
+            source = self.matrix_dict["L%s%s" % (ct, bt)]
         for domain1, domain2 in itertools.product(domains1, domains2):
             rho_matrix_key = frozenset(d for d in (domain1, domain2) if d)
 
@@ -561,23 +558,24 @@ class Domain(object):
             for other_domain in (domain1, domain2):
                 if other_domain is not None:
                     if bt == BoundaryType.HORIZONTAL:
-                        other_range = range(int(other_domain.topleft.y), int(other_domain.bottomright.y))
+                        other_range = range(int(other_domain.top_left.y), int(other_domain.bottom_right.y))
                     else:
-                        other_range = range(int(other_domain.topleft.x), int(other_domain.bottomright.x))
+                        other_range = range(int(other_domain.top_left.x), int(other_domain.bottom_right.x))
                     # print (other_domain.id, bt, 'other', other_range)
                     range_intersection &= set(other_range)
 
             if not len(range_intersection): continue
 
-            range_start, range_end = min(range_intersection), max(range_intersection)+1
+            range_start, range_end = min(range_intersection), max(range_intersection) + 1
 
-            primary_dimension   = self.size.width if bt == BoundaryType.HORIZONTAL else self.size.height
-            secundary_dimension = range_end - range_start #self.size.height if bt == BoundaryType.HORIZONTAL else self.size.width
+            primary_dimension = self.size.x if bt == BoundaryType.HORIZONTAL else self.size.y
+            secondary_dimension = range_end - range_start  #self.size.y if bt == BoundaryType.HORIZONTAL else self.size.x
 
             Ntot = 2. * self.cfg.Wlength + primary_dimension
-            if ct == CalculationType.PRESSURE: Ntot += 1
-            else: primary_dimension += 1
-
+            if ct == CalculationType.PRESSURE:
+                Ntot += 1
+            else:
+                primary_dimension += 1
             matrix1 = matrix2 = None
             if ct == CalculationType.VELOCITY and domain1 is None and domain2 is None:
                 # For a PML layer parallel to its interface direction the matrix is concatenated with zeros
@@ -587,18 +585,37 @@ class Domain(object):
                 # __|_____________|___
                 #   |     PML     |
                 #  <--------------->
-                matrix1 = self.Z(0 if bt == BoundaryType.HORIZONTAL else 1, 1 if bt == BoundaryType.HORIZONTAL else 0)
-                matrix2 = self.Z(0 if bt == BoundaryType.HORIZONTAL else 1, 1 if bt == BoundaryType.HORIZONTAL else 0)
+                matrix1 = self.domain_size_zeros(0 if bt == BoundaryType.HORIZONTAL else 1,
+                                                 1 if bt == BoundaryType.HORIZONTAL else 0)
+                matrix2 = self.domain_size_zeros(0 if bt == BoundaryType.HORIZONTAL else 1,
+                                                 1 if bt == BoundaryType.HORIZONTAL else 0)
                 domain1 = domain2 = self
             else:
                 if domain1 is None: domain1 = self
                 if domain2 is None: domain2 = self
 
-            matrix0 = self.p0 if ct == CalculationType.PRESSURE else getattr(self,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+            if ct == CalculationType.PRESSURE:
+                matrix0 = self.field_dict['p0']
+            elif bt == BoundaryType.HORIZONTAL: # and ct == CalculationType.VELOCITY
+                matrix0 = self.field_dict['u0']
+            else:
+                matrix0 = self.field_dict['w0']
+
             if matrix1 is None:
-                matrix1 = domain1.p0 if ct == CalculationType.PRESSURE else getattr(domain1,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
-            if matrix2 is None:
-                matrix2 = domain2.p0 if ct == CalculationType.PRESSURE else getattr(domain2,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+                if ct == CalculationType.PRESSURE:
+                    matrix1 = domain1.field_dict['p0']
+                elif bt == BoundaryType.HORIZONTAL:
+                    matrix1 = domain1.field_dict['u0']
+                else:
+                    matrix1 = domain1.field_dict['w0']
+
+            if matrix2 is None:     # Could be done more subtle if you ask me...
+                if ct == CalculationType.PRESSURE:
+                    matrix2 = domain2.field_dict['p0']
+                elif bt == BoundaryType.HORIZONTAL:
+                    matrix2 = domain2.field_dict['u0']
+                else:
+                    matrix2 = domain2.field_dict['w0']
 
             a = 0 if ct == CalculationType.PRESSURE else 1
             b = 1 if bt == BoundaryType.HORIZONTAL else 0
@@ -606,37 +623,36 @@ class Domain(object):
             if dest:
                 kc = dest['fact']
             else:
-                kc = Kcalc.derfactp((Ntot, self.cfg.dx)) if ct == CalculationType.PRESSURE else Kcalc.derfactu((Ntot, self.cfg.dx))
+                kc = Kcalc.derfactp((Ntot, self.cfg.dx)) if ct == CalculationType.PRESSURE else Kcalc.derfactu(
+                    (Ntot, self.cfg.dx))
 
             # Determine which rho matrix instance to use
             rmat = self.rho_matrices[rho_matrix_key][ct]
 
             if bt == BoundaryType.HORIZONTAL:
-                matrix0_offset = self.topleft.y
-                matrix0_indexed = matrix0[range_start-matrix0_offset:range_end-matrix0_offset,:]
-                matrix1_offset = domain1.topleft.y
-                matrix1_indexed = matrix1[range_start-matrix1_offset:range_end-matrix1_offset,:]
-                matrix2_offset = domain2.topleft.y
-                matrix2_indexed = matrix2[range_start-matrix2_offset:range_end-matrix2_offset,:]
+                matrix0_offset = self.top_left.y
+                matrix0_indexed = matrix0[range_start - matrix0_offset:range_end - matrix0_offset, :]
+                matrix1_offset = domain1.top_left.y
+                matrix1_indexed = matrix1[range_start - matrix1_offset:range_end - matrix1_offset, :]
+                matrix2_offset = domain2.top_left.y
+                matrix2_indexed = matrix2[range_start - matrix2_offset:range_end - matrix2_offset, :]
             else:
-                matrix0_offset = self.topleft.x
-                matrix0_indexed = matrix0[:,range_start-matrix0_offset:range_end-matrix0_offset]
-                matrix1_offset = domain1.topleft.x
-                matrix1_indexed = matrix1[:,range_start-matrix1_offset:range_end-matrix1_offset]
-                matrix2_offset = domain2.topleft.x
-                matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
+                matrix0_offset = self.top_left.x
+                matrix0_indexed = matrix0[:, range_start - matrix0_offset:range_end - matrix0_offset]
+                matrix1_offset = domain1.top_left.x
+                matrix1_indexed = matrix1[:, range_start - matrix1_offset:range_end - matrix1_offset]
+                matrix2_offset = domain2.top_left.x
+                matrix2_indexed = matrix2[:, range_start - matrix2_offset:range_end - matrix2_offset]
 
-            matrix = spatderp3_gpu(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,stream,plan_set,g_bufl,mulfunc)
+            matrix = spatderp3_gpu(matrix0_indexed, kc, self.cfg.Wlength, self.cfg.A, primary_dimension,
+                               secondary_dimension, nearest_2power(Ntot), rmat, matrix1_indexed, matrix2_indexed, 
+                               a, b, context, stream, plan_set, g_bufl, mulfunc)
 
             if bt == BoundaryType.HORIZONTAL:
-                source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
+                source[range_start - matrix0_offset:range_end - matrix0_offset, :] = matrix
             else:
-                source[:,range_start-matrix0_offset:range_end-matrix0_offset] = matrix
-
+                source[:, range_start - matrix0_offset:range_end - matrix0_offset] = matrix
         return source
-
-
-        # sys.stdout.write("\b"*len(str))
 
 class BoundaryType:
     HORIZONTAL = 'x'
