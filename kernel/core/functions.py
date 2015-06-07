@@ -151,7 +151,7 @@ def kcalc(dx,N):
     jfact =   1j*np.concatenate((np.ones((1.,A+1.)), -np.ones((1.,A-1.))), axis=1)
     
     return k, jfact
-
+#@profile
 def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
 
     #print p2.shape, derfact.shape, Wlength, A.shape, Ns2, N1, N2, Rmatrix.shape, p1.shape, p3.shape, var, direct

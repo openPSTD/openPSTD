@@ -42,6 +42,7 @@ P, V = CalculationType.PRESSURE, CalculationType.VELOCITY
 
 
 class SingleThreaded:
+    #@profile
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
         # Loop over time steps
         for frame in range(int(cfg.TRK)):
@@ -154,6 +155,7 @@ class MultiThreaded:
         pool.close()
 
 class GpuAccelerated:
+    #@profile
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
@@ -166,9 +168,9 @@ class GpuAccelerated:
             stream = cuda.Stream()
 
             plan_set = {} #will be filled as needed in spatderp3_gpu(~), prefill with 128, 256 and 512
-            plan_set[str(128)] = Plan(128, dtype=np.float64, context=context, stream=stream, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float64, context=context, stream=stream, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float64, context=context, stream=stream, fast_math=False)
+            plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
             
             g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
             g_bufl["mr"] = cuda.mem_alloc(8*128*128)
@@ -208,15 +210,15 @@ class GpuAccelerated:
                 int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
                 int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
-                int matindex = index_y*fftlen+index_x;
-
-                double G = 1;
-                if (index_x < winlen) {
-                    G = A[index_x];
-                } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
-                    G = A[index_x-Ns2];
-                }
                 if (index_y < fftnum) { //eat the surplus
+                    int matindex = index_y*fftlen+index_x;
+
+                    double G = 1;
+                    if (index_x < winlen) {
+                        G = A[index_x];
+                    } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
+                        G = A[index_x-Ns2];
+                    }
                     mi[matindex] = 0;
                     if (index_x < winlen) {
                         mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1] + R00*p2[Ns2*index_y+winlen-1-index_x]);
@@ -236,15 +238,15 @@ class GpuAccelerated:
                 int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
                 int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
-                int matindex = index_y*fftlen+index_x;
-
-                double G = 1;
-                if (index_x < winlen) {
-                    G = A[index_x];
-                } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
-                    G = A[index_x-Ns2];
-                }
                 if (index_y < fftnum) { //eat the surplus
+                    int matindex = index_y*fftlen+index_x;
+
+                    double G = 1;
+                    if (index_x < winlen) {
+                        G = A[index_x];
+                    } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
+                        G = A[index_x-Ns2];
+                    }
                     mi[matindex] = 0;
                     if (index_x < winlen) {
                         mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1-1] + R00*p2[Ns2*index_y+winlen-index_x]);
@@ -282,6 +284,7 @@ class GpuAccelerated:
                                 if d.should_update(boundary_type):
                                     def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufl,mulfunc):
                                         domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufl,mulfunc)
+                                        #domain.calc(bt, ct)
 
                                     calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufl,mulfunc)
 

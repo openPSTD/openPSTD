@@ -272,7 +272,7 @@ class Domain(object):
             lower, upper = sorted(map(int, [getattr(domain.topleft, coord), getattr(domain.bottomright, coord)]))
             if d >= lower and d <= upper: return domain
         raise LookupError("No domain found at %s for %.2f" % (adj, d))
-
+    #@profile
     def calc(self, bt, ct, dest = None):
 
         # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
