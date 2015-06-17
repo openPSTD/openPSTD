@@ -42,9 +42,23 @@ class Mesh:
     def is_bmesh(self):
         return isinstance(self.me, bmesh.types.BMesh)
     def vertices(self):
-        return self.me.verts if self.is_bmesh() else self.me.vertices
+        if self.is_bmesh():
+            verts = self.me.verts
+            # Compatibility for Blender 2.73+
+            if hasattr(verts, "ensure_lookup_table"):
+                verts.ensure_lookup_table()
+            return verts
+        else:
+            return self.me.vertices
     def polygons(self):
-        return self.me.faces if self.is_bmesh() else self.me.polygons
+        if self.is_bmesh():
+            faces = self.me.faces
+            # Compatibility for Blender 2.73+
+            if hasattr(faces, "ensure_lookup_table"):
+                faces.ensure_lookup_table()
+            return faces
+        else:
+            return self.me.polygons
     def test_NON_ORTHO(self):
         bbox_min, bbox_max = self.get_bbox()
         diagonal_length = (bbox_max - bbox_min).length
@@ -74,9 +88,17 @@ class Mesh:
         return True
     def get_bmesh(self):
         if self.is_bmesh():
-            return self.me
-        bm = bmesh.new()
-        bm.from_mesh(self.me)
+            bm = self.me
+        else:
+            bm = bmesh.new()
+            bm.from_mesh(self.me)
+            
+        # Compatibility for Blender 2.73+
+        if hasattr(bm.verts, "ensure_lookup_table"):
+            bm.verts.ensure_lookup_table()
+        if hasattr(bm.faces, "ensure_lookup_table"):
+            bm.faces.ensure_lookup_table()
+            
         return bm
     def get_bbox(self, scaling_component = None):
         if scaling_component is None: scaling_component = (1, 1, 1)
