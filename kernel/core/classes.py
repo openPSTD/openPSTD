@@ -381,6 +381,113 @@ class Domain(object):
             
         
         # sys.stdout.write("\b"*len(str))
+
+    # Like in pstd.py, this is split from calc(~) to avoid spaghetti code
+    # It could be integrated without too much trouble, but this saves some debugging for now
+    def calc_cuda(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, dest = None):
+
+        # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
+        # sys.stdout.write(str)
+        # sys.stdout.flush()
+
+        # Find the input matrices
+        domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
+        domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
+
+        if len(domains1) == 0: domains1 = [None]
+        if len(domains2) == 0: domains2 = [None]
+
+        own_range = self.get_range(bt)
+
+        if dest:
+            if bt == BoundaryType.HORIZONTAL:
+                source = self.Z(0,1)
+            else:
+                source = self.Z(1,0)
+        else:
+            source = getattr(self,"L%s%s"%(ct,bt))
+
+        for domain1, domain2 in itertools.product(domains1, domains2):
+            rho_matrix_key = frozenset(d for d in (domain1, domain2) if d)
+
+            range_intersection = set(own_range)
+
+            for other_domain in (domain1, domain2):
+                if other_domain is not None:
+                    if bt == BoundaryType.HORIZONTAL:
+                        other_range = range(int(other_domain.topleft.y), int(other_domain.bottomright.y))
+                    else:
+                        other_range = range(int(other_domain.topleft.x), int(other_domain.bottomright.x))
+                    range_intersection &= set(other_range)
+
+            if not len(range_intersection): continue
+
+            range_start, range_end = min(range_intersection), max(range_intersection)+1
+
+            primary_dimension   = self.size.width if bt == BoundaryType.HORIZONTAL else self.size.height
+            secundary_dimension = range_end - range_start #self.size.height if bt == BoundaryType.HORIZONTAL else self.size.width
+
+            Ntot = 2. * self.cfg.Wlength + primary_dimension
+            if ct == CalculationType.PRESSURE: Ntot += 1
+            else: primary_dimension += 1
+
+            matrix1 = matrix2 = None
+            if ct == CalculationType.VELOCITY and domain1 is None and domain2 is None:
+                # For a PML layer parallel to its interface direction the matrix is concatenated with zeros
+                # TK: TODO: This statement is probably no longer correct, with arbitrary domain configurations
+                # a PML domain can also have a neighbour
+                #   |             |
+                # __|_____________|___
+                #   |     PML     |
+                #  <--------------->
+                matrix1 = self.Z(0 if bt == BoundaryType.HORIZONTAL else 1, 1 if bt == BoundaryType.HORIZONTAL else 0)
+                matrix2 = self.Z(0 if bt == BoundaryType.HORIZONTAL else 1, 1 if bt == BoundaryType.HORIZONTAL else 0)
+                domain1 = domain2 = self
+            else:
+                if domain1 is None: domain1 = self
+                if domain2 is None: domain2 = self
+
+            matrix0 = self.p0 if ct == CalculationType.PRESSURE else getattr(self,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+            if matrix1 is None:
+                matrix1 = domain1.p0 if ct == CalculationType.PRESSURE else getattr(domain1,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+            if matrix2 is None:
+                matrix2 = domain2.p0 if ct == CalculationType.PRESSURE else getattr(domain2,'u0' if bt == BoundaryType.HORIZONTAL else 'w0')
+
+            a = 0 if ct == CalculationType.PRESSURE else 1
+            b = 1 if bt == BoundaryType.HORIZONTAL else 0
+
+            if dest:
+                kc = dest['fact']
+            else:
+                kc = Kcalc.derfactp((Ntot, self.cfg.dx)) if ct == CalculationType.PRESSURE else Kcalc.derfactu((Ntot, self.cfg.dx))
+
+            # Determine which rho matrix instance to use
+            rmat = self.rho_matrices[rho_matrix_key][ct]
+
+            if bt == BoundaryType.HORIZONTAL:
+                matrix0_offset = self.topleft.y
+                matrix0_indexed = matrix0[range_start-matrix0_offset:range_end-matrix0_offset,:]
+                matrix1_offset = domain1.topleft.y
+                matrix1_indexed = matrix1[range_start-matrix1_offset:range_end-matrix1_offset,:]
+                matrix2_offset = domain2.topleft.y
+                matrix2_indexed = matrix2[range_start-matrix2_offset:range_end-matrix2_offset,:]
+            else:
+                matrix0_offset = self.topleft.x
+                matrix0_indexed = matrix0[:,range_start-matrix0_offset:range_end-matrix0_offset]
+                matrix1_offset = domain1.topleft.x
+                matrix1_indexed = matrix1[:,range_start-matrix1_offset:range_end-matrix1_offset]
+                matrix2_offset = domain2.topleft.x
+                matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
+
+            matrix = spatderp3_cuda(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,stream,plan_set,g_bufl,mulfunc)
+
+            if bt == BoundaryType.HORIZONTAL:
+                source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
+            else:
+                source[:,range_start-matrix0_offset:range_end-matrix0_offset] = matrix
+
+        return source
+
             
         
 class BoundaryType:

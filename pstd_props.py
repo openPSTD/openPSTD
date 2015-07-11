@@ -126,6 +126,12 @@ def apply():
         default=False
     )
 
+    bpy.types.Scene.pstd_enable_gpu = bpy.props.BoolProperty(
+        name="Enable GPU acceleration",
+        description="Offloads calculations to the GPU. Uses Cuda if available, uses OpenCL if not. If neither is available, this option will be ignored.",
+        default=False
+    )
+
     bpy.types.Scene.pstd_enable_only_nth = bpy.props.BoolProperty(
         name="Save every nth",
         description="Save every nth",

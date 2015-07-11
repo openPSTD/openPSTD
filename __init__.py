@@ -138,6 +138,7 @@ def run(op, context):
             'rho':      scn.pstd_air_density,
             'c1':       scn.pstd_sound_speed,
             'tfactRK':  scn.pstd_cfl_number,
+            'GPU':      scn.pstd_enable_gpu,
         })
         if scn.pstd_enable_only_nth:
             pstd_scene.update({
