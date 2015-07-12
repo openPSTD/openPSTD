@@ -139,11 +139,12 @@ if scene_desc['GPU']:
         use_cuda = True
     except:
         try:
-            #TODO import OpenCL here
+            import pyopencl as cl
+            import pyopencl.array as cl_array
+            from pyfft.cl import Plan
+            use_opencl = True
         except:
-            use_cuda = False
-            use_opencl = False
-            #TODO log: Neither OpenCL nor Cuda installed
+            pass
 
 pstd_desc = {'domains':[],'dx':float(dx),'dz':float(dz)}
 scene = Scene(cfg)
