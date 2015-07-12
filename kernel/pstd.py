@@ -32,10 +32,10 @@ import threading
 import argparse
 import subprocess
 import numpy as np
-from core import derived_config
-from core.functions import *
-from core.classes import *
-from core.kcalc import Kcalc
+from kernel.core import derived_config
+from kernel.core.functions import *
+from kernel.core.classes import *
+from kernel.core.kcalc import Kcalc
 import solvers
 '''Main class of the computational part of openPSTD. Can be run stand-alone or invoked by Blender.
 This class reads the scene description (from a .json file or a pickled object from Blender) containing the geometry

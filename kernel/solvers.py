@@ -26,6 +26,7 @@ import multiprocessing as mp
 import shutil
 import pickle
 import threading
+import numpy, scipy.io
 #from pstd import exit_with_error,subsample,write_array_to_file,write_plot_to_file
 
 
@@ -92,6 +93,14 @@ class SingleThreaded:
             if frame % cfg.save_nth_frame == 0:
                 data_writer.write_to_file(frame)
 
+            #debug: check if output of solvers is same
+            if frame == int(cfg.TRK) - 1:
+                cnt=0
+                for d in scene.domains:
+                    if not d.is_rigid():
+                        scipy.io.savemat('finalresCPU'+str(cnt), mdict={'resCPU'+str(cnt): d.p0})
+                        cnt = cnt+1
+
 
 class MultiThreaded:
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
@@ -157,17 +166,34 @@ class MultiThreaded:
 class GpuAccelerated:
     #@profile
     def __init__(self, cfg, scene, data_writer, receiver_files, output_fn):
+        use_cuda = False
+        use_opencl = False
+        print "importing gpu libs"
+        try:
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
             from pycuda.compiler import SourceModule
             from pycuda.driver import Function
             from pyfft.cuda import Plan
+            use_cuda = True
+            print "USING CUDA"
+        except:
+            try:
+                import pyopencl as cl
+                import pyopencl.array as cl_array
+                from pyfft.cl import Plan
+                use_opencl = True
+                print "USING OpenCL"
+            except:
+                print "NEITHER CUDA NOR OPENCL AVAILABLE. ABORTING."
+                exit()
 
+        if use_cuda:        
             cuda.init()
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan_set = {} #will be filled as needed in spatderp3_gpu(~), prefill with 128, 256 and 512
+            plan_set = {} #will be filled as needed in spatderp3_cuda(~), prefill with 128, 256 and 512
             plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
             plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
             plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
@@ -282,11 +308,11 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_gpu(domain, bt, ct, context, stream, plan_set,g_bufl,mulfunc):
-                                        domain.calc_gpu(bt, ct, context, stream, plan_set,g_bufl,mulfunc)
+                                    def calc_cuda(domain, bt, ct, context, stream, plan_set,g_bufl,mulfunc):
+                                        domain.calc_cuda(bt, ct, context, stream, plan_set,g_bufl,mulfunc)
                                         #domain.calc(bt, ct)
 
-                                    calc_gpu(d, boundary_type, calculation_type, context, stream, plan_set,g_bufl,mulfunc)
+                                    calc_cuda(d, boundary_type, calculation_type, context, stream, plan_set,g_bufl,mulfunc)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():
@@ -314,5 +340,172 @@ class GpuAccelerated:
 
                 if frame % cfg.save_nth_frame == 0:
                     data_writer.write_to_file(frame)
+
+                #debug: check if output of solvers is same
+                if frame == int(cfg.TRK) - 1:
+                    cnt=0
+                    for d in scene.domains:
+                        if not d.is_rigid():
+                            scipy.io.savemat('finalresGPU'+str(cnt), mdict={'resGPU'+str(cnt): d.p0})
+                            cnt = cnt+1
+
+            context.pop()
+        
+        elif use_opencl:
+            print "NOT YET FULLY IMPLEMENTED"
+            
+            context = cl.create_some_context(interactive=False)
+            queue = cl.CommandQueue(context)
+            
+            plan_set = {} #will be filled as needed in spatderp3_ocl(~), prefill with 128, 256 and 512
+            plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
+            
+            mf = cl.mem_flags            
+            
+            g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+            g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+            g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+            g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+            g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+            g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+            g_bufl["m_size"] = 8*128*128
+            g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128) #dr also used by A (window matrix)
+            g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128)
+            g_bufl["d_size"] = 8*128
+
+            kernelcode = cl.Program(context,""" 
+            __kernel void derifact_multiplication(_global double *matr, _global double *mati, _global double *vecr, _global double *veci, _global *int fftlen, _global *int fftnum)
+            {
+                int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
+                int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+
+                int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
+                // if N1%16>0, we're starting too many threads.
+                // There is probably a better way to do this, but just eating the surplus should work.
+                if (matindex < fftlen*fftnum) {
+                    double matreal = matr[matindex];
+                    double matimag = mati[matindex];
+
+                    double vecreal = vecr[index_x];
+                    double vecimag = veci[index_x];
+
+                    matr[matindex] = matreal*vecreal - matimag*vecimag;
+                    mati[matindex] = matreal*vecimag + matimag*vecreal;
+                }
+            }
+
+            __kernel void pressure_window_multiplication(_global double *mr, _global double *mi, _global double *A, _global double *p1, _global double *p2, _global double *p3, _global int *winlen, _global int *Ns1, _global int *Ns2, _global int *Ns3, _global int *fftlen, _global int *fftnum, _global double *R21, _global double *R00, _global double *R31, _global double *R10)
+            {
+                int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
+                int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+
+                if (index_y < *fftnum) { //eat the surplus
+                    int matindex = index_y**fftlen+index_x;
+
+
+                    double G = 1;
+                    if (index_x < *winlen) {
+                        G = A[index_x];
+                    } else if (index_x > *winlen+*Ns2-1 && index_x < *winlen*2+*Ns2) {
+                        G = A[index_x-*Ns2];
+
+                    }
+                    mi[matindex] = 0;
+                    if (index_x < *winlen) {
+                        mr[matindex] = G*(*R21*p1[*Ns1*index_y+index_x-*winlen+*Ns1] + *R00*p2[*Ns2*index_y+*winlen-1-index_x]);
+                    } else if (index_x < *winlen + *Ns2) {
+                        mr[matindex] = p2[*Ns2*index_y+index_x-*winlen];
+                    } else if (index_x < *winlen*2+*Ns2) {
+                        mr[matindex] = G*(*R31*p3[*Ns3*index_y+index_x-*winlen-*Ns2] + *R10*p2[*Ns2*index_y+2**Ns2+*winlen-1-index_x]);
+                    } else {
+                        mr[matindex] = 0; //zero padding
+                    }
+                }
+            }
+
+            __global__ void velocity_window_multiplication(_global double *mr, _global double *mi, _global double *A, _global double *p1, _global double *p2, _global double *p3, _global int *winlen, _global int *Ns1, _global int *Ns2, _global int *Ns3, _global int *fftlen, _global int *fftnum, _global double *R21, _global double *R00, _global double *R31, _global double *R10)
+            {
+                int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
+                int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+
+
+                if (index_y < fftnum) { //eat the surplus
+                    int matindex = index_y*fftlen+index_x;
+
+                    double G = 1;
+                    if (index_x < winlen) {
+                        G = A[index_x];
+                    } else if (index_x > *winlen+*Ns2-1 && index_x < *winlen*2+*Ns2) {
+                        G = A[index_x-*Ns2];
+                    }
+                    mi[matindex] = 0;
+                    if (index_x < *winlen) {
+                        mr[matindex] = G*(*R21*p1[*Ns1*index_y+index_x-*winlen+*Ns1-1] + *R00*p2[*Ns2*index_y+*winlen-index_x]);
+                    } else if (index_x < *winlen + *Ns2) {
+                        mr[matindex] = p2[*Ns2*index_y+index_x-*winlen];
+                    } else if (index_x < *winlen*2+*Ns2) {
+                        mr[matindex] = G*(*R31*p3[*Ns3*index_y+index_x-*winlen-*Ns2+1] + *R10*p2[*Ns2*index_y+2**Ns2+*winlen-2-index_x]);
+                    } else {
+                        mr[matindex] = 0; //zero padding
+                    }
+                }
+            }
+            """)).build()
+              
+            mulfunc = {}
+            mulfunc["pres_window"] = cl.Kernel(kernelcode, "pressure_window_multiplication")
+            mulfunc["velo_window"] = cl.Kernel(kernelcode, "velocity_window_multiplication")
+            mulfunc["derifact"] = cl.Kernel(kernelcode, "derifact_multiplication")
+            
+
+            # Loop over time steps
+            for frame in range(int(cfg.TRK)):
+                output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
+
+                # Keep a reference to current matrix contents
+                for d in scene.domains: d.push_values()
+
+                # Loop over subframes
+                for subframe in range(6):
+                    # Loop over calculation directions and measures
+                    for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+                        # Loop over domains
+                        for d in scene.domains:
+                            if not d.is_rigid():
+                                # Calculate sound propagations for non-rigid domains
+                                if d.should_update(boundary_type):
+                                    def calc_ocl(domain, bt, ct, context, plan_set,g_bufl,mulfunc):
+                                        domain.calc_ocl(bt, ct, context, plan_set,g_bufl,mulfunc)
+
+                                    calc_ocl(d, boundary_type, calculation_type, context, plan_set,g_bufl,mulfunc)
+
+                    for domain in scene.domains:
+                        if not domain.is_rigid():
+                            def calc(d):
+                                d.u0 = d.u0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpx)).real
+                                d.w0 = d.w0_old + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho * d.Lpz)).real
+                                d.px0 = d.px0_old + (
+                                -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvx)).real
+                                d.pz0 = d.pz0_old + (
+                                -cfg.dtRK * cfg.alfa[subframe] * (d.rho * pow(cfg.c1, 2.) * d.Lvz)).real
+
+                            calc(domain)
+
+
+                    # Sum the pressure components
+                    for d in scene.domains:
+                        d.p0 = d.px0 + d.pz0
+
+                # Apply pml matrices to boundary domains
+                scene.apply_pml_matrices()
+
+                for rf, r in zip(receiver_files, scene.receivers):
+                    rf.write(struct.pack('f', r.calc()))
+                    rf.flush()
+
+                if frame % cfg.save_nth_frame == 0:
+                    data_writer.write_to_file(
 
             context.pop()
