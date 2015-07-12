@@ -209,84 +209,12 @@ class GpuAccelerated:
             g_bufl["di"] = cuda.mem_alloc(8*128)
             g_bufl["d_size"] = 8*128
 
-            kernelcode = SourceModule(""" 
-              #include <stdio.h>
-              __global__ void derifact_multiplication(double *matr, double *mati, double *vecr, double *veci, int fftlen, int fftnum)
-              {
-                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
-                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
-
-                int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
-                //printf("Block(x,y): (%d,%d). Thread(x,y): (%d,%d)\\n",blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
-                // if N1%16>0, we're starting too many threads.
-                // There is probably a better way to do this, but just eating the surplus should work.
-                if (matindex < fftlen*fftnum) {
-                    double matreal = matr[matindex];
-                    double matimag = mati[matindex];
-                    double vecreal = vecr[index_x];
-                    double vecimag = veci[index_x];
-
-                    matr[matindex] = matreal*vecreal - matimag*vecimag;
-                    mati[matindex] = matreal*vecimag + matimag*vecreal;
-                }
-              }
-
-              __global__ void pressure_window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, double R21, double R00, double R31, double R10) //passing a few by value seems to be more efficient than building an array first in pycuda
-              {
-                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
-                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
-
-                if (index_y < fftnum) { //eat the surplus
-                    int matindex = index_y*fftlen+index_x;
-
-                    double G = 1;
-                    if (index_x < winlen) {
-                        G = A[index_x];
-                    } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
-                        G = A[index_x-Ns2];
-                    }
-                    mi[matindex] = 0;
-                    if (index_x < winlen) {
-                        mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1] + R00*p2[Ns2*index_y+winlen-1-index_x]);
-                    } else if (index_x < winlen + Ns2) {
-                        mr[matindex] = p2[Ns2*index_y+index_x-winlen];
-                    } else if (index_x < winlen*2+Ns2) {
-                        mr[matindex] = G*(R31*p3[Ns3*index_y+index_x-winlen-Ns2] + R10*p2[Ns2*index_y+2*Ns2+winlen-1-index_x]);
-                    } else {
-                        mr[matindex] = 0; //zero padding
-                    }
-                    //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
-                }
-              }
-
-              __global__ void velocity_window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, double R21, double R00, double R31, double R10) //passing a few by value seems to be more efficient than building an array first in pycuda
-              {
-                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
-                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
-
-                if (index_y < fftnum) { //eat the surplus
-                    int matindex = index_y*fftlen+index_x;
-
-                    double G = 1;
-                    if (index_x < winlen) {
-                        G = A[index_x];
-                    } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
-                        G = A[index_x-Ns2];
-                    }
-                    mi[matindex] = 0;
-                    if (index_x < winlen) {
-                        mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1-1] + R00*p2[Ns2*index_y+winlen-index_x]);
-                    } else if (index_x < winlen + Ns2) {
-                        mr[matindex] = p2[Ns2*index_y+index_x-winlen];
-                    } else if (index_x < winlen*2+Ns2) {
-                        mr[matindex] = G*(R31*p3[Ns3*index_y+index_x-winlen-Ns2+1] + R10*p2[Ns2*index_y+2*Ns2+winlen-2-index_x]);
-                    } else {
-                        mr[matindex] = 0; //zero padding
-                    }
-                    //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
-                }
-              }
-              """)
+            script_dir = os.path.dirname(__file__)
+            rel_path = "cuda_kernels.cu"
+            abs_file_path = os.path.join(script_dir, rel_path)                                    
+            src_file = open(abs_file_path, 'r')
+                                                
+            kernelcode = SourceModule(src_file.read())
             mulfunc = {}
             mulfunc["pres_window"] = kernelcode.get_function("pressure_window_multiplication")
             mulfunc["velo_window"] = kernelcode.get_function("velocity_window_multiplication")
@@ -375,85 +303,13 @@ class GpuAccelerated:
             g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128)
             g_bufl["d_size"] = 8*128
 
-            kernelcode = cl.Program(context,""" 
-            __kernel void derifact_multiplication(_global double *matr, _global double *mati, _global double *vecr, _global double *veci, _global *int fftlen, _global *int fftnum)
-            {
-                int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
-                int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
-
-                int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
-                // if N1%16>0, we're starting too many threads.
-                // There is probably a better way to do this, but just eating the surplus should work.
-                if (matindex < fftlen*fftnum) {
-                    double matreal = matr[matindex];
-                    double matimag = mati[matindex];
-
-                    double vecreal = vecr[index_x];
-                    double vecimag = veci[index_x];
-
-                    matr[matindex] = matreal*vecreal - matimag*vecimag;
-                    mati[matindex] = matreal*vecimag + matimag*vecreal;
-                }
-            }
-
-            __kernel void pressure_window_multiplication(_global double *mr, _global double *mi, _global double *A, _global double *p1, _global double *p2, _global double *p3, _global int *winlen, _global int *Ns1, _global int *Ns2, _global int *Ns3, _global int *fftlen, _global int *fftnum, _global double *R21, _global double *R00, _global double *R31, _global double *R10)
-            {
-                int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
-                int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
-
-                if (index_y < *fftnum) { //eat the surplus
-                    int matindex = index_y**fftlen+index_x;
-
-
-                    double G = 1;
-                    if (index_x < *winlen) {
-                        G = A[index_x];
-                    } else if (index_x > *winlen+*Ns2-1 && index_x < *winlen*2+*Ns2) {
-                        G = A[index_x-*Ns2];
-
-                    }
-                    mi[matindex] = 0;
-                    if (index_x < *winlen) {
-                        mr[matindex] = G*(*R21*p1[*Ns1*index_y+index_x-*winlen+*Ns1] + *R00*p2[*Ns2*index_y+*winlen-1-index_x]);
-                    } else if (index_x < *winlen + *Ns2) {
-                        mr[matindex] = p2[*Ns2*index_y+index_x-*winlen];
-                    } else if (index_x < *winlen*2+*Ns2) {
-                        mr[matindex] = G*(*R31*p3[*Ns3*index_y+index_x-*winlen-*Ns2] + *R10*p2[*Ns2*index_y+2**Ns2+*winlen-1-index_x]);
-                    } else {
-                        mr[matindex] = 0; //zero padding
-                    }
-                }
-            }
-
-            __global__ void velocity_window_multiplication(_global double *mr, _global double *mi, _global double *A, _global double *p1, _global double *p2, _global double *p3, _global int *winlen, _global int *Ns1, _global int *Ns2, _global int *Ns3, _global int *fftlen, _global int *fftnum, _global double *R21, _global double *R00, _global double *R31, _global double *R10)
-            {
-                int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
-                int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
-
-
-                if (index_y < fftnum) { //eat the surplus
-                    int matindex = index_y*fftlen+index_x;
-
-                    double G = 1;
-                    if (index_x < winlen) {
-                        G = A[index_x];
-                    } else if (index_x > *winlen+*Ns2-1 && index_x < *winlen*2+*Ns2) {
-                        G = A[index_x-*Ns2];
-                    }
-                    mi[matindex] = 0;
-                    if (index_x < *winlen) {
-                        mr[matindex] = G*(*R21*p1[*Ns1*index_y+index_x-*winlen+*Ns1-1] + *R00*p2[*Ns2*index_y+*winlen-index_x]);
-                    } else if (index_x < *winlen + *Ns2) {
-                        mr[matindex] = p2[*Ns2*index_y+index_x-*winlen];
-                    } else if (index_x < *winlen*2+*Ns2) {
-                        mr[matindex] = G*(*R31*p3[*Ns3*index_y+index_x-*winlen-*Ns2+1] + *R10*p2[*Ns2*index_y+2**Ns2+*winlen-2-index_x]);
-                    } else {
-                        mr[matindex] = 0; //zero padding
-                    }
-                }
-            }
-            """)).build()
-              
+            script_dir = os.path.dirname(__file__)
+            rel_path = "ocl_kernels.cl"
+            abs_file_path = os.path.join(script_dir, rel_path)
+            
+            src_file = open(abs_file_path, 'r')
+            kernelcode = cl.Program(context, src_file.read()).build()
+            
             mulfunc = {}
             mulfunc["pres_window"] = cl.Kernel(kernelcode, "pressure_window_multiplication")
             mulfunc["velo_window"] = cl.Kernel(kernelcode, "velocity_window_multiplication")
@@ -476,10 +332,10 @@ class GpuAccelerated:
                             if not d.is_rigid():
                                 # Calculate sound propagations for non-rigid domains
                                 if d.should_update(boundary_type):
-                                    def calc_ocl(domain, bt, ct, context, plan_set,g_bufl,mulfunc):
-                                        domain.calc_ocl(bt, ct, context, plan_set,g_bufl,mulfunc)
+                                    def calc_ocl(domain, bt, ct, context, queue, plan_set,g_bufl,mulfunc):
+                                        domain.calc_ocl(bt, ct, context, queue, plan_set,g_bufl,mulfunc)
 
-                                    calc_ocl(d, boundary_type, calculation_type, context, plan_set,g_bufl,mulfunc)
+                                    calc_ocl(d, boundary_type, calculation_type, context, queue, plan_set,g_bufl,mulfunc)
 
                     for domain in scene.domains:
                         if not domain.is_rigid():
@@ -506,6 +362,4 @@ class GpuAccelerated:
                     rf.flush()
 
                 if frame % cfg.save_nth_frame == 0:
-                    data_writer.write_to_file(
-
-            context.pop()
+                    data_writer.write_to_file(frame)

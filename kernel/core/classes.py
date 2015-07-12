@@ -485,7 +485,7 @@ class Domain(object):
 
         return source
 
-    def calc_ocl(self, bt, ct, context, plan_set, g_bufl, mulfunc, dest = None):
+    def calc_ocl(self, bt, ct, context, queue, plan_set, g_bufl, mulfunc, dest = None):
         
 		# Find the input matrices
         domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
@@ -578,7 +578,7 @@ class Domain(object):
                 matrix2_offset = domain2.topleft.x
                 matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
 
-            matrix = spatderp3_ocl(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,plan_set,g_bufl,mulfunc)
+            matrix = spatderp3_ocl(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,queue,plan_set,g_bufl,mulfunc)
 
             if bt == BoundaryType.HORIZONTAL:
                 source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
