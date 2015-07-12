@@ -334,7 +334,7 @@ def spatderp3_cuda(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,conte
         Lp = Lp.transpose()
 
     return Lp
-#@profile
+
 def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,queue,plan_set,g_bufl,mulfunc):
     # equivalent of spatderp3(~)
     # derfact = factor to compute derivative in wavenumber domain
@@ -351,7 +351,6 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
     import pyopencl as cl
 
     if 8*N1*int(N2) > g_bufl["m_size"]:
-        mf = cl.mem_flags
         g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
         g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
         g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
@@ -360,7 +359,6 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         g_bufl["m_size"] = int(8*N1*int(N2))
 
     if 8*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
-        mf = cl.mem_flags
         g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=np.maximum(8*int(N2),A.size))
         g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=np.maximum(8*int(N2),A.size))
         g_bufl["d_size"] = np.maximum(8*int(N2),A.size)
