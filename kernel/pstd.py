@@ -234,7 +234,7 @@ if use_cuda:
     plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
     plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
     plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
-            
+    
     g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
     g_bufl["mr"] = cuda.mem_alloc(8*128*128)
     g_bufl["mi"] = cuda.mem_alloc(8*128*128)
@@ -246,85 +246,12 @@ if use_cuda:
     g_bufl["di"] = cuda.mem_alloc(8*128)
     g_bufl["d_size"] = 8*128
 
-    # Load the Cuda kernels. This should probably be loaded from a file (a string taking up 75 lines feels wrong) but this works for now.
-    kernelcode = SourceModule(""" 
-              #include <stdio.h>
-              __global__ void derifact_multiplication(double *matr, double *mati, double *vecr, double *veci, int fftlen, int fftnum)
-              {
-                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
-                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
-
-                int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
-                //printf("Block(x,y): (%d,%d). Thread(x,y): (%d,%d)\\n",blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
-                // if N1%16>0, we're starting too many threads.
-                // There is probably a better way to do this, but just eating the surplus should work.
-                if (matindex < fftlen*fftnum) {
-                    double matreal = matr[matindex];
-                    double matimag = mati[matindex];
-                    double vecreal = vecr[index_x];
-                    double vecimag = veci[index_x];
-
-                    matr[matindex] = matreal*vecreal - matimag*vecimag;
-                    mati[matindex] = matreal*vecimag + matimag*vecreal;
-                }
-              }
-
-              __global__ void pressure_window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, double R21, double R00, double R31, double R10) //passing a few by value seems to be more efficient than building an array first in pycuda
-              {
-                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
-                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
-
-                if (index_y < fftnum) { //eat the surplus
-                    int matindex = index_y*fftlen+index_x;
-
-                    double G = 1;
-                    if (index_x < winlen) {
-                        G = A[index_x];
-                    } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
-                        G = A[index_x-Ns2];
-                    }
-                    mi[matindex] = 0;
-                    if (index_x < winlen) {
-                        mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1] + R00*p2[Ns2*index_y+winlen-1-index_x]);
-                    } else if (index_x < winlen + Ns2) {
-                        mr[matindex] = p2[Ns2*index_y+index_x-winlen];
-                    } else if (index_x < winlen*2+Ns2) {
-                        mr[matindex] = G*(R31*p3[Ns3*index_y+index_x-winlen-Ns2] + R10*p2[Ns2*index_y+2*Ns2+winlen-1-index_x]);
-                    } else {
-                        mr[matindex] = 0; //zero padding
-                    }
-                    //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
-                }
-              }
-
-              __global__ void velocity_window_multiplication(double *mr, double *mi, double *A, double *p1, double *p2, double *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, double R21, double R00, double R31, double R10) //passing a few by value seems to be more efficient than building an array first in pycuda
-              {
-                int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
-                int index_y = blockIdx.y*blockDim.y + threadIdx.y;
-
-                if (index_y < fftnum) { //eat the surplus
-                    int matindex = index_y*fftlen+index_x;
-
-                    double G = 1;
-                    if (index_x < winlen) {
-                        G = A[index_x];
-                    } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
-                        G = A[index_x-Ns2];
-                    }
-                    mi[matindex] = 0;
-                    if (index_x < winlen) {
-                        mr[matindex] = G*(R21*p1[Ns1*index_y+index_x-winlen+Ns1-1] + R00*p2[Ns2*index_y+winlen-index_x]);
-                    } else if (index_x < winlen + Ns2) {
-                        mr[matindex] = p2[Ns2*index_y+index_x-winlen];
-                    } else if (index_x < winlen*2+Ns2) {
-                        mr[matindex] = G*(R31*p3[Ns3*index_y+index_x-winlen-Ns2+1] + R10*p2[Ns2*index_y+2*Ns2+winlen-2-index_x]);
-                    } else {
-                        mr[matindex] = 0; //zero padding
-                    }
-                    //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
-                }
-              }
-              """)
+    script_dir = os.path.dirname(__file__)
+    filename = "cuda_kernels.cu"
+    abs_file_path = os.path.join(script_dir, filename)                                    
+    src_file = open(abs_file_path, 'r')
+                                        
+    kernelcode = SourceModule(src_file.read())
     mulfunc = {}
     mulfunc["pres_window"] = kernelcode.get_function("pressure_window_multiplication")
     mulfunc["velo_window"] = kernelcode.get_function("velocity_window_multiplication")
@@ -407,105 +334,217 @@ if use_cuda:
     context.pop()
     exit()
 
-# Loop over time steps
-for frame in range(int(cfg.TRK)):
-    if stand_alone:
-        sys.stdout.write("\r%d"%(frame+1))
-        sys.stdout.flush()
+elif use_opencl:
+	context = cl.create_some_context(interactive=False)
+    queue = cl.CommandQueue(context)
     
-    # Keep a reference to current matrix contents
-    for d in scene.domains: d.push_values()
+    plan_set = {} #will be filled as needed in spatderp3_ocl(~), prefill with 128, 256 and 512
+    plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
+    plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
+    plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
     
-    # Loop over subframes
-    for subframe in range(6):
-        # Loop over calculation directions and measures
-        
-        threads = []
-        def exec_threads():
-            global threads
-            [t.start() for t in threads]
-            [ t.join() for t in threads]
-            threads = []
-        
-        for boundary_type, calculation_type in [(h,P),(v,P),(h,V),(v,V)]:
-            # Loop over domains           
+    mf = cl.mem_flags            
+    
+    g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+    g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+    g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+    g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+    g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+    g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
+    g_bufl["m_size"] = 8*128*128
+    g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128) #dr also used by A (window matrix)
+    g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128)
+    g_bufl["d_size"] = 8*128
+
+    script_dir = os.path.dirname(__file__)
+    rel_path = "ocl_kernels.cl"
+    abs_file_path = os.path.join(script_dir, rel_path)
+    
+    src_file = open(abs_file_path, 'r')
+    kernelcode = cl.Program(context, src_file.read()).build()
+    
+    mulfunc = {}
+    mulfunc["pres_window"] = cl.Kernel(kernelcode, "pressure_window_multiplication")
+    mulfunc["velo_window"] = cl.Kernel(kernelcode, "velocity_window_multiplication")
+    mulfunc["derifact"] = cl.Kernel(kernelcode, "derifact_multiplication")
+    
+
+    # Loop over time steps
+    for frame in range(int(cfg.TRK)):
+        output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
+
+        # Keep a reference to current matrix contents
+        for d in scene.domains: d.push_values()
+
+        # Loop over subframes
+        for subframe in range(6):
+            # Loop over calculation directions and measures
+            for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+                # Loop over domains
+                for d in scene.domains:
+                    if not d.is_rigid():
+                        # Calculate sound propagations for non-rigid domains
+                        if d.should_update(boundary_type):
+                            def calc_ocl(domain, bt, ct, context, queue, plan_set,g_bufl,mulfunc):
+                                domain.calc_ocl(bt, ct, context, queue, plan_set,g_bufl,mulfunc)
+
+                            calc_ocl(d, boundary_type, calculation_type, context, queue, plan_set,g_bufl,mulfunc)
+
+            for domain in scene.domains:
+                if not domain.is_rigid():
+                    def calc(d):
+                        d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
+                        d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
+                        d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
+                        d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
+                    calc(domain)
+
+            # Sum the pressure components
             for d in scene.domains:
-                if not d.is_rigid():
-                    # Calculate sound propagations for non-rigid domains
-                    if d.should_update(boundary_type): 
-                        def calc(domain, bt, ct):
-                            domain.calc(bt, ct)
-                        if use_threading:
-                            def add(_d, _bt, _ct):
-                                t = threading.Thread(target=lambda: calc(_d, _bt, _ct))
-                                threads.append(t)
-                            add(d, boundary_type, calculation_type)
-                        else:
-                            try: calc(d, boundary_type, calculation_type)
-                            except Exception as e: exit_with_error(e)
-            
-        exec_threads()
+                d.p0 = d.px0 + d.pz0
 
-        for domain in scene.domains:
-            if not domain.is_rigid():
-                def calc(d):
-                    d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
-                    d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
-                    d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
-                    d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
-                if use_threading:
-                    def add(_d):
-                        t = threading.Thread(target=lambda: calc(_d))
-                        threads.append(t)
-                    add(domain)
-                else: calc(domain)
-                
-        exec_threads()
-                
-        # Sum the pressure components
-        for d in scene.domains:
-            d.p0 = d.px0 + d.pz0
-            
-    # Apply pml matrices to boundary domains
-    scene.apply_pml_matrices()
+        # Apply pml matrices to boundary domains
+        scene.apply_pml_matrices()
+
+        for rf,r in zip(receiver_files, scene.receivers):
+            rf.write(struct.pack('f',r.calc()))
+            rf.flush()
+
+        if frame % cfg.save_nth_frame == 0:
+
+            # Handle plotting colour scale and draw
+            if write_plot:
+                pp.set_array(scene.get('p0'))
+                pp.autoscale()
+                m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
+                pp.norm.vmin = -m
+                pp.norm.vmax = m
+
+                temp_fileame = os.path.join(plotdir,'temp.png')
+                image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
+                plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
+                # atomic operation
+                shutil.move(temp_fileame, image_filename)
+
+            if write_array:
+                for d in (_d for _d in scene.domains if not _d.is_pml):
+                    array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
+                    array_file = open(array_filename,'wb')
+                    if visualisation_subsampling > 1:
+                        numpy_array = subsample(d.p0, visualisation_subsampling)
+                    else:
+                        numpy_array = d.p0
+                    pa = array.array('f',numpy_array.flatten(order='F'))
+                    pa.tofile(array_file)
+                    array_file.close()
+
+    if stand_alone:
+        print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+    else:
+        pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
     
-    for rf,r in zip(receiver_files, scene.receivers):
-        rf.write(struct.pack('f',r.calc()))
-        rf.flush()
-        
-    if frame % cfg.save_nth_frame == 0:
-        
-        # Handle plotting colour scale and draw
-        if write_plot:
-            pp.set_array(scene.get('p0'))    
-            pp.autoscale()
-            m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
-            pp.norm.vmin = -m
-            pp.norm.vmax = m
-            
-            temp_fileame = os.path.join(plotdir,'temp.png')
-            image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
-            plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
-            # atomic operation
-            shutil.move(temp_fileame, image_filename)
+    exit()
 
-        if write_array:
-            for d in (_d for _d in scene.domains if not _d.is_pml):
-                array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
-                array_file = open(array_filename,'wb')      
-                if visualisation_subsampling > 1:
-                    numpy_array = subsample(d.p0, visualisation_subsampling)
-                else:
-                    numpy_array = d.p0
-                pa = array.array('f',numpy_array.flatten(order='F'))
-                pa.tofile(array_file)
-                array_file.close()
-
-if stand_alone:
-    print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
 else:
-    pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+	# Loop over time steps
+	for frame in range(int(cfg.TRK)):
+		if stand_alone:
+		    sys.stdout.write("\r%d"%(frame+1))
+		    sys.stdout.flush()
+		
+		# Keep a reference to current matrix contents
+		for d in scene.domains: d.push_values()
+		
+		# Loop over subframes
+		for subframe in range(6):
+		    # Loop over calculation directions and measures
+		    
+		    threads = []
+		    def exec_threads():
+		        global threads
+		        [t.start() for t in threads]
+		        [ t.join() for t in threads]
+		        threads = []
+		    
+		    for boundary_type, calculation_type in [(h,P),(v,P),(h,V),(v,V)]:
+		        # Loop over domains           
+		        for d in scene.domains:
+		            if not d.is_rigid():
+		                # Calculate sound propagations for non-rigid domains
+		                if d.should_update(boundary_type): 
+		                    def calc(domain, bt, ct):
+		                        domain.calc(bt, ct)
+		                    if use_threading:
+		                        def add(_d, _bt, _ct):
+		                            t = threading.Thread(target=lambda: calc(_d, _bt, _ct))
+		                            threads.append(t)
+		                        add(d, boundary_type, calculation_type)
+		                    else:
+		                        try: calc(d, boundary_type, calculation_type)
+		                        except Exception as e: exit_with_error(e)
+		        
+		    exec_threads()
 
-# Exit to prevent the Blender interpreter from processing
-# the subsequent command line arguments.
-exit()
+		    for domain in scene.domains:
+		        if not domain.is_rigid():
+		            def calc(d):
+		                d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
+		                d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
+		                d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
+		                d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
+		            if use_threading:
+		                def add(_d):
+		                    t = threading.Thread(target=lambda: calc(_d))
+		                    threads.append(t)
+		                add(domain)
+		            else: calc(domain)
+		            
+		    exec_threads()
+		            
+		    # Sum the pressure components
+		    for d in scene.domains:
+		        d.p0 = d.px0 + d.pz0
+		        
+		# Apply pml matrices to boundary domains
+		scene.apply_pml_matrices()
+		
+		for rf,r in zip(receiver_files, scene.receivers):
+		    rf.write(struct.pack('f',r.calc()))
+		    rf.flush()
+		    
+		if frame % cfg.save_nth_frame == 0:
+		    
+		    # Handle plotting colour scale and draw
+		    if write_plot:
+		        pp.set_array(scene.get('p0'))    
+		        pp.autoscale()
+		        m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
+		        pp.norm.vmin = -m
+		        pp.norm.vmax = m
+		        
+		        temp_fileame = os.path.join(plotdir,'temp.png')
+		        image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
+		        plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
+		        # atomic operation
+		        shutil.move(temp_fileame, image_filename)
+
+		    if write_array:
+		        for d in (_d for _d in scene.domains if not _d.is_pml):
+		            array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
+		            array_file = open(array_filename,'wb')      
+		            if visualisation_subsampling > 1:
+		                numpy_array = subsample(d.p0, visualisation_subsampling)
+		            else:
+		                numpy_array = d.p0
+		            pa = array.array('f',numpy_array.flatten(order='F'))
+		            pa.tofile(array_file)
+		            array_file.close()
+
+	if stand_alone:
+		print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+	else:
+		pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+
+	# Exit to prevent the Blender interpreter from processing
+	# the subsequent command line arguments.
+	exit()
