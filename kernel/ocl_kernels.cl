@@ -26,6 +26,10 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#if __OPENCL_VERSION__ <= CL_VERSION_1_1
+    #pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#endif
+
 __kernel void derifact_multiplication(__global double *matr, __global double *mati,
                                       __global double *vecr, __global double *veci,
                                       const int fftlen, const int fftnum) {
