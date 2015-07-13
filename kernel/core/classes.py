@@ -384,7 +384,7 @@ class Domain(object):
 
     # Like in pstd.py, this is split from calc(~) to avoid spaghetti code
     # It could be integrated without too much trouble, but this saves some debugging for now
-    def calc_cuda(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, dest = None):
+    def calc_cuda(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, use_32bit, dest = None):
 
         # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
         # sys.stdout.write(str)
@@ -479,7 +479,7 @@ class Domain(object):
                 matrix2_offset = domain2.topleft.x
                 matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
 
-            matrix = spatderp3_cuda(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,stream,plan_set,g_bufl,mulfunc)
+            matrix = spatderp3_cuda(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,stream,plan_set,g_bufl,mulfunc,use_32bit)
 
             if bt == BoundaryType.HORIZONTAL:
                 source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
@@ -488,9 +488,9 @@ class Domain(object):
 
         return source
 
-    def calc_ocl(self, bt, ct, context, queue, plan_set, g_bufl, mulfunc, dest = None):
+    def calc_ocl(self, bt, ct, context, queue, plan_set, g_bufl, mulfunc, use_32bit, dest = None):
         
-		# Find the input matrices
+        # Find the input matrices
         domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
         domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
 
@@ -581,7 +581,7 @@ class Domain(object):
                 matrix2_offset = domain2.topleft.x
                 matrix2_indexed = matrix2[:,range_start-matrix2_offset:range_end-matrix2_offset]
 
-            matrix = spatderp3_ocl(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,queue,plan_set,g_bufl,mulfunc)
+            matrix = spatderp3_ocl(matrix0_indexed,kc,self.cfg.Wlength,self.cfg.A,primary_dimension,secundary_dimension,nearest_2power(Ntot),rmat,matrix1_indexed,matrix2_indexed,a,b,context,queue,plan_set,g_bufl,mulfunc,use_32bit)
 
             if bt == BoundaryType.HORIZONTAL:
                 source[range_start-matrix0_offset:range_end-matrix0_offset,:] = matrix
