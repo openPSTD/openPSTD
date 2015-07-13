@@ -132,6 +132,8 @@ class SettingsPanel(bpy.types.Panel):
             row.prop(scene, "pstd_cfl_number")
             row = layout.row(align=True)
             row.prop(scene, "pstd_enable_gpu")
+            if scene.pstd_enable_gpu:
+                row.prop(scene, "pstd_enable_32bit")
             row = layout.row(align=True)
             row.prop(scene, "pstd_enable_only_nth")
             if scene.pstd_enable_only_nth:

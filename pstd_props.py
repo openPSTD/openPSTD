@@ -132,6 +132,12 @@ def apply():
         default=False
     )
 
+    bpy.types.Scene.pstd_enable_32bit = bpy.props.BoolProperty(
+        name="Use 32 bit",
+        description="Faster, at some expense of accuracy. Not all GPUs support 64 bit computation - this option might be necessary.",
+        default=False
+    )
+
     bpy.types.Scene.pstd_enable_only_nth = bpy.props.BoolProperty(
         name="Save every nth",
         description="Save every nth",

@@ -140,6 +140,10 @@ def run(op, context):
             'tfactRK':  scn.pstd_cfl_number,
             'GPU':      scn.pstd_enable_gpu,
         })
+        if scn.pstd_enable_gpu:
+            pstd_scene.update({
+                'use_32bit': scn.pstd_enable_32bit
+            })
         if scn.pstd_enable_only_nth:
             pstd_scene.update({
                 'save_nth_frame': scn.pstd_only_nth
