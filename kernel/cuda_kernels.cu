@@ -1,11 +1,37 @@
-#include <stdio.h>
+    //////////////////////////////////////////////////////////////////////////
+    // This file is part of openPSTD.                                       //
+    //                                                                      //
+    // openPSTD is free software: you can redistribute it and/or modify     //
+    // it under the terms of the GNU General Public License as published by //
+    // the Free Software Foundation, either version 3 of the License, or    //
+    // (at your option) any later version.                                  //
+    //                                                                      //
+    // openPSTD is distributed in the hope that it will be useful,          //
+    // but WITHOUT ANY WARRANTY; without even the implied warranty of       //
+    // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        //
+    // GNU General Public License for more details.                         //
+    //                                                                      //
+    // You should have received a copy of the GNU General Public License    //
+    // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+    //                                                                      //
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // 
+    // File: cuda_kernels.cu
+    // Author: Louis van Harten
+    // Purpose: 
+    //     Contains 64-bit version of the Cuda kernels used in the GPU
+    //     acceleration of the spatial derivatives needed in the PSTD method.
+    //
+    //////////////////////////////////////////////////////////////////////////
+
 __global__ void derifact_multiplication(double *matr, double *mati, double *vecr, double *veci, int fftlen, int fftnum)
 {
     int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
     int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
     int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
-    //printf("Block(x,y): (%d,%d). Thread(x,y): (%d,%d)\\n",blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
     // if N1%16>0, we're starting too many threads.
     // There is probably a better way to do this, but just eating the surplus should work.
     if (matindex < fftlen*fftnum) {
@@ -43,7 +69,6 @@ __global__ void pressure_window_multiplication(double *mr, double *mi, double *A
         } else {
             mr[matindex] = 0; //zero padding
         }
-        //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
     }
 }
 
@@ -71,6 +96,5 @@ __global__ void velocity_window_multiplication(double *mr, double *mi, double *A
         } else {
             mr[matindex] = 0; //zero padding
         }
-        //if(mr[matindex]==0 && matindex < 50) printf("zero at:%d\\n",matindex%fftlen);
     }
 }

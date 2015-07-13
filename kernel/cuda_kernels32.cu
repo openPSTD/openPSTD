@@ -18,42 +18,42 @@
 
     //////////////////////////////////////////////////////////////////////////
     // 
-    // File: ocl_kernels.cl
+    // File: cuda_kernels32.cu
     // Author: Louis van Harten
     // Purpose: 
-    //     Contains 64-bit version of the OpenCL kernels used in the GPU
+    //     Contains 32-bit version of the Cuda kernels used in the GPU
     //     acceleration of the spatial derivatives needed in the PSTD method.
     //
     //////////////////////////////////////////////////////////////////////////
-
-__kernel void derifact_multiplication(__global double *matr, __global double *mati, __global double *vecr, __global double *veci, const int fftlen, const int fftnum)
+    
+__global__ void derifact_multiplication(float *matr, float *mati, float *vecr, float *veci, int fftlen, int fftnum)
 {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
+    int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
     int matindex = index_y*fftlen+index_x; //mat should be a contiguous array
     // if N1%16>0, we're starting too many threads.
     // There is probably a better way to do this, but just eating the surplus should work.
     if (matindex < fftlen*fftnum) {
-        double matreal = matr[matindex];
-        double matimag = mati[matindex];
-        double vecreal = vecr[index_x];
-        double vecimag = veci[index_x];
+        float matreal = matr[matindex];
+        float matimag = mati[matindex];
+        float vecreal = vecr[index_x];
+        float vecimag = veci[index_x];
 
         matr[matindex] = matreal*vecreal - matimag*vecimag;
         mati[matindex] = matreal*vecimag + matimag*vecreal;
     }
 }
 
-__kernel void pressure_window_multiplication(__global double *mr, __global double *mi, __global double *A, __global double *p1, __global double *p2, __global double *p3, const int winlen, const int Ns1, const int Ns2, const int Ns3, const int fftlen, const int fftnum, const double R21, const double R00, const double R31, const double R10)
+__global__ void pressure_window_multiplication(float *mr, float *mi, float *A, float *p1, float *p2, float *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, float R21, float R00, float R31, float R10) //passing a few by value seems to be more efficient than building an array first in pycuda
 {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
+    int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
     if (index_y < fftnum) { //eat the surplus
         int matindex = index_y*fftlen+index_x;
 
-        double G = 1;
+        float G = 1;
         if (index_x < winlen) {
             G = A[index_x];
         } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
@@ -72,15 +72,15 @@ __kernel void pressure_window_multiplication(__global double *mr, __global doubl
     }
 }
 
-__kernel void velocity_window_multiplication(__global double *mr, __global double *mi, __global double *A, __global double *p1, __global double *p2, __global double *p3, const int winlen, const int Ns1, const int Ns2, const int Ns3, const int fftlen, const int fftnum, const double R21, const double R00, const double R31, const double R10)
+__global__ void velocity_window_multiplication(float *mr, float *mi, float *A, float *p1, float *p2, float *p3, int winlen, int Ns1, int Ns2, int Ns3, int fftlen, int fftnum, float R21, float R00, float R31, float R10) //passing a few by value seems to be more efficient than building an array first in pycuda
 {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = blockIdx.x*blockDim.x + threadIdx.x; 
+    int index_y = blockIdx.y*blockDim.y + threadIdx.y;
 
     if (index_y < fftnum) { //eat the surplus
         int matindex = index_y*fftlen+index_x;
 
-        double G = 1;
+        float G = 1;
         if (index_x < winlen) {
             G = A[index_x];
         } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {

@@ -18,15 +18,15 @@
 
     //////////////////////////////////////////////////////////////////////////
     // 
-    // File: ocl_kernels.cl
+    // File: ocl_kernels32.cl
     // Author: Louis van Harten
     // Purpose: 
-    //     Contains 64-bit version of the OpenCL kernels used in the GPU
+    //     Contains 32-bit version of the OpenCL kernels used in the GPU
     //     acceleration of the spatial derivatives needed in the PSTD method.
     //
     //////////////////////////////////////////////////////////////////////////
-
-__kernel void derifact_multiplication(__global double *matr, __global double *mati, __global double *vecr, __global double *veci, const int fftlen, const int fftnum)
+    
+__kernel void derifact_multiplication(__global float *matr, __global float *mati, __global float *vecr, __global float *veci, const int fftlen, const int fftnum)
 {
     int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
     int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
@@ -35,17 +35,17 @@ __kernel void derifact_multiplication(__global double *matr, __global double *ma
     // if N1%16>0, we're starting too many threads.
     // There is probably a better way to do this, but just eating the surplus should work.
     if (matindex < fftlen*fftnum) {
-        double matreal = matr[matindex];
-        double matimag = mati[matindex];
-        double vecreal = vecr[index_x];
-        double vecimag = veci[index_x];
+        float matreal = matr[matindex];
+        float matimag = mati[matindex];
+        float vecreal = vecr[index_x];
+        float vecimag = veci[index_x];
 
         matr[matindex] = matreal*vecreal - matimag*vecimag;
         mati[matindex] = matreal*vecimag + matimag*vecreal;
     }
 }
 
-__kernel void pressure_window_multiplication(__global double *mr, __global double *mi, __global double *A, __global double *p1, __global double *p2, __global double *p3, const int winlen, const int Ns1, const int Ns2, const int Ns3, const int fftlen, const int fftnum, const double R21, const double R00, const double R31, const double R10)
+__kernel void pressure_window_multiplication(__global float *mr, __global float *mi, __global float *A, __global float *p1, __global float *p2, __global float *p3, const int winlen, const int Ns1, const int Ns2, const int Ns3, const int fftlen, const int fftnum, const float R21, const float R00, const float R31, const float R10)
 {
     int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
     int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
@@ -53,7 +53,7 @@ __kernel void pressure_window_multiplication(__global double *mr, __global doubl
     if (index_y < fftnum) { //eat the surplus
         int matindex = index_y*fftlen+index_x;
 
-        double G = 1;
+        float G = 1;
         if (index_x < winlen) {
             G = A[index_x];
         } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
@@ -72,7 +72,7 @@ __kernel void pressure_window_multiplication(__global double *mr, __global doubl
     }
 }
 
-__kernel void velocity_window_multiplication(__global double *mr, __global double *mi, __global double *A, __global double *p1, __global double *p2, __global double *p3, const int winlen, const int Ns1, const int Ns2, const int Ns3, const int fftlen, const int fftnum, const double R21, const double R00, const double R31, const double R10)
+__kernel void velocity_window_multiplication(__global float *mr, __global float *mi, __global float *A, __global float *p1, __global float *p2, __global float *p3, const int winlen, const int Ns1, const int Ns2, const int Ns3, const int fftlen, const int fftnum, const float R21, const float R00, const float R31, const float R10)
 {
     int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
     int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
@@ -80,7 +80,7 @@ __kernel void velocity_window_multiplication(__global double *mr, __global doubl
     if (index_y < fftnum) { //eat the surplus
         int matindex = index_y*fftlen+index_x;
 
-        double G = 1;
+        float G = 1;
         if (index_x < winlen) {
             G = A[index_x];
         } else if (index_x > winlen+Ns2-1 && index_x < winlen*2+Ns2) {
