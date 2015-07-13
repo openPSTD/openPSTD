@@ -129,7 +129,7 @@ dx = dz = scene_desc['grid_spacing']
 
 
 # Check if Cuda/OpenCL is available 
-use_cuda = use_opencl = False
+use_cuda = use_opencl = use_32bit = False
 if scene_desc['GPU']:
     try:
         import pycuda.driver as cuda
@@ -412,7 +412,10 @@ elif use_opencl:
         abs_file_path = os.path.join(script_dir, filename)
         src_file = open(abs_file_path, 'r')
 
-    kernelcode = cl.Program(context, src_file.read()).build()
+    try:
+        kernelcode = cl.Program(context, src_file.read()).build()
+    except:
+        exit_with_error("64 bit OpenCL compilation failed. Make sure your OpenCL device supports 64 bit computation.")
     
     mulfunc = {}
     mulfunc["pres_window"] = cl.Kernel(kernelcode, "pressure_window_multiplication")
