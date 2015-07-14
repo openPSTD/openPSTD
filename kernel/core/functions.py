@@ -188,10 +188,13 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         G = np.ones((N1,size123))
         G[0:N1,0:np.around(Wlength)] = np.ones((N1,1))*A[0:np.around(Wlength)].transpose()
         G[0:N1,np.around(Wlength)+Ns2:size123] = np.ones((N1,1))*A[np.around(Wlength)+1:np.around(2*Wlength)+1].transpose()
-        Ktemp = fft(np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
+        catemp = np.concatenate((Rmatrix[2,1]*p1[:,Ns1-Wlength:Ns1]+Rmatrix[0,0]*p2[:,Wlength-1::-1], \
                                  p2[:,0:Ns2], \
-                                 Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G,int(N2), axis=1)
-        Ltemp = ifft((np.ones((N1,1))*derfact[0:N2]*Ktemp),int(N2), axis=1)
+                                 Rmatrix[3,1]*p3[:,0:Wlength]+Rmatrix[1,0]*p2[:,Ns2-1:Ns2-Wlength-1:-1]), axis=1)*G
+        Ktemp = fft(catemp,int(N2), axis=1)
+        Ktemp_der = (np.ones((N1,1))*derfact[0:N2]*Ktemp)
+        
+        Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
  
@@ -214,16 +217,439 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     return Lp
 
-def do_assert(*args):
-    for i in range(0,len(args),2):
-        # print i
-        if not array_equal(args[i], args[i+1]):
-            print(args[i])
-            print(" !=")
-            print(args[i+1])
-            raise AssertionError
-    # print "Assertion succeeded"
-            
+def spatderp3_cuda(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufl,mulfunc,use_32bit):
+    # equivalent of spatderp3(~)
+    # derfact = factor to compute derivative in wavenumber domain
+    # Wlength = length of window function
+    # A = window function
+    # Ns2 = number of pressure nodes in subdomain 2
+    # N1 = # of ffts that are applied
+    # N2 = dimension of the ffts
+    # Rmatrix = matrix of reflection coefficients
+    # p1 = variable matrix subdomain 1
+    # p3 = variable matrix subdomain 1
+    # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity 
+    # direct = direction for computation of derivative: 0,1 for z, x direction respectively
+    import pycuda.driver as cuda
+    
+    if use_32bit:
+        if 4*N1*int(N2) > g_bufl["m_size"]:
+            g_bufl["mr"] = cuda.mem_alloc(int(4*N1*int(N2)))
+            g_bufl["mi"] = cuda.mem_alloc(int(4*N1*int(N2)))
+            g_bufl["m1"] = cuda.mem_alloc(int(4*N1*int(N2)))
+            g_bufl["m2"] = cuda.mem_alloc(int(4*N1*int(N2)))
+            g_bufl["m3"] = cuda.mem_alloc(int(4*N1*int(N2)))
+            g_bufl["m_size"] = int(4*N1*int(N2))
+
+        if 4*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
+            g_bufl["dr"] = cuda.mem_alloc(np.maximum(4*int(N2),A.size))
+            g_bufl["di"] = cuda.mem_alloc(np.maximum(4*int(N2),A.size))
+            g_bufl["d_size"] = np.maximum(4*int(N2),A.size)
+
+        if str(int(N2)) not in plan_set.keys():
+            from pyfft.cuda import Plan
+            plan_set[str(int(N2))] = Plan(int(N2), dtype=np.float32, context=context, stream=stream, fast_math=False)
+
+        Ns1 = np.size(p1, axis=direct)
+        Ns3 = np.size(p3, axis=direct)
+
+        p1 = p1.astype(np.float32)
+        p2 = p2.astype(np.float32)
+        p3 = p3.astype(np.float32)
+        A = A.astype(np.float32)
+        derfact = derfact.astype(np.complex64)
+        Rmatrix = Rmatrix.astype(np.float32)
+
+        if direct == 0: # transpose variables to compute derivative in right direction
+            p1 = p1.transpose()
+            p2 = p2.transpose()
+            p3 = p3.transpose()
+
+        if var == 0: # pressure nodes: calculation for variable node staggered with boundary
+
+            #prepare data needed for applying window function
+            cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
+            cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
+            cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(np.maximum(nearest_2power(N1)/blksize, 1))
+
+            mulfunc["pres_window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float32(Rmatrix[2,1]), \
+                np.float32(Rmatrix[0,0]), np.float32(Rmatrix[3,1]), np.float32(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
+            cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float32)
+            cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
+
+            #Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+            Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
+
+        elif var > 0: # velocity node: calculation for variable node collocated with boundary
+
+            #prepare data needed for applying window function
+            cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
+            cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
+            cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(nearest_2power(N1)/blksize)
+
+            mulfunc["velo_window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float32(Rmatrix[2,1]), \
+                np.float32(Rmatrix[0,0]), np.float32(Rmatrix[3,1]), np.float32(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
+            cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float32)
+            cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
+
+            Lp = Ltemp[:,Wlength:Wlength+Ns2-1]
+
+        if direct == 0: # transpose Lp to get variables in right direction
+            Lp = Lp.transpose()
+
+        return Lp
+
+    else:
+        if 8*N1*int(N2) > g_bufl["m_size"]:
+            g_bufl["mr"] = cuda.mem_alloc(int(8*N1*int(N2)))
+            g_bufl["mi"] = cuda.mem_alloc(int(8*N1*int(N2)))
+            g_bufl["m1"] = cuda.mem_alloc(int(8*N1*int(N2)))
+            g_bufl["m2"] = cuda.mem_alloc(int(8*N1*int(N2)))
+            g_bufl["m3"] = cuda.mem_alloc(int(8*N1*int(N2)))
+            g_bufl["m_size"] = int(8*N1*int(N2))
+
+        if 8*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
+            g_bufl["dr"] = cuda.mem_alloc(np.maximum(8*int(N2),A.size))
+            g_bufl["di"] = cuda.mem_alloc(np.maximum(8*int(N2),A.size))
+            g_bufl["d_size"] = np.maximum(8*int(N2),A.size)
+
+        if str(int(N2)) not in plan_set.keys():
+            from pyfft.cuda import Plan
+            plan_set[str(int(N2))] = Plan(int(N2), dtype=np.float64, context=context, stream=stream, fast_math=False)
+
+        Ns1 = np.size(p1, axis=direct)
+        Ns3 = np.size(p3, axis=direct)
+
+        if direct == 0: # transpose variables to compute derivative in right direction
+            p1 = p1.transpose()
+            p2 = p2.transpose()
+            p3 = p3.transpose()
+
+        if var == 0: # pressure nodes: calculation for variable node staggered with boundary
+
+            #prepare data needed for applying window function
+            cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
+            cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
+            cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(np.maximum(nearest_2power(N1)/blksize, 1))
+
+            mulfunc["pres_window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
+                np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
+            cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float64)
+            cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
+
+            #Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+            Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
+
+        elif var > 0: # velocity node: calculation for variable node collocated with boundary
+
+            #prepare data needed for applying window function
+            cuda.memcpy_htod(g_bufl["m1"], np.ravel(p1))
+            cuda.memcpy_htod(g_bufl["m2"], np.ravel(p2))
+            cuda.memcpy_htod(g_bufl["m3"], np.ravel(p3))
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(nearest_2power(N1)/blksize)
+
+            mulfunc["velo_window"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
+                np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cuda.memcpy_htod(g_bufl["dr"], np.ravel(derfact.real))
+            cuda.memcpy_htod(g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), block=(blksize,blksize,1), grid=(grdx,grdy))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float64)
+            cuda.memcpy_dtoh(Ltemp, g_bufl["mr"])
+
+            Lp = Ltemp[:,Wlength:Wlength+Ns2-1]
+
+        if direct == 0: # transpose Lp to get variables in right direction
+            Lp = Lp.transpose()
+
+        return Lp
+
+#@profile
+def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,queue,plan_set,g_bufl,mulfunc,use_32bit):
+    # equivalent of spatderp3(~)
+    # derfact = factor to compute derivative in wavenumber domain
+    # Wlength = length of window function
+    # A = window function
+    # Ns2 = number of pressure nodes in subdomain 2
+    # N1 = # of ffts that are applied
+    # N2 = dimension of the ffts
+    # Rmatrix = matrix of reflection coefficients
+    # p1 = variable matrix subdomain 1
+    # p3 = variable matrix subdomain 1
+    # var = variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity 
+    # direct = direction for computation of derivative: 0,1 for z, x direction respectively
+    import pyopencl as cl
+
+    if use_32bit:
+        if 4*N1*int(N2) > g_bufl["m_size"]:
+            mf = cl.mem_flags
+            g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=4*N1*int(N2))
+            g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=4*N1*int(N2))
+            g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=4*N1*int(N2))
+            g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=4*N1*int(N2))
+            g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=4*N1*int(N2))
+            g_bufl["m_size"] = int(4*N1*int(N2))
+
+        if 4*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
+            mf = cl.mem_flags
+            g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=np.maximum(4*int(N2),A.size))
+            g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=np.maximum(4*int(N2),A.size))
+            g_bufl["d_size"] = np.maximum(4*int(N2),A.size)
+
+        if str(int(N2)) not in plan_set.keys():
+            from pyfft.cl import Plan
+            plan_set[str(int(N2))] = Plan(int(N2), dtype=np.float32, context=context, fast_math=False)
+
+        Ns1 = np.size(p1, axis=direct)
+        Ns3 = np.size(p3, axis=direct)
+
+        p1 = p1.astype(np.float32)
+        p2 = p2.astype(np.float32)
+        p3 = p3.astype(np.float32)
+        A = A.astype(np.float32)
+        derfact = derfact.astype(np.complex64)
+        Rmatrix = Rmatrix.astype(np.float32)
+
+        if direct == 0: # transpose variables to compute derivative in right direction
+            p1 = p1.transpose()
+            p2 = p2.transpose()
+            p3 = p3.transpose()
+
+        if var == 0: # pressure nodes: calculation for variable node staggered with boundary
+
+            #prepare data needed for applying window function
+            cl.enqueue_copy(queue, g_bufl["m1"], np.ravel(p1))
+            cl.enqueue_copy(queue, g_bufl["m2"], np.ravel(p2))
+            cl.enqueue_copy(queue, g_bufl["m3"], np.ravel(p3))
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(np.maximum(nearest_2power(N1)/blksize, 1))
+
+            mulfunc["pres_window"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float32(Rmatrix[2,1]), \
+                np.float32(Rmatrix[0,0]), np.float32(Rmatrix[3,1]), np.float32(Rmatrix[1,0]))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
+            cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float32)
+            cl.enqueue_copy(queue, Ltemp, g_bufl["mr"])
+
+            #Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+            Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
+
+        elif var > 0: # velocity node: calculation for variable node collocated with boundary
+
+            #prepare data needed for applying window function
+            cl.enqueue_copy(queue, g_bufl["m1"], np.ravel(p1))
+            cl.enqueue_copy(queue, g_bufl["m2"], np.ravel(p2))
+            cl.enqueue_copy(queue, g_bufl["m3"], np.ravel(p3))
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(nearest_2power(N1)/blksize)
+
+            mulfunc["velo_window"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float32(Rmatrix[2,1]), \
+                np.float32(Rmatrix[0,0]), np.float32(Rmatrix[3,1]), np.float32(Rmatrix[1,0]))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
+            cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float32)
+            cl.enqueue_copy(queue, Ltemp, g_bufl["mr"])
+
+            Lp = Ltemp[:,Wlength:Wlength+Ns2-1]
+
+        if direct == 0: # transpose Lp to get variables in right direction
+            Lp = Lp.transpose()
+
+        return Lp
+
+    else:
+        if 8*N1*int(N2) > g_bufl["m_size"]:
+            mf = cl.mem_flags
+            g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
+            g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
+            g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
+            g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
+            g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*N1*int(N2))
+            g_bufl["m_size"] = int(8*N1*int(N2))
+
+        if 8*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
+            mf = cl.mem_flags
+            g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=np.maximum(8*int(N2),A.size))
+            g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=np.maximum(8*int(N2),A.size))
+            g_bufl["d_size"] = np.maximum(8*int(N2),A.size)
+
+        if str(int(N2)) not in plan_set.keys():
+            from pyfft.cl import Plan
+            plan_set[str(int(N2))] = Plan(int(N2), dtype=np.float64, context=context, fast_math=False)
+
+        Ns1 = np.size(p1, axis=direct)
+        Ns3 = np.size(p3, axis=direct)
+
+        if direct == 0: # transpose variables to compute derivative in right direction
+            p1 = p1.transpose()
+            p2 = p2.transpose()
+            p3 = p3.transpose()
+
+        if var == 0: # pressure nodes: calculation for variable node staggered with boundary
+
+            #prepare data needed for applying window function
+            cl.enqueue_copy(queue, g_bufl["m1"], np.ravel(p1))
+            cl.enqueue_copy(queue, g_bufl["m2"], np.ravel(p2))
+            cl.enqueue_copy(queue, g_bufl["m3"], np.ravel(p3))
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(np.maximum(nearest_2power(N1)/blksize, 1))
+
+            mulfunc["pres_window"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
+                np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
+            cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float64)
+            cl.enqueue_copy(queue, Ltemp, g_bufl["mr"])
+
+            #Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
+            Lp = Ltemp[:,Wlength:Wlength+Ns2+1]
+
+        elif var > 0: # velocity node: calculation for variable node collocated with boundary
+
+            #prepare data needed for applying window function
+            cl.enqueue_copy(queue, g_bufl["m1"], np.ravel(p1))
+            cl.enqueue_copy(queue, g_bufl["m2"], np.ravel(p2))
+            cl.enqueue_copy(queue, g_bufl["m3"], np.ravel(p3))
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(A))
+
+            blksize = 8
+            grdx = int(N2)/blksize
+            grdy = int(nearest_2power(N1)/blksize)
+
+            mulfunc["velo_window"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+                np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
+                np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]))
+
+            #select the N2 length plan from the set and execute the fft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+
+            cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
+            cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
+
+            mulfunc["derifact"](queue, (grdx,grdy), None, g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1))
+
+            #execute the ifft
+            plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
+
+            Ltemp = np.empty((N1,N2), dtype=np.float64)
+            cl.enqueue_copy(queue, Ltemp, g_bufl["mr"])
+
+            Lp = Ltemp[:,Wlength:Wlength+Ns2-1]
+
+        if direct == 0: # transpose Lp to get variables in right direction
+            Lp = Lp.transpose()
+
+        return Lp
+
 def get_grid_spacing(cnf):
     dxv = np.array([0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.])
     return dxv.compress((dxv<cnf.c1/cnf.freqmax/2.).flat)[-1]
