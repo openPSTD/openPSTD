@@ -24,6 +24,7 @@ import itertools
 import numpy as np
 
 from os.path import commonprefix
+from collections import defaultdict
 
 try:
     import matplotlib.lines as lines
@@ -577,8 +578,10 @@ class Scene(object):
         for d in self.domains: d.calc_rho_matrices()
     def add_pml_domains(self, n = None):
         if n is None: n = self.cfg.PMLcells
-        D = []
-        D2 = []
+        
+        pmls_1st_order = []
+        pmls_2nd_order = []
+        
         for d in self.domains:
             if d.is_pml: continue
             # print d.id + ':'
@@ -586,35 +589,35 @@ class Scene(object):
             for adj in Domain.ADJACENCIES:
                 rs = d.get_detached(adj)
                 # print d.id, adj, rs
-                for idx, range in enumerate(rs):
+                for idx, vacant_range in enumerate(rs):
                     pml_id = "%s_%s"%(d.id, adj)
                     if len(rs) > 1: pml_id += '_%d'%idx
                     a = d.edges[adj[0]]['a']
                     pml_a = max(EPSILON, a)
-                    if adj == 'left'  : pml_offset = Point(-n                     , range[0] - d.topleft.y)
-                    if adj == 'right' : pml_offset = Point( d.size.width          , range[0] - d.topleft.y)
-                    if adj == 'bottom': pml_offset = Point( range[0] - d.topleft.x,-n                     )
-                    if adj == 'top'   : pml_offset = Point( range[0] - d.topleft.x, d.size.height         )
+                    if adj == 'left'  : pml_offset = Point(-n                     , vacant_range[0] - d.topleft.y)
+                    if adj == 'right' : pml_offset = Point( d.size.width          , vacant_range[0] - d.topleft.y)
+                    if adj == 'bottom': pml_offset = Point( vacant_range[0] - d.topleft.x,-n                     )
+                    if adj == 'top'   : pml_offset = Point( vacant_range[0] - d.topleft.x, d.size.height         )
                     
                     if adj == 'left' or adj == 'right':
-                        pml_size = Size(n                  , range[1] - range[0])
+                        pml_size = Size(n                  , vacant_range[1] - vacant_range[0])
                     else:
-                        pml_size = Size(range[1] - range[0], n                  )
+                        pml_size = Size(vacant_range[1] - vacant_range[0], n                  )
                         
                     # Secondary PML domains are only added for primary PML domains that
                     # completely overlap with their AIR domain boundary. Furthermore,
                     # otherwise the PML layer is set to be locally reacting.
                     bt = BoundaryType.ortho(BoundaryType.from_domain_adjacency(adj))
                     if bt == BoundaryType.VERTICAL:
-                        full_overlap = range[0] == d.topleft.x and range[1] == d.bottomright.x
+                        full_overlap = vacant_range[0] == d.topleft.x and vacant_range[1] == d.bottomright.x
                     else:
-                        full_overlap = range[0] == d.topleft.y and range[1] == d.bottomright.y
+                        full_overlap = vacant_range[0] == d.topleft.y and vacant_range[1] == d.bottomright.y
                     
                     pml_domain = Domain(self.cfg, pml_id, pml_a, d.topleft + pml_offset, pml_size, {}, 'pml', [d])
                     
                     if not full_overlap: pml_domain.local = True
                     
-                    D.append(pml_domain)
+                    pmls_1st_order.append(pml_domain)
                     if a > 0 and full_overlap:
                         sec_adjs = set(Domain.ADJACENCIES) - set([adj, Domain.OPPOSITES[adj]])
                         for sec_adj in sec_adjs:
@@ -633,60 +636,58 @@ class Scene(object):
                             if sec_adj == 'bottom': sec_pml_offset = Point( 0                    , -n                     )
                             if sec_adj == 'top'   : sec_pml_offset = Point( 0                    ,  pml_domain.size.height)
                             sec_pml_size = Size(n, n)
-                            D2.append((pml_domain, sec_adj, Domain(self.cfg, sec_pml_id, sec_pml_a, d.topleft + pml_offset + sec_pml_offset, sec_pml_size, {}, 'pml', [pml_domain])))
-        for d in D: self.add_domain(d)
+                            pmls_2nd_order.append((pml_domain, sec_adj, Domain(self.cfg, sec_pml_id, sec_pml_a, d.topleft + pml_offset + sec_pml_offset, sec_pml_size, {}, 'pml', [pml_domain])))
         
-        # Sort the domains according to their top-left position and size.
-        # The sole purpose is to find duplicates in N log N time.
-        def coord_pairs(d1, d2):
-            return [
-                (d1.topleft.x    , d2.topleft.x    ),
-                (d1.topleft.y    , d2.topleft.y    ),
-                (d1.bottomright.x, d2.bottomright.x),
-                (d1.bottomright.y, d2.bottomright.y)
-            ]
-
-        def sort_func(d1t, d2t):
-            d1, d2 = d1t[2], d2t[2]
-            if d1[0].id != d2[0].id:
-                return cmp(d1[0].id, d2[0].id)
-            for a, b in coord_pairs(d1, d2):
-                if a != b: return -1 if a < b else 1
-            return 0
+        for d in pmls_1st_order: self.add_domain(d)
+        
+        # Collect the domains according to their top-left position and size.
+        def corner_points(d):
+            return (
+                (d.topleft.x,     d.topleft.y    ),
+                (d.bottomright.x, d.bottomright.y)
+            )
             
-        def key_func(d):
-            return d[0].id, d[2].topleft.x, d[2].topleft.y, d[2].bottomright.x, d[2].bottomright.y
+        def should_merge_domains(a, b):
+            def find_singular_parent_domain(d):
+                if d is not None and d.is_pml and len(d.pml_for) == 1: return d.pml_for[0]
             
-        D3 = []
-        prev = None
+            A = find_singular_parent_domain(find_singular_parent_domain(a))
+            B = find_singular_parent_domain(find_singular_parent_domain(b))
+            
+            return A is not None and A == B
+            
+        domains_by_cornerpoints = defaultdict(list)
         
-        try: sorted_domains = sorted(D2, sort_func)
-        except: sorted_domains = sorted(D2, key=key_func)
-        
-        for D in sorted_domains:
-            parent, adj, pml_domain = D
+        for parent_domain, adjacency_relation, pml_domain in pmls_2nd_order:
             # Check if the domain for which this domain is a PML layer
             # has been assigned a domain on that edge by now.
-            if getattr(parent, adj): continue
+            if getattr(parent_domain, adjacency_relation):
+                continue
+            domains_by_cornerpoints[corner_points(pml_domain)].append(pml_domain)
             
-            # Check whether it completely overlaps with the previous
-            # entry in the list and whether the domain has the same ancestor
-            if prev is None or \
-               prev[0].pml_for != parent.pml_for or \
-               any([a != b for a, b in coord_pairs(pml_domain, prev[2])]):
-                D3.append(D)
-                prev = D
-            else:
-                # Merge
-                prfx = commonprefix((prev[2].id, pml_domain.id))
-                prev[2].id = prfx + prev[2].id[len(prfx):] + '_' + pml_domain.id[len(prfx):]
-                prev[2].pml_for.append(parent)
-                prev = None
+        pmls_2nd_order[:] = []
+            
+        for domains in domains_by_cornerpoints.values():
+            if len(domains) == 1:
+                pmls_2nd_order.extend(domains)
+                continue
+            processed_domain_idxs = set()
+            for (idx1, domain1), (idx2, domain2) in itertools.combinations(enumerate(domains), 2):
+                if processed_domain_idxs & set((idx1, idx2)):
+                    continue
+                if should_merge_domains(domain1, domain2):
+                    processed_domain_idxs |= set((idx1, idx2))
+                    prfx = commonprefix((domain1.id, domain2.id))
+                    domain1.id = prfx + domain1.id[len(prfx):] + '_' + domain2.id[len(prfx):]
+                    domain1.pml_for.extend(domain2.pml_for)
+                    pmls_2nd_order.append(domain1)
+            for idx in set(range(len(domains))) - processed_domain_idxs:
+                pmls_2nd_order.append(domains[idx])
+                
+        for d in pmls_2nd_order:
+            self.add_domain(d)
         
-        for d1, a, d2 in D3:
-            self.add_domain(d2)
-
-
+        
     def calc_pml_matrices(self):
         for d in self.domains: 
             if d.is_pml: 
