@@ -145,8 +145,8 @@ if scene_desc['GPU']:
             from pyfft.cl import Plan
             use_opencl = True
         except:
-            pass
-    if scene_desc['32bit']:
+            exit_with_error("NEITHER PYCUDA NOR OPENCL AVAILABLE")
+    if scene_desc['use_32bit']:
         use_32bit = True
 
 
@@ -237,9 +237,13 @@ if use_cuda:
     plan_set = {} #will be filled as needed in spatderp3_cuda(~), prefill with 128, 256 and 512
 
     if use_32bit:
-        plan_set[str(128)] = Plan(128, dtype=np.float32, stream=stream, context=context, fast_math=False)
-        plan_set[str(256)] = Plan(256, dtype=np.float32, stream=stream, context=context, fast_math=False)
-        plan_set[str(512)] = Plan(512, dtype=np.float32, stream=stream, context=context, fast_math=False)
+        try:
+            plan_set[str(128)] = Plan(128, dtype=np.float32, stream=stream, context=context, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float32, stream=stream, context=context, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float32, stream=stream, context=context, fast_math=False)
+        except:
+            exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
+                    
         
         g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
         g_bufl["mr"] = cuda.mem_alloc(4*128*128)
@@ -258,10 +262,13 @@ if use_cuda:
         src_file = open(abs_file_path, 'r')
 
     else:
-        plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
-        plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
-        plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
-        
+        try:
+            plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
+        except:
+            exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
+                           
         g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
         g_bufl["mr"] = cuda.mem_alloc(8*128*128)
         g_bufl["mi"] = cuda.mem_alloc(8*128*128)
@@ -286,7 +293,9 @@ if use_cuda:
 
     # Loop over time steps
     for frame in range(int(cfg.TRK)):
-        output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
+        if stand_alone:
+            sys.stdout.write("\r%d"%(frame+1))
+            sys.stdout.flush()
 
         # Keep a reference to current matrix contents
         for d in scene.domains: d.push_values()
@@ -368,10 +377,14 @@ elif use_opencl:
     plan_set = {} #will be filled as needed in spatderp3_ocl(~), prefill with 128, 256 and 512
     
     if use_32bit:
-        plan_set[str(128)] = Plan(128, dtype=np.float32, queue=queue, fast_math=False)
-        plan_set[str(256)] = Plan(256, dtype=np.float32, queue=queue, fast_math=False)
-        plan_set[str(512)] = Plan(512, dtype=np.float32, queue=queue, fast_math=False)
-    
+        try:
+            plan_set[str(128)] = Plan(128, dtype=np.float32, queue=queue, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float32, queue=queue, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float32, queue=queue, fast_math=False)
+        except:
+            #exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
+            pass                    
+
         mf = cl.mem_flags            
         
         g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
@@ -390,10 +403,13 @@ elif use_opencl:
         abs_file_path = os.path.join(script_dir, filename)
         src_file = open(abs_file_path, 'r')
     else:
-        plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
-        plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
-        plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
-    
+        try:
+            plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
+            plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
+            plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
+        except:
+            exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
+                    
         mf = cl.mem_flags            
         
         g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
@@ -425,8 +441,10 @@ elif use_opencl:
 
     # Loop over time steps
     for frame in range(int(cfg.TRK)):
-        output_fn({'status': 'running', 'message': "Calculation frame:%d" % (frame + 1), 'frame': frame + 1})
-
+        if stand_alone:
+            sys.stdout.write("\r%d"%(frame+1))
+            sys.stdout.flush()
+                         
         # Keep a reference to current matrix contents
         for d in scene.domains: d.push_values()
 
