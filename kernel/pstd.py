@@ -237,13 +237,9 @@ if use_cuda:
     plan_set = {} #will be filled as needed in spatderp3_cuda(~), prefill with 128, 256 and 512
 
     if use_32bit:
-        try:
-            plan_set[str(128)] = Plan(128, dtype=np.float32, stream=stream, context=context, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float32, stream=stream, context=context, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float32, stream=stream, context=context, fast_math=False)
-        except:
-            exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
-                    
+        plan_set[str(128)] = Plan(128, dtype=np.float32, stream=stream, context=context, fast_math=False)
+        plan_set[str(256)] = Plan(256, dtype=np.float32, stream=stream, context=context, fast_math=False)
+        plan_set[str(512)] = Plan(512, dtype=np.float32, stream=stream, context=context, fast_math=False)
         
         g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
         g_bufl["mr"] = cuda.mem_alloc(4*128*128)
@@ -262,12 +258,9 @@ if use_cuda:
         src_file = open(abs_file_path, 'r')
 
     else:
-        try:
-            plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
-        except:
-            exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
+        plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
+        plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
+        plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
                            
         g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
         g_bufl["mr"] = cuda.mem_alloc(8*128*128)
@@ -377,13 +370,9 @@ elif use_opencl:
     plan_set = {} #will be filled as needed in spatderp3_ocl(~), prefill with 128, 256 and 512
     
     if use_32bit:
-        try:
-            plan_set[str(128)] = Plan(128, dtype=np.float32, queue=queue, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float32, queue=queue, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float32, queue=queue, fast_math=False)
-        except:
-            #exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
-            pass                    
+        plan_set[str(128)] = Plan(128, dtype=np.float32, queue=queue, fast_math=False)
+        plan_set[str(256)] = Plan(256, dtype=np.float32, queue=queue, fast_math=False)
+        plan_set[str(512)] = Plan(512, dtype=np.float32, queue=queue, fast_math=False)
 
         mf = cl.mem_flags            
         
@@ -403,12 +392,9 @@ elif use_opencl:
         abs_file_path = os.path.join(script_dir, filename)
         src_file = open(abs_file_path, 'r')
     else:
-        try:
-            plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
-        except:
-            exit_with_error("PyFFT encountered an error (maybe python2.7 wasn't available)")
+        plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
+        plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
+        plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
                     
         mf = cl.mem_flags            
         
