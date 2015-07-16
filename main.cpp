@@ -1,11 +1,12 @@
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <Python.h>
 #include <string>
 #include <fstream>
-#include <streambuf>
 #include "kernel/ConsoleOutput.h"
 
-using namespace std;
+
+namespace po = boost::program_options;
 
 void OutputPythonHomeAndPath()
 {
@@ -31,8 +32,64 @@ void OutputPythonHomeAndPath()
 
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
+    po::variables_map vm;
+
+    try
+    {
+        po::options_description desc("Allowed options");
+        desc.add_options()
+                ("help,H", "produce help message")
+                ("scene-file,F", po::value<std::string>(), "The scene file that has to be used (required)")
+                ("multithreaded,M", "use the multi-threaded solver (mutually exclusive with gpu accelerated)")
+                ("gpu-accelerated,G", "Use the gpu for the calculations (mutually exclusive with multithreaded)")
+                ("write-plot,P", "Plots are written to the output directory")
+                ("write-array,A", "Arrays are written to the output directory")
+                ;
+
+        po::positional_options_description p;
+        p.add("scene-file", -1);
+
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+
+        if (vm.count("scene-file") == 0)
+        {
+            std::cerr << "scene file is required" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        if(vm.count("multithreaded")>0 && vm.count("gpu-accelerated")>0)
+        {
+            std::cerr << "multithreaded and gpu accelerated options are mutually exclusive" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        if(vm.count("write-plot")==0 && vm.count("write-array")==0)
+        {
+            std::cout << "Warning: there is no output written" << std::endl;
+        }
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << "error: " << e.what() << "\n";
+        return 1;
+    }
+    catch(...)
+    {
+        std::cerr << "Exception of unknown type!\n";
+        return 1;
+    }
+
     OutputPythonHomeAndPath();
 
     std::string str;
@@ -64,22 +121,22 @@ int main(int argc, char *argv[])
     PyObject* global_dict = PyModule_GetDict(main_module);
     PyObject* local_dict = PyDict_New();
 
-    PyObject* sceneFile = PyUnicode_FromString("emptyFile.jps");
-    PyObject* multi_threaded = PyBool_FromLong(false);
-    PyObject* gpu_accelerated = PyBool_FromLong(false);
-    PyObject* write_plot = PyBool_FromLong(false);
-    PyObject* write_array = PyBool_FromLong(false);
-    PyDict_SetItemString(local_dict, "scene_file", sceneFile);
-    PyDict_SetItemString(local_dict, "multi_threaded", multi_threaded);
-    PyDict_SetItemString(local_dict, "gpu_accelerated", gpu_accelerated);
-    PyDict_SetItemString(local_dict, "write_plot", write_plot);
-    PyDict_SetItemString(local_dict, "write_array", write_array);
+    PyObject* pySceneFile = PyUnicode_FromString(vm["scene-file"].as<std::string>().c_str());
+    PyObject* pyMulti_threaded = PyBool_FromLong(vm.count("multithreaded")>0);
+    PyObject* pyGpu_accelerated = PyBool_FromLong(vm.count("gpu-accelerated")>0);
+    PyObject* pyWrite_plot = PyBool_FromLong(vm.count("write-plot")>0);
+    PyObject* pyWrite_array = PyBool_FromLong(vm.count("write-array")>0);
+    PyDict_SetItemString(local_dict, "scene_file", pySceneFile);
+    PyDict_SetItemString(local_dict, "multi_threaded", pyMulti_threaded);
+    PyDict_SetItemString(local_dict, "gpu_accelerated", pyGpu_accelerated);
+    PyDict_SetItemString(local_dict, "write_plot", pyWrite_plot);
+    PyDict_SetItemString(local_dict, "write_array", pyWrite_array);
 
-    Py_DECREF(sceneFile);
-    Py_DECREF(multi_threaded);
-    Py_DECREF(gpu_accelerated);
-    Py_DECREF(write_plot);
-    Py_DECREF(write_array);
+    Py_DECREF(pySceneFile);
+    Py_DECREF(pyMulti_threaded);
+    Py_DECREF(pyGpu_accelerated);
+    Py_DECREF(pyWrite_plot);
+    Py_DECREF(pyWrite_array);
 
     auto result = PyRun_String(str.c_str(), Py_file_input, global_dict, local_dict);
     //Check for system exit exception

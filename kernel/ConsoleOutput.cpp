@@ -22,8 +22,8 @@ static PyObject* ConsoleOutput_func(PyObject *self, PyObject *args, PyObject *ke
 
     if(strcmp(status, "error") == 0)
     {
-        std::cout << "Error encountered while running OpenPSTD:" << std::endl;
-        std::cout << message << std::endl;
+        std::cerr << "Error encountered while running OpenPSTD:" << std::endl;
+        std::cerr << message << std::endl;
     }
     else if(strcmp(status, "starting") == 0)
     {
