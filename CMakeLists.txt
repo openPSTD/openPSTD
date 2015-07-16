@@ -1,0 +1,101 @@
+cmake_minimum_required(VERSION 3.1)
+project(OpenPSTD)
+
+#------------------------------------
+# configuration options in the cache
+set(PYTHON_LIBRARY "" CACHE PATH "The library of python 3.4, empty then it does autodetect")
+set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then it does autodetect")
+set(BOOST_ROOT "" CACHE PATH "The boost root directory")
+set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
+
+#------------------------------------
+# Python
+find_package(PythonLibs)
+message(STATUS "Python found: ${PYTHONLIBS_FOUND}")
+message(STATUS "Python lib path: ${PYTHON_LIBRARIES}")
+message(STATUS "Python include path: ${PYTHON_INCLUDE_DIRS}")
+message(STATUS "Python version: ${PYTHONLIBS_VERSION_STRING}")
+
+if(NOT PYTHONLIBS_FOUND)
+   message( FATAL_ERROR "Missing Python Libs." )
+endif()
+
+#------------------------------------
+# BOOST
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_DEBUG_RUNTIME OFF)
+
+message(STATUS "Boost root hint: ${BOOST_ROOT}")
+find_package(Boost 1.58.0 REQUIRED python3)
+#find_package(Boost 1.58.0 COMPONENTS date_time)
+message(STATUS "Boost found: ${Boost_FOUND}")
+message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
+message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost version: ${Boost_VERSION}")
+message(STATUS "Boost libs: ${Boost_LIBRARIES}")
+
+if(NOT Boost_FOUND)
+  message(FATAL_ERROR "Missing Boost Libs.")
+endif()
+
+#------------------------------------
+# QT5
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#set(CMAKE_AUTOMOC ON)
+
+#function for easy loading Qt modules
+set(Qt5_CMAKE "lib\\cmake")
+set(Qt5_FIRST 1)
+set(Qt5_FOUND 0)
+macro(loadQtPackage QtModule)
+    set(${QtModule}_DIR "${Qt5_DIR}\\${Qt5_CMAKE}\\${QtModule}")
+    message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
+    find_package(${QtModule})
+    if(Qt5_FIRST)
+        set(Qt5_FIRST 0)
+        set(Qt5_FOUND 1)
+    endif()
+
+    if(Qt5_FOUND AND ${${QtModule}_FOUND})
+        set(Qt5_FOUND 1)
+    else()
+        set(Qt5_FOUND 0)
+    endif()
+    set(Qt5_LIBRARIES "${Qt5_LIBRARIES}${${QtModule}_LIBRARIES};")
+    set(Qt5_INCLUDE_DIRS "${Qt5_INCLUDE_DIRS}${${QtModule}_INCLUDE_DIRS};")
+    set(Qt5_VERSION_STRING "${${QtModule}_VERSION_STRING}")
+endmacro(loadQtPackage)
+
+loadQtPackage(Qt5Widgets)
+loadQtPackage(Qt5Core)
+
+message(STATUS "Qt5 found: ${Qt5_FOUND}")
+message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES}")
+message(STATUS "Qt5 include path: ${Qt5_INCLUDE_DIRS}")
+message(STATUS "Qt5 version: ${Qt5_VERSION_STRING}")
+
+if(NOT Qt5Widgets_FOUND)
+  message( FATAL_ERROR "Missing Qt5 Libs." )
+endif()
+
+#------------------------------------
+# include directories
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIR})
+include_directories(${Qt5_INCLUDE_DIRS})
+
+#------------------------------------
+# Source files
+set(SOURCE_FILES main.cpp kernel/ConsoleOutput.cpp)
+
+#------------------------------------
+# Compiling
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+add_executable(OpenPSTD ${SOURCE_FILES})
+
+#------------------------------------
+# Static libraries
+target_link_libraries(OpenPSTD ${PYTHON_LIBRARIES})
+target_link_libraries(OpenPSTD ${Boost_LIBRARIES} )
+target_link_libraries(OpenPSTD ${Qt5_LIBRARIES})
