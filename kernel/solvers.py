@@ -170,6 +170,7 @@ class GpuAccelerated:
         use_opencl = False
         print "importing gpu libs"
         try:
+            #Error("PREFER OCL") #TODO remove
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
             from pycuda.compiler import SourceModule
@@ -193,21 +194,29 @@ class GpuAccelerated:
             context = make_default_context()
             stream = cuda.Stream()
 
-            plan_set = {} #will be filled as needed in spatderp3_cuda(~), prefill with 128, 256 and 512
-            plan_set[str(128)] = Plan(128, dtype=np.float64, stream=stream, context=context, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float64, stream=stream, context=context, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float64, stream=stream, context=context, fast_math=False)
-            
+            plan_set = {}
+            len_max = area_max = 0
+            for domain in scene.domains:
+                dim = domain.bottomright - domain.topleft
+                if dim[0] > len_max: len_max = int(dim[0])
+                if dim[1] > len_max: len_max = int(dim[1])
+                if dim[0]*nearest_2power(dim[1]) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]))
+                if dim[1]*nearest_2power(dim[0]) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]))
+                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[0])))] = Plan(int(nearest_2power(dim[0])), dtype=np.float64, stream=stream, context=context, fast_math=False)
+                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[1])))] = Plan(int(nearest_2power(dim[1])), dtype=np.float64, stream=stream, context=context, fast_math=False)
+
             g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
-            g_bufl["mr"] = cuda.mem_alloc(8*128*128)
-            g_bufl["mi"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m1"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m2"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m3"] = cuda.mem_alloc(8*128*128)
-            g_bufl["m_size"] = 8*128*128
-            g_bufl["dr"] = cuda.mem_alloc(8*128) #dr also used by A (window matrix)
-            g_bufl["di"] = cuda.mem_alloc(8*128)
-            g_bufl["d_size"] = 8*128
+            g_bufl["mr"] = cuda.mem_alloc(8*area_max)
+            g_bufl["mi"] = cuda.mem_alloc(8*area_max)
+            g_bufl["m1"] = cuda.mem_alloc(8*area_max)
+            g_bufl["m2"] = cuda.mem_alloc(8*area_max)
+            g_bufl["m3"] = cuda.mem_alloc(8*area_max)
+            g_bufl["m_size"] = 8*area_max
+            g_bufl["dr"] = cuda.mem_alloc(8*len_max) #dr also used by A (window matrix)
+            g_bufl["di"] = cuda.mem_alloc(8*len_max)
+            g_bufl["d_size"] = 8*len_max
 
             script_dir = os.path.dirname(__file__)
             rel_path = "cuda_kernels.cu"
@@ -284,24 +293,32 @@ class GpuAccelerated:
             
             context = cl.create_some_context(interactive=False)
             queue = cl.CommandQueue(context)
-            
-            plan_set = {} #will be filled as needed in spatderp3_ocl(~), prefill with 128, 256 and 512
-            plan_set[str(128)] = Plan(128, dtype=np.float64, queue=queue, fast_math=False)
-            plan_set[str(256)] = Plan(256, dtype=np.float64, queue=queue, fast_math=False)
-            plan_set[str(512)] = Plan(512, dtype=np.float64, queue=queue, fast_math=False)
-            
+
+            plan_set = {}
+            len_max = area_max = 0
+            for domain in scene.domains:
+                dim = domain.bottomright - domain.topleft
+                if dim[0] > len_max: len_max = int(dim[0])
+                if dim[1] > len_max: len_max = int(dim[1])
+                if dim[0]*nearest_2power(dim[1]) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]))
+                if dim[1]*nearest_2power(dim[0]) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]))
+                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[0])))] = Plan(int(nearest_2power(dim[0])), dtype=np.float64, queue=queue, fast_math=False)
+                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[1])))] = Plan(int(nearest_2power(dim[1])), dtype=np.float64, queue=queue, fast_math=False)
+                        
             mf = cl.mem_flags            
             
             g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
-            g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
-            g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
-            g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
-            g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
-            g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128*128)
-            g_bufl["m_size"] = 8*128*128
-            g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128) #dr also used by A (window matrix)
-            g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*128)
-            g_bufl["d_size"] = 8*128
+            g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
+            g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
+            g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
+            g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
+            g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
+            g_bufl["m_size"] = 8*area_max
+            g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*len_max) #dr also used by A (window matrix)
+            g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*len_max)
+            g_bufl["d_size"] = 8*len_max
 
             script_dir = os.path.dirname(__file__)
             rel_path = "ocl_kernels.cl"

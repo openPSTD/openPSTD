@@ -1,3 +1,5 @@
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+
 __kernel void derifact_multiplication(__global double *matr, __global double *mati, __global double *vecr, __global double *veci, const int fftlen, const int fftnum)
 {
     int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0); 
