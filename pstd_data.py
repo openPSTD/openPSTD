@@ -47,16 +47,16 @@ class PickleStream:
     def readline(self):
         self.w.write(self.r.readline())
     def get(self):
-        coda = chr(self.read(1))
-
-        #horrible hack to catch the fact that pyopencl outputs a meaningless Error I can't suppress
-        if coda is 'E':
-            for i in range(124):
-                coda = chr(self.read(1))                    
-                print(coda)
-
         while True:
-            print(coda)
+            coda = chr(self.read(1))
+
+            #horrible hack to catch the fact that pyopencl outputs a meaningless Error I can't suppress
+            if coda is 'E':
+                while coda is not '(':
+                    coda = chr(self.read(1))                    
+                    print(coda, end="")
+
+            print(coda, end="")
             if not coda:
                 raise EOFError
             
@@ -74,7 +74,6 @@ class PickleStream:
                     self.read(self.read(4))
             if coda == '.':
                 break
-            coda = chr(self.read(1))
         self.w.seek(0)
         return pickle.load(self.w)
 
