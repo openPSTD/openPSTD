@@ -49,17 +49,9 @@ class PickleStream:
     def get(self):
         while True:
             coda = chr(self.read(1))
-
-            #horrible hack to catch the fact that pyopencl outputs a meaningless Error I can't suppress
-            if coda is 'E':
-                while coda is not '(':
-                    coda = chr(self.read(1))                    
-                    print(coda, end="")
-
-            print(coda, end="")
             if not coda:
                 raise EOFError
-            
+
             opcode = pickletools.code2op[coda]
                 
             if opcode.arg is not None:
