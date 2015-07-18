@@ -85,16 +85,24 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 
 #------------------------------------
-# Source files
-set(SOURCE_FILES main.cpp kernel/ConsoleOutput.cpp)
-
-#------------------------------------
-# Compiling
+# Compiling flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-add_executable(OpenPSTD ${SOURCE_FILES})
 
 #------------------------------------
-# Static libraries
-target_link_libraries(OpenPSTD ${PYTHON_LIBRARIES})
-target_link_libraries(OpenPSTD ${Boost_LIBRARIES} )
-target_link_libraries(OpenPSTD ${Qt5_LIBRARIES})
+# Kernel
+set(SOURCE_FILES_CLI main-cli.cpp kernel/ConsoleOutput.cpp)
+add_executable(OpenPSTD-cli ${SOURCE_FILES_CLI})
+
+#------------------------------------
+# UI
+set(SOURCE_FILES_GUI main-gui.cpp kernel/ConsoleOutput.cpp )
+add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI})
+
+#------------------------------------
+# link libraries
+target_link_libraries(OpenPSTD-cli ${PYTHON_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
+
+target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
