@@ -7,6 +7,7 @@ set(PYTHON_LIBRARY "" CACHE PATH "The library of python 3.4, empty then it does 
 set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then it does autodetect")
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
+set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
 
 #------------------------------------
 # Python
@@ -81,10 +82,16 @@ if(NOT Qt5Widgets_FOUND)
 endif()
 
 #------------------------------------
+# Rapidjson
+add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
+set(RAPIDJSON_INCLUDE "${RAPIDJSON_ROOT}\\include")
+
+#------------------------------------
 # include directories
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
+include_directories(${RAPIDJSON_INCLUDE})
 
 #------------------------------------
 # Compiling flags
@@ -92,13 +99,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #------------------------------------
 # Kernel
-set(SOURCE_FILES_CLI main-cli.cpp kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp)
-add_executable(OpenPSTD-cli ${SOURCE_FILES_CLI})
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp)
+add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 
 #------------------------------------
 # UI
-set(SOURCE_FILES_GUI main-gui.cpp kernel/KernelFacade.cpp)
-add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} MainWindow.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp Model.cpp Viewer2D.cpp PSTDFile.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} external/unqlite.c)
+add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp )
 
 #------------------------------------
 # link libraries
