@@ -7,6 +7,9 @@
 
 #include <string>
 
+/**
+ * The configuration of the kernel.
+ */
 struct KernelConfiguration {
     bool multiThreaded;
     bool gpuAccelerated;
@@ -14,6 +17,9 @@ struct KernelConfiguration {
     bool writeArray;
 };
 
+/**
+ * The status of the kernel when the callback is called.
+ */
 enum CALLBACKSTATUS
 {
     CALLBACKSTATUS_ERROR,
@@ -25,9 +31,16 @@ enum CALLBACKSTATUS
 class KernelFacadeCallback
 {
 public:
+    /**
+     * This callback will be called with information how far the kernel is progressed.
+     * Frame is only used with status == CALLBACKSTATUS_RUNNING, else it's -1.
+     */
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
 };
 
+/**
+ * A facade before the kernel. This is a simlpe C++ api that can be used for calling the kernel.
+ */
 class KernelFacade
 {
 private:
@@ -36,8 +49,15 @@ private:
     void OutputPythonHomeAndPath();
 
 public:
+    /**
+     * Configures the kernel
+     */
     void Configure(KernelConfiguration configuration);
 
+    /**
+     * Runs the kernel with a certain scene file. The callback has a single function that informs the rest of the
+     * application how the progress is of the kernel.
+     */
     void Run(std::string sceneFile, KernelFacadeCallback* callback);
 };
 
