@@ -109,7 +109,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="Viewer2D" name="mainView" native="true"/>
+       <widget class="QWidget" name="mainView" native="true"/>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -430,14 +430,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Viewer2D</class>
-   <extends>QWidget</extends>
-   <header location="global">Viewer2D.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

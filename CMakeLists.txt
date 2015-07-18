@@ -40,8 +40,10 @@ endif()
 
 #------------------------------------
 # QT5
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
-#set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 #function for easy loading Qt modules
 set(Qt5_CMAKE "lib\\cmake")
@@ -96,7 +98,7 @@ add_executable(OpenPSTD-cli ${SOURCE_FILES_CLI})
 #------------------------------------
 # UI
 set(SOURCE_FILES_GUI main-gui.cpp kernel/KernelFacade.cpp)
-add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI})
+add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} MainWindow.cpp)
 
 #------------------------------------
 # link libraries
