@@ -90,12 +90,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #------------------------------------
 # Kernel
-set(SOURCE_FILES_CLI main-cli.cpp kernel/ConsoleOutput.cpp)
+set(SOURCE_FILES_CLI main-cli.cpp kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp)
 add_executable(OpenPSTD-cli ${SOURCE_FILES_CLI})
 
 #------------------------------------
 # UI
-set(SOURCE_FILES_GUI main-gui.cpp kernel/ConsoleOutput.cpp )
+set(SOURCE_FILES_GUI main-gui.cpp kernel/KernelFacade.cpp)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI})
 
 #------------------------------------

@@ -1,36 +1,12 @@
 #include <boost/program_options.hpp>
 #include <iostream>
-#include <Python.h>
 #include <string>
 #include <fstream>
 #include "kernel/ConsoleOutput.h"
+#include "kernel/KernelFacade.h"
 
 
 namespace po = boost::program_options;
-
-void OutputPythonHomeAndPath()
-{
-    wchar_t * home = Py_GetPythonHome();
-    wchar_t * path = Py_GetPath();
-
-    if(home != nullptr)
-    {
-        std::wcout << "Python home: " << home << std::endl;
-    }
-    else
-    {
-        std::wcout << "Python home: null" << std::endl;
-    }
-    if(path != nullptr)
-    {
-        std::wcout << "Python path: " << path << std::endl;
-    }
-    else
-    {
-        std::wcout << "Python path: null" << std::endl;
-    }
-
-}
 
 int main(int argc, const char *argv[])
 {
@@ -90,70 +66,22 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    OutputPythonHomeAndPath();
+    KernelFacadeCallback* output = new ConsoleOutput();
+    KernelFacade* kernel = new KernelFacade();
 
-    std::string str;
+    KernelConfiguration configuration;
+    configuration.multiThreaded = vm.count("multithreaded")>0;
+    configuration.gpuAccelerated = vm.count("gpu-accelerated")>0;
+    configuration.writePlot = vm.count("write-plot")>0;
+    configuration.writeArray = vm.count("write-array")>0;
+    kernel->Configure(configuration);
 
-    str = "import json\n"
-            "import os, sys\n"
-            "from kernel.pstd import PSTD\n"
-            "import ConsoleOutput\n"
-            "f = open(scene_file, 'r')\n"
-            "scene_desc = json.load(f)\n"
-            "f.close()\n"
-            "def output_to_console(arg):\n"
-            "   import ConsoleOutput\n"
-            "   ConsoleOutput.func(**arg)\n"
-            "pstd = PSTD(multi_threaded, gpu_accelerated, write_plot, write_array, scene_desc, output_to_console)\n"
-            "pstd.run()";
+    kernel->Run(vm["scene-file"].as<std::string>().c_str(), output);
 
-    //Py_SetProgramName("");  /* optional but recommended */
-    std::cout << "py console output append" << std::endl;
-    PyImport_AppendInittab("ConsoleOutput", &PyInit_ConsoleOutput);
-    std::cout << "py init" << std::endl;
-    Py_Initialize();
+    delete output;
+    delete kernel;
 
-    OutputPythonHomeAndPath();
+    std::cin.get();
 
-    std::cout << "py run" << std::endl;
-
-    PyObject* main_module = PyImport_AddModule("__main__");
-    PyObject* global_dict = PyModule_GetDict(main_module);
-    PyObject* local_dict = PyDict_New();
-
-    PyObject* pySceneFile = PyUnicode_FromString(vm["scene-file"].as<std::string>().c_str());
-    PyObject* pyMulti_threaded = PyBool_FromLong(vm.count("multithreaded")>0);
-    PyObject* pyGpu_accelerated = PyBool_FromLong(vm.count("gpu-accelerated")>0);
-    PyObject* pyWrite_plot = PyBool_FromLong(vm.count("write-plot")>0);
-    PyObject* pyWrite_array = PyBool_FromLong(vm.count("write-array")>0);
-    PyDict_SetItemString(local_dict, "scene_file", pySceneFile);
-    PyDict_SetItemString(local_dict, "multi_threaded", pyMulti_threaded);
-    PyDict_SetItemString(local_dict, "gpu_accelerated", pyGpu_accelerated);
-    PyDict_SetItemString(local_dict, "write_plot", pyWrite_plot);
-    PyDict_SetItemString(local_dict, "write_array", pyWrite_array);
-
-    Py_DECREF(pySceneFile);
-    Py_DECREF(pyMulti_threaded);
-    Py_DECREF(pyGpu_accelerated);
-    Py_DECREF(pyWrite_plot);
-    Py_DECREF(pyWrite_array);
-
-    auto result = PyRun_String(str.c_str(), Py_file_input, global_dict, local_dict);
-    //Check for system exit exception
-    if(PyErr_Occurred())
-    {
-        if(PyErr_ExceptionMatches(PyExc_SystemExit))
-        {
-            //handle system exit
-            PyErr_Clear();
-        }
-        else
-        {
-            PyErr_Print();
-        }
-    }
-    std::cout << "py finalize" << std::endl;
-    Py_Finalize();
-    std::cout << "end" << std::endl;
     return 0;
 }

@@ -5,9 +5,11 @@
 #ifndef OPENPSTD_CONSOLEOUTPUT_H
 #define OPENPSTD_CONSOLEOUTPUT_H
 
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#include "KernelFacade.h"
 
-PyMODINIT_FUNC PyInit_ConsoleOutput(void);
+class ConsoleOutput: public KernelFacadeCallback
+{
+    virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;
+};
 
 #endif //OPENPSTD_CONSOLEOUTPUT_H
