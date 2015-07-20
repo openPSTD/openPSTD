@@ -18,6 +18,15 @@
 ########################################################################
 
 import numpy as np
+import traceback
+import pickle
+import sys
+from math import ceil
+try:
+    from math import log2
+except:
+    from math import log
+    log2 = lambda x: log(x, 2)
 
 try:
     # Use the pyfftw library if available: Due to the better
@@ -197,7 +206,6 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
         Ltemp = ifft(Ktemp_der,int(N2), axis=1)
         Lp[0:N1,0:Ns2+1] =  np.real(Ltemp[0:N1,Wlength:Wlength+Ns2+1])
 
- 
     elif var > 0: # velocity node: calculation for variable node collocated with boundary
         size123 = Wlength*2+Ns2
         Lp = np.zeros((N1,Ns2-1))
@@ -214,7 +222,7 @@ def spatderp3(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct):
    
     if direct == 0: # transpose Lp to get variables in right direction
         Lp = Lp.transpose()
-   
+
     return Lp
 
 def spatderp3_cuda(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,context,stream,plan_set,g_bufl,mulfunc,use_32bit):
@@ -657,4 +665,3 @@ def get_grid_spacing(cnf):
 
 def nearest_2power(n):
     return np.power(2.,(np.ceil(np.log2(n))))
-        

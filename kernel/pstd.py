@@ -30,7 +30,11 @@ import pickle
 import traceback
 import threading
 import subprocess
-
+'''Main class of the computational part of openPSTD. Can be run stand-alone or invoked by Blender.
+This class reads the scene description (from a .json file or a pickled object from Blender) containing the geometry
+and sources/receivers, augments it with instructions from the configuration file (in core/pstd.cfg) and initializes
+the simulation.
+'''
 try: import ConfigParser as configparser
 except: import configparser
 
@@ -64,7 +68,7 @@ if not stand_alone:
 def exit_with_error(e):
     if stand_alone:
         print('\n')
-        print('Error encountered while running openPSTD:')
+        print('Error encountered while running openPSTD: ' + str(e))
         traceback.print_exc()
         exit(1)
     else:

@@ -386,10 +386,6 @@ class Domain(object):
     # It could be integrated without too much trouble, but this saves some debugging for now
     def calc_cuda(self, bt, ct, context, stream, plan_set, g_bufl, mulfunc, use_32bit, dest = None):
 
-        # str = ": Calculating L%s%s for domain '%s'        "%(ct,bt,self.id)
-        # sys.stdout.write(str)
-        # sys.stdout.flush()
-
         # Find the input matrices
         domains1 = self.left  if bt == BoundaryType.HORIZONTAL else self.bottom
         domains2 = self.right if bt == BoundaryType.HORIZONTAL else self.top
@@ -608,7 +604,8 @@ class BoundaryType:
 class CalculationType:
     PRESSURE = 'p'
     VELOCITY = 'v'
-    
+
+# Class representing a boundary of a domain. A boundary is shared between two domains.
 class Boundary(object):
     def __init__(self, a, b, t):
         order = a.topleft < b.topleft
@@ -631,6 +628,7 @@ class Boundary(object):
     def __repr__(self):
         attrs = ('x',self.domain1.bottomright.x) if self.boundary_type == BoundaryType.HORIZONTAL else ('y',self.domain1.bottomright.y)
         return "Boundary at %s=%d"%attrs
+
 
 class Receiver(object):
     def __init__(self, cfg, id, p, c):

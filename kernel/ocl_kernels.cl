@@ -38,7 +38,6 @@
 // Dimensions of the input matrices should be (fftlen, fftnum)
 //
 //////////////////////////////////////////////////////////////////////////
-
 __kernel void derifact_multiplication(__global double *matr, __global double *mati,
                                       __global double *vecr, __global double *veci,
                                       const int fftlen, const int fftnum) {
