@@ -545,7 +545,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
             cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
 
-            mulfunc["derifact"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), g_time_l=True)
+            mulfunc["derifact"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), g_times_l=True)
 
             #execute the ifft
             plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
