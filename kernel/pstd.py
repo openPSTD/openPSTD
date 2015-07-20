@@ -213,7 +213,6 @@ if scene_desc['GPU']:
     if sys.version_info > (2, 8):
         exit_with_error("To use GPU acceleration, you have to set a python 2.7 path. See the openPSTD wiki for details.")
     try:
-        Error("PREFER OCL") #TODO remove
         import pycuda.driver as cuda
         from pycuda.tools import make_default_context
         from pycuda.compiler import SourceModule
