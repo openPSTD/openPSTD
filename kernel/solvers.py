@@ -170,7 +170,7 @@ class GpuAccelerated:
         use_opencl = False
         print "importing gpu libs"
         try:
-            #Error("PREFER OCL") #TODO remove
+            Error("PREFER OCL") #TODO remove
             import pycuda.driver as cuda
             from pycuda.tools import make_default_context
             from pycuda.compiler import SourceModule
@@ -181,7 +181,6 @@ class GpuAccelerated:
         except:
             try:
                 import pyopencl as cl
-                import pyopencl.array as cl_array
                 from pyfft.cl import Plan
                 use_opencl = True
                 print "USING OpenCL"
@@ -200,12 +199,12 @@ class GpuAccelerated:
                 dim = domain.bottomright - domain.topleft
                 if dim[0] > len_max: len_max = int(dim[0])
                 if dim[1] > len_max: len_max = int(dim[1])
-                if dim[0]*nearest_2power(dim[1]) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]))
-                if dim[1]*nearest_2power(dim[0]) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]))
-                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
-                    plan_set[str(int(nearest_2power(dim[0])))] = Plan(int(nearest_2power(dim[0])), dtype=np.float64, stream=stream, context=context, fast_math=False)
-                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
-                    plan_set[str(int(nearest_2power(dim[1])))] = Plan(int(nearest_2power(dim[1])), dtype=np.float64, stream=stream, context=context, fast_math=False)
+                if dim[0]*nearest_2power(dim[1]+cfg.Wlength*2) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]+cfg.Wlength*2))
+                if dim[1]*nearest_2power(dim[0]+cfg.Wlength*2) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]+cfg.Wlength*2))
+                if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[0]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[0]+cfg.Wlength*2)), dtype=np.float64, stream=stream, context=context, fast_math=False)
+                if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[1]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[1]+cfg.Wlength*2)), dtype=np.float64, stream=stream, context=context, fast_math=False)
 
             g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
             g_bufl["mr"] = cuda.mem_alloc(8*area_max)
@@ -300,24 +299,24 @@ class GpuAccelerated:
                 dim = domain.bottomright - domain.topleft
                 if dim[0] > len_max: len_max = int(dim[0])
                 if dim[1] > len_max: len_max = int(dim[1])
-                if dim[0]*nearest_2power(dim[1]) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]))
-                if dim[1]*nearest_2power(dim[0]) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]))
-                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
-                    plan_set[str(int(nearest_2power(dim[0])))] = Plan(int(nearest_2power(dim[0])), dtype=np.float64, queue=queue, fast_math=False)
-                if str(int(nearest_2power(dim[0]))) not in plan_set.keys():
-                    plan_set[str(int(nearest_2power(dim[1])))] = Plan(int(nearest_2power(dim[1])), dtype=np.float64, queue=queue, fast_math=False)
+                if dim[0]*nearest_2power(dim[1]+cfg.Wlength*2) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]+cfg.Wlength*2))
+                if dim[1]*nearest_2power(dim[0]+cfg.Wlength*2) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]+cfg.Wlength*2))
+                if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[0]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[0]+cfg.Wlength*2)), dtype=np.float64, queue=queue, fast_math=False)
+                if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                    plan_set[str(int(nearest_2power(dim[1]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[1]+cfg.Wlength*2)), dtype=np.float64, queue=queue, fast_math=False)
                         
             mf = cl.mem_flags            
             
             g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
-            g_bufl["mr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
-            g_bufl["mi"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
-            g_bufl["m1"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
-            g_bufl["m2"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
-            g_bufl["m3"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*area_max)
+            g_bufl["mr"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+            g_bufl["mi"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+            g_bufl["m1"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+            g_bufl["m2"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+            g_bufl["m3"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
             g_bufl["m_size"] = 8*area_max
-            g_bufl["dr"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*len_max) #dr also used by A (window matrix)
-            g_bufl["di"] = cl.Buffer(context, mf.ALLOC_HOST_PTR, size=8*len_max)
+            g_bufl["dr"] = cl.Buffer(context, mf.READ_WRITE, size=8*len_max) #dr also used by A (window matrix)
+            g_bufl["di"] = cl.Buffer(context, mf.READ_WRITE, size=8*len_max)
             g_bufl["d_size"] = 8*len_max
 
             script_dir = os.path.dirname(__file__)
