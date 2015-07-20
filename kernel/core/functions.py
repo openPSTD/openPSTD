@@ -359,9 +359,6 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         g_bufl["m3"] = cl.Buffer(context, mf.READ_WRITE, size=8*N1*int(N2))
         g_bufl["m_size"] = int(8*N1*int(N2))
 
-    mf = cl.mem_flags
-    g_bufl["A"] = cl.Buffer(context, mf.READ_WRITE, size=np.maximum(8*int(N2),A.size))#TODO remove
-    
     if 8*int(N2) > g_bufl["d_size"] or A.size > g_bufl["d_size"]:
         mf = cl.mem_flags
         g_bufl["dr"] = cl.Buffer(context, mf.READ_WRITE, size=np.maximum(8*int(N2),A.size))
@@ -387,7 +384,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         cl.enqueue_copy(queue, g_bufl["m1"], np.ravel(p1))
         cl.enqueue_copy(queue, g_bufl["m2"], np.ravel(p2))
         cl.enqueue_copy(queue, g_bufl["m3"], np.ravel(p3))
-        cl.enqueue_copy(queue, g_bufl["A"], np.ravel(A))
+        cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(A))
 
         blksize = 8
         grdx = int(N2)/blksize
@@ -420,7 +417,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         cl.enqueue_copy(queue, g_bufl["m1"], np.ravel(p1))
         cl.enqueue_copy(queue, g_bufl["m2"], np.ravel(p2))
         cl.enqueue_copy(queue, g_bufl["m3"], np.ravel(p3))
-        cl.enqueue_copy(queue, g_bufl["A"], np.ravel(A))
+        cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(A))
 
         blksize = 8
         grdx = int(N2)/blksize
