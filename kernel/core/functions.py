@@ -537,7 +537,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
 
             mulfunc["velo_window"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
                 np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float32(Rmatrix[2,1]), \
-                np.float32(Rmatrix[0,0]), np.float32(Rmatrix[3,1]), np.float32(Rmatrix[1,0]))
+                np.float32(Rmatrix[0,0]), np.float32(Rmatrix[3,1]), np.float32(Rmatrix[1,0]), g_times_l=True)
 
             #select the N2 length plan from the set and execute the fft
             plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
@@ -545,7 +545,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
             cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
 
-            mulfunc["derifact"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1))
+            mulfunc["derifact"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), g_time_l=True)
 
             #execute the ifft
             plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
@@ -635,7 +635,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
 
             mulfunc["velo_window"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
                 np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
-                np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]))
+                np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]), g_times_l=True)
 
             #select the N2 length plan from the set and execute the fft
             plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
@@ -643,7 +643,7 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
             cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
             cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
 
-            mulfunc["derifact"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1))
+            mulfunc["derifact"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["di"], np.int32(N2), np.int32(N1), g_times_l=True)
 
             #execute the ifft
             plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], inverse=True, batch=N1)
