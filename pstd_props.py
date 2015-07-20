@@ -58,6 +58,9 @@ def get_from_pstd_ini_file(key, section='GENERAL'):
     config.read(pstd_config_fn)
     return config[section].get(key, None) if section in config else None
 
+if not get_from_pstd_ini_file('PYTHON_PATH'):
+    update_pstd_ini_file('PYTHON_PATH', default_python_path)
+
 DEFAULT_GRID_SPACING = 0.2
 DEFAULT_SOUND_SPEED = 340.
 
