@@ -26,13 +26,23 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+//
+// Fourier-domain derivative. Effectively a point-wise complex multiplication.
+// matr, mati: real and complex parts of the fourier-transformed domain
+// vecr, veci: real and complex parts of the derivative coefficients
+// Dimensions of the input matrices should be (fftlen, fftnum)
+//
+//////////////////////////////////////////////////////////////////////////
+
 __kernel void derifact_multiplication(__global float *matr, __global float *mati,
-                                      __global float *vecr, __global float *veci, const int fftlen,
-                                      const int fftnum) {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0);
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+                                      __global float *vecr, __global float *veci,
+                                      const int fftlen, const int fftnum) {
+    int index_x = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    int index_y = get_group_id(1) * get_local_size(1) + get_local_id(1);
 
     int matindex = index_y * fftlen + index_x; // mat should be a contiguous array
+
     // if N1%16>0, we're starting too many threads.
     // There is probably a better way to do this, but just eating the surplus
     // should work.
@@ -47,6 +57,19 @@ __kernel void derifact_multiplication(__global float *matr, __global float *mati
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+//
+// Applies the window function to the active domain (pressure version).
+//
+// A, winlen: Array containing the window function and window length
+// p1, p2, p3: matrices containing the active domain (p2) and adjacent domains.
+// Ns1, Ns2, Ns3: row length of the domains
+// fftlen, fftnum: length and batch size of the fft this data will be used for.
+// R{21,00,31,10}: entries in reflection coefficient matrix
+// matr: location for the result
+// mati: buffer that gets set to zero
+//
+//////////////////////////////////////////////////////////////////////////
 __kernel void pressure_window_multiplication(__global float *mr, __global float *mi,
                                              __global float *A, __global float *p1,
                                              __global float *p2, __global float *p3,
@@ -54,8 +77,8 @@ __kernel void pressure_window_multiplication(__global float *mr, __global float 
                                              const int Ns3, const int fftlen, const int fftnum,
                                              const float R21, const float R00, const float R31,
                                              const float R10) {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0);
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    int index_y = get_group_id(1) * get_local_size(1) + get_local_id(1);
 
     if (index_y < fftnum) { // eat the surplus
         int matindex = index_y * fftlen + index_x;
@@ -81,6 +104,19 @@ __kernel void pressure_window_multiplication(__global float *mr, __global float 
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+//
+// Applies the window function to the active domain (velocity version).
+//
+// A, winlen: Array containing the window function and window length
+// p1, p2, p3: matrices containing the active domain (p2) and adjacent domains.
+// Ns1, Ns2, Ns3: row length of the domains
+// fftlen, fftnum: length and batch size of the fft this data will be used for.
+// R{21,00,31,10}: entries in reflection coefficient matrix
+// matr: location for the result
+// mati: buffer that gets set to zero
+//
+//////////////////////////////////////////////////////////////////////////
 __kernel void velocity_window_multiplication(__global float *mr, __global float *mi,
                                              __global float *A, __global float *p1,
                                              __global float *p2, __global float *p3,
@@ -88,8 +124,8 @@ __kernel void velocity_window_multiplication(__global float *mr, __global float 
                                              const int Ns3, const int fftlen, const int fftnum,
                                              const float R21, const float R00, const float R31,
                                              const float R10) {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0);
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    int index_y = get_group_id(1) * get_local_size(1) + get_local_id(1);
 
     if (index_y < fftnum) { // eat the surplus
         int matindex = index_y * fftlen + index_x;
