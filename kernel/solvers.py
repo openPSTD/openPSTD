@@ -288,8 +288,6 @@ class GpuAccelerated:
             context.pop()
         
         elif use_opencl:
-            print "NOT YET FULLY TESTED"
-            
             context = cl.create_some_context(interactive=False)
             queue = cl.CommandQueue(context)
 
