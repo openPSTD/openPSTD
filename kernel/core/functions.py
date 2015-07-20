@@ -393,17 +393,13 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         grdx = int(N2)/blksize
         grdy = int(np.maximum(nearest_2power(N1)/blksize, 1))
 
-        a = mulfunc["pres_window"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["A"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
+        mulfunc["pres_window"](queue, (grdx,grdy), (blksize,blksize), g_bufl["mr"], g_bufl["mi"], g_bufl["dr"], g_bufl["m1"], g_bufl["m2"], g_bufl["m3"], \
             np.int32(np.around(Wlength)), np.int32(Ns1), np.int32(Ns2), np.int32(Ns3), np.int32(N2), np.int32(N1), np.float64(Rmatrix[2,1]), \
             np.float64(Rmatrix[0,0]), np.float64(Rmatrix[3,1]), np.float64(Rmatrix[1,0]), g_times_l=True)
 
-        queue.flush()
-
         #select the N2 length plan from the set and execute the fft
-        #plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
+        plan_set[str(int(N2))].execute(g_bufl["mr"], g_bufl["mi"], batch=N1)
         
-        queue.wait()
-
         cl.enqueue_copy(queue, g_bufl["dr"], np.ravel(derfact.real))
         cl.enqueue_copy(queue, g_bufl["di"], np.ravel(derfact.imag))
 
