@@ -470,6 +470,13 @@ def spatderp3_ocl(p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct,contex
         Ns1 = np.size(p1, axis=direct)
         Ns3 = np.size(p3, axis=direct)
 
+        p1 = p1.astype(np.float32)
+        p2 = p2.astype(np.float32)
+        p3 = p3.astype(np.float32)
+        A = A.astype(np.float32)
+        derfact = derfact.astype(np.complex64)
+        Rmatrix = Rmatrix.astype(np.float32)
+
         if direct == 0: # transpose variables to compute derivative in right direction
             p1 = p1.transpose()
             p2 = p2.transpose()
