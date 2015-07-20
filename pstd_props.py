@@ -38,8 +38,7 @@ class SimulationResultPathList(bpy.types.PropertyGroup):
 
 STAND_ALONE = False
 
-default_python_path = '/usr/bin/python2.7' #os.path.abspath(sys.executable)
-
+default_python_path = os.path.abspath(sys.executable)
 def make_prop_updater(n1, n2, f):
     return lambda self, context: setattr(context.scene, n1, f(getattr(self, n2), context.scene)) if fabs(f(getattr(self, n2), context.scene)-getattr(context.scene, n1)) > 1e-3 else None
 
@@ -116,7 +115,7 @@ def apply():
     bpy.types.Scene.pstd_render_time = bpy.props.FloatProperty(
         name="Render time",
         description="Render time",
-        min=0.01, max=10.0,
+        min=0.001, max=10.0,
         default=1.0
     )
 

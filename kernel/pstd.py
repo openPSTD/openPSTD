@@ -127,7 +127,6 @@ cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),cfgd)()
 
 dx = dz = scene_desc['grid_spacing']
 
-
 # Check if Cuda/OpenCL is available 
 use_cuda = use_opencl = use_32bit = False
 if scene_desc['GPU']:
@@ -141,7 +140,6 @@ if scene_desc['GPU']:
     except:
         try:
             import pyopencl as cl
-            import pyopencl.array as cl_array
             from pyfft.cl import Plan
             use_opencl = True
         except:
