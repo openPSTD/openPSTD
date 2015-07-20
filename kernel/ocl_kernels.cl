@@ -80,8 +80,8 @@ __kernel void pressure_window_multiplication(__global double *mr, __global doubl
                                              const int Ns3, const int fftlen, const int fftnum,
                                              const double R21, const double R00, const double R31,
                                              const double R10) {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0);
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    int index_y = get_group_id(1) * get_local_size(1) + get_local_id(1);
 
     if (index_y < fftnum) { // eat the surplus
         int matindex = index_y * fftlen + index_x;
@@ -127,8 +127,8 @@ __kernel void velocity_window_multiplication(__global double *mr, __global doubl
                                              const int Ns3, const int fftlen, const int fftnum,
                                              const double R21, const double R00, const double R31,
                                              const double R10) {
-    int index_x = get_global_id(0) * get_global_size(0) + get_local_id(0);
-    int index_y = get_global_id(1) * get_global_size(1) + get_local_id(1);
+    int index_x = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    int index_y = get_group_id(1) * get_local_size(1) + get_local_id(1);
 
     if (index_y < fftnum) { // eat the surplus
         int matindex = index_y * fftlen + index_x;
