@@ -19,4 +19,4 @@ Resources
 
 Website: http://openpstd.org/
 
-Documentation: http://www.openpstd.org/wiki/index.php/Main_Page
+Documentation: http://www.openpstd.org/wiki/index.php/OpenPSTD
