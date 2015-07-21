@@ -39,7 +39,6 @@ class SimulationResultPathList(bpy.types.PropertyGroup):
 STAND_ALONE = False
 
 default_python_path = os.path.abspath(sys.executable)
-
 def make_prop_updater(n1, n2, f):
     return lambda self, context: setattr(context.scene, n1, f(getattr(self, n2), context.scene)) if fabs(f(getattr(self, n2), context.scene)-getattr(context.scene, n1)) > 1e-3 else None
 
@@ -58,6 +57,9 @@ def get_from_pstd_ini_file(key, section='GENERAL'):
     config = configparser.ConfigParser()
     config.read(pstd_config_fn)
     return config[section].get(key, None) if section in config else None
+
+if not get_from_pstd_ini_file('PYTHON_PATH'):
+    update_pstd_ini_file('PYTHON_PATH', default_python_path)
 
 DEFAULT_GRID_SPACING = 0.2
 DEFAULT_SOUND_SPEED = 340.
@@ -116,13 +118,25 @@ def apply():
     bpy.types.Scene.pstd_render_time = bpy.props.FloatProperty(
         name="Render time",
         description="Render time",
-        min=0.01, max=10.0,
+        min=0.001, max=10.0,
         default=1.0
     )
 
     bpy.types.Scene.pstd_show_advanced = bpy.props.BoolProperty(
         name="Advanced",
         description="Advanced",
+        default=False
+    )
+
+    bpy.types.Scene.pstd_enable_gpu = bpy.props.BoolProperty(
+        name="Enable GPU acceleration",
+        description="Offloads calculations to the GPU. Uses Cuda if available, uses OpenCL if not. If neither is available, this option will be ignored.",
+        default=False
+    )
+
+    bpy.types.Scene.pstd_enable_32bit = bpy.props.BoolProperty(
+        name="Use 32 bit",
+        description="Faster, at some expense of accuracy. Not all GPUs support 64 bit computation - this option might be necessary.",
         default=False
     )
 

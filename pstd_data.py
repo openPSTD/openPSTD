@@ -48,10 +48,12 @@ class PickleStream:
         self.w.write(self.r.readline())
     def get(self):
         while True:
-            code = chr(self.read(1))
-            if not code:
+            coda = chr(self.read(1))
+            if not coda:
                 raise EOFError
-            opcode = pickletools.code2op[code]
+
+            opcode = pickletools.code2op[coda]
+                
             if opcode.arg is not None:
                 n = opcode.arg.n
                 if n > 0:
@@ -62,7 +64,7 @@ class PickleStream:
                     self.read(self.read(1))
                 elif n == pickletools.TAKEN_FROM_ARGUMENT4:
                     self.read(self.read(4))
-            if code == '.':
+            if coda == '.':
                 break
         self.w.seek(0)
         return pickle.load(self.w)

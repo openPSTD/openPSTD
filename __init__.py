@@ -129,7 +129,8 @@ def run(op, context):
         'plotdir':      plotdir,
         'grid_spacing': scn.pstd_grid_spacing,
         'patcherror':   scn.pstd_patch_error,
-        'calctime':     scn.pstd_render_time
+        'calctime':     scn.pstd_render_time,
+        'GPU':          False
     }
     if scn.pstd_show_advanced:
         pstd_scene.update({
@@ -138,7 +139,12 @@ def run(op, context):
             'rho':      scn.pstd_air_density,
             'c1':       scn.pstd_sound_speed,
             'tfactRK':  scn.pstd_cfl_number,
+            'GPU':      scn.pstd_enable_gpu,
         })
+        if scn.pstd_enable_gpu:
+            pstd_scene.update({
+                'use_32bit': scn.pstd_enable_32bit
+            })
         if scn.pstd_enable_only_nth:
             pstd_scene.update({
                 'save_nth_frame': scn.pstd_only_nth

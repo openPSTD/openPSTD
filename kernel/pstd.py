@@ -30,7 +30,11 @@ import pickle
 import traceback
 import threading
 import subprocess
-
+'''Main class of the computational part of openPSTD. Can be run stand-alone or invoked by Blender.
+This class reads the scene description (from a .json file or a pickled object from Blender) containing the geometry
+and sources/receivers, augments it with instructions from the configuration file (in core/pstd.cfg) and initializes
+the simulation.
+'''
 try: import ConfigParser as configparser
 except: import configparser
 
@@ -64,7 +68,7 @@ if not stand_alone:
 def exit_with_error(e):
     if stand_alone:
         print('\n')
-        print('Error encountered while running openPSTD:')
+        print('Error encountered while running openPSTD: ' + str(e))
         traceback.print_exc()
         exit(1)
     else:
@@ -127,6 +131,7 @@ cfg = type('PSTDConfig',(derived_config.PSTD_Config_Base,),cfgd)()
 
 dx = dz = scene_desc['grid_spacing']
 
+
 pstd_desc = {'domains':[],'dx':float(dx),'dz':float(dz)}
 scene = Scene(cfg)
 
@@ -168,6 +173,7 @@ else:
     pickle.dump(pstd_desc,sys.stdout,0)
     sys.stdout.flush()
 
+
 # Calculate rho and pml matrices for all domains
 scene.calc_rho_matrices()
 scene.calc_pml_matrices()
@@ -201,107 +207,438 @@ def subsample(a, n):
     sh = final_shape[0],n,final_shape[1],n
     return b.reshape(sh).mean(-1).mean(1)
 
+# Check if Cuda/OpenCL is available 
+use_cuda = use_opencl = use_32bit = False
+if scene_desc['GPU']:
+    if sys.version_info > (2, 8):
+        exit_with_error("To use GPU acceleration, you have to set a python 2.7 path. See the openPSTD wiki for details.")
+    try:
+        import pycuda.driver as cuda
+        from pycuda.tools import make_default_context
+        from pycuda.compiler import SourceModule
+        from pycuda.driver import Function
+        from pyfft.cuda import Plan
+        use_cuda = True
+    except:
+        try:
+            import pyopencl as cl
+            from pyfft.cl import Plan
+            use_opencl = True
+        except:
+            exit_with_error("NEITHER PYCUDA NOR OPENCL AVAILABLE")
+    if scene_desc['use_32bit']:
+        use_32bit = True
+
 t0 = time.time()
 
-# Loop over time steps
-for frame in range(int(cfg.TRK)):
-    if stand_alone:
-        sys.stdout.write("\r%d"%(frame+1))
-        sys.stdout.flush()
-    
-    # Keep a reference to current matrix contents
-    for d in scene.domains: d.push_values()
-    
-    # Loop over subframes
-    for subframe in range(6):
-        # Loop over calculation directions and measures
-        
-        threads = []
-        def exec_threads():
-            global threads
-            [t.start() for t in threads]
-            [ t.join() for t in threads]
-            threads = []
-        
-        for boundary_type, calculation_type in [(h,P),(v,P),(h,V),(v,V)]:
-            # Loop over domains           
-            for d in scene.domains:
-                if not d.is_rigid():
-                    # Calculate sound propagations for non-rigid domains
-                    if d.should_update(boundary_type): 
-                        def calc(domain, bt, ct):
-                            domain.calc(bt, ct)
-                        if use_threading:
-                            def add(_d, _bt, _ct):
-                                t = threading.Thread(target=lambda: calc(_d, _bt, _ct))
-                                threads.append(t)
-                            add(d, boundary_type, calculation_type)
-                        else:
-                            try: calc(d, boundary_type, calculation_type)
-                            except Exception as e: exit_with_error(e)
-            
-        exec_threads()
+# To save time integrating in this version, the loops are just completely split.
+# GPU code could be integrated in the main loop, but this might lead to spaghetti.
+if use_cuda:
+    cuda.init()
+    context = make_default_context()
+    stream = cuda.Stream()
 
+    if use_32bit:
+        plan_set = {}
+        len_max = area_max = 0
         for domain in scene.domains:
-            if not domain.is_rigid():
-                def calc(d):
-                    d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
-                    d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
-                    d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
-                    d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
-                if use_threading:
-                    def add(_d):
-                        t = threading.Thread(target=lambda: calc(_d))
-                        threads.append(t)
-                    add(domain)
-                else: calc(domain)
-                
-        exec_threads()
-                
-        # Sum the pressure components
-        for d in scene.domains:
-            d.p0 = d.px0 + d.pz0
-            
-    # Apply pml matrices to boundary domains
-    scene.apply_pml_matrices()
+            dim = domain.bottomright - domain.topleft
+            if int(nearest_2power(dim[0]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[0]+cfg.Wlength*2))
+            if int(nearest_2power(dim[1]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[0]*nearest_2power(dim[1]+cfg.Wlength*2) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[1]*nearest_2power(dim[0]+cfg.Wlength*2) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]+cfg.Wlength*2))
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[0]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[0]+cfg.Wlength*2)), dtype=np.float32, stream=stream, context=context, fast_math=False)
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[1]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[1]+cfg.Wlength*2)), dtype=np.float32, stream=stream, context=context, fast_math=False)
+
+        g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+        g_bufl["mr"] = cuda.mem_alloc(4*area_max)
+        g_bufl["mi"] = cuda.mem_alloc(4*area_max)
+        g_bufl["m1"] = cuda.mem_alloc(4*area_max)
+        g_bufl["m2"] = cuda.mem_alloc(4*area_max)
+        g_bufl["m3"] = cuda.mem_alloc(4*area_max)
+        g_bufl["m_size"] = 4*area_max
+        g_bufl["dr"] = cuda.mem_alloc(4*len_max) #dr also used by A (window matrix)
+        g_bufl["di"] = cuda.mem_alloc(4*len_max)
+        g_bufl["d_size"] = 4*len_max
+
+        script_dir = os.path.dirname(__file__)
+        filename = "cuda_kernels32.cu"
+        abs_file_path = os.path.join(script_dir, filename)                                    
+        src_file = open(abs_file_path, 'r')
+
+    else:
+        plan_set = {}
+        len_max = area_max = 0
+        for domain in scene.domains:
+            dim = domain.bottomright - domain.topleft
+            if int(nearest_2power(dim[0]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[0]+cfg.Wlength*2))
+            if int(nearest_2power(dim[1]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[0]*nearest_2power(dim[1]+cfg.Wlength*2) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[1]*nearest_2power(dim[0]+cfg.Wlength*2) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]+cfg.Wlength*2))
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[0]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[0]+cfg.Wlength*2)), dtype=np.float64, stream=stream, context=context, fast_math=False)
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[1]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[1]+cfg.Wlength*2)), dtype=np.float64, stream=stream, context=context, fast_math=False)
+
+        g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+        g_bufl["mr"] = cuda.mem_alloc(8*area_max)
+        g_bufl["mi"] = cuda.mem_alloc(8*area_max)
+        g_bufl["m1"] = cuda.mem_alloc(8*area_max)
+        g_bufl["m2"] = cuda.mem_alloc(8*area_max)
+        g_bufl["m3"] = cuda.mem_alloc(8*area_max)
+        g_bufl["m_size"] = 8*area_max
+        g_bufl["dr"] = cuda.mem_alloc(8*len_max) #dr also used by A (window matrix)
+        g_bufl["di"] = cuda.mem_alloc(8*len_max)
+        g_bufl["d_size"] = 8*len_max
+        
+        script_dir = os.path.dirname(__file__)
+        filename = "cuda_kernels.cu"
+        abs_file_path = os.path.join(script_dir, filename)                                    
+        src_file = open(abs_file_path, 'r')
+                                        
+    kernelcode = SourceModule(src_file.read())
+    mulfunc = {}
+    mulfunc["pres_window"] = kernelcode.get_function("pressure_window_multiplication")
+    mulfunc["velo_window"] = kernelcode.get_function("velocity_window_multiplication")
+    mulfunc["derifact"] = kernelcode.get_function("derifact_multiplication")
+
+    # Loop over time steps
+    for frame in range(int(cfg.TRK)):
+        if stand_alone:
+            sys.stdout.write("\r%d"%(frame+1))
+            sys.stdout.flush()
+
+        # Keep a reference to current matrix contents
+        for d in scene.domains: d.push_values()
+
+        # Loop over subframes
+        for subframe in range(6):
+            # Loop over calculation directions and measures
+            for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+                # Loop over domains
+                for d in scene.domains:
+                    if not d.is_rigid():
+                        # Calculate sound propagations for non-rigid domains
+                        if d.should_update(boundary_type):
+                            def calc_cuda(domain, bt, ct, context, stream, plan_set,g_bufl,mulfunc,use_32bit):
+                                domain.calc_cuda(bt, ct, context, stream, plan_set,g_bufl,mulfunc,use_32bit)
+
+                            calc_cuda(d, boundary_type, calculation_type, context, stream, plan_set,g_bufl,mulfunc,use_32bit)
+
+            for domain in scene.domains:
+                if not domain.is_rigid():
+                    def calc(d):
+                        d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
+                        d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
+                        d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
+                        d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
+                    calc(domain)
+
+            # Sum the pressure components
+            for d in scene.domains:
+                d.p0 = d.px0 + d.pz0
+
+        # Apply pml matrices to boundary domains
+        scene.apply_pml_matrices()
+
+        for rf,r in zip(receiver_files, scene.receivers):
+            rf.write(struct.pack('f',r.calc()))
+            rf.flush()
+
+        if frame % cfg.save_nth_frame == 0:
+
+            # Handle plotting colour scale and draw
+            if write_plot:
+                pp.set_array(scene.get('p0'))
+                pp.autoscale()
+                m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
+                pp.norm.vmin = -m
+                pp.norm.vmax = m
+
+                temp_fileame = os.path.join(plotdir,'temp.png')
+                image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
+                plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
+                # atomic operation
+                shutil.move(temp_fileame, image_filename)
+
+            if write_array:
+                for d in (_d for _d in scene.domains if not _d.is_pml):
+                    array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
+                    array_file = open(array_filename,'wb')
+                    if visualisation_subsampling > 1:
+                        numpy_array = subsample(d.p0, visualisation_subsampling)
+                    else:
+                        numpy_array = d.p0
+                    pa = array.array('f',numpy_array.flatten(order='F'))
+                    pa.tofile(array_file)
+                    array_file.close()
+
+    if stand_alone:
+        print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+    else:
+        pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
     
-    for rf,r in zip(receiver_files, scene.receivers):
-        rf.write(struct.pack('f',r.calc()))
-        rf.flush()
-        
-    if frame % cfg.save_nth_frame == 0:
-        
-        # Handle plotting colour scale and draw
-        if write_plot:
-            pp.set_array(scene.get('p0'))    
-            pp.autoscale()
-            m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
-            pp.norm.vmin = -m
-            pp.norm.vmax = m
-            
-            temp_fileame = os.path.join(plotdir,'temp.png')
-            image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
-            plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
-            # atomic operation
-            shutil.move(temp_fileame, image_filename)
+    context.pop()
+    exit()
 
-        if write_array:
-            for d in (_d for _d in scene.domains if not _d.is_pml):
-                array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
-                array_file = open(array_filename,'wb')      
-                if visualisation_subsampling > 1:
-                    numpy_array = subsample(d.p0, visualisation_subsampling)
-                else:
-                    numpy_array = d.p0
-                pa = array.array('f',numpy_array.flatten(order='F'))
-                pa.tofile(array_file)
-                array_file.close()
+elif use_opencl:
+    context = cl.create_some_context(interactive=False)
+    queue = cl.CommandQueue(context)
+    
+    if use_32bit:
+        plan_set = {}
+        len_max = area_max = 0
+        for domain in scene.domains:
+            dim = domain.bottomright - domain.topleft
+            if int(nearest_2power(dim[0]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[0]+cfg.Wlength*2))
+            if int(nearest_2power(dim[1]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[0]*nearest_2power(dim[1]+cfg.Wlength*2) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[1]*nearest_2power(dim[0]+cfg.Wlength*2) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]+cfg.Wlength*2))
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[0]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[0]+cfg.Wlength*2)), dtype=np.float32, queue=queue, fast_math=False)
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[1]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[1]+cfg.Wlength*2)), dtype=np.float32, queue=queue, fast_math=False)
+                    
+        mf = cl.mem_flags            
+        
+        g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+        g_bufl["mr"] = cl.Buffer(context, mf.READ_WRITE, size=4*area_max)
+        g_bufl["mi"] = cl.Buffer(context, mf.READ_WRITE, size=4*area_max)
+        g_bufl["m1"] = cl.Buffer(context, mf.READ_WRITE, size=4*area_max)
+        g_bufl["m2"] = cl.Buffer(context, mf.READ_WRITE, size=4*area_max)
+        g_bufl["m3"] = cl.Buffer(context, mf.READ_WRITE, size=4*area_max)
+        g_bufl["m_size"] = 4*area_max
+        g_bufl["dr"] = cl.Buffer(context, mf.READ_WRITE, size=4*len_max) #dr also used by A (window matrix)
+        g_bufl["di"] = cl.Buffer(context, mf.READ_WRITE, size=4*len_max)
+        g_bufl["d_size"] = 4*len_max
 
-if stand_alone:
-    print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+        script_dir = os.path.dirname(__file__)
+        filename = "ocl_kernels32.cl"
+        abs_file_path = os.path.join(script_dir, filename)
+        src_file = open(abs_file_path, 'r')
+    else:
+        plan_set = {}
+        len_max = area_max = 0
+        for domain in scene.domains:
+            dim = domain.bottomright - domain.topleft
+            if int(nearest_2power(dim[0]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[0]+cfg.Wlength*2))
+            if int(nearest_2power(dim[1]+cfg.Wlength*2)) > len_max: len_max = int(nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[0]*nearest_2power(dim[1]+cfg.Wlength*2) > area_max: area_max = int(dim[0]*nearest_2power(dim[1]+cfg.Wlength*2))
+            if dim[1]*nearest_2power(dim[0]+cfg.Wlength*2) > area_max: area_max = int(dim[1]*nearest_2power(dim[0]+cfg.Wlength*2))
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[0]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[0]+cfg.Wlength*2)), dtype=np.float64, queue=queue, fast_math=False)
+            if str(int(nearest_2power(dim[0]+cfg.Wlength*2))) not in plan_set.keys():
+                plan_set[str(int(nearest_2power(dim[1]+cfg.Wlength*2)))] = Plan(int(nearest_2power(dim[1]+cfg.Wlength*2)), dtype=np.float64, queue=queue, fast_math=False)
+                    
+        mf = cl.mem_flags            
+        
+        g_bufl = {} #m/d(r/i) -> windowed matrix/derfact real/imag buffers. m(1/2/3)->p(#) buffers. spatderp3 will expand them if needed
+        g_bufl["mr"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+        g_bufl["mi"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+        g_bufl["m1"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+        g_bufl["m2"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+        g_bufl["m3"] = cl.Buffer(context, mf.READ_WRITE, size=8*area_max)
+        g_bufl["m_size"] = 8*area_max
+        g_bufl["dr"] = cl.Buffer(context, mf.READ_WRITE, size=8*len_max) #dr also used by A (window matrix)
+        g_bufl["di"] = cl.Buffer(context, mf.READ_WRITE, size=8*len_max)
+        g_bufl["d_size"] = 8*len_max
+
+        script_dir = os.path.dirname(__file__)
+        filename = "ocl_kernels.cl"
+        abs_file_path = os.path.join(script_dir, filename)
+        src_file = open(abs_file_path, 'r')
+
+    try:
+        kernelcode = cl.Program(context, src_file.read()).build()
+    except:
+        exit_with_error("64 bit OpenCL compilation failed. Make sure your OpenCL device supports 64 bit computation.")
+    
+    mulfunc = {}
+    mulfunc["pres_window"] = cl.Kernel(kernelcode, "pressure_window_multiplication")
+    mulfunc["velo_window"] = cl.Kernel(kernelcode, "velocity_window_multiplication")
+    mulfunc["derifact"] = cl.Kernel(kernelcode, "derifact_multiplication")
+    
+
+    # Loop over time steps
+    for frame in range(int(cfg.TRK)):
+        if stand_alone:
+            sys.stdout.write("\r%d"%(frame+1))
+            sys.stdout.flush()
+                         
+        # Keep a reference to current matrix contents
+        for d in scene.domains: d.push_values()
+
+        # Loop over subframes
+        for subframe in range(6):
+            # Loop over calculation directions and measures
+            for boundary_type, calculation_type in [(h, P), (v, P), (h, V), (v, V)]:
+                # Loop over domains
+                for d in scene.domains:
+                    if not d.is_rigid():
+                        # Calculate sound propagations for non-rigid domains
+                        if d.should_update(boundary_type):
+                            def calc_ocl(domain, bt, ct, context, queue, plan_set,g_bufl,mulfunc,use_32bit):
+                                domain.calc_ocl(bt, ct, context, queue, plan_set,g_bufl,mulfunc,use_32bit)
+
+                            calc_ocl(d, boundary_type, calculation_type, context, queue, plan_set,g_bufl,mulfunc,use_32bit)
+
+            for domain in scene.domains:
+                if not domain.is_rigid():
+                    def calc(d):
+                        d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
+                        d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
+                        d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
+                        d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
+                    calc(domain)
+
+            # Sum the pressure components
+            for d in scene.domains:
+                d.p0 = d.px0 + d.pz0
+
+        # Apply pml matrices to boundary domains
+        scene.apply_pml_matrices()
+
+        for rf,r in zip(receiver_files, scene.receivers):
+            rf.write(struct.pack('f',r.calc()))
+            rf.flush()
+
+        if frame % cfg.save_nth_frame == 0:
+
+            # Handle plotting colour scale and draw
+            if write_plot:
+                pp.set_array(scene.get('p0'))
+                pp.autoscale()
+                m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
+                pp.norm.vmin = -m
+                pp.norm.vmax = m
+
+                temp_fileame = os.path.join(plotdir,'temp.png')
+                image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
+                plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
+                # atomic operation
+                shutil.move(temp_fileame, image_filename)
+
+            if write_array:
+                for d in (_d for _d in scene.domains if not _d.is_pml):
+                    array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
+                    array_file = open(array_filename,'wb')
+                    if visualisation_subsampling > 1:
+                        numpy_array = subsample(d.p0, visualisation_subsampling)
+                    else:
+                        numpy_array = d.p0
+                    pa = array.array('f',numpy_array.flatten(order='F'))
+                    pa.tofile(array_file)
+                    array_file.close()
+
+    if stand_alone:
+        print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+    else:
+        pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+    
+    exit()
+
 else:
-    pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+    # Loop over time steps
+    for frame in range(int(cfg.TRK)):
+        if stand_alone:
+            sys.stdout.write("\r%d"%(frame+1))
+            sys.stdout.flush()
+        
+        # Keep a reference to current matrix contents
+        for d in scene.domains: d.push_values()
+        
+        # Loop over subframes
+        for subframe in range(6):
+            # Loop over calculation directions and measures
+            
+            threads = []
+            def exec_threads():
+                global threads
+                [t.start() for t in threads]
+                [ t.join() for t in threads]
+                threads = []
+            
+            for boundary_type, calculation_type in [(h,P),(v,P),(h,V),(v,V)]:
+                # Loop over domains           
+                for d in scene.domains:
+                    if not d.is_rigid():
+                        # Calculate sound propagations for non-rigid domains
+                        if d.should_update(boundary_type): 
+                            def calc(domain, bt, ct):
+                                domain.calc(bt, ct)
+                            if use_threading:
+                                def add(_d, _bt, _ct):
+                                    t = threading.Thread(target=lambda: calc(_d, _bt, _ct))
+                                    threads.append(t)
+                                add(d, boundary_type, calculation_type)
+                            else:
+                                try: calc(d, boundary_type, calculation_type)
+                                except Exception as e: exit_with_error(e)
+                
+            exec_threads()
 
-# Exit to prevent the Blender interpreter from processing
-# the subsequent command line arguments.
-exit()
+            for domain in scene.domains:
+                if not domain.is_rigid():
+                    def calc(d):
+                        d.u0  = d.u0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpx)).real
+                        d.w0  = d.w0_old  + (-cfg.dtRK * cfg.alfa[subframe] * ( 1 / d.rho       * d.Lpz)).real
+                        d.px0 = d.px0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvx)).real
+                        d.pz0 = d.pz0_old + (-cfg.dtRK * cfg.alfa[subframe] * (d.rho*pow(cfg.c1,2.) * d.Lvz)).real
+                    if use_threading:
+                        def add(_d):
+                            t = threading.Thread(target=lambda: calc(_d))
+                            threads.append(t)
+                        add(domain)
+                    else: calc(domain)
+                    
+            exec_threads()
+                    
+            # Sum the pressure components
+            for d in scene.domains:
+                d.p0 = d.px0 + d.pz0
+                
+        # Apply pml matrices to boundary domains
+        scene.apply_pml_matrices()
+        
+        for rf,r in zip(receiver_files, scene.receivers):
+            rf.write(struct.pack('f',r.calc()))
+            rf.flush()
+            
+        if frame % cfg.save_nth_frame == 0:
+            
+            # Handle plotting colour scale and draw
+            if write_plot:
+                pp.set_array(scene.get('p0'))    
+                pp.autoscale()
+                m = max(abs(pp.norm.vmin),abs(pp.norm.vmin))
+                pp.norm.vmin = -m
+                pp.norm.vmax = m
+                
+                temp_fileame = os.path.join(plotdir,'temp.png')
+                image_filename = os.path.join(plotdir,'im-%06d.png'%(frame+1))
+                plt.savefig(temp_fileame, bbox_inches=0, pad_inches=0)
+                # atomic operation
+                shutil.move(temp_fileame, image_filename)
+
+            if write_array:
+                for d in (_d for _d in scene.domains if not _d.is_pml):
+                    array_filename = os.path.join(plotdir,'%s-%06d.bin'%(d.id,(frame+1)))
+                    array_file = open(array_filename,'wb')      
+                    if visualisation_subsampling > 1:
+                        numpy_array = subsample(d.p0, visualisation_subsampling)
+                    else:
+                        numpy_array = d.p0
+                    pa = array.array('f',numpy_array.flatten(order='F'))
+                    pa.tofile(array_file)
+                    array_file.close()
+
+    if stand_alone:
+        print("\n\nCalculation took %.2f seconds"%(time.time()-t0))
+    else:
+        pickle.dump({'status':'success', 'message':"Calculation took %.2f seconds"%(time.time()-t0)},sys.stdout,0)
+
+    # Exit to prevent the Blender interpreter from processing
+    # the subsequent command line arguments.
+    exit()
