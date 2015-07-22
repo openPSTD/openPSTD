@@ -14,6 +14,23 @@ Installation
 
 Download the most recent release of openPSTD from [this link](http://openpstd.org/Download%20openPSTD.html) and install the add-on by clicking on the 'Install from File...' button in the User Preferences > Addons window in Blender. Blender 2.70 or newer is required to run the add-on.
 
+__Enabling GPU Acceleration (Optional)__
+GPU acceleration is available for computers that have a GPU which supports either CUDA or OpenCL. The GPU acceleration in openPSTD v1.1 requires either PyOpenCL or PyCUDA and the PyFFT library. PyFFT is incompatible with Python 3, which is shipped with Blender. In order to make use of GPU acceleration, a Python 2 installation has to be present.
+
+Please go through the following steps to be able to make use of GPU acceleration with openPSTD:
+1. Install either a CUDA or an OpenCL driver.
+* Check developer.nvidia.com/cuda-gpus if CUDA is available for your card. If not, OpenCL drivers are generally available from the GPU vendor.
+* Install Python 2 if it is not yet on your system. Install numpy, matplotlib, PyFFT and PyOpenCL/PyCUDA. If your default Python is set to a Python 3 installation, make sure you install the modules in your Python 2 installation.
+2. Import the openPSTD plugin as described above if you have not done it yet.
+3. Locate *openPSTD.txt* in your Blender config folder. This can be found by entering *bpy.utils.user_resource('CONFIG')* in a Blender Python console. The default locations are:
+* Linux: ~/.config/blender/[version]/config/
+* OSX: ~/Library/Application Support/Blender/2.75/config/
+* Windows: C:\Documents and Settings\{username}\AppData\Roaming\Blender Foundation\Blender\2.75\config\
+4. Change the path behind *python_path* = '' to the full path of your Python 2 installation. On Linux and OSX, this is usually */usr/bin/python*. On Windows, this is usually *C:\Python27\python.exe*.
+5. Restart Blender. If everything is installed correctly, the **Enable GPU Acceleration** option now works.
+
+__Warning__: openPSTD fails when **Enable GPU Acceleration** is checked but not all modules are installed correctly. If no output is produced, check if all needed modules are available and the Python 2 path is correctly entered in the config file.
+
 Contents of this repository
 =============================
 This repository contains code that implements the PSTD model for the propagation of sound and an interface for Blender to create and visualize simulation results. Both are written in the Python programming language. The simulation code can use GPU acceleration using either OpenCL or CUDA.
@@ -51,15 +68,19 @@ Simulation kernel
 
 * **./kernel/cuda_kernels.cu**
 
+  CUDA kernels containing functions necessary for the GPU acceleration of the spatial derivatives (64 bit versions).
 
 * **./kernel/cuda_kernels32.cu**
 
+  CUDA kernels containing functions necessary for the GPU acceleration of the spatial derivatives (32 bit versions).
 
 * **./kernel/ocl_kernels.cl**
 
+  OpenCL kernels containing functions necessary for the GPU acceleration of the spatial derivatives (64 bit versions).
 
 * **./kernel/ocl_kernels32.cl**
 
+  OpenCL kernels containing functions necessary for the GPU acceleration of the spatial derivatives (32 bit versions).
 
 Blender add-on
 --------------
