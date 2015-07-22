@@ -15,9 +15,11 @@ Installation
 Download the most recent release of openPSTD from [this link](http://openpstd.org/Download%20openPSTD.html) and install the add-on by clicking on the 'Install from File...' button in the User Preferences > Addons window in Blender. Blender 2.70 or newer is required to run the add-on.
 
 __Enabling GPU Acceleration (Optional)__
+
 GPU acceleration is available for computers that have a GPU which supports either CUDA or OpenCL. The GPU acceleration in openPSTD v1.1 requires either PyOpenCL or PyCUDA and the PyFFT library. PyFFT is incompatible with Python 3, which is shipped with Blender. In order to make use of GPU acceleration, a Python 2 installation has to be present.
 
 Please go through the following steps to be able to make use of GPU acceleration with openPSTD:
+
 1. Install either a CUDA or an OpenCL driver.
 * Check developer.nvidia.com/cuda-gpus if CUDA is available for your card. If not, OpenCL drivers are generally available from the GPU vendor.
 * Install Python 2 if it is not yet on your system. Install numpy, matplotlib, PyFFT and PyOpenCL/PyCUDA. If your default Python is set to a Python 3 installation, make sure you install the modules in your Python 2 installation.
