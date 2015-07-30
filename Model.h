@@ -6,6 +6,8 @@
 #define OPENPSTD_MODEL_H
 
 #include <rapidjson/document.h>
+#include <memory>
+#include <vector>
 
 class Model
 {

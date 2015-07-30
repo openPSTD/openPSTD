@@ -6,6 +6,7 @@
 #define OPENPSTD_BASEOPERATION_H
 
 #include "../Model.h"
+#include <memory>
 
 class OperationRunner;
 class Reciever;
@@ -14,13 +15,13 @@ class BaseOperation;
 class OperationRunner
 {
 public:
-    virtual void RunOperation(BaseOperation operation) = 0;
+    virtual void RunOperation(std::shared_ptr<BaseOperation> operation) = 0;
 };
 
 class Reciever
 {
 public:
-    Model* model;
+    std::shared_ptr<Model> model;
 };
 
 class BaseOperation
