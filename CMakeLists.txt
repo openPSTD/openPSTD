@@ -8,6 +8,8 @@ set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then 
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
+set(UNQLITE_INCLUDE "" CACHE PATH "The include directory of unqlite")
+set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 
 #------------------------------------
 # Python
@@ -84,7 +86,13 @@ endif()
 #------------------------------------
 # Rapidjson
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
-set(RAPIDJSON_INCLUDE "${RAPIDJSON_ROOT}\\include")
+set(RAPIDJSON_INCLUDE "${RAPIDJSON_ROOT}/include")
+message(STATUS "Rapidjson include path: ${RAPIDJSON_INCLUDE}")
+
+#------------------------------------
+# Unqlite
+message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
+message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
 
 #------------------------------------
 # include directories
@@ -92,6 +100,7 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
+include_directories(${UNQLITE_INCLUDE})
 
 #------------------------------------
 # Compiling flags
@@ -107,8 +116,7 @@ add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp Model.cpp Viewer2D.cpp PSTDFile.cpp)
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} external/unqlite.c)
-add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp )
+add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
 # link libraries
@@ -118,3 +126,4 @@ target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
 target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})

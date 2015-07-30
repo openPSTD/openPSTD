@@ -3,7 +3,7 @@
 //
 
 #include "PSTDFile.h"
-#include "external/unqlite.h"
+#include <unqlite.h>
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
