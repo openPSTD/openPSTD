@@ -73,6 +73,7 @@ endmacro(loadQtPackage)
 
 loadQtPackage(Qt5Widgets)
 loadQtPackage(Qt5Core)
+loadQtPackage(Qt5OpenGL)
 
 message(STATUS "Qt5 found: ${Qt5_FOUND}")
 message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES}")
@@ -95,12 +96,22 @@ message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
 message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
 
 #------------------------------------
+# Unqlite
+find_package(OpenGL)
+message(STATUS "OpenGL found: ${OPENGL_FOUND}")
+message(STATUS "OpenGL xmesa found: ${OPENGL_XMESA_FOUND}")
+message(STATUS "OpenGL glu found: ${OPENGL_GLU_FOUND}")
+message(STATUS "OpenGL include path: ${OPENGL_INCLUDE_DIR}")
+message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
+
+#------------------------------------
 # include directories
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
 include_directories(${UNQLITE_INCLUDE})
+include_directories(${OPENGL_INCLUDE_DIR})
 
 #------------------------------------
 # Compiling flags
@@ -127,3 +138,4 @@ target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
