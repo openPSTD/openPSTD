@@ -47,3 +47,5 @@ QSize Viewer2D::sizeHint() const
 {
     return QSize(400, 400);
 }
+
+
