@@ -27,7 +27,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 
 message(STATUS "Boost root hint: ${BOOST_ROOT}")
-find_package(Boost 1.58.0 REQUIRED program_options)
+find_package(Boost 1.54.0 REQUIRED program_options)
 message(STATUS "Boost found: ${Boost_FOUND}")
 message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
