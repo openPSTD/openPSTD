@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Thu May 21 14:45:32 2015
+# Created: Thu Jul 30 16:18:15 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -50,7 +50,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.verticalLayout_3 = QtGui.QVBoxLayout()
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.mainView = Viewer2D(self.centralwidget)
+        self.mainView = QtGui.QWidget(self.centralwidget)
         self.mainView.setObjectName("mainView")
         self.verticalLayout_3.addWidget(self.mainView)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
@@ -257,4 +257,3 @@ class Ui_MainWindow(object):
         self.actionDebug4.setText(QtGui.QApplication.translate("MainWindow", "Debug4", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShow_grid.setText(QtGui.QApplication.translate("MainWindow", "Show grid", None, QtGui.QApplication.UnicodeUTF8))
 
-from Viewer2D import Viewer2D

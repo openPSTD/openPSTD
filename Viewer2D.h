@@ -5,28 +5,15 @@
 #ifndef OPENPSTD_VIEWER2D_H
 #define OPENPSTD_VIEWER2D_H
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <vector>
 #include <boost/numeric/ublas/vector.hpp>
 #include <algorithm>
 #include "Model.h"
+#include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
 
-class Viewer2D: public QGLWidget
-{
-    Q_OBJECT
-
-public:
-    explicit Viewer2D(QWidget *parent = 0);
-
-public:
-    virtual QSize sizeHint() const override;
-    virtual QSize minimumSizeHint() const override;
-
-protected:
-    virtual void resizeGL(int w, int h) override;
-    virtual void initializeGL() override;
-    virtual void paintGL() override;
-};
+class Layer;
 
 template<typename T>
 class MinMaxValue
@@ -78,6 +65,28 @@ public:
     }
 };
 
+void DeleteNothing(void * ptr);
+
+class Viewer2D: public QOpenGLWidget
+{
+    Q_OBJECT
+
+public:
+    explicit Viewer2D(QWidget *parent = 0);
+
+public:
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
+
+protected:
+    virtual void resizeGL(int w, int h) override;
+    virtual void initializeGL() override;
+    virtual void paintGL() override;
+
+private:
+    std::vector<std::shared_ptr<Layer>> layers;
+};
+
 class Layer
 {
 protected:
@@ -89,12 +98,27 @@ public:
     virtual bool GetVisible() { return visible; };
     virtual void SetVisible(bool value) { visible = value; };
 
-    virtual void InitializeGL() = 0;
-    virtual void PaintGLVisibilityCheck(){ if(visible){ this->PaintGL(); } };
-    virtual void PaintGL() = 0;
+    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
+    virtual void PaintGLVisibilityCheck(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f){ if(visible){ this->PaintGL(context, f); } };
+    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void UpdateScene(Model m) = 0;
-    virtual MinMaxValue GetMinMax() = 0;
+    virtual MinMaxValue<float> GetMinMax() = 0;
     virtual void UpdateViewMatrix(std::shared_ptr<boost::numeric::ublas::matrix<float> > viewMatrix){ this->viewMatrix = viewMatrix; };
+};
+
+class GridLayer: public Layer
+{
+private:
+    std::unique_ptr<QOpenGLShaderProgram> program;
+    GLuint vertexbuffer;
+public:
+    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+
+    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+
+    virtual void UpdateScene(Model m);
+
+    virtual MinMaxValue<float> GetMinMax();
 };
 
 
