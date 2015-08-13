@@ -15,49 +15,62 @@
 
 class Layer;
 
-template<typename T>
 class MinMaxValue
 {
 public:
     MinMaxValue() {}
-    MinMaxValue(boost::numeric::ublas::vector<T> min, boost::numeric::ublas::vector<T> max)
+    MinMaxValue(QVector2D min, QVector2D max)
     {
-        if(min.size() != max.size())
-        {
-            //todo throw an exception
-        }
         this->min = min;
         this->max = max;
+        this->Active = true;
     }
 
-    boost::numeric::ublas::vector<T> min;
-    boost::numeric::ublas::vector<T> max;
-
-    unsigned int GetDimensions()
-    {
-        return min.size();
-    }
+    QVector2D min;
+    QVector2D max;
+    bool Active;
 
 
-    static MinMaxValue<T> Combine(MinMaxValue<T> first, MinMaxValue<T> second)
+    static MinMaxValue Combine(MinMaxValue first, MinMaxValue second)
     {
         using namespace boost::numeric::ublas;
-        MinMaxValue<T> result;
-        result.min = vector<T>(first.GetDimensions());
-        result.max = vector<T>(first.GetDimensions());
-        for(int i = 0; i < first.GetDimensions(); i++)
+        MinMaxValue result;
+        if(!first.Active && !second.Active)
         {
-            result.min(i) = std::min(first.min(i), second.min(i));
-            result.max(i) = std::max(first.max(i), second.max(i));
+            result.Active = false;
+        }
+        else if(!first.Active)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                result.min[i] = second.min[i];
+                result.max[i] = second.max[i];
+            }
+        }
+        else if(!second.Active)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                result.min[i] = first.min[i];
+                result.max[i] = first.max[i];
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                result.min[i] = std::min(first.min[i], second.min[i]);
+                result.max[i] = std::max(first.max[i], second.max[i]);
+            }
         }
         return result;
     }
 
-    static MinMaxValue<T> CombineList(std::vector<MinMaxValue<T>> list)
+    static MinMaxValue CombineList(std::vector<MinMaxValue> list)
     {
-        MinMaxValue<T> result = list.back();
+        MinMaxValue result = list.back();
         list.pop_back();
-        for(MinMaxValue<T> v: list)
+        for(MinMaxValue v: list)
         {
             result = Combine(result, v);
         }
@@ -77,6 +90,8 @@ public:
 public:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
+    void UpdateViewMatrix(QMatrix4x4 matrix);
+    QMatrix4x4 GetViewMatrix(){return _view_matrix;}
 
 protected:
     virtual void resizeGL(int w, int h) override;
@@ -85,13 +100,14 @@ protected:
 
 private:
     std::vector<std::shared_ptr<Layer>> layers;
+    QMatrix4x4 _view_matrix;
 };
 
 class Layer
 {
 protected:
     Viewer2D viewer2D;
-    std::shared_ptr<boost::numeric::ublas::matrix<float> > viewMatrix;
+    QMatrix4x4 viewMatrix;
     bool visible;
 
 public:
@@ -103,14 +119,17 @@ public:
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void UpdateScene(Model m) = 0;
     virtual MinMaxValue<float> GetMinMax() = 0;
-    virtual void UpdateViewMatrix(std::shared_ptr<boost::numeric::ublas::matrix<float> > viewMatrix){ this->viewMatrix = viewMatrix; };
+    virtual void UpdateViewMatrix(QMatrix4x4 viewMatrix){ this->viewMatrix = viewMatrix; };
 };
 
 class GridLayer: public Layer
 {
 private:
     std::unique_ptr<QOpenGLShaderProgram> program;
-    GLuint vertexbuffer;
+    void UpdateLines();
+    std::unique_ptr<std::vector<float>> positions;
+    int lines;
+
 public:
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 

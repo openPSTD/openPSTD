@@ -7,6 +7,8 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
+#include <algorithm>
+#include <math.h>
 
 
 void DeleteNothing(void * ptr)
@@ -76,31 +78,22 @@ void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
 
     program->bind();
 
-    static const GLfloat g_vertex_buffer_data[] = {
-            -1,-1,1,1,
-            -1,1,1,-1,
-             -0.5f,  0.5f,
-             -0.5f,  -0.5f,
-             0.5f,  0.5f,
-             0.5f,  -0.5f,
-    };
+    static const GLfloat g_vertex_buffer_data[] = {};
 
     QColor color(255, 255, 0, 255);
 
-    QMatrix3x3 pmvMatrix;
-    pmvMatrix.setToIdentity();
-
     program->enableAttributeArray("a_position");
-
-    program->setAttributeArray("a_position", g_vertex_buffer_data, 2);
     program->setUniformValue("u_color", color);
-    program->setUniformValue("u_view", pmvMatrix);
 }
 
 void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
+    UpdateLines();
+
     program->bind();
-    f->glDrawArrays(GL_LINES, 0, 8);
+    program->setUniformValue("u_view", this->viewMatrix);
+    program->setAttributeArray("a_position", this->positions->data(), 2);
+    f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
 void GridLayer::UpdateScene(Model m)
@@ -110,5 +103,61 @@ void GridLayer::UpdateScene(Model m)
 
 MinMaxValue<float> GridLayer::GetMinMax()
 {
-    return MinMaxValue<float>();
+    MinMaxValue<float> result;
+    result.Active = false;
+    return result;
+}
+
+void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
+{
+    this->_view_matrix = matrix;
+
+    std::for_each(this->layers.begin(), this->layers.end(), [matrix](std::shared_ptr<Layer> l){l->UpdateViewMatrix(matrix);});
+}
+
+void GridLayer::UpdateLines()
+{
+    std::cout << "------------------------------------------------------------" << std::endl;
+    float grid_spacing = 0.2f;
+
+    QVector2D tl = (QVector3D(-1, -1, 0)*this->viewMatrix.inverted()).toVector2D();
+    QVector2D br = (QVector3D(1, 1, 0)*this->viewMatrix.inverted()).toVector2D();
+
+    tl[0] = floorf(tl[0]/grid_spacing);
+    tl[1] = floorf(tl[1]/grid_spacing);
+    br[0] = ceilf(br[0]/grid_spacing);
+    br[1] = ceilf(br[1]/grid_spacing);
+
+    unsigned int verticalLines = (unsigned int)fabsf(br[0]-tl[0]);
+    unsigned int horizontalLines = (unsigned int)fabsf(br[1]-tl[1]);
+
+    unsigned int lines = verticalLines+horizontalLines;
+
+    tl[0] = tl[0]*grid_spacing;
+    tl[1] = tl[1]*grid_spacing;
+    br[0] = br[0]*grid_spacing;
+    br[1] = br[1]*grid_spacing;
+
+    std::unique_ptr<std::vector<float> > positions = std::unique_ptr<std::vector<float> >(new std::vector<float>(lines*4));
+    for(int i = 0; i < verticalLines; i++)
+    {
+        (*positions)[i*4+0] = tl[0]+i*grid_spacing;
+        (*positions)[i*4+1] = tl[1];
+        (*positions)[i*4+2] = tl[0]+i*grid_spacing;
+        (*positions)[i*4+3] = br[1];
+        std::cout << "[(" << (*positions)[i*4+0] << "," << (*positions)[i*4+1] << "),(" << (*positions)[i*4+2] << "," << (*positions)[i*4+3] << ")]" << std::endl;
+    }
+
+    for(int i = 0; i < horizontalLines; i++)
+    {
+        int offset = verticalLines*4;
+        (*positions)[offset+i*4+0] = tl[0];
+        (*positions)[offset+i*4+1] = tl[1]+i*grid_spacing;
+        (*positions)[offset+i*4+2] = br[0];
+        (*positions)[offset+i*4+3] = tl[1]+i*grid_spacing;
+        std::cout << "[(" << (*positions)[offset+i*4+0] << "," << (*positions)[offset+i*4+1] << "),(" << (*positions)[offset+i*4+2] << "," << (*positions)[offset+i*4+3] << ")]" << std::endl;
+    }
+
+    this->positions = std::move(positions);
+    this->lines = lines;
 }
