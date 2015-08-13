@@ -16,6 +16,12 @@ void DeleteNothing(void * ptr)
 
 }
 
+void DeleteTexture(void * ptr)
+{
+    if(ptr != nullptr)
+        ((QOpenGLTexture*)ptr)->destroy();
+}
+
 Viewer2D::Viewer2D(QWidget *parent)
     : QOpenGLWidget(parent), layers()
 {
@@ -43,6 +49,7 @@ void Viewer2D::initializeGL()
 
     std::cout << "create layers" << std::endl;
     this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
+    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
     for(int i = 0; i < this->layers.size(); i++)
     {
         this->layers[i]->InitializeGL(this, f);
@@ -117,7 +124,6 @@ void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
 
 void GridLayer::UpdateLines()
 {
-    std::cout << "------------------------------------------------------------" << std::endl;
     float grid_spacing = 0.2f;
 
     QVector2D tl = (QVector3D(-1, -1, 0)*this->viewMatrix.inverted()).toVector2D();
@@ -145,7 +151,6 @@ void GridLayer::UpdateLines()
         (*positions)[i*4+1] = tl[1];
         (*positions)[i*4+2] = tl[0]+i*grid_spacing;
         (*positions)[i*4+3] = br[1];
-        std::cout << "[(" << (*positions)[i*4+0] << "," << (*positions)[i*4+1] << "),(" << (*positions)[i*4+2] << "," << (*positions)[i*4+3] << ")]" << std::endl;
     }
 
     for(int i = 0; i < horizontalLines; i++)
@@ -155,7 +160,6 @@ void GridLayer::UpdateLines()
         (*positions)[offset+i*4+1] = tl[1]+i*grid_spacing;
         (*positions)[offset+i*4+2] = br[0];
         (*positions)[offset+i*4+3] = tl[1]+i*grid_spacing;
-        std::cout << "[(" << (*positions)[offset+i*4+0] << "," << (*positions)[offset+i*4+1] << "),(" << (*positions)[offset+i*4+2] << "," << (*positions)[offset+i*4+3] << ")]" << std::endl;
     }
 
     this->positions = std::move(positions);
@@ -218,4 +222,96 @@ MinMaxValue MinMaxValue::CombineList(std::vector<MinMaxValue> list)
         result = Combine(result, v);
     }
     return result;
+}
+
+void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
+{
+    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU\\Scene2D.vert"));
+    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU\\Scene2D.frag"));
+
+    program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
+    program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
+    program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString::fromStdString(*fragmentFile));
+    program->link();
+
+    program->bind();
+
+    static const GLfloat g_vertex_buffer_data[] = {};
+
+    QColor color(255, 255, 0, 255);
+
+    CreateColormap();
+
+    this->positions = std::unique_ptr<std::vector<float>>(new std::vector<float>());
+    this->values = std::unique_ptr<std::vector<float>>(new std::vector<float>());
+    this->lines = 20;
+
+
+    for(int i = 0; i < this->lines*2; i++)
+    {
+        this->positions->push_back(rand()/(float)RAND_MAX*2-1);
+        this->positions->push_back(rand()/(float)RAND_MAX*2-1);
+        this->values->push_back(rand()/(float)RAND_MAX);
+    }
+
+    /*std::cout << "------------------------------------------------------------" << std::endl;
+    for(int i = 0; i < this->lines; i++)
+    {
+        std::cout << "[(" << (*positions)[i*4+0] << "," << (*positions)[i*4+1] << "),(" << (*positions)[i*4+2] << "," << (*positions)[i*4+3] << ")], " << "<" << (*this->values)[i] << "," << (*this->values)[i] << std::endl;
+    }*/
+
+
+    program->enableAttributeArray("a_position");
+    program->enableAttributeArray("a_value");
+    program->setUniformValue("colormap", this->texture->textureId());
+    program->setUniformValue("vmin", 0.0f);
+    program->setUniformValue("vmax", 1.0f);
+}
+
+void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
+{
+    program->bind();
+    program->setUniformValue("u_view", this->viewMatrix);
+    program->setAttributeArray("a_position", this->positions->data(), 2);
+    program->setAttributeArray("a_value", this->values->data(), 2);
+    f->glDrawArrays(GL_LINES, 0, lines*2);
+}
+
+void SceneLayer::UpdateScene(Model m)
+{
+
+}
+
+MinMaxValue SceneLayer::GetMinMax()
+{
+    return MinMaxValue();
+}
+
+void SceneLayer::CreateColormap()
+{
+    std::unique_ptr<std::vector<float>> colormap(new std::vector<float>(2*512*4));
+    for(int i = 0; i < 512; i++)
+    {
+        (*colormap)[i*4+0] = i/512.0f;
+        (*colormap)[i*4+1] = 0;
+        (*colormap)[i*4+2] = 1-i/512.0f;
+        (*colormap)[i*4+3] = 1;
+
+        (*colormap)[512+i*4+0] = i/512.0f;
+        (*colormap)[512+i*4+1] = 0;
+        (*colormap)[512+i*4+2] = 1-i/512.0f;
+        (*colormap)[512+i*4+3] = 1;
+    }
+
+    std::unique_ptr<QOpenGLTexture, void(*)(void* ptr)> texture(new QOpenGLTexture(QOpenGLTexture::Target2D), DeleteTexture);
+    texture->create();
+    texture->bind();
+    texture->setSize(512, 2);
+    texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::Float32);
+    texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+
+    texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::Float32, colormap->data());
+
+    this->texture = std::move(texture);
+
 }

@@ -12,6 +12,7 @@
 #include "Model.h"
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLTexture>
 
 class Layer;
 
@@ -31,6 +32,7 @@ public:
 };
 
 void DeleteNothing(void * ptr);
+void DeleteTexture(void * ptr);
 
 class Viewer2D: public QOpenGLWidget
 {
@@ -92,5 +94,31 @@ public:
     virtual MinMaxValue GetMinMax();
 };
 
+
+class SceneLayer: public Layer
+{
+private:
+    std::unique_ptr<QOpenGLShaderProgram> program;
+    std::unique_ptr<std::vector<float>> positions;
+    std::unique_ptr<std::vector<float>> values;
+    std::unique_ptr<QOpenGLTexture, void(*)(void*)> texture;
+    int lines;
+
+    void CreateColormap();
+
+public:
+    SceneLayer(): texture(nullptr, DeleteTexture)
+    {
+
+    }
+
+    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+
+    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+
+    virtual void UpdateScene(Model m);
+
+    virtual MinMaxValue GetMinMax();
+};
 
 #endif //OPENPSTD_VIEWER2D_H
