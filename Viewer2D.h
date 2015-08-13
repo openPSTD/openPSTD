@@ -18,64 +18,16 @@ class Layer;
 class MinMaxValue
 {
 public:
-    MinMaxValue() {}
-    MinMaxValue(QVector2D min, QVector2D max)
-    {
-        this->min = min;
-        this->max = max;
-        this->Active = true;
-    }
+    MinMaxValue();
+    MinMaxValue(QVector2D min, QVector2D max);
 
     QVector2D min;
     QVector2D max;
     bool Active;
 
+    static MinMaxValue Combine(MinMaxValue first, MinMaxValue second);
 
-    static MinMaxValue Combine(MinMaxValue first, MinMaxValue second)
-    {
-        using namespace boost::numeric::ublas;
-        MinMaxValue result;
-        if(!first.Active && !second.Active)
-        {
-            result.Active = false;
-        }
-        else if(!first.Active)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                result.min[i] = second.min[i];
-                result.max[i] = second.max[i];
-            }
-        }
-        else if(!second.Active)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                result.min[i] = first.min[i];
-                result.max[i] = first.max[i];
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                result.min[i] = std::min(first.min[i], second.min[i]);
-                result.max[i] = std::max(first.max[i], second.max[i]);
-            }
-        }
-        return result;
-    }
-
-    static MinMaxValue CombineList(std::vector<MinMaxValue> list)
-    {
-        MinMaxValue result = list.back();
-        list.pop_back();
-        for(MinMaxValue v: list)
-        {
-            result = Combine(result, v);
-        }
-        return result;
-    }
+    static MinMaxValue CombineList(std::vector<MinMaxValue> list);
 };
 
 void DeleteNothing(void * ptr);
@@ -118,7 +70,7 @@ public:
     virtual void PaintGLVisibilityCheck(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f){ if(visible){ this->PaintGL(context, f); } };
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void UpdateScene(Model m) = 0;
-    virtual MinMaxValue<float> GetMinMax() = 0;
+    virtual MinMaxValue GetMinMax() = 0;
     virtual void UpdateViewMatrix(QMatrix4x4 viewMatrix){ this->viewMatrix = viewMatrix; };
 };
 
@@ -137,7 +89,7 @@ public:
 
     virtual void UpdateScene(Model m);
 
-    virtual MinMaxValue<float> GetMinMax();
+    virtual MinMaxValue GetMinMax();
 };
 
 

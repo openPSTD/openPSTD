@@ -101,9 +101,9 @@ void GridLayer::UpdateScene(Model m)
 
 }
 
-MinMaxValue<float> GridLayer::GetMinMax()
+MinMaxValue GridLayer::GetMinMax()
 {
-    MinMaxValue<float> result;
+    MinMaxValue result;
     result.Active = false;
     return result;
 }
@@ -160,4 +160,62 @@ void GridLayer::UpdateLines()
 
     this->positions = std::move(positions);
     this->lines = lines;
+}
+
+MinMaxValue::MinMaxValue()
+{
+
+}
+
+MinMaxValue::MinMaxValue(QVector2D min, QVector2D max)
+{
+    this->min = min;
+    this->max = max;
+    this->Active = true;
+}
+
+MinMaxValue MinMaxValue::Combine(MinMaxValue first, MinMaxValue second)
+{
+    using namespace boost::numeric::ublas;
+    MinMaxValue result;
+    if(!first.Active && !second.Active)
+    {
+        result.Active = false;
+    }
+    else if(!first.Active)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            result.min[i] = second.min[i];
+            result.max[i] = second.max[i];
+        }
+    }
+    else if(!second.Active)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            result.min[i] = first.min[i];
+            result.max[i] = first.max[i];
+        }
+    }
+    else
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            result.min[i] = std::min(first.min[i], second.min[i]);
+            result.max[i] = std::max(first.max[i], second.max[i]);
+        }
+    }
+    return result;
+}
+
+MinMaxValue MinMaxValue::CombineList(std::vector<MinMaxValue> list)
+{
+    MinMaxValue result = list.back();
+    list.pop_back();
+    for(MinMaxValue v: list)
+    {
+        result = Combine(result, v);
+    }
+    return result;
 }
