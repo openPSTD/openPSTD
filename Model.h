@@ -8,11 +8,12 @@
 #include <rapidjson/document.h>
 #include <memory>
 #include <vector>
+#include "PSTDFile.h"
 
 class Model
 {
 public:
-    rapidjson::Document * d;
+    std::unique_ptr<PSTDFile> d;
 };
 
 

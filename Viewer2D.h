@@ -71,7 +71,7 @@ public:
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void PaintGLVisibilityCheck(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f){ if(visible){ this->PaintGL(context, f); } };
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
-    virtual void UpdateScene(Model m) = 0;
+    virtual void UpdateScene(std::shared_ptr<Model> m) = 0;
     virtual MinMaxValue GetMinMax() = 0;
     virtual void UpdateViewMatrix(QMatrix4x4 viewMatrix){ this->viewMatrix = viewMatrix; };
 };
@@ -89,7 +89,7 @@ public:
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
-    virtual void UpdateScene(Model m);
+    virtual void UpdateScene(std::shared_ptr<Model> m);
 
     virtual MinMaxValue GetMinMax();
 };
@@ -107,7 +107,7 @@ private:
     void CreateColormap();
 
 public:
-    SceneLayer()
+    SceneLayer() : positions(new std::vector<float>()), values(new std::vector<float>())
     {
 
     }
@@ -116,7 +116,7 @@ public:
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
-    virtual void UpdateScene(Model m);
+    virtual void UpdateScene(std::shared_ptr<Model> m);
 
     virtual MinMaxValue GetMinMax();
 };

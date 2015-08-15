@@ -105,7 +105,7 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void GridLayer::UpdateScene(Model m)
+void GridLayer::UpdateScene(std::shared_ptr<Model> m)
 {
 
 }
@@ -251,8 +251,8 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 
     CreateColormap();
 
-    this->positions = std::unique_ptr<std::vector<float>>(new std::vector<float>());
-    this->values = std::unique_ptr<std::vector<float>>(new std::vector<float>());
+    this->positions->clear();
+    this->values->clear();
     this->lines = 20;
 
     for(int i = 0; i < this->lines*2; i++)
@@ -272,22 +272,60 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
     program->bind();
-    GLError("program->bind");
     program->setUniformValue("u_view", this->viewMatrix);
-    GLError("program->setUniformValue");
     program->setAttributeArray("a_position", this->positions->data(), 2);
-    GLError("program->setAttributeArray");
     program->setAttributeArray("a_value", this->values->data(), 2);
-    GLError("program->setAttributeArray");
     f->glLineWidth(5.0f);
-    GLError("f->glLineWidth");
     f->glDrawArrays(GL_LINES, 0, lines*2);
-    GLError("f->glDrawArrays");
 }
 
-void SceneLayer::UpdateScene(Model m)
+void SceneLayer::UpdateScene(std::shared_ptr<Model> m)
 {
-    
+    std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+    rapidjson::GenericValue & domains = (*conf)["domains"];
+
+    this->positions->clear();
+    this->values->clear();
+    this->lines = 0;
+
+    for(rapidjson::SizeType i = 0; i < domains.Size(); i++)
+    {
+        QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
+        QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
+        QVector2D br = tl+size;
+        float left = tl[0];
+        float top = tl[1];
+
+        float right = br[0];
+        float bottom = br[1];
+
+        float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
+        float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
+        float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
+        float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
+
+        this->positions->push_back(left); this->positions->push_back(top);
+        this->values->push_back(aTop);
+        this->positions->push_back(right); this->positions->push_back(top);
+        this->values->push_back(aTop);
+
+        this->positions->push_back(left); this->positions->push_back(top);
+        this->values->push_back(aLeft);
+        this->positions->push_back(left); this->positions->push_back(bottom);
+        this->values->push_back(aLeft);
+
+        this->positions->push_back(left); this->positions->push_back(bottom);
+        this->values->push_back(aBottom);
+        this->positions->push_back(right); this->positions->push_back(bottom);
+        this->values->push_back(aBottom);
+
+        this->positions->push_back(right); this->positions->push_back(top);
+        this->values->push_back(aRight);
+        this->positions->push_back(right); this->positions->push_back(bottom);
+        this->values->push_back(aRight);
+
+        this->lines += 4;
+    }
 }
 
 MinMaxValue SceneLayer::GetMinMax()
