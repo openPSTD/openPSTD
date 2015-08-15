@@ -101,13 +101,13 @@ private:
     std::unique_ptr<QOpenGLShaderProgram> program;
     std::unique_ptr<std::vector<float>> positions;
     std::unique_ptr<std::vector<float>> values;
-    std::unique_ptr<QOpenGLTexture, void(*)(void*)> texture;
+    GLuint textureID;
     int lines;
 
     void CreateColormap();
 
 public:
-    SceneLayer(): texture(nullptr, DeleteTexture)
+    SceneLayer()
     {
 
     }

@@ -9,6 +9,8 @@
 #include <QOpenGLShader>
 #include <algorithm>
 #include <math.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 
 void DeleteNothing(void * ptr)
@@ -224,6 +226,17 @@ MinMaxValue MinMaxValue::CombineList(std::vector<MinMaxValue> list)
     return result;
 }
 
+void GLError(std::string name)
+{
+    std::cout << "------------------------------------------------------" <<std::endl;
+    std::cout << "=" << name << std::endl;
+    GLenum err = GL_NO_ERROR;
+    while((err = glGetError()) != GL_NO_ERROR)
+    {
+        std::cout << err << ": " << gluErrorString(err) <<std::endl;
+    }
+}
+
 void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU\\Scene2D.vert"));
@@ -236,16 +249,11 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 
     program->bind();
 
-    static const GLfloat g_vertex_buffer_data[] = {};
-
-    QColor color(255, 255, 0, 255);
-
     CreateColormap();
 
     this->positions = std::unique_ptr<std::vector<float>>(new std::vector<float>());
     this->values = std::unique_ptr<std::vector<float>>(new std::vector<float>());
     this->lines = 20;
-
 
     for(int i = 0; i < this->lines*2; i++)
     {
@@ -254,16 +262,9 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
         this->values->push_back(rand()/(float)RAND_MAX);
     }
 
-    /*std::cout << "------------------------------------------------------------" << std::endl;
-    for(int i = 0; i < this->lines; i++)
-    {
-        std::cout << "[(" << (*positions)[i*4+0] << "," << (*positions)[i*4+1] << "),(" << (*positions)[i*4+2] << "," << (*positions)[i*4+3] << ")], " << "<" << (*this->values)[i] << "," << (*this->values)[i] << std::endl;
-    }*/
-
-
     program->enableAttributeArray("a_position");
     program->enableAttributeArray("a_value");
-    program->setUniformValue("colormap", this->texture->textureId());
+    program->setUniformValue("colormap", this->textureID);
     program->setUniformValue("vmin", 0.0f);
     program->setUniformValue("vmax", 1.0f);
 }
@@ -271,21 +272,30 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
     program->bind();
+    GLError("program->bind");
     program->setUniformValue("u_view", this->viewMatrix);
+    GLError("program->setUniformValue");
     program->setAttributeArray("a_position", this->positions->data(), 2);
+    GLError("program->setAttributeArray");
     program->setAttributeArray("a_value", this->values->data(), 2);
+    GLError("program->setAttributeArray");
+    f->glLineWidth(5.0f);
+    GLError("f->glLineWidth");
     f->glDrawArrays(GL_LINES, 0, lines*2);
+    GLError("f->glDrawArrays");
 }
 
 void SceneLayer::UpdateScene(Model m)
 {
-
+    
 }
 
 MinMaxValue SceneLayer::GetMinMax()
 {
     return MinMaxValue();
 }
+
+
 
 void SceneLayer::CreateColormap()
 {
@@ -297,21 +307,29 @@ void SceneLayer::CreateColormap()
         (*colormap)[i*4+2] = 1-i/512.0f;
         (*colormap)[i*4+3] = 1;
 
-        (*colormap)[512+i*4+0] = i/512.0f;
-        (*colormap)[512+i*4+1] = 0;
-        (*colormap)[512+i*4+2] = 1-i/512.0f;
-        (*colormap)[512+i*4+3] = 1;
+        (*colormap)[512*4+i*4+0] = i/512.0f;
+        (*colormap)[512*4+i*4+1] = 0;
+        (*colormap)[512*4+i*4+2] = 1-i/512.0f;
+        (*colormap)[512*4+i*4+3] = 1;
     }
 
-    std::unique_ptr<QOpenGLTexture, void(*)(void* ptr)> texture(new QOpenGLTexture(QOpenGLTexture::Target2D), DeleteTexture);
-    texture->create();
-    texture->bind();
-    texture->setSize(512, 2);
-    texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::Float32);
-    texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+    // Create one OpenGL texture
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    GLError("glGenTextures");
 
-    texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::Float32, colormap->data());
+    // "Bind" the newly created texture : all future texture functions will modify this texture
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    GLError("glBindTexture");
 
-    this->texture = std::move(texture);
+    // Give the image to OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 512, 2, 0, GL_RGBA, GL_FLOAT, colormap->data());
+    GLError("glTexImage1D");
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLError("glTexParameteri");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    GLError("glTexParameteri");
+
+    this->textureID = textureID;
 }
