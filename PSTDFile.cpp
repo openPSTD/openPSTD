@@ -4,8 +4,10 @@
 
 #include "PSTDFile.h"
 #include <unqlite.h>
+#include <iostream>
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
@@ -80,6 +82,8 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
 {
     std::unique_ptr<PSTDFile> result(new PSTDFile());
 
+    unqlite_open(&result->backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+
     std::shared_ptr<rapidjson::Document> SceneConf(new rapidjson::Document());
     SceneConf->Parse(PSTDEmptyScene);
     result->SetSceneConf(SceneConf);
@@ -90,6 +94,7 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
     result->SetPSTDConf(PSTDConf);
 
     result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
+    result->Close();
 
     return PSTDFile::Open(filename);
 }
@@ -198,6 +203,7 @@ std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key)
     zBuf = GetRawValue(key, &nBytes);
 
     unique_ptr<std::string> result = unique_ptr<std::string>(new std::string(zBuf));
+
     delete zBuf;
 
     return result;
@@ -208,15 +214,17 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64* nBytes)
     int rc;
     char *zBuf;     //Dynamically allocated buffer
 
-    rc = unqlite_kv_fetch(this->backend, key.get(), -1, NULL, nBytes);
+    rc = unqlite_kv_fetch(this->backend, key->data(), key->size(), NULL, nBytes);
     if( rc != UNQLITE_OK )
     {
+        std::cout << "Error: " << rc;
+        std::cout << " for key: " << this->KeyToString(key) << std::endl;
         //todo throw error exception
     }
 
     zBuf = new char[*nBytes];
 
-    unqlite_kv_fetch(this->backend, key.get(), -1, zBuf, nBytes);
+    unqlite_kv_fetch(this->backend, key->data(), key->size(), zBuf, nBytes);
 
     return zBuf;
 }
@@ -233,25 +241,22 @@ void PSTDFile::initilize()
 
 PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list)
 {
-    //the length of the list times int + 1 byte for the zero terminator
-    int length = sizeof(int)*(list.size()+1)+1;
+    //the length of the list times int
+    int length = sizeof(int)*(list.size()+1);
     char* data = new char[length];
 
     //cast to integer for easy access
     int* key = (int*)data;
 
     //fill the key
-    key[0] = prefix+1;
+    key[0] = prefix;
 
     int i = 0;
     for( auto elem : list )
     {
-        key[i+1] = elem+1;
+        key[i+1] = elem;
         i++;
     }
-
-    //create termininating zero
-    data[length-1] = 0;
 
     PSTDFile_Key_t result = shared_ptr<std::vector<char> >(new vector<char>(data, data+length));
     delete[] data;
@@ -259,16 +264,35 @@ PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<un
     return result;
 }
 
+std::string PSTDFile::KeyToString(PSTDFile_Key_t key)
+{
+    unsigned int * values = (unsigned int*)key->data();
+
+    std::string result("{" + boost::lexical_cast<std::string>(values[0]) + ",[");
+    for(int i = 1; i < key->size()/4; i++)
+    {
+        result = result + boost::lexical_cast<std::string>(values[i]);
+        if(i < key->size()/4-1)
+        {
+            result = result + ",";
+        }
+    }
+    result = result + "]}";
+
+    return result;
+}
+
 void PSTDFile::SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> value)
 {
-    SetRawValue(key, value->length(), value->c_str());
+    //add the 1 for the null terminator :)
+    SetRawValue(key, value->length()+1, value->c_str());
 }
 
 void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const char *value)
 {
     int rc;
 
-    rc = unqlite_kv_store(this->backend, key.get(), -1, value, nBytes);
+    rc = unqlite_kv_store(this->backend, key->data(), key->size(), value, nBytes);
 
     if( rc != UNQLITE_OK )
     {
@@ -288,10 +312,12 @@ void PSTDFile::DeleteValue(PSTDFile_Key_t key)
 {
     int rc;
 
-    rc = unqlite_kv_delete(this->backend, key.get(), -1);
+    rc = unqlite_kv_delete(this->backend, key->data(), key->size());
 
     if( rc != UNQLITE_OK )
     {
         //todo throw error exception
     }
 }
+
+

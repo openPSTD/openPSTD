@@ -32,28 +32,17 @@ private:
     unsigned int IncrementFrameCount(unsigned int domain);
 
     PSTDFile_Key_t CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list);
+    std::string KeyToString(PSTDFile_Key_t key);
 
     template<typename T>
     T GetValue(PSTDFile_Key_t key)
-    {
-        return GetValue<T>(key->data());
-    }
-
-    template<typename T>
-    void SetValue(PSTDFile_Key_t key, T value)
-    {
-        SetValue<T>(key->data(), value);
-    }
-
-    template<typename T>
-    T GetValue(const char* key)
     {
         std::unique_ptr<unqlite_int64> nBytes;
         int rc;
 
         std::unique_ptr<T> zBuf;//Dynamically allocated buffer
 
-        rc = unqlite_kv_fetch(this->backend, key, -1, zBuf.get(), nBytes.get());
+        rc = unqlite_kv_fetch(this->backend, key->data(), key->size(), zBuf.get(), nBytes.get());
         if( rc != UNQLITE_OK )
         {
             //todo throw error exception
@@ -63,11 +52,11 @@ private:
     }
 
     template<typename T>
-    void SetValue(const char* key, T value)
+    void SetValue(PSTDFile_Key_t key, T value)
     {
         int rc;
 
-        rc = unqlite_kv_store(this->backend, key, -1, &value, sizeof(T));
+        rc = unqlite_kv_store(this->backend, key->data(), key->size(), &value, sizeof(T));
 
         if( rc != UNQLITE_OK )
         {

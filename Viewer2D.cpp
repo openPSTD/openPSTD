@@ -11,6 +11,10 @@
 #include <math.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
+#include <string>
+#include <memory>
 
 
 void DeleteNothing(void * ptr)
@@ -27,7 +31,9 @@ void DeleteTexture(void * ptr)
 Viewer2D::Viewer2D(QWidget *parent)
     : QOpenGLWidget(parent), layers()
 {
-
+    std::cout << "create layers" << std::endl;
+    this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
+    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
 }
 
 void Viewer2D::paintGL()
@@ -49,9 +55,6 @@ void Viewer2D::initializeGL()
 
     f->glDisable(GL_CULL_FACE);
 
-    std::cout << "create layers" << std::endl;
-    this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
-    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
     for(int i = 0; i < this->layers.size(); i++)
     {
         this->layers[i]->InitializeGL(this, f);
@@ -74,6 +77,13 @@ QSize Viewer2D::sizeHint() const
     return QSize(400, 400);
 }
 
+void Viewer2D::UpdateFromModel(std::unique_ptr<Model> const &model)
+{
+    for(int i = 0; i < this->layers.size(); i++)
+    {
+        this->layers[i]->UpdateScene(model);
+    }
+}
 
 void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
@@ -105,7 +115,7 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void GridLayer::UpdateScene(std::shared_ptr<Model> m)
+void GridLayer::UpdateScene(std::unique_ptr<Model> const &m)
 {
 
 }
@@ -251,17 +261,6 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 
     CreateColormap();
 
-    this->positions->clear();
-    this->values->clear();
-    this->lines = 20;
-
-    for(int i = 0; i < this->lines*2; i++)
-    {
-        this->positions->push_back(rand()/(float)RAND_MAX*2-1);
-        this->positions->push_back(rand()/(float)RAND_MAX*2-1);
-        this->values->push_back(rand()/(float)RAND_MAX);
-    }
-
     program->enableAttributeArray("a_position");
     program->enableAttributeArray("a_value");
     program->setUniformValue("colormap", this->textureID);
@@ -279,10 +278,11 @@ void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, voi
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void SceneLayer::UpdateScene(std::shared_ptr<Model> m)
+void SceneLayer::UpdateScene(std::unique_ptr<Model> const &m)
 {
     std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
-    rapidjson::GenericValue & domains = (*conf)["domains"];
+
+    rapidjson::Value& domains = (*conf)["domains"];
 
     this->positions->clear();
     this->values->clear();
@@ -371,3 +371,5 @@ void SceneLayer::CreateColormap()
 
     this->textureID = textureID;
 }
+
+

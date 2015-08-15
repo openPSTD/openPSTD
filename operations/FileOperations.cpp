@@ -15,18 +15,7 @@ OpenFileOperation::OpenFileOperation(std::string filename)
 
 void OpenFileOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
-
-    FILE* fp = fopen("big.json", "rb"); // non-Windows use "r"
-    char readBuffer[65536];
-    FileReadStream bis(fp, readBuffer, sizeof(readBuffer));
-
-    AutoUTFInputStream<unsigned, FileReadStream> eis(bis);  // wraps bis into eis
-
-    reciever.model->d = new Document();
-    reciever.model->d->ParseStream<0, AutoUTF<unsigned>>(eis);
-
-    fclose(fp);
+    reciever.model->d = PSTDFile::Open(this->filename);
 }
 
 
