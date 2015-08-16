@@ -125,7 +125,7 @@ add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 #------------------------------------
 # UI
 set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp Model.cpp Viewer2D.cpp PSTDFile.cpp)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 

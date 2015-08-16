@@ -22,7 +22,6 @@ const char* PSTDEmptyScene = "{\n"
         "                10.0,\n"
         "                10.0\n"
         "            ],\n"
-        "            \"id\": \"0\",\n"
         "            \"edges\": {\n"
         "                \"l\": {\n"
         "                    \"a\": 0.0,\n"
@@ -321,3 +320,12 @@ void PSTDFile::DeleteValue(PSTDFile_Key_t key)
 }
 
 
+std::string DomainSideToString(PSTD_DOMAIN_SIDE side)
+{
+    switch(side) {
+        case PSTD_DOMAIN_SIDE_TOP   : return "t";
+        case PSTD_DOMAIN_SIDE_BOTTOM : return "b";
+        case PSTD_DOMAIN_SIDE_LEFT  : return "l";
+        case PSTD_DOMAIN_SIDE_RIGHT  : return "r";
+    }
+}

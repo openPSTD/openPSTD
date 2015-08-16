@@ -14,6 +14,16 @@
 
 using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
 
+enum PSTD_DOMAIN_SIDE
+{
+    PSTD_DOMAIN_SIDE_TOP,
+    PSTD_DOMAIN_SIDE_BOTTOM,
+    PSTD_DOMAIN_SIDE_LEFT,
+    PSTD_DOMAIN_SIDE_RIGHT,
+};
+
+std::string DomainSideToString(PSTD_DOMAIN_SIDE side);
+
 class PSTDFile
 {
 private:
