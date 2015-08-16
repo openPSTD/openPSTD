@@ -8,12 +8,15 @@
 #include <rapidjson/document.h>
 #include <memory>
 #include <vector>
+#include <QtGui/qmatrix4x4.h>
 #include "PSTDFile.h"
 
 class Model
 {
 public:
     std::unique_ptr<PSTDFile> d;
+
+    QMatrix4x4 view;
 };
 
 
