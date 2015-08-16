@@ -19,5 +19,22 @@ private:
     std::string filename;
 };
 
+class NewFileOperation: BaseOperation
+{
+public:
+    NewFileOperation(std::string filename);
+
+    virtual void Run(const Reciever &reciever) override;
+
+private:
+    std::string filename;
+};
+
+class SaveFileOperation: BaseOperation
+{
+public:
+    virtual void Run(const Reciever &reciever) override;
+};
+
 
 #endif //OPENPSTD_FILEOPERATIONS_H

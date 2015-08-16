@@ -19,3 +19,17 @@ void OpenFileOperation::Run(const Reciever &reciever)
 }
 
 
+NewFileOperation::NewFileOperation(std::string filename)
+{
+    this->filename = filename;
+}
+
+void NewFileOperation::Run(const Reciever &reciever)
+{
+    reciever.model->d = PSTDFile::New(this->filename);
+}
+
+void SaveFileOperation::Run(const Reciever &reciever)
+{
+    reciever.model->d->Commit();
+}
