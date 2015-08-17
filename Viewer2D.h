@@ -13,6 +13,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include "operations/BaseOperation.h"
 
 class Layer;
 
@@ -38,32 +39,28 @@ class Viewer2D: public QOpenGLWidget
 {
     Q_OBJECT
 
-
-protected:
-    virtual void mousePressEvent(QMouseEvent *mouseEvent) override;
-
-    virtual void mouseReleaseEvent(QMouseEvent *mouseEvent) override;
-
-    virtual void mouseMoveEvent(QMouseEvent *mouseEvent) override;
-
 public:
     explicit Viewer2D(QWidget *parent = 0);
-
-public:
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
     void UpdateViewMatrix(QMatrix4x4 matrix);
     QMatrix4x4 GetViewMatrix(){return _view_matrix;}
     void UpdateFromModel(std::shared_ptr<Model> const &model);
+    void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
+
 
 protected:
     virtual void resizeGL(int w, int h) override;
     virtual void initializeGL() override;
     virtual void paintGL() override;
+    virtual void mousePressEvent(QMouseEvent *mouseEvent) override;
+    virtual void mouseReleaseEvent(QMouseEvent *mouseEvent) override;
+    virtual void mouseMoveEvent(QMouseEvent *mouseEvent) override;
 
 private:
     std::vector<std::shared_ptr<Layer>> layers;
     QMatrix4x4 _view_matrix;
+    std::shared_ptr<OperationRunner> operationRunner;
 };
 
 class Layer

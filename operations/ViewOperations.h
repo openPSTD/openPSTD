@@ -41,11 +41,13 @@ public:
 
 class TranslateScene: public ModifyViewMatrix
 {
+public:
     TranslateScene(QVector2D vec);
 };
 
 class ResizeScene: public ModifyViewMatrix
 {
+public:
     ResizeScene(float scale, QVector2D pos);
 };
 

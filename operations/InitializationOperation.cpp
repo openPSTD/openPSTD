@@ -10,4 +10,6 @@ void InitializationOperation::Run(const Reciever &reciever)
     reciever.model->d = std::unique_ptr<PSTDFile>(PSTDFile::New("test.jps"));
     reciever.model->view = QMatrix4x4();
     reciever.model->view.scale(0.5f);
+    reciever.model->mouseHandler = std::unique_ptr<MouseStrategy>(new MouseMoveSceneStrategy());
+    reciever.model->mouseHandler->SetOperationRunner(reciever.operationRunner);
 }

@@ -5,12 +5,12 @@
 #ifndef OPENPSTD_BASEOPERATION_H
 #define OPENPSTD_BASEOPERATION_H
 
-#include "../Model.h"
-#include <memory>
-
 class OperationRunner;
 class Reciever;
 class BaseOperation;
+
+#include "../Model.h"
+#include <memory>
 
 class OperationRunner
 {
@@ -22,12 +22,23 @@ class Reciever
 {
 public:
     std::shared_ptr<Model> model;
+    std::shared_ptr<OperationRunner> operationRunner;
 };
 
 class BaseOperation
 {
 public:
     virtual void Run(const Reciever &reciever) = 0;
+};
+
+class LambdaOperation: public BaseOperation
+{
+private:
+    std::function<void (const Reciever &)> _func;
+
+public:
+    LambdaOperation(std::function<void (const Reciever &)> func);
+    virtual void Run(const Reciever &reciever) override;
 };
 
 

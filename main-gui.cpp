@@ -25,6 +25,7 @@ void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
 {
     Reciever r;
     r.model = this->model;
+    r.operationRunner = this->operationRunner;
     operation->Run(r);
 
     this->w->UpdateFromModel(this->model);

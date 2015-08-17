@@ -36,6 +36,12 @@ Viewer2D::Viewer2D(QWidget *parent)
     this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
 }
 
+void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
+{
+    this->operationRunner = operationRunner;
+}
+
+
 void Viewer2D::paintGL()
 {
     auto del = [](int * p) { std::cout << "Deleting x, value is : " << *p; };
@@ -376,15 +382,34 @@ void SceneLayer::CreateColormap()
 
 void Viewer2D::mousePressEvent(QMouseEvent *event)
 {
-    std::cout << "press" << std::endl;
+    QPoint ScreenPos = event->pos();
+    QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
+
+    std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
+        reciever.model->mouseHandler->mousePressEvent(event, pos);
+    }));
+    this->operationRunner->RunOperation(op);
 }
 
 void Viewer2D::mouseReleaseEvent(QMouseEvent *event)
 {
-    std::cout << "Release" << std::endl;
+    QPoint ScreenPos = event->pos();
+    QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
+
+    std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
+        reciever.model->mouseHandler->mouseReleaseEvent(event, pos);
+    }));
+    this->operationRunner->RunOperation(op);
 }
 
 void Viewer2D::mouseMoveEvent(QMouseEvent *event)
 {
-    std::cout << "Move" << std::endl;
+    QPoint ScreenPos = event->pos();
+    QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
+
+    std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
+        reciever.model->mouseHandler->mouseMoveEvent(event, pos);
+    }));
+    this->operationRunner->RunOperation(op);
 }
+

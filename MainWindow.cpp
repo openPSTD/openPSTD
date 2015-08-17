@@ -11,10 +11,13 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     operationRunner(operationRunner)
 {
     ui->setupUi(this);
+
+    ui->mainView->SetOperationRunner(this->operationRunner);
 }
 
 void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
     ui->mainView->UpdateFromModel(model);
     ui->mainView->UpdateViewMatrix(model->view);
+    ui->mainView->update();
 }

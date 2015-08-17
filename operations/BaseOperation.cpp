@@ -3,3 +3,13 @@
 //
 
 #include "BaseOperation.h"
+
+
+void LambdaOperation::Run(const Reciever &reciever)
+{
+    this->_func(reciever);
+}
+
+LambdaOperation::LambdaOperation(std::function<void(const Reciever &)> func): _func(func)
+{
+}
