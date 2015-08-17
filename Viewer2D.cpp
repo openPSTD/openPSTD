@@ -77,7 +77,7 @@ QSize Viewer2D::sizeHint() const
     return QSize(400, 400);
 }
 
-void Viewer2D::UpdateFromModel(std::unique_ptr<Model> const &model)
+void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
     for(int i = 0; i < this->layers.size(); i++)
     {
@@ -115,7 +115,7 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void GridLayer::UpdateScene(std::unique_ptr<Model> const &m)
+void GridLayer::UpdateScene(std::shared_ptr<Model> const &m)
 {
 
 }
@@ -278,7 +278,7 @@ void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, voi
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void SceneLayer::UpdateScene(std::unique_ptr<Model> const &m)
+void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m)
 {
     std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
 
@@ -373,3 +373,17 @@ void SceneLayer::CreateColormap()
 }
 
 
+void Viewer2D::mousePressEvent(QMouseEvent *event)
+{
+    std::cout << "press" << std::endl;
+}
+
+void Viewer2D::mouseReleaseEvent(QMouseEvent *event)
+{
+    std::cout << "Release" << std::endl;
+}
+
+void Viewer2D::mouseMoveEvent(QMouseEvent *event)
+{
+    std::cout << "Move" << std::endl;
+}

@@ -35,7 +35,7 @@ public:
 
 class ViewWholeScene: public BaseOperation
 {
-
+public:
     virtual void Run(const Reciever &reciever);
 };
 

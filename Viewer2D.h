@@ -38,6 +38,14 @@ class Viewer2D: public QOpenGLWidget
 {
     Q_OBJECT
 
+
+protected:
+    virtual void mousePressEvent(QMouseEvent *mouseEvent) override;
+
+    virtual void mouseReleaseEvent(QMouseEvent *mouseEvent) override;
+
+    virtual void mouseMoveEvent(QMouseEvent *mouseEvent) override;
+
 public:
     explicit Viewer2D(QWidget *parent = 0);
 
@@ -46,7 +54,7 @@ public:
     virtual QSize minimumSizeHint() const override;
     void UpdateViewMatrix(QMatrix4x4 matrix);
     QMatrix4x4 GetViewMatrix(){return _view_matrix;}
-    void UpdateFromModel(std::unique_ptr<Model> const &model);
+    void UpdateFromModel(std::shared_ptr<Model> const &model);
 
 protected:
     virtual void resizeGL(int w, int h) override;
@@ -71,7 +79,7 @@ public:
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void PaintGLVisibilityCheck(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f){ if(visible){ this->PaintGL(context, f); } };
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
-    virtual void UpdateScene(std::unique_ptr<Model> const &m) = 0;
+    virtual void UpdateScene(std::shared_ptr<Model> const &m) = 0;
     virtual MinMaxValue GetMinMax() = 0;
     virtual void UpdateViewMatrix(QMatrix4x4 viewMatrix){ this->viewMatrix = viewMatrix; };
 };
@@ -89,7 +97,7 @@ public:
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
-    virtual void UpdateScene(std::unique_ptr<Model> const &m);
+    virtual void UpdateScene(std::shared_ptr<Model> const &m);
 
     virtual MinMaxValue GetMinMax();
 };
@@ -116,7 +124,7 @@ public:
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
-    virtual void UpdateScene(std::unique_ptr<Model> const &m);
+    virtual void UpdateScene(std::shared_ptr<Model> const &m);
 
     virtual MinMaxValue GetMinMax();
 };

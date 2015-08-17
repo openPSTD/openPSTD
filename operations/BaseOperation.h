@@ -26,6 +26,7 @@ public:
 
 class BaseOperation
 {
+public:
     virtual void Run(const Reciever &reciever) = 0;
 };
 
