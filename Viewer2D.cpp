@@ -112,6 +112,7 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
     program->bind();
     program->setUniformValue("u_view", this->viewMatrix);
     program->setAttributeArray("a_position", this->positions->data(), 2);
+    f->glLineWidth(1.0f);
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
