@@ -56,6 +56,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *mouseEvent) override;
     virtual void mouseReleaseEvent(QMouseEvent *mouseEvent) override;
     virtual void mouseMoveEvent(QMouseEvent *mouseEvent) override;
+    virtual void wheelEvent(QWheelEvent *qWheelEvent) override;
 
 private:
     std::vector<std::shared_ptr<Layer>> layers;

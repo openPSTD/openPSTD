@@ -145,8 +145,8 @@ void GridLayer::UpdateLines()
 {
     float grid_spacing = 0.2f;
 
-    QVector2D tl = (QVector3D(-1, -1, 0)*this->viewMatrix.inverted()).toVector2D();
-    QVector2D br = (QVector3D(1, 1, 0)*this->viewMatrix.inverted()).toVector2D();
+    QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, -1, 0)).toVector2D();
+    QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, 1, 0)).toVector2D();
 
     tl[0] = floorf(tl[0]/grid_spacing);
     tl[1] = floorf(tl[1]/grid_spacing);
@@ -386,7 +386,7 @@ void Viewer2D::mousePressEvent(QMouseEvent *event)
     QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
 
     std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
-        reciever.model->mouseHandler->mousePressEvent(event, pos);
+        reciever.model->mouseHandler->mousePressEvent(reciever.model, event, pos);
     }));
     this->operationRunner->RunOperation(op);
 }
@@ -397,7 +397,7 @@ void Viewer2D::mouseReleaseEvent(QMouseEvent *event)
     QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
 
     std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
-        reciever.model->mouseHandler->mouseReleaseEvent(event, pos);
+        reciever.model->mouseHandler->mouseReleaseEvent(reciever.model, event, pos);
     }));
     this->operationRunner->RunOperation(op);
 }
@@ -408,8 +408,18 @@ void Viewer2D::mouseMoveEvent(QMouseEvent *event)
     QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
 
     std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
-        reciever.model->mouseHandler->mouseMoveEvent(event, pos);
+        reciever.model->mouseHandler->mouseMoveEvent(reciever.model, event, pos);
     }));
     this->operationRunner->RunOperation(op);
 }
 
+void Viewer2D::wheelEvent(QWheelEvent *event)
+{
+    QPoint ScreenPos = event->pos();
+    QVector2D pos = QVector2D(ScreenPos.x()/((float)this->width())*2-1, -1*(ScreenPos.y()/((float)this->height())*2-1));
+
+    std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever){
+        reciever.model->mouseHandler->wheelEvent(reciever.model, event, pos);
+    }));
+    this->operationRunner->RunOperation(op);
+}

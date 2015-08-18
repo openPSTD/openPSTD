@@ -22,10 +22,10 @@ protected:
 public:
     void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
 
-    virtual void mousePressEvent(QMouseEvent *, QVector2D pos){};
-    virtual void mouseReleaseEvent(QMouseEvent *mouseEvent, QVector2D pos){};
-    virtual void mouseMoveEvent(QMouseEvent *mouseEvent, QVector2D pos){};
-    virtual void wheelEvent(QWheelEvent *mouseEvent, QVector2D pos){};
+    virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos){};
+    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos){};
+    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos){};
+    virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos){};
 };
 
 class MouseVoidStrategy : public MouseStrategy
@@ -37,11 +37,11 @@ class MouseMoveSceneStrategy : public MouseStrategy
 private:
     QVector2D mousePos;
 public:
-    virtual void mousePressEvent(QMouseEvent *, QVector2D pos);
+    virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos);
 
-    virtual void mouseMoveEvent(QMouseEvent *mouseEvent, QVector2D pos);
+    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos);
 
-    virtual void wheelEvent(QWheelEvent *mouseEvent, QVector2D pos);
+    virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos);
 };
 
 #endif //OPENPSTD_MOUSEHANDLERS_H

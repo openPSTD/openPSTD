@@ -11,7 +11,7 @@ void MouseStrategy::SetOperationRunner(std::shared_ptr<OperationRunner> operatio
     this->operationRunner = operationRunner;
 }
 
-void MouseMoveSceneStrategy::mouseMoveEvent(QMouseEvent *mouseEvent, QVector2D pos)
+void MouseMoveSceneStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
     QVector2D offset = pos - this->mousePos;
     this->mousePos = pos;
@@ -24,12 +24,16 @@ void MouseMoveSceneStrategy::mouseMoveEvent(QMouseEvent *mouseEvent, QVector2D p
     }
 }
 
-void MouseMoveSceneStrategy::wheelEvent(QWheelEvent *mouseEvent, QVector2D pos)
+void MouseMoveSceneStrategy::wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos)
 {
+    float delta = mouseEvent->delta();
+    float delta2 = powf(2, delta/120);
 
+    std::shared_ptr<ResizeScene> op(new ResizeScene(delta2, pos));
+    operationRunner->RunOperation(op);
 }
 
-void MouseMoveSceneStrategy::mousePressEvent(QMouseEvent *event, QVector2D pos)
+void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *event, QVector2D pos)
 {
     this->mousePos = pos;
 }

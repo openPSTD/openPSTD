@@ -21,7 +21,7 @@ ModifyViewMatrix::ModifyViewMatrix(QMatrix4x4 m): M(m)
 
 void ModifyViewMatrix::Run(const Reciever &reciever)
 {
-    reciever.model->view = reciever.model->view * this->M;
+    reciever.model->view = this->M * reciever.model->view;
 }
 
 TranslateScene::TranslateScene(QVector2D vector): ModifyViewMatrix()
