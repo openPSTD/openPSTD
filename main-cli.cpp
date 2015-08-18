@@ -16,12 +16,12 @@ int main(int argc, const char *argv[])
     {
         po::options_description desc("Allowed options");
         desc.add_options()
-                ("help,H", "produce help message")
-                ("scene-file,F", po::value<std::string>(), "The scene file that has to be used (required)")
-                ("multithreaded,M", "use the multi-threaded solver (mutually exclusive with gpu accelerated)")
-                ("gpu-accelerated,G", "Use the gpu for the calculations (mutually exclusive with multithreaded)")
-                ("write-plot,P", "Plots are written to the output directory")
-                ("write-array,A", "Arrays are written to the output directory")
+                ("help,h", "produce help message")
+                ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ("multithreaded,m", "use the multi-threaded solver (mutually exclusive with gpu accelerated)")
+                ("gpu-accelerated,g", "Use the gpu for the calculations (mutually exclusive with multithreaded)")
+                ("write-plot,p", "Plots are written to the output directory")
+                ("write-array,a", "Arrays are written to the output directory")
                 ;
 
         po::positional_options_description p;
