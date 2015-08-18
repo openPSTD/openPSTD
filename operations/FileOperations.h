@@ -8,7 +8,7 @@
 #include "BaseOperation.h"
 #include <string>
 
-class OpenFileOperation: BaseOperation
+class OpenFileOperation: public BaseOperation
 {
 public:
     OpenFileOperation(std::string filename);
@@ -19,7 +19,7 @@ private:
     std::string filename;
 };
 
-class NewFileOperation: BaseOperation
+class NewFileOperation: public BaseOperation
 {
 public:
     NewFileOperation(std::string filename);
@@ -30,7 +30,7 @@ private:
     std::string filename;
 };
 
-class SaveFileOperation: BaseOperation
+class SaveFileOperation: public BaseOperation
 {
 public:
     virtual void Run(const Reciever &reciever) override;

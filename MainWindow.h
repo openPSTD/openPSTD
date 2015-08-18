@@ -23,6 +23,11 @@ class MainWindow: public QMainWindow
         std::unique_ptr<Ui_MainWindow> ui;
         std::shared_ptr<OperationRunner> operationRunner;
 
+    public slots:
+        void New();
+        void Open();
+        void Save();
+
 };
 
 
