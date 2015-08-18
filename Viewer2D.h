@@ -89,6 +89,7 @@ private:
     void UpdateLines();
     std::unique_ptr<std::vector<float>> positions;
     int lines;
+    float gridSpacing;
 
 public:
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
@@ -98,6 +99,8 @@ public:
     virtual void UpdateScene(std::shared_ptr<Model> const &m);
 
     virtual MinMaxValue GetMinMax();
+
+    float CalcIdealSpacing();
 };
 
 

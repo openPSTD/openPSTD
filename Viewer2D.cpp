@@ -93,6 +93,8 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
 
 void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
+    gridSpacing = 0.2f;
+
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU\\Grid.vert.glsl"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU\\Grid.frag.glsl"));
 
@@ -105,7 +107,7 @@ void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
 
     static const GLfloat g_vertex_buffer_data[] = {};
 
-    QColor color(255, 255, 0, 255);
+    QColor color(255, 255, 255, 255);
 
     program->enableAttributeArray("a_position");
     program->setUniformValue("u_color", color);
@@ -124,7 +126,7 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
 
 void GridLayer::UpdateScene(std::shared_ptr<Model> const &m)
 {
-
+    this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
 }
 
 MinMaxValue GridLayer::GetMinMax()
@@ -133,6 +135,20 @@ MinMaxValue GridLayer::GetMinMax()
     result.Active = false;
     return result;
 }
+
+float GridLayer::CalcIdealSpacing()
+{
+    QVector3D center = this->viewMatrix * QVector3D(0, 0, 0);
+    QVector3D gridSpacingPoint = this->viewMatrix * QVector3D(this->gridSpacing, 0, 0);
+    float distance = (center - gridSpacingPoint).length();
+    float x = 1;
+    while(0.04 > distance * x)
+    {
+        x *= 2;
+    }
+    return this->gridSpacing * x;
+}
+
 
 void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
 {
@@ -143,7 +159,7 @@ void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
 
 void GridLayer::UpdateLines()
 {
-    float grid_spacing = 0.2f;
+    float grid_spacing = CalcIdealSpacing();
 
     QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, -1, 0)).toVector2D();
     QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, 1, 0)).toVector2D();
