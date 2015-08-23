@@ -30,16 +30,22 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
 
 void MainWindow::New()
 {
-    std::string fileName = QFileDialog::getSaveFileName(this, tr("Create PSTD file"), QString(), tr("PSTD file (*.pstd)")).toStdString();
-    std::shared_ptr<NewFileOperation> op(new NewFileOperation(fileName));
-    this->operationRunner->RunOperation(op);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Create PSTD file"), QString(), tr("PSTD file (*.pstd)"));
+    if(!fileName.isNull())
+    {
+        std::shared_ptr<NewFileOperation> op(new NewFileOperation(fileName.toStdString()));
+        this->operationRunner->RunOperation(op);
+    }
 }
 
 void MainWindow::Open()
 {
-    std::string fileName = QFileDialog::getOpenFileName(this, tr("Open PSTD file"), QString(), tr("PSTD file (*.pstd)")).toStdString();
-    std::shared_ptr<OpenFileOperation> op(new OpenFileOperation(fileName));
-    this->operationRunner->RunOperation(op);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open PSTD file"), QString(), tr("PSTD file (*.pstd)"));
+    if(!fileName.isNull())
+    {
+        std::shared_ptr<OpenFileOperation> op(new OpenFileOperation(fileName.toStdString()));
+        this->operationRunner->RunOperation(op);
+    }
 }
 
 void MainWindow::Save()
