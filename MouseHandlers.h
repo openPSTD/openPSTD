@@ -44,6 +44,19 @@ public:
     virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos);
 };
 
+class MouseCreateDomainStrategy : public MouseStrategy
+{
+private:
+    QVector2D _start;
+    QVector2D _end;
+public:
+    virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos);
+
+    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos);
+
+    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos);
+};
+
 #endif //OPENPSTD_MOUSEHANDLERS_H
 
 

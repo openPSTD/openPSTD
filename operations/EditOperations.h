@@ -7,15 +7,16 @@
 
 #include "BaseOperation.h"
 #include <boost/numeric/ublas/vector.hpp>
+#include <QVector2D>
 
 class CreateDomainOperation: public BaseOperation
 {
 private:
-    boost::numeric::ublas::vector<float> StartPoint;
-    boost::numeric::ublas::vector<float> EndPoint;
+    QVector2D StartPoint;
+    QVector2D EndPoint;
 
 public:
-    CreateDomainOperation(boost::numeric::ublas::vector<float> StartPoint, boost::numeric::ublas::vector<float> EndPoint);
+    CreateDomainOperation(QVector2D StartPoint, QVector2D EndPoint);
 
     virtual void Run(const Reciever &reciever) override;
 };

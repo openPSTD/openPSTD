@@ -3,3 +3,62 @@
 //
 
 #include "Model.h"
+
+bool InvalidationDataItemI::IsChanged()
+{
+    return changed;
+}
+void InvalidationDataItemI::Change()
+{
+    changed = true;
+}
+void InvalidationDataItemI::Reset()
+{
+    changed = false;
+}
+
+void InvalidationData::Register(std::weak_ptr<InvalidationDataItemI> item)
+{
+    this->items.push_back(item);
+}
+
+bool InvalidationData::IsChanged()
+{
+    auto i = std::begin(items);
+
+    while (i != std::end(items))
+    {
+        if (auto observe = i->lock())
+        {
+            if(observe->changed)
+                return true;
+        }
+        else
+        {
+            items.erase(i);
+        }
+    }
+    return false;
+}
+void InvalidationData::Reset()
+{
+    auto i = std::begin(items);
+
+    while (i != std::end(items))
+    {
+        if (auto observe = i->lock())
+        {
+            observe->Reset();
+        }
+        else
+        {
+            items.erase(i);
+        }
+    }
+}
+
+Model::Model() : interactive(new InteractiveModel())
+{
+    this->invalidation.Register(interactive);
+}
+
