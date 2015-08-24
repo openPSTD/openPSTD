@@ -8,6 +8,7 @@
 class MouseStrategy;
 class MouseVoidStrategy;
 class MouseMoveSceneStrategy;
+class MouseCreateDomainStrategy;
 
 #include <memory>
 #include "operations/BaseOperation.h"

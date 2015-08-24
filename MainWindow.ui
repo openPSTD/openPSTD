@@ -274,8 +274,15 @@
     <addaction name="actionDebug3"/>
     <addaction name="actionDebug4"/>
    </widget>
+   <widget class="QMenu" name="menuOperations">
+    <property name="title">
+     <string>Operations</string>
+    </property>
+    <addaction name="actionAdd_Domain"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOption"/>
+   <addaction name="menuOperations"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
    <addaction name="menuDebug"/>

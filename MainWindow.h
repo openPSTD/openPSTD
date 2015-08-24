@@ -9,6 +9,7 @@
 #include <ui_MainWindow.h>
 #include <memory>
 #include "operations/BaseOperation.h"
+#include "MouseHandlers.h"
 
 class MainWindow: public QMainWindow
 {
@@ -22,11 +23,15 @@ class MainWindow: public QMainWindow
     private:
         std::unique_ptr<Ui_MainWindow> ui;
         std::shared_ptr<OperationRunner> operationRunner;
+        std::vector<QAction*> MouseHandlersActions;
+
+        void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
 
     public slots:
         void New();
         void Open();
         void Save();
+
 
 };
 
