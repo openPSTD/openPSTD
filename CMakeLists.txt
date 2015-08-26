@@ -131,7 +131,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/MouseOperations.cpp operations/MouseOperations.h)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp Model.cpp Viewer2D.cpp PSTDFile.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp Model.cpp Viewer2D.cpp PSTDFile.cpp GridLayer.cpp GridLayer.h SceneLayer.cpp SceneLayer.h)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
