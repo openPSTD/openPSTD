@@ -14,6 +14,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include "operations/BaseOperation.h"
+#include <QOpenGLBuffer>
 
 class Layer;
 
@@ -77,7 +78,7 @@ public:
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void PaintGLVisibilityCheck(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f){ if(visible){ this->PaintGL(context, f); } };
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
-    virtual void UpdateScene(std::shared_ptr<Model> const &m) = 0;
+    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual MinMaxValue GetMinMax() = 0;
     virtual void UpdateViewMatrix(QMatrix4x4 viewMatrix){ this->viewMatrix = viewMatrix; };
 };
@@ -88,15 +89,18 @@ private:
     std::unique_ptr<QOpenGLShaderProgram> program;
     void UpdateLines();
     std::unique_ptr<std::vector<float>> positions;
+    QOpenGLBuffer positionsBuffer;
     int lines;
     float gridSpacing;
 
 public:
+    GridLayer();
+
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
-    virtual void UpdateScene(std::shared_ptr<Model> const &m);
+    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
     virtual MinMaxValue GetMinMax();
 
@@ -108,6 +112,8 @@ class SceneLayer: public Layer
 {
 private:
     std::unique_ptr<QOpenGLShaderProgram> program;
+    QOpenGLBuffer positionsBuffer;
+    QOpenGLBuffer valuesBuffer;
     std::unique_ptr<std::vector<float>> positions;
     std::unique_ptr<std::vector<float>> values;
     GLuint textureID;
@@ -116,16 +122,13 @@ private:
     void CreateColormap();
 
 public:
-    SceneLayer() : positions(new std::vector<float>()), values(new std::vector<float>()), lines(0)
-    {
-
-    }
+    SceneLayer();
 
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
-    virtual void UpdateScene(std::shared_ptr<Model> const &m);
+    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
     virtual MinMaxValue GetMinMax();
 };

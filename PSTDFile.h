@@ -29,7 +29,7 @@ class PSTDFile
 private:
     bool changed;
     std::shared_ptr<rapidjson::Document> sceneConf;
-    unqlite* backend;
+    std::unique_ptr<unqlite, int(*)(unqlite*)> backend;
 
     std::unique_ptr<std::string> GetStringValue(PSTDFile_Key_t key);
     char* GetRawValue(PSTDFile_Key_t key, unqlite_int64* nBytes);
@@ -52,7 +52,7 @@ private:
 
         std::unique_ptr<T> zBuf;//Dynamically allocated buffer
 
-        rc = unqlite_kv_fetch(this->backend, key->data(), key->size(), zBuf.get(), nBytes.get());
+        rc = unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), zBuf.get(), nBytes.get());
         if( rc != UNQLITE_OK )
         {
             //todo throw error exception
@@ -66,7 +66,7 @@ private:
     {
         int rc;
 
-        rc = unqlite_kv_store(this->backend, key->data(), key->size(), &value, sizeof(T));
+        rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), &value, sizeof(T));
 
         if( rc != UNQLITE_OK )
         {
@@ -77,8 +77,9 @@ private:
 public:
     static std::unique_ptr<PSTDFile> Open(const std::string &filename);
     static std::unique_ptr<PSTDFile> New(const std::string &filename);
+
+    PSTDFile();
     void Commit();
-    void Close();
 
     std::shared_ptr<rapidjson::Document> GetSceneConf();
     void SetSceneConf(std::shared_ptr<rapidjson::Document> scene);

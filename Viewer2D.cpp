@@ -17,6 +17,17 @@
 #include <memory>
 
 
+void GLError(std::string name)
+{
+    std::cout << "------------------------------------------------------" <<std::endl;
+    std::cout << "=" << name << std::endl;
+    GLenum err = GL_NO_ERROR;
+    while((err = glGetError()) != GL_NO_ERROR)
+    {
+        std::cout << err << ": " << gluErrorString(err) <<std::endl;
+    }
+}
+
 void DeleteNothing(void * ptr)
 {
 
@@ -33,7 +44,7 @@ Viewer2D::Viewer2D(QWidget *parent)
 {
     std::cout << "create layers" << std::endl;
     this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
-    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
+    //this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
 }
 
 void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
@@ -85,15 +96,27 @@ QSize Viewer2D::sizeHint() const
 
 void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
+    std::unique_ptr<QOpenGLFunctions, void(*)(void*)> f(QOpenGLContext::currentContext()->functions(), DeleteNothing);
+
     for(int i = 0; i < this->layers.size(); i++)
     {
-        this->layers[i]->UpdateScene(model);
+        this->layers[i]->UpdateScene(model, f);
     }
+}
+
+GridLayer::GridLayer(): positionsBuffer(QOpenGLBuffer::VertexBuffer)
+{
+
 }
 
 void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
+    QColor color(255, 255, 255, 255);
+
     gridSpacing = 0.2f;
+
+    positionsBuffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    positionsBuffer.create();
 
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU\\Grid.vert.glsl"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU\\Grid.frag.glsl"));
@@ -105,28 +128,31 @@ void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
 
     program->bind();
 
-    static const GLfloat g_vertex_buffer_data[] = {};
-
-    QColor color(255, 255, 255, 255);
-
     program->enableAttributeArray("a_position");
     program->setUniformValue("u_color", color);
 }
 
 void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
-    UpdateLines();
-
     program->bind();
-    program->setUniformValue("u_view", this->viewMatrix);
-    program->setAttributeArray("a_position", this->positions->data(), 2);
     f->glLineWidth(1.0f);
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void GridLayer::UpdateScene(std::shared_ptr<Model> const &m)
+void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
     this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
+    if(m->view->IsChanged())
+    {
+        UpdateLines();
+
+        positionsBuffer.bind();
+        f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, NULL);
+        positionsBuffer.allocate(this->positions->data(), this->positions->size()*sizeof(float));
+
+        program->bind();
+        program->setUniformValue("u_view", this->viewMatrix);
+    }
 }
 
 MinMaxValue GridLayer::GetMinMax()
@@ -259,19 +285,20 @@ MinMaxValue MinMaxValue::CombineList(std::vector<MinMaxValue> list)
     return result;
 }
 
-void GLError(std::string name)
+SceneLayer::SceneLayer() : positions(new std::vector<float>()), values(new std::vector<float>()), lines(0),
+               positionsBuffer(QOpenGLBuffer::VertexBuffer), valuesBuffer(QOpenGLBuffer::VertexBuffer)
 {
-    std::cout << "------------------------------------------------------" <<std::endl;
-    std::cout << "=" << name << std::endl;
-    GLenum err = GL_NO_ERROR;
-    while((err = glGetError()) != GL_NO_ERROR)
-    {
-        std::cout << err << ": " << gluErrorString(err) <<std::endl;
-    }
+
 }
 
 void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
+    positionsBuffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    positionsBuffer.create();
+
+    valuesBuffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    valuesBuffer.create();
+
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU\\Scene2D.vert"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU\\Scene2D.frag"));
 
@@ -289,20 +316,25 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
     program->setUniformValue("colormap", this->textureID);
     program->setUniformValue("vmin", 0.0f);
     program->setUniformValue("vmax", 1.0f);
+
+
 }
 
 void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
     program->bind();
-    program->setUniformValue("u_view", this->viewMatrix);
-    program->setAttributeArray("a_position", this->positions->data(), 2);
-    program->setAttributeArray("a_value", this->values->data(), 2);
     f->glLineWidth(5.0f);
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
 
-void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m)
+void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
+    if(m->view->IsChanged())
+    {
+        program->bind();
+        program->setUniformValue("u_view", this->viewMatrix);
+    }
+
     std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
 
     rapidjson::Value& domains = (*conf)["domains"];
@@ -349,6 +381,14 @@ void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m)
 
         this->lines += 4;
     }
+
+    positionsBuffer.bind();
+    f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+    positionsBuffer.allocate(this->positions->data(), this->positions->size()*sizeof(float));
+
+    valuesBuffer.bind();
+    f->glVertexAttribPointer((GLuint)program->attributeLocation("a_value"), 1, GL_FLOAT, GL_FALSE, 0, 0);
+    valuesBuffer.allocate(this->values->data(), this->values->size()*sizeof(float));
 }
 
 MinMaxValue SceneLayer::GetMinMax()
@@ -377,20 +417,15 @@ void SceneLayer::CreateColormap()
     // Create one OpenGL texture
     GLuint textureID;
     glGenTextures(1, &textureID);
-    GLError("glGenTextures");
 
     // "Bind" the newly created texture : all future texture functions will modify this texture
     glBindTexture(GL_TEXTURE_2D, textureID);
-    GLError("glBindTexture");
 
     // Give the image to OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 512, 2, 0, GL_RGBA, GL_FLOAT, colormap->data());
-    GLError("glTexImage1D");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GLError("glTexParameteri");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    GLError("glTexParameteri");
 
     this->textureID = textureID;
 }

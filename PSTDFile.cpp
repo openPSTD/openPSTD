@@ -72,35 +72,40 @@ std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename)
 {
     std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
     result->changed = false;
-    unqlite_open(&result->backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+    unqlite* backend;
+    unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+    result->backend = std::unique_ptr<unqlite, int(*)(unqlite*)>(backend, unqlite_close);
     result->initilize();
     return result;
 }
 
 std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
 {
-    std::unique_ptr<PSTDFile> result(new PSTDFile());
+    {
+        std::unique_ptr<PSTDFile> result(new PSTDFile());
 
-    unqlite_open(&result->backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+        unqlite *backend;
+        unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+        result->backend = std::unique_ptr<unqlite, int(*)(unqlite*)>(backend, unqlite_close);
 
-    std::shared_ptr<rapidjson::Document> SceneConf(new rapidjson::Document());
-    SceneConf->Parse(PSTDEmptyScene);
-    result->SetSceneConf(SceneConf);
-    result->Commit();
+        std::shared_ptr<rapidjson::Document> SceneConf(new rapidjson::Document());
+        SceneConf->Parse(PSTDEmptyScene);
+        result->SetSceneConf(SceneConf);
+        result->Commit();
 
-    std::shared_ptr<rapidjson::Document> PSTDConf(new rapidjson::Document());
-    PSTDConf->Parse("{}");
-    result->SetPSTDConf(PSTDConf);
+        std::shared_ptr<rapidjson::Document> PSTDConf(new rapidjson::Document());
+        PSTDConf->Parse("{}");
+        result->SetPSTDConf(PSTDConf);
 
-    result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
-    result->Close();
+        result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
+    }
 
     return PSTDFile::Open(filename);
 }
 
-void PSTDFile::Close()
+PSTDFile::PSTDFile(): backend(nullptr, unqlite_close)
 {
-    unqlite_close(this->backend);
+
 }
 
 std::shared_ptr<rapidjson::Document> PSTDFile::GetSceneConf()
@@ -213,7 +218,7 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64* nBytes)
     int rc;
     char *zBuf;     //Dynamically allocated buffer
 
-    rc = unqlite_kv_fetch(this->backend, key->data(), key->size(), NULL, nBytes);
+    rc = unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), NULL, nBytes);
     if( rc != UNQLITE_OK )
     {
         std::cout << "Error: " << rc;
@@ -223,7 +228,7 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64* nBytes)
 
     zBuf = new char[*nBytes];
 
-    unqlite_kv_fetch(this->backend, key->data(), key->size(), zBuf, nBytes);
+    unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), zBuf, nBytes);
 
     return zBuf;
 }
@@ -291,7 +296,7 @@ void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const char 
 {
     int rc;
 
-    rc = unqlite_kv_store(this->backend, key->data(), key->size(), value, nBytes);
+    rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), value, nBytes);
 
     if( rc != UNQLITE_OK )
     {
@@ -311,7 +316,7 @@ void PSTDFile::DeleteValue(PSTDFile_Key_t key)
 {
     int rc;
 
-    rc = unqlite_kv_delete(this->backend, key->data(), key->size());
+    rc = unqlite_kv_delete(this->backend.get(), key->data(), key->size());
 
     if( rc != UNQLITE_OK )
     {

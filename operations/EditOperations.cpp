@@ -4,8 +4,8 @@
 
 #include "EditOperations.h"
 
-CreateDomainOperation::CreateDomainOperation(boost::numeric::ublas::vector<float> startPoint,
-                                             boost::numeric::ublas::vector<float> endPoint): StartPoint(startPoint), EndPoint(endPoint)
+CreateDomainOperation::CreateDomainOperation(QVector2D startPoint,
+                                             QVector2D endPoint): StartPoint(startPoint), EndPoint(endPoint)
 {
 
 }
