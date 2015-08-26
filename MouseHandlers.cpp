@@ -42,20 +42,20 @@ void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model
 
 void MouseCreateDomainStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos)
 {
-    model->interactive->CreateDomain.start = (model->view.inverted() * pos.toVector3D()).toVector2D();
+    model->interactive->CreateDomain.start = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
     model->interactive->CreateDomain.visible = true;
     model->interactive->Change();
 }
 
 void MouseCreateDomainStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    model->interactive->CreateDomain.currentEnd = (model->view.inverted() * pos.toVector3D()).toVector2D();
+    model->interactive->CreateDomain.currentEnd = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
     model->interactive->Change();
 }
 
 void MouseCreateDomainStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    model->interactive->CreateDomain.currentEnd = (model->view.inverted() * pos.toVector3D()).toVector2D();
+    model->interactive->CreateDomain.currentEnd = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
 
     model->interactive->CreateDomain.visible = false;
     model->interactive->Change();

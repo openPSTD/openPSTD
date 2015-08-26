@@ -18,7 +18,7 @@ class Model;
 class InvalidationDataItemI
 {
 public:
-    InvalidationDataItemI()
+    InvalidationDataItemI() : changed(true)
     {
 
     }
@@ -88,7 +88,7 @@ public:
 
     InvalidationData invalidation;
     std::unique_ptr<PSTDFile> d;
-    QMatrix4x4 view;
+    std::shared_ptr<InvalidationDataItem<QMatrix4x4>> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;
 };

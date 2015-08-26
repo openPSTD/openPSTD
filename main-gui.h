@@ -17,10 +17,12 @@ public:
 
     void SetArguments(int argc, char *argv[]);
     int RunApplication();
+    void SetOperationRunner(std::shared_ptr<OperationRunner> runner);
 
     virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
 
 private:
+    bool runningOp;
     std::shared_ptr<OperationRunner> operationRunner;
     std::shared_ptr<Model> model;
     std::unique_ptr<QApplication> a;

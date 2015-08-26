@@ -33,7 +33,7 @@ Viewer2D::Viewer2D(QWidget *parent)
 {
     std::cout << "create layers" << std::endl;
     this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
-    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
+    //this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
 }
 
 void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
@@ -91,9 +91,17 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
     }
 }
 
+GridLayer::GridLayer(): positionsBuffer(QOpenGLBuffer::VertexBuffer)
+{
+
+}
+
 void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
     gridSpacing = 0.2f;
+
+    positionsBuffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    positionsBuffer.create();
 
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU\\Grid.vert.glsl"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU\\Grid.frag.glsl"));
@@ -111,15 +119,14 @@ void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
 
     program->enableAttributeArray("a_position");
     program->setUniformValue("u_color", color);
+
+    positionsBuffer.bind();
+    f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
-    UpdateLines();
-
     program->bind();
-    program->setUniformValue("u_view", this->viewMatrix);
-    program->setAttributeArray("a_position", this->positions->data(), 2);
     f->glLineWidth(1.0f);
     f->glDrawArrays(GL_LINES, 0, lines*2);
 }
@@ -127,6 +134,15 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
 void GridLayer::UpdateScene(std::shared_ptr<Model> const &m)
 {
     this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
+    if(m->view->IsChanged())
+    {
+        UpdateLines();
+        positionsBuffer.bind();
+        positionsBuffer.allocate(this->positions->data(), this->positions->size()*sizeof(float));
+
+        program->bind();
+        program->setUniformValue("u_view", this->viewMatrix);
+    }
 }
 
 MinMaxValue GridLayer::GetMinMax()

@@ -14,6 +14,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include "operations/BaseOperation.h"
+#include <QOpenGLBuffer>
 
 class Layer;
 
@@ -88,10 +89,13 @@ private:
     std::unique_ptr<QOpenGLShaderProgram> program;
     void UpdateLines();
     std::unique_ptr<std::vector<float>> positions;
+    QOpenGLBuffer positionsBuffer;
     int lines;
     float gridSpacing;
 
 public:
+    GridLayer();
+
     virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
 
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);

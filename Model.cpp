@@ -32,14 +32,17 @@ bool InvalidationData::IsChanged()
         {
             if(observe->changed)
                 return true;
+            i++;
         }
         else
         {
             items.erase(i);
         }
+
     }
     return false;
 }
+
 void InvalidationData::Reset()
 {
     auto i = std::begin(items);
@@ -49,6 +52,7 @@ void InvalidationData::Reset()
         if (auto observe = i->lock())
         {
             observe->Reset();
+            i++;
         }
         else
         {
@@ -57,8 +61,9 @@ void InvalidationData::Reset()
     }
 }
 
-Model::Model() : interactive(new InteractiveModel())
+Model::Model() : interactive(new InteractiveModel()), view(new InvalidationDataItem<QMatrix4x4>())
 {
     this->invalidation.Register(interactive);
+    this->invalidation.Register(view);
 }
 

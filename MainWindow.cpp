@@ -33,8 +33,11 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
 
 void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
+    if(model->view->IsChanged())
+    {
+        ui->mainView->UpdateViewMatrix(model->view->value);
+    }
     ui->mainView->UpdateFromModel(model);
-    ui->mainView->UpdateViewMatrix(model->view);
     ui->mainView->update();
 }
 

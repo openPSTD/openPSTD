@@ -10,15 +10,23 @@
 
 int main(int argc, char *argv[])
 {
-    Controller c;
-    c.SetArguments(argc, argv);
-    c.RunApplication();
+    std::shared_ptr<Controller> c(new Controller());
+
+    c->SetArguments(argc, argv);
+    c->SetOperationRunner(c);
+    c->RunApplication();
 }
 
 Controller::Controller():
-    operationRunner(this)
+    operationRunner(nullptr),
+    runningOp(false)
 {
 
+}
+
+void Controller::SetOperationRunner(std::shared_ptr<OperationRunner> runner)
+{
+    this->operationRunner = runner;
 }
 
 void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
@@ -26,9 +34,21 @@ void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
     Reciever r;
     r.model = this->model;
     r.operationRunner = this->operationRunner;
-    operation->Run(r);
-
-    this->w->UpdateFromModel(this->model);
+    if(runningOp)
+    {
+        operation->Run(r);
+    }
+    else
+    {
+        runningOp = true;
+        operation->Run(r);
+        runningOp = false;
+        if(this->model->invalidation.IsChanged())
+        {
+            this->w->UpdateFromModel(this->model);
+        }
+        this->model->invalidation.Reset();
+    }
 }
 
 void Controller::SetArguments(int argc, char *argv[])
