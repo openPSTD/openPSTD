@@ -109,6 +109,7 @@ void KernelFacade::Run(std::string sceneFile, KernelFacadeCallback* callback)
 
     std::string pythonCode = "import json\n"
             "import os, sys\n"
+            "sys.path.insert(0,'')\n"
             "from kernel.pstd import PSTD\n"
             "import KernelCallback\n"
             "f = open(scene_file, 'r')\n"
