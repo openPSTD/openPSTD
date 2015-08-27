@@ -4,7 +4,7 @@
 
 #include "GridLayer.h"
 
-GridLayer::GridLayer(): positionsBuffer(QOpenGLBuffer::VertexBuffer)
+GridLayer::GridLayer(): positionsBuffer(), lines(0)
 {
 
 }

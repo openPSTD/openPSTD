@@ -65,6 +65,8 @@ private:
     std::shared_ptr<OperationRunner> operationRunner;
 };
 
+void GLError(std::string name);
+
 class Layer
 {
 protected:

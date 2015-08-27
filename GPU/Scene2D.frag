@@ -40,6 +40,5 @@ void main()
     }
 
     value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = vec4(1, 0, 0, 1);
-    //gl_FragColor = texture(colormap, vec2(value, 1));
+    gl_FragColor = texture(colormap, vec2(value, 0));
 }

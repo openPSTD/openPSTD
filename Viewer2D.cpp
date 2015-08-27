@@ -17,16 +17,22 @@
 #include <memory>
 #include "GridLayer.h"
 #include "SceneLayer.h"
+#include <boost/lexical_cast.hpp>
 
 
 void GLError(std::string name)
 {
-    std::cout << "------------------------------------------------------" <<std::endl;
-    std::cout << "=" << name << std::endl;
-    GLenum err = GL_NO_ERROR;
-    while((err = glGetError()) != GL_NO_ERROR)
+    GLenum err = glGetError();
+    if(err != GL_NO_ERROR)
     {
-        std::cout << err << ": " << gluErrorString(err) <<std::endl;
+        std::cout << "------------------------------------------------------" << std::endl;
+        std::cout << "=" << name << std::endl;
+
+        while (err != GL_NO_ERROR)
+        {
+            std::cout << err << ": " << gluErrorString(err) << std::endl;
+            err = glGetError();
+        }
     }
 }
 
@@ -63,6 +69,7 @@ void Viewer2D::paintGL()
     for(int i = 0; i < this->layers.size(); i++)
     {
         this->layers[i]->PaintGL(this, f);
+        GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->PaintGL");
     }
 }
 
@@ -77,6 +84,7 @@ void Viewer2D::initializeGL()
     for(int i = 0; i < this->layers.size(); i++)
     {
         this->layers[i]->InitializeGL(this, f);
+        GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->InitializeGL");
     }
 }
 
@@ -103,6 +111,7 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
     for(int i = 0; i < this->layers.size(); i++)
     {
         this->layers[i]->UpdateScene(model, f);
+        GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->UpdateScene");
     }
 }
 

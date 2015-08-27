@@ -30,7 +30,6 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 
     CreateColormap();
 
-    program->setUniformValue("colormap", this->textureID);
     program->setUniformValue("vmin", 0.0f);
     program->setUniformValue("vmax", 1.0f);
 }
@@ -46,6 +45,10 @@ void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, voi
     program->enableAttributeArray("a_value");
     f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
     f->glVertexAttribPointer((GLuint)program->attributeLocation("a_value"), 1, GL_FLOAT, GL_FALSE, 0, 0);
+
+    f->glActiveTexture(GL_TEXTURE0);
+    f->glBindTexture(GL_TEXTURE_2D, this->textureID);
+    f->glUniform1i((GLuint)program->attributeLocation("colormap"), GL_TEXTURE0);
 
     f->glLineWidth(5.0f);
     f->glDrawArrays(GL_LINES, 0, lines*2);
