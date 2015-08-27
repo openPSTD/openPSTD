@@ -47,7 +47,7 @@ void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, voi
     f->glVertexAttribPointer((GLuint)program->attributeLocation("a_value"), 1, GL_FLOAT, GL_FALSE, 0, 0);
 
     f->glActiveTexture(GL_TEXTURE0);
-    f->glBindTexture(GL_TEXTURE_2D, this->textureID);
+    f->glBindTexture(GL_TEXTURE_1D, this->textureID);
     f->glUniform1i((GLuint)program->attributeLocation("colormap"), GL_TEXTURE0);
 
     f->glLineWidth(5.0f);
@@ -125,18 +125,13 @@ MinMaxValue SceneLayer::GetMinMax()
 
 void SceneLayer::CreateColormap()
 {
-    std::unique_ptr<std::vector<float>> colormap(new std::vector<float>(2*512*4));
+    std::unique_ptr<std::vector<float>> colormap(new std::vector<float>(512*4));
     for(int i = 0; i < 512; i++)
     {
         (*colormap)[i*4+0] = i/512.0f;
         (*colormap)[i*4+1] = 0;
         (*colormap)[i*4+2] = 1-i/512.0f;
         (*colormap)[i*4+3] = 1;
-
-        (*colormap)[512*4+i*4+0] = i/512.0f;
-        (*colormap)[512*4+i*4+1] = 0;
-        (*colormap)[512*4+i*4+2] = 1-i/512.0f;
-        (*colormap)[512*4+i*4+3] = 1;
     }
 
     // Create one OpenGL texture
@@ -144,13 +139,13 @@ void SceneLayer::CreateColormap()
     glGenTextures(1, &textureID);
 
     // "Bind" the newly created texture : all future texture functions will modify this texture
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    glBindTexture(GL_TEXTURE_1D, textureID);
 
     // Give the image to OpenGL
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 512, 2, 0, GL_RGBA, GL_FLOAT, colormap->data());
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 512, 0, GL_RGBA, GL_FLOAT, colormap->data());
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     this->textureID = textureID;
 }
