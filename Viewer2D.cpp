@@ -45,8 +45,8 @@ Viewer2D::Viewer2D(QWidget *parent)
     : QOpenGLWidget(parent), layers()
 {
     std::cout << "create layers" << std::endl;
-    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
     this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
+    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
 }
 
 void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
@@ -113,7 +113,10 @@ void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
 {
     this->_view_matrix = matrix;
 
-    std::for_each(this->layers.begin(), this->layers.end(), [matrix](std::shared_ptr<Layer> l){l->UpdateViewMatrix(matrix);});
+    for(int i = 0; i < this->layers.size(); i++)
+    {
+        this->layers[i]->UpdateViewMatrix(matrix);
+    }
 }
 
 MinMaxValue::MinMaxValue()

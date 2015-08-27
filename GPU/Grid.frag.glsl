@@ -16,7 +16,7 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#version 120
+#version 330
 
 uniform vec4 u_color;
 

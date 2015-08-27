@@ -17,10 +17,12 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#version 330
+
 uniform mat4 u_view;
-attribute vec2 a_position;
-attribute float a_value;
-varying float v_value;
+in vec2 a_position;
+in float a_value;
+out float v_value;
 
 void main()
 {

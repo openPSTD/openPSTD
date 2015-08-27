@@ -13,7 +13,7 @@ private:
     std::unique_ptr<QOpenGLShaderProgram> program;
     void UpdateLines();
     std::unique_ptr<std::vector<float>> positions;
-    QOpenGLBuffer positionsBuffer;
+    unsigned int positionsBuffer;
     int lines;
     float gridSpacing;
 

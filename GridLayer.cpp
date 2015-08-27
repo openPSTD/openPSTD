@@ -15,8 +15,8 @@ void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
 
     gridSpacing = 0.2f;
 
-    positionsBuffer.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    positionsBuffer.create();
+    f->glGenBuffers(1, &this->positionsBuffer);
+    f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
 
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Grid.vert.glsl"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Grid.frag.glsl"));
@@ -35,6 +35,9 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
 {
     program->bind();
     program->enableAttributeArray("a_position");
+    f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+    f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+
     f->glLineWidth(1.0f);
     f->glDrawArrays(GL_LINES, 0, lines*2);
     program->disableAttributeArray("a_position");
@@ -42,16 +45,15 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
 
 void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
+    program->bind();
     this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
     if(m->view->IsChanged())
     {
         UpdateLines();
 
-        positionsBuffer.bind();
-        f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, NULL);
-        positionsBuffer.allocate(this->positions->data(), this->positions->size()*sizeof(float));
+        f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+        f->glBufferData(GL_ARRAY_BUFFER, this->positions->size()*sizeof(float), this->positions->data(), GL_DYNAMIC_DRAW);
 
-        program->bind();
         program->setUniformValue("u_view", this->viewMatrix);
     }
 }

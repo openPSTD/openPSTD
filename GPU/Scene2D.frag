@@ -16,11 +16,13 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#version 330
+
 
 uniform float vmin;
 uniform float vmax;
 
-varying float v_value;
+in float v_value;
 
 uniform sampler2D colormap;
 
@@ -38,5 +40,6 @@ void main()
     }
 
     value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = vec4(1, 0, 0, 1); //texture(colormap, vec2(0, 0));
+    gl_FragColor = vec4(1, 0, 0, 1);
+    //gl_FragColor = texture(colormap, vec2(value, 1));
 }

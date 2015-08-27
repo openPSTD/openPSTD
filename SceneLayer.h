@@ -11,8 +11,8 @@ class SceneLayer: public Layer
 {
 private:
     std::unique_ptr<QOpenGLShaderProgram> program;
-    QOpenGLBuffer positionsBuffer;
-    QOpenGLBuffer valuesBuffer;
+    unsigned int positionsBuffer;
+    unsigned int valuesBuffer;
     std::unique_ptr<std::vector<float>> positions;
     std::unique_ptr<std::vector<float>> values;
     GLuint textureID;

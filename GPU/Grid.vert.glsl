@@ -16,10 +16,10 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#version 120
+#version 330
 
 uniform mat4 u_view;
-attribute vec2 a_position;
+in vec2 a_position;
 
 void main()
 {
