@@ -17,6 +17,7 @@
 #include <memory>
 #include "GridLayer.h"
 #include "SceneLayer.h"
+#include "InteractiveLayer.h"
 #include <boost/lexical_cast.hpp>
 
 
@@ -51,8 +52,9 @@ Viewer2D::Viewer2D(QWidget *parent)
     : QOpenGLWidget(parent), layers()
 {
     std::cout << "create layers" << std::endl;
-    this->layers.push_back(std::shared_ptr<Layer>(new GridLayer()));
-    this->layers.push_back(std::shared_ptr<Layer>(new SceneLayer()));
+    this->layers.push_back(std::shared_ptr<GridLayer>(new GridLayer()));
+    this->layers.push_back(std::shared_ptr<SceneLayer>(new SceneLayer()));
+    this->layers.push_back(std::shared_ptr<InteractiveLayer>(new InteractiveLayer()));
 }
 
 void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)

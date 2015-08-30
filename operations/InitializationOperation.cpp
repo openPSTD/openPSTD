@@ -13,6 +13,7 @@ void InitializationOperation::Run(const Reciever &reciever)
     reciever.model->view->Change();
 
     reciever.model->colorScheme->value = std::unique_ptr<StandardColorScheme>(new StandardColorScheme());
+    reciever.model->colorScheme->Change();
 
     //initialize Mouse handler
     std::shared_ptr<ChangeMouseHandlerOperations> op(new ChangeMouseHandlerOperations(std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy())));

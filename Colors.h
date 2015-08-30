@@ -95,6 +95,7 @@ public:
     virtual std::unique_ptr<BaseColorGradient> EditorLineAbsoptionColorGradient();
     virtual QColor EditorDefualtDomainColor();
     virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
+    virtual QColor EditorAddDomainColor();
 
 };
 
@@ -113,6 +114,9 @@ public:
     virtual QColor EditorDefualtDomainColor();
 
     virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
+
+    virtual QColor EditorAddDomainColor();
+
 };
 
 #endif //OPENPSTD_COLORS_H

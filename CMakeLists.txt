@@ -133,7 +133,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/MouseOperations.cpp)
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
 # OpenGL viewer
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp InteractiveLayer.cpp)
 # Remaining
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp Model.cpp PSTDFile.cpp Colors.cpp)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
