@@ -76,10 +76,16 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
         this->lines = 4;
     }
 
-    if(m->colorScheme->changed)
+    if(m->colorScheme->IsChanged())
     {
         program->bind();
         program->setUniformValue("u_color", m->colorScheme->value->EditorAddDomainColor());
+    }
+
+    if(m->view->IsChanged())
+    {
+        program->bind();
+        program->setUniformValue("u_view", this->viewMatrix);
     }
 }
 
