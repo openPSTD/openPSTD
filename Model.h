@@ -14,6 +14,7 @@ class Model;
 #include "PSTDFile.h"
 #include "MouseHandlers.h"
 #include <QVector2D>
+#include "Colors.h"
 
 class InvalidationDataItemI
 {
@@ -91,6 +92,7 @@ public:
     std::shared_ptr<InvalidationDataItem<QMatrix4x4>> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;
+    InvalidationDataItem<std::unique_ptr<BaseColorScheme>> colorScheme;
 };
 
 

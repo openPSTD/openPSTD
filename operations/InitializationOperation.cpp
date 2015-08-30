@@ -12,6 +12,9 @@ void InitializationOperation::Run(const Reciever &reciever)
     reciever.model->view->value.scale(0.5f);
     reciever.model->view->Change();
 
+    reciever.model->colorScheme = InvalidationDataItem<std::unique_ptr<BaseColorScheme>>();
+    reciever.model->colorScheme.value = std::unique_ptr<StandardColorScheme>(new StandardColorScheme());
+
     //initialize Mouse handler
     std::shared_ptr<ChangeMouseHandlerOperations> op(new ChangeMouseHandlerOperations(std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy())));
     reciever.operationRunner->RunOperation(op);
