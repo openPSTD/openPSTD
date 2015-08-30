@@ -42,20 +42,48 @@ void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model
 
 void MouseCreateDomainStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos)
 {
-    model->interactive->CreateDomain.start = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    using namespace rapidjson;
+    std::shared_ptr<Document> conf = model->d->GetSceneConf();
+    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
+
+    QVector2D start = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+
+    start[0] = roundf(start[0]/gridSpacing)*gridSpacing;
+    start[1] = roundf(start[1]/gridSpacing)*gridSpacing;
+
+    model->interactive->CreateDomain.start = start;
+    model->interactive->CreateDomain.currentEnd = start;
     model->interactive->CreateDomain.visible = true;
     model->interactive->Change();
 }
 
 void MouseCreateDomainStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    model->interactive->CreateDomain.currentEnd = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    using namespace rapidjson;
+    std::shared_ptr<Document> conf = model->d->GetSceneConf();
+    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
+
+    QVector2D end = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+
+    end[0] = roundf(end[0]/gridSpacing)*gridSpacing;
+    end[1] = roundf(end[1]/gridSpacing)*gridSpacing;
+
+    model->interactive->CreateDomain.currentEnd = end;
     model->interactive->Change();
 }
 
 void MouseCreateDomainStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    model->interactive->CreateDomain.currentEnd = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    using namespace rapidjson;
+    std::shared_ptr<Document> conf = model->d->GetSceneConf();
+    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
+
+    QVector2D end = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+
+    end[0] = roundf(end[0]/gridSpacing)*gridSpacing;
+    end[1] = roundf(end[1]/gridSpacing)*gridSpacing;
+
+    model->interactive->CreateDomain.currentEnd = end;
 
     model->interactive->CreateDomain.visible = false;
     model->interactive->Change();
