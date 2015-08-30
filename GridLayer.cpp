@@ -56,6 +56,12 @@ void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
 
         program->setUniformValue("u_view", this->viewMatrix);
     }
+
+    if(m->colorScheme->changed)
+    {
+        program->bind();
+        program->setUniformValue("u_color", m->colorScheme->value->EditorLineColor());
+    }
 }
 
 MinMaxValue GridLayer::GetMinMax()

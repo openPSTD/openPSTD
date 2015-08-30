@@ -92,7 +92,7 @@ public:
     std::shared_ptr<InvalidationDataItem<QMatrix4x4>> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;
-    InvalidationDataItem<std::unique_ptr<BaseColorScheme>> colorScheme;
+    std::shared_ptr<InvalidationDataItem<std::unique_ptr<BaseColorScheme>>> colorScheme;
 };
 
 

@@ -18,7 +18,7 @@ private:
     GLuint textureID;
     int lines;
 
-    void CreateColormap();
+    void CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
 public:
     SceneLayer();

@@ -61,9 +61,11 @@ void InvalidationData::Reset()
     }
 }
 
-Model::Model() : interactive(new InteractiveModel()), view(new InvalidationDataItem<QMatrix4x4>())
+Model::Model() : interactive(new InteractiveModel()), view(new InvalidationDataItem<QMatrix4x4>()),
+                 colorScheme(new InvalidationDataItem<std::unique_ptr<BaseColorScheme>>())
 {
     this->invalidation.Register(interactive);
     this->invalidation.Register(view);
+    this->invalidation.Register(colorScheme);
 }
 

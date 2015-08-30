@@ -28,8 +28,6 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
 
     program->bind();
 
-    CreateColormap();
-
     program->setUniformValue("vmin", 0.0f);
     program->setUniformValue("vmax", 1.0f);
 }
@@ -58,6 +56,8 @@ void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, voi
 
 void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
+    CreateColormap(m, f);
+
     program->bind();
     if(m->view->IsChanged())
     {
@@ -123,29 +123,27 @@ MinMaxValue SceneLayer::GetMinMax()
     return MinMaxValue();
 }
 
-void SceneLayer::CreateColormap()
+void SceneLayer::CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
-    std::unique_ptr<std::vector<float>> colormap(new std::vector<float>(512*4));
-    for(int i = 0; i < 512; i++)
+    //todo fix that if it updates then the code removes the old colormap
+    if(m->colorScheme->IsChanged())
     {
-        (*colormap)[i*4+0] = i/512.0f;
-        (*colormap)[i*4+1] = 0;
-        (*colormap)[i*4+2] = 1-i/512.0f;
-        (*colormap)[i*4+3] = 1;
+        std::unique_ptr<std::vector<float>> colormap = m->colorScheme->value->EditorLineAbsoptionColorGradient()->CreateRawRGBAColorMap(
+                0, 1, 512);
+
+        // Create one OpenGL texture
+        GLuint textureID;
+        f->glGenTextures(1, &textureID);
+
+        // "Bind" the newly created texture : all future texture functions will modify this texture
+        f->glBindTexture(GL_TEXTURE_1D, textureID);
+
+        // Give the image to OpenGL
+        glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 512, 0, GL_RGBA, GL_FLOAT, colormap->data());
+
+        f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+        this->textureID = textureID;
     }
-
-    // Create one OpenGL texture
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-
-    // "Bind" the newly created texture : all future texture functions will modify this texture
-    glBindTexture(GL_TEXTURE_1D, textureID);
-
-    // Give the image to OpenGL
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 512, 0, GL_RGBA, GL_FLOAT, colormap->data());
-
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    this->textureID = textureID;
 }
