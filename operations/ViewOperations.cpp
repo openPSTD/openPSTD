@@ -33,9 +33,9 @@ TranslateScene::TranslateScene(QVector2D vector): ModifyViewMatrix()
 
 ResizeScene::ResizeScene(float scale, QVector2D pos): ModifyViewMatrix()
 {
-    this->M.translate(-pos.toVector3D());
-    this->M.scale(scale);
     this->M.translate(pos.toVector3D());
+    this->M.scale(scale);
+    this->M.translate(-pos.toVector3D());
 }
 
 void ViewWholeScene::Run(const Reciever &reciever)
