@@ -6,6 +6,7 @@
 #include "operations/ViewOperations.h"
 #include "operations/EditOperations.h"
 #include <iostream>
+#include "Snapping.h"
 
 void MouseStrategy::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
 {
@@ -42,14 +43,9 @@ void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model
 
 void MouseCreateDomainStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos)
 {
-    using namespace rapidjson;
-    std::shared_ptr<Document> conf = model->d->GetSceneConf();
-    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
-
     QVector2D start = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
 
-    start[0] = roundf(start[0]/gridSpacing)*gridSpacing;
-    start[1] = roundf(start[1]/gridSpacing)*gridSpacing;
+    start = Snapping::Snap(model, start);
 
     model->interactive->CreateDomain.start = start;
     model->interactive->CreateDomain.currentEnd = start;
@@ -59,14 +55,9 @@ void MouseCreateDomainStrategy::mousePressEvent(std::shared_ptr<Model> const &mo
 
 void MouseCreateDomainStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    using namespace rapidjson;
-    std::shared_ptr<Document> conf = model->d->GetSceneConf();
-    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
-
     QVector2D end = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
 
-    end[0] = roundf(end[0]/gridSpacing)*gridSpacing;
-    end[1] = roundf(end[1]/gridSpacing)*gridSpacing;
+    end = Snapping::Snap(model, end);
 
     model->interactive->CreateDomain.currentEnd = end;
     model->interactive->Change();
@@ -74,14 +65,9 @@ void MouseCreateDomainStrategy::mouseMoveEvent(std::shared_ptr<Model> const &mod
 
 void MouseCreateDomainStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    using namespace rapidjson;
-    std::shared_ptr<Document> conf = model->d->GetSceneConf();
-    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
-
     QVector2D end = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
 
-    end[0] = roundf(end[0]/gridSpacing)*gridSpacing;
-    end[1] = roundf(end[1]/gridSpacing)*gridSpacing;
+    end = Snapping::Snap(model, end);
 
     model->interactive->CreateDomain.currentEnd = end;
 

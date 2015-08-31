@@ -62,10 +62,12 @@ void InvalidationData::Reset()
 }
 
 Model::Model() : interactive(new InteractiveModel()), view(new InvalidationDataItem<QMatrix4x4>()),
-                 colorScheme(new InvalidationDataItem<std::unique_ptr<BaseColorScheme>>())
+                 colorScheme(new InvalidationDataItem<std::unique_ptr<BaseColorScheme>>()),
+                 snapping(new SnappingSettings())
 {
     this->invalidation.Register(interactive);
     this->invalidation.Register(view);
     this->invalidation.Register(colorScheme);
+    this->invalidation.Register(snapping);
 }
 

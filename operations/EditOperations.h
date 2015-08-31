@@ -36,11 +36,11 @@ class EditDomainPositionsOperation: public BaseOperation
 {
 private:
     int index;
-    boost::numeric::ublas::vector<float> StartPoint;
-    boost::numeric::ublas::vector<float> EndPoint;
+    QVector2D StartPoint;
+    QVector2D EndPoint;
 
 public:
-    EditDomainPositionsOperation(int index, boost::numeric::ublas::vector<float> startPoint, boost::numeric::ublas::vector<float> endPoint);
+    EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint);
 
     virtual void Run(const Reciever &reciever) override;
 };

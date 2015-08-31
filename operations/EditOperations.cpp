@@ -3,6 +3,7 @@
 //
 
 #include "EditOperations.h"
+#include "Snapping.h"
 
 CreateDomainOperation::CreateDomainOperation(QVector2D startPoint,
                                              QVector2D endPoint): StartPoint(startPoint), EndPoint(endPoint)
@@ -16,12 +17,8 @@ void CreateDomainOperation::Run(const Reciever &reciever)
 
     std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
 
-    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
-
-    this->StartPoint[0] = roundf(this->StartPoint[0]/gridSpacing)*gridSpacing;
-    this->StartPoint[1] = roundf(this->StartPoint[1]/gridSpacing)*gridSpacing;
-    this->EndPoint[0] = roundf(this->EndPoint[0]/gridSpacing)*gridSpacing;
-    this->EndPoint[1] = roundf(this->EndPoint[1]/gridSpacing)*gridSpacing;
+    this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
+    this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
 
     Document::AllocatorType& allocator = conf->GetAllocator();
 
@@ -81,9 +78,8 @@ void RemoveDomainOperation::Run(const Reciever &reciever)
     reciever.model->d->SetSceneConf(conf);
 }
 
-EditDomainPositionsOperation::EditDomainPositionsOperation(int index, boost::numeric::ublas::vector<float> startPoint,
-                                         boost::numeric::ublas::vector<float> endPoint): index(index),
-                                        StartPoint(startPoint), EndPoint(endPoint)
+EditDomainPositionsOperation::EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint):
+        index(index), StartPoint(startPoint), EndPoint(endPoint)
 {
 
 }
@@ -94,12 +90,8 @@ void EditDomainPositionsOperation::Run(const Reciever &reciever)
 
     std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
 
-    float gridSpacing = (*conf)["grid_spacing"].GetDouble();
-
-    this->StartPoint[0] = roundf(this->StartPoint[0]/gridSpacing)*gridSpacing;
-    this->StartPoint[1] = roundf(this->StartPoint[1]/gridSpacing)*gridSpacing;
-    this->EndPoint[0] = roundf(this->EndPoint[0]/gridSpacing)*gridSpacing;
-    this->EndPoint[1] = roundf(this->EndPoint[1]/gridSpacing)*gridSpacing;
+    this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
+    this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
 
     Document::AllocatorType& allocator = conf->GetAllocator();
 

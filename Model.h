@@ -82,6 +82,13 @@ public:
     } CreateDomain;
 };
 
+class SnappingSettings: public InvalidationDataItemI
+{
+public:
+    bool SnapToGrid = true;
+    bool SnapToDomainEdges = true;
+};
+
 class Model
 {
 public:
@@ -92,6 +99,7 @@ public:
     std::shared_ptr<InvalidationDataItem<QMatrix4x4>> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;
+    std::shared_ptr<SnappingSettings> snapping;
     std::shared_ptr<InvalidationDataItem<std::unique_ptr<BaseColorScheme>>> colorScheme;
 };
 
