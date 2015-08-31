@@ -87,6 +87,7 @@ class SnappingSettings: public InvalidationDataItemI
 public:
     bool SnapToGrid = true;
     bool SnapToDomainEdges = true;
+    float SnapToDomainEdgesDistance = 0.4f;
 };
 
 class Model
