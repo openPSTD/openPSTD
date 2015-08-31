@@ -66,6 +66,11 @@ void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QO
         program->setUniformValue("u_view", this->viewMatrix);
     }
 
+    if(m->settings->IsChanged())
+    {
+        this->lineWidth = m->settings->visual.EdgeSize;
+    }
+
     std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
 
     rapidjson::Value& domains = (*conf)["domains"];

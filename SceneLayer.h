@@ -17,6 +17,7 @@ private:
     std::unique_ptr<std::vector<float>> values;
     GLuint textureID;
     int lines;
+    float lineWidth;
 
     void CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 

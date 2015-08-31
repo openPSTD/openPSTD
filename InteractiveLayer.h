@@ -11,9 +11,10 @@ class InteractiveLayer : public Layer
 {
 private:
     std::unique_ptr<QOpenGLShaderProgram> program;
-    bool AddDomainVisible;
-    unsigned int positionsBuffer;
-    int lines;
+    bool addDomainVisible;
+    bool selectDomainVisible;
+    unsigned int newDomainBuffer;
+    unsigned int selectDomainBuffer;
 public:
     InteractiveLayer();
 

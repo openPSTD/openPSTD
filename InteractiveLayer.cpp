@@ -3,8 +3,9 @@
 //
 
 #include "InteractiveLayer.h"
+#include "PstdAlgorithm.h"
 
-InteractiveLayer::InteractiveLayer(): AddDomainVisible(false)
+InteractiveLayer::InteractiveLayer(): addDomainVisible(false), newDomainBuffer(false)
 {
 
 }
@@ -13,8 +14,8 @@ void InteractiveLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFun
 {
     QColor color(255, 255, 255, 255);
 
-    f->glGenBuffers(1, &this->positionsBuffer);
-    f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+    f->glGenBuffers(1, &this->newDomainBuffer);
+    f->glGenBuffers(1, &this->selectDomainBuffer);
 
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Interactive.vert.glsl"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Interactive.frag.glsl"));
@@ -31,16 +32,28 @@ void InteractiveLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFun
 
 void InteractiveLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
-    if(this->AddDomainVisible)
+    if(this->addDomainVisible)
     {
         program->bind();
 
         program->enableAttributeArray("a_position");
-        f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+        f->glBindBuffer(GL_ARRAY_BUFFER, this->newDomainBuffer);
         f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         f->glLineWidth(5.0f);
-        f->glDrawArrays(GL_LINES, 0, lines*2);
+        f->glDrawArrays(GL_LINES, 0, 4*2);
+        program->disableAttributeArray("a_position");
+    }
+    if(this->selectDomainVisible)
+    {
+        program->bind();
+
+        program->enableAttributeArray("a_position");
+        f->glBindBuffer(GL_ARRAY_BUFFER, this->newDomainBuffer);
+        f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        f->glLineWidth(1.0f);
+        f->glDrawArrays(GL_LINES, 0, 4*2);
         program->disableAttributeArray("a_position");
     }
 }
@@ -49,31 +62,36 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
 {
     if(m->interactive->IsChanged())
     {
-        std::unique_ptr<std::vector<float>> positions(new std::vector<float>());
+        this->addDomainVisible = m->interactive->CreateDomain.visible;
 
-        this->AddDomainVisible = m->interactive->CreateDomain.visible;
+        if(this->addDomainVisible)
+        {
+            std::unique_ptr<std::vector<float>> positions(new std::vector<float>());
 
-        float left = m->interactive->CreateDomain.start[0];
-        float top = m->interactive->CreateDomain.start[1];
+            AddSquareBuffer(positions, m->interactive->CreateDomain.start, m->interactive->CreateDomain.currentEnd - m->interactive->CreateDomain.start);
 
-        float right = m->interactive->CreateDomain.currentEnd[0];
-        float bottom = m->interactive->CreateDomain.currentEnd[1];
+            f->glBindBuffer(GL_ARRAY_BUFFER, this->newDomainBuffer);
+            f->glBufferData(GL_ARRAY_BUFFER, positions->size() * sizeof(float), positions->data(), GL_DYNAMIC_DRAW);
+        }
 
-        positions->push_back(left); positions->push_back(top);
-        positions->push_back(right); positions->push_back(top);
+        this->selectDomainVisible = (m->interactive->SelectedDomainIndex >= 0);
 
-        positions->push_back(left); positions->push_back(top);
-        positions->push_back(left); positions->push_back(bottom);
+        if(this->selectDomainVisible)
+        {
+            std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+            rapidjson::Value& domains = (*conf)["domains"];
 
-        positions->push_back(left); positions->push_back(bottom);
-        positions->push_back(right); positions->push_back(bottom);
+            int i = m->interactive->SelectedDomainIndex;
+            QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
+            QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
 
-        positions->push_back(right); positions->push_back(top);
-        positions->push_back(right); positions->push_back(bottom);
+            std::unique_ptr<std::vector<float>> positions(new std::vector<float>());
 
-        f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
-        f->glBufferData(GL_ARRAY_BUFFER, positions->size()*sizeof(float), positions->data(), GL_DYNAMIC_DRAW);
-        this->lines = 4;
+            AddSquareBuffer(positions, tl, size);
+
+            f->glBindBuffer(GL_ARRAY_BUFFER, this->newDomainBuffer);
+            f->glBufferData(GL_ARRAY_BUFFER, positions->size() * sizeof(float), positions->data(), GL_DYNAMIC_DRAW);
+        }
     }
 
     if(m->settings->IsChanged())
