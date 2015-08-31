@@ -4,6 +4,7 @@
 
 #include "EditOperations.h"
 #include "Snapping.h"
+#include "SelectDomainOperation.h"
 
 CreateDomainOperation::CreateDomainOperation(QVector2D startPoint,
                                              QVector2D endPoint): StartPoint(startPoint), EndPoint(endPoint)
@@ -60,6 +61,22 @@ void CreateDomainOperation::Run(const Reciever &reciever)
     (*conf)["domains"].PushBack(Domain, allocator);
 
     reciever.model->d->SetSceneConf(conf);
+}
+
+void RemoveSelectedDomainOperation::Run(const Reciever &reciever)
+{
+    int index = reciever.model->interactive->SelectedDomainIndex;
+    if(index >= 0)
+    {
+        std::shared_ptr<RemoveDomainOperation> op1(new RemoveDomainOperation(index));
+        reciever.operationRunner->RunOperation(op1);
+        std::shared_ptr<SelectDomainOperation> op2(new SelectDomainOperation(-1));
+        reciever.operationRunner->RunOperation(op2);
+    }
+    else
+    {
+        //todo throw exception
+    }
 }
 
 RemoveDomainOperation::RemoveDomainOperation(int index): index(index)

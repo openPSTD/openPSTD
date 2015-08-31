@@ -21,6 +21,12 @@ public:
     virtual void Run(const Reciever &reciever) override;
 };
 
+class RemoveSelectedDomainOperation: public BaseOperation
+{
+public:
+    virtual void Run(const Reciever &reciever) override;
+};
+
 class RemoveDomainOperation: public BaseOperation
 {
 private:

@@ -43,7 +43,8 @@ void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
         runningOp = true;
         operation->Run(r);
         runningOp = false;
-        if(this->model->invalidation.IsChanged())
+        //todo: fix that also the document itself is registered
+        //if(this->model->invalidation.IsChanged())
         {
             this->w->UpdateFromModel(this->model);
         }

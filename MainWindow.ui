@@ -280,6 +280,7 @@
     </property>
     <addaction name="actionSelect"/>
     <addaction name="actionAdd_Domain"/>
+    <addaction name="actionDelete_selected_Domain"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOption"/>
@@ -450,6 +451,11 @@
   <action name="actionSelect">
    <property name="text">
     <string>Select</string>
+   </property>
+  </action>
+  <action name="actionDelete_selected_Domain">
+   <property name="text">
+    <string>Delete selected Domain</string>
    </property>
   </action>
  </widget>
