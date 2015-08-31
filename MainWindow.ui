@@ -278,6 +278,7 @@
     <property name="title">
      <string>Operations</string>
     </property>
+    <addaction name="actionSelect"/>
     <addaction name="actionAdd_Domain"/>
    </widget>
    <addaction name="menuFile"/>
@@ -298,8 +299,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionAdd_Domain"/>
+   <addaction name="actionSelect"/>
    <addaction name="actionMove_scene"/>
+   <addaction name="actionAdd_Domain"/>
    <addaction name="separator"/>
    <addaction name="actionView_complete_scene"/>
    <addaction name="separator"/>
@@ -443,6 +445,11 @@
    </property>
    <property name="text">
     <string>Show grid</string>
+   </property>
+  </action>
+  <action name="actionSelect">
+   <property name="text">
+    <string>Select</string>
    </property>
   </action>
  </widget>

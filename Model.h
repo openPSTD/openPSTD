@@ -80,6 +80,7 @@ public:
         QVector2D start;
         QVector2D currentEnd;
     } CreateDomain;
+    int SelectedDomainIndex;
 };
 
 class SnappingSettings: public InvalidationDataItemI

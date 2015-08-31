@@ -21,6 +21,7 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
 
     MouseHandlersActions.push_back(ui->actionMove_scene);
     MouseHandlersActions.push_back(ui->actionAdd_Domain);
+    MouseHandlersActions.push_back(ui->actionSelect);
 
     QObject::connect(ui->actionNew, &QAction::triggered, this, &MainWindow::New);
     QObject::connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::Open);
@@ -29,6 +30,8 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
                      [&](bool checked){ChangeMouseHandler(ui->actionMove_scene, std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy()));});
     QObject::connect(ui->actionAdd_Domain, &QAction::triggered, this,
                      [&](bool checked){ChangeMouseHandler(ui->actionAdd_Domain, std::unique_ptr<MouseCreateDomainStrategy>(new MouseCreateDomainStrategy()));});
+    QObject::connect(ui->actionSelect, &QAction::triggered, this,
+                     [&](bool checked){ChangeMouseHandler(ui->actionSelect, std::unique_ptr<MouseSelectStrategy>(new MouseSelectStrategy()));});
 }
 
 void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
