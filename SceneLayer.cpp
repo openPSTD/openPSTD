@@ -12,6 +12,8 @@ SceneLayer::SceneLayer() : positions(new std::vector<float>()), values(new std::
 
 void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
+    f->glGenTextures(1, &this->textureID);
+
     f->glGenBuffers(1, &this->positionsBuffer);
     f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
 
@@ -125,25 +127,18 @@ MinMaxValue SceneLayer::GetMinMax()
 
 void SceneLayer::CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
 {
-    //todo fix that if it updates then the code removes the old colormap
-    if(m->colorScheme->IsChanged())
+    if(m->settings->IsChanged())
     {
-        std::unique_ptr<std::vector<float>> colormap = m->colorScheme->value->EditorLineAbsoptionColorGradient()->CreateRawRGBAColorMap(
-                0, 1, 512);
-
-        // Create one OpenGL texture
-        GLuint textureID;
-        f->glGenTextures(1, &textureID);
+        std::unique_ptr<std::vector<float>> colormap = m->settings->visual.colorScheme->
+                EditorLineAbsoptionColorGradient()->CreateRawRGBAColorMap(0, 1, 512);
 
         // "Bind" the newly created texture : all future texture functions will modify this texture
-        f->glBindTexture(GL_TEXTURE_1D, textureID);
+        f->glBindTexture(GL_TEXTURE_1D, this->textureID);
 
         // Give the image to OpenGL
         glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 512, 0, GL_RGBA, GL_FLOAT, colormap->data());
 
         f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        this->textureID = textureID;
     }
 }

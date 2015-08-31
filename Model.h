@@ -83,12 +83,26 @@ public:
     int SelectedDomainIndex;
 };
 
-class SnappingSettings: public InvalidationDataItemI
+class SnappingSettings
 {
 public:
     bool SnapToGrid = true;
     bool SnapToDomainEdges = true;
     float SnapToDomainEdgesDistance = 0.4f;
+};
+
+class VisualSettings
+{
+public:
+    float EdgeSize = 5.0f;
+    std::unique_ptr<BaseColorScheme> colorScheme;
+};
+
+class Settings: public InvalidationDataItemI
+{
+public:
+    SnappingSettings snapping;
+    VisualSettings visual;
 };
 
 class Model
@@ -101,8 +115,7 @@ public:
     std::shared_ptr<InvalidationDataItem<QMatrix4x4>> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;
-    std::shared_ptr<SnappingSettings> snapping;
-    std::shared_ptr<InvalidationDataItem<std::unique_ptr<BaseColorScheme>>> colorScheme;
+    std::shared_ptr<Settings> settings;
 };
 
 

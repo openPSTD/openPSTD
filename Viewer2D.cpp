@@ -110,9 +110,9 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
     std::unique_ptr<QOpenGLFunctions, void(*)(void*)> f(QOpenGLContext::currentContext()->functions(), DeleteNothing);
 
-    if(model->colorScheme->changed)
+    if(model->settings->changed)
     {
-        QColor clearColor = model->colorScheme->value->EditorBackgroundColor();
+        QColor clearColor = model->settings->visual.colorScheme->EditorBackgroundColor();
         f->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
     }
 
@@ -122,9 +122,6 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
         GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->UpdateScene");
     }
 }
-
-
-
 
 void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
 {

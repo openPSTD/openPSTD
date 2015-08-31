@@ -13,8 +13,8 @@ void InitializationOperation::Run(const Reciever &reciever)
     reciever.model->view->value.scale(0.5f);
     reciever.model->view->Change();
 
-    reciever.model->colorScheme->value = std::unique_ptr<StandardColorScheme>(new StandardColorScheme());
-    reciever.model->colorScheme->Change();
+    reciever.model->settings->visual.colorScheme = std::unique_ptr<StandardColorScheme>(new StandardColorScheme());
+    reciever.model->settings->Change();
 
     //select none of the domains
     std::shared_ptr<SelectDomainOperation> op1(new SelectDomainOperation(-1));

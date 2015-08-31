@@ -57,10 +57,10 @@ void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
         program->setUniformValue("u_view", this->viewMatrix);
     }
 
-    if(m->colorScheme->changed)
+    if(m->settings->changed)
     {
         program->bind();
-        program->setUniformValue("u_color", m->colorScheme->value->EditorLineColor());
+        program->setUniformValue("u_color", m->settings->visual.colorScheme->EditorLineColor());
     }
 }
 
