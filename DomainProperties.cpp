@@ -10,33 +10,66 @@ DomainProperties::DomainProperties(QWidget *parent):QDialog(parent), ui(new Ui_D
 }
 float DomainProperties::AbsorptionT()
 {
-    return 0.0f;
+    return ui->absorptionRateT->value();
 }
 float DomainProperties::AbsorptionB()
 {
-    return 0.0f;
+    return ui->absorptionRateB->value();
 }
 float DomainProperties::AbsorptionL()
 {
-    return 0.0f;
+    return ui->absorptionRateL->value();
 }
 float DomainProperties::AbsorptionR()
 {
-    return 0.0f;
+    return ui->absorptionRateR->value();
 }
 bool DomainProperties::LRT()
 {
-    return false;
+    return ui->LRT->isChecked();
 }
 bool DomainProperties::LRB()
 {
-    return false;
+    return ui->LRB->isChecked();
 }
 bool DomainProperties::LRL()
 {
-    return false;
+    return ui->LRL->isChecked();
 }
 bool DomainProperties::LRR()
 {
-    return false;
+    return ui->LRR->isChecked();
+}
+
+void DomainProperties::SetAbsorptionT(float value)
+{
+    ui->absorptionRateT->setValue(value);
+}
+void DomainProperties::SetAbsorptionB(float value)
+{
+    ui->absorptionRateB->setValue(value);
+}
+void DomainProperties::SetAbsorptionL(float value)
+{
+    ui->absorptionRateL->setValue(value);
+}
+void DomainProperties::SetAbsorptionR(float value)
+{
+    ui->absorptionRateR->setValue(value);
+}
+void DomainProperties::SetLRT(bool value)
+{
+    ui->LRT->setChecked(value);
+}
+void DomainProperties::SetLRB(bool value)
+{
+    ui->LRB->setChecked(value);
+}
+void DomainProperties::SetLRL(bool value)
+{
+    ui->LRL->setChecked(value);
+}
+void DomainProperties::SetLRR(bool value)
+{
+    ui->LRR->setChecked(value);
 }

@@ -10,6 +10,7 @@
 #include <memory>
 #include "operations/BaseOperation.h"
 #include "MouseHandlers.h"
+#include "DomainProperties.h"
 
 class MainWindow: public QMainWindow
 {
@@ -22,6 +23,7 @@ class MainWindow: public QMainWindow
 
     private:
         std::unique_ptr<Ui_MainWindow> ui;
+        std::unique_ptr<DomainProperties> domainProperties;
         std::shared_ptr<OperationRunner> operationRunner;
         std::vector<QAction*> MouseHandlersActions;
 

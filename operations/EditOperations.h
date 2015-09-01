@@ -64,6 +64,34 @@ public:
     virtual void Run(const Reciever &reciever) override;
 };
 
+class EditDomainEdgeLrOperation: public BaseOperation
+{
+private:
+    int index;
+    PSTD_DOMAIN_SIDE Side;
+    bool NewValue;
+
+public:
+    EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue);
+
+    virtual void Run(const Reciever &reciever) override;
+};
+
+class EditSelectedDomainEdgesOperation: public BaseOperation
+{
+public:
+    float AbsorptionT;
+    float AbsorptionB;
+    float AbsorptionL;
+    float AbsorptionR;
+    bool LRT;
+    bool LRB;
+    bool LRL;
+    bool LRR;
+
+    virtual void Run(const Reciever &reciever) override;
+};
+
 template <typename T>
 class EditPropertyOperation: public BaseOperation
 {

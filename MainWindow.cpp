@@ -10,12 +10,12 @@
 #include "MouseHandlers.h"
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
-#include "DomainProperties.h"
 
 MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui_MainWindow()),
-    operationRunner(operationRunner)
+    operationRunner(operationRunner),
+    domainProperties(new DomainProperties())
 {
     ui->setupUi(this);
 
@@ -48,6 +48,34 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
     }
     ui->mainView->UpdateFromModel(model);
     ui->mainView->update();
+
+    if(model->interactive->changed && model->interactive->SelectedDomainIndex != -1)
+    {
+        std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
+
+        rapidjson::Value& domains = (*conf)["domains"];
+        int i = model->interactive->SelectedDomainIndex;
+
+        float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
+        float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
+        float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
+        float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
+
+        bool lrTop = domains[i]["edges"]["t"]["lr"].GetBool();
+        bool lrBottom = domains[i]["edges"]["b"]["lr"].GetBool();
+        bool lrLeft = domains[i]["edges"]["l"]["lr"].GetBool();
+        bool lrRight = domains[i]["edges"]["r"]["lr"].GetBool();
+
+        domainProperties->SetAbsorptionT(aTop);
+        domainProperties->SetAbsorptionB(aBottom);
+        domainProperties->SetAbsorptionL(aLeft);
+        domainProperties->SetAbsorptionR(aRight);
+
+        domainProperties->SetLRT(lrTop);
+        domainProperties->SetLRB(lrBottom);
+        domainProperties->SetLRL(lrLeft);
+        domainProperties->SetLRR(lrRight);
+    }
 }
 
 void MainWindow::New()
@@ -90,6 +118,17 @@ void MainWindow::ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrate
 
 void MainWindow::EditSelectedDomain()
 {
-    std::unique_ptr<DomainProperties> w = std::unique_ptr<DomainProperties>(new DomainProperties());
-    w->exec();
+    if(this->domainProperties->exec() == QDialog::Accepted)
+    {
+        std::shared_ptr<EditSelectedDomainEdgesOperation> op(new EditSelectedDomainEdgesOperation());
+        op->AbsorptionT = this->domainProperties->AbsorptionT();
+        op->AbsorptionB = this->domainProperties->AbsorptionB();
+        op->AbsorptionL = this->domainProperties->AbsorptionL();
+        op->AbsorptionR = this->domainProperties->AbsorptionR();
+        op->LRT = this->domainProperties->LRT();
+        op->LRB = this->domainProperties->LRB();
+        op->LRL = this->domainProperties->LRL();
+        op->LRR = this->domainProperties->LRR();
+        this->operationRunner->RunOperation(op);
+    }
 }

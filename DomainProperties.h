@@ -24,6 +24,15 @@ public:
     bool LRL();
     bool LRR();
 
+    void SetAbsorptionT(float value);
+    void SetAbsorptionB(float value);
+    void SetAbsorptionL(float value);
+    void SetAbsorptionR(float value);
+    void SetLRT(bool value);
+    void SetLRB(bool value);
+    void SetLRL(bool value);
+    void SetLRR(bool value);
+
 private:
     std::unique_ptr<Ui_DomainProperties> ui;
 };
