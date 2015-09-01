@@ -10,6 +10,7 @@
 #include "MouseHandlers.h"
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
+#include "DomainProperties.h"
 
 MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +37,7 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
 
     QObject::connect(ui->actionDelete_selected_Domain, &QAction::triggered, this,
                      [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedDomainOperation>(new RemoveSelectedDomainOperation()));});
+    QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this, &MainWindow::EditSelectedDomain);
 }
 
 void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
@@ -84,4 +86,10 @@ void MainWindow::ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrate
 
     std::shared_ptr<ChangeMouseHandlerOperations> op(new ChangeMouseHandlerOperations(std::move(mouseHandler)));
     this->operationRunner->RunOperation(op);
+}
+
+void MainWindow::EditSelectedDomain()
+{
+    std::unique_ptr<DomainProperties> w = std::unique_ptr<DomainProperties>(new DomainProperties());
+    w->exec();
 }

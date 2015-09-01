@@ -26,6 +26,7 @@ class MainWindow: public QMainWindow
         std::vector<QAction*> MouseHandlersActions;
 
         void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
+        void EditSelectedDomain();
 
     public slots:
         void New();

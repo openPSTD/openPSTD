@@ -281,6 +281,8 @@
     <addaction name="actionSelect"/>
     <addaction name="actionAdd_Domain"/>
     <addaction name="actionDelete_selected_Domain"/>
+    <addaction name="actionResize_domain"/>
+    <addaction name="actionEdit_properties_of_domain"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOption"/>
@@ -456,6 +458,16 @@
   <action name="actionDelete_selected_Domain">
    <property name="text">
     <string>Delete selected Domain</string>
+   </property>
+  </action>
+  <action name="actionResize_domain">
+   <property name="text">
+    <string>Resize domain</string>
+   </property>
+  </action>
+  <action name="actionEdit_properties_of_domain">
+   <property name="text">
+    <string>Edit properties of domain</string>
    </property>
   </action>
  </widget>
