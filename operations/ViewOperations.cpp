@@ -4,34 +4,59 @@
 
 #include "ViewOperations.h"
 
-ChangeViewMatrix::ChangeViewMatrix(QMatrix4x4 m): M(m)
+void UpdateViewMatrix::Run(const Reciever &reciever)
 {
-
-}
-
-void ChangeViewMatrix::Run(const Reciever &reciever)
-{
-    reciever.model->view->value = this->M;
+    reciever.model->view->viewMatrix = reciever.model->view->aspectMatrix * reciever.model->view->worldMatrix;
     reciever.model->view->Change();
 }
 
-ModifyViewMatrix::ModifyViewMatrix(QMatrix4x4 m): M(m)
+ChangeAspectMatrix::ChangeAspectMatrix(QMatrix4x4 m): M(m)
 {
 
 }
 
-void ModifyViewMatrix::Run(const Reciever &reciever)
+ChangeAspectMatrix::ChangeAspectMatrix(float w, float h): M()
 {
-    reciever.model->view->value = this->M * reciever.model->view->value;
+    this->M.scale(h/w, 1);
+}
+
+void ChangeAspectMatrix::Run(const Reciever &reciever)
+{
+    reciever.model->view->aspectMatrix = this->M;
     reciever.model->view->Change();
+    reciever.operationRunner->RunOperation(std::shared_ptr<UpdateViewMatrix>(new UpdateViewMatrix()));
 }
 
-TranslateScene::TranslateScene(QVector2D vector): ModifyViewMatrix()
+ChangeWorldMatrix::ChangeWorldMatrix(QMatrix4x4 m): M(m)
+{
+
+}
+
+void ChangeWorldMatrix::Run(const Reciever &reciever)
+{
+    reciever.model->view->worldMatrix = this->M;
+    reciever.model->view->Change();
+    reciever.operationRunner->RunOperation(std::shared_ptr<UpdateViewMatrix>(new UpdateViewMatrix()));
+}
+
+ModifyWorldMatrix::ModifyWorldMatrix(QMatrix4x4 m): M(m)
+{
+
+}
+
+void ModifyWorldMatrix::Run(const Reciever &reciever)
+{
+    reciever.model->view->worldMatrix = this->M * reciever.model->view->worldMatrix;
+    reciever.model->view->Change();
+    reciever.operationRunner->RunOperation(std::shared_ptr<UpdateViewMatrix>(new UpdateViewMatrix()));
+}
+
+TranslateScene::TranslateScene(QVector2D vector): ModifyWorldMatrix()
 {
     this->M.translate(vector.toVector3D());
 }
 
-ResizeScene::ResizeScene(float scale, QVector2D pos): ModifyViewMatrix()
+ResizeScene::ResizeScene(float scale, QVector2D pos): ModifyWorldMatrix()
 {
     this->M.translate(pos.toVector3D());
     this->M.scale(scale);

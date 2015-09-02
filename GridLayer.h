@@ -16,6 +16,7 @@ private:
     unsigned int positionsBuffer;
     int lines;
     float gridSpacing;
+    QMatrix4x4 viewMatrix;
 
 public:
     GridLayer();

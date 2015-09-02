@@ -9,26 +9,47 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
-class ChangeViewMatrix: public BaseOperation
+class UpdateViewMatrix: public BaseOperation
+{
+public:
+    virtual void Run(const Reciever &reciever);
+};
+
+class ChangeAspectMatrix: public BaseOperation
 {
 private:
     QMatrix4x4 M;
 
 public:
-    ChangeViewMatrix(): M() {}
-    ChangeViewMatrix(QMatrix4x4 m);
+    ChangeAspectMatrix(): M() {}
+    ChangeAspectMatrix(QMatrix4x4 m);
+    ChangeAspectMatrix(float w, float h);
 
     virtual void Run(const Reciever &reciever);
 };
 
-class ModifyViewMatrix: public BaseOperation
+class ChangeWorldMatrix: public BaseOperation
+{
+private:
+    QMatrix4x4 M;
+
+public:
+    ChangeWorldMatrix(): M() {}
+    ChangeWorldMatrix(QMatrix4x4 m);
+
+    virtual void Run(const Reciever &reciever);
+};
+
+
+
+class ModifyWorldMatrix: public BaseOperation
 {
 protected:
     QMatrix4x4 M;
 
 public:
-    ModifyViewMatrix(): M() {}
-    ModifyViewMatrix(QMatrix4x4 m);
+    ModifyWorldMatrix(): M() {}
+    ModifyWorldMatrix(QMatrix4x4 m);
 
     virtual void Run(const Reciever &reciever);
 };
@@ -39,13 +60,13 @@ public:
     virtual void Run(const Reciever &reciever);
 };
 
-class TranslateScene: public ModifyViewMatrix
+class TranslateScene: public ModifyWorldMatrix
 {
 public:
     TranslateScene(QVector2D vec);
 };
 
-class ResizeScene: public ModifyViewMatrix
+class ResizeScene: public ModifyWorldMatrix
 {
 public:
     ResizeScene(float scale, QVector2D pos);

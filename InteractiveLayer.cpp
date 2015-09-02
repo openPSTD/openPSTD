@@ -103,7 +103,7 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
     if(m->view->IsChanged())
     {
         program->bind();
-        program->setUniformValue("u_view", this->viewMatrix);
+        program->setUniformValue("u_view", m->view->viewMatrix);
     }
 }
 

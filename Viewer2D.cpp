@@ -19,6 +19,7 @@
 #include "SceneLayer.h"
 #include "InteractiveLayer.h"
 #include <boost/lexical_cast.hpp>
+#include "operations/ViewOperations.h"
 
 
 void GLError(std::string name)
@@ -92,8 +93,13 @@ void Viewer2D::initializeGL()
 
 void Viewer2D::resizeGL(int w, int h)
 {
+    if(this->operationRunner)
+    {
+        this->operationRunner->RunOperation(std::shared_ptr<ChangeAspectMatrix>(new ChangeAspectMatrix(w, h)));
+    }
+
     std::unique_ptr<QOpenGLFunctions, void(*)(void*)> f(QOpenGLContext::currentContext()->functions(), DeleteNothing);
-    f->glViewport(0, 0, h, w);
+    f->glViewport(0, 0, w, h);
 }
 
 QSize Viewer2D::minimumSizeHint() const
@@ -120,16 +126,6 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
     {
         this->layers[i]->UpdateScene(model, f);
         GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->UpdateScene");
-    }
-}
-
-void Viewer2D::UpdateViewMatrix(QMatrix4x4 matrix)
-{
-    this->_view_matrix = matrix;
-
-    for(int i = 0; i < this->layers.size(); i++)
-    {
-        this->layers[i]->UpdateViewMatrix(matrix);
     }
 }
 

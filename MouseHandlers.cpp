@@ -17,7 +17,7 @@ void MouseStrategy::SetOperationRunner(std::shared_ptr<OperationRunner> operatio
 
 void MouseSelectStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    QVector2D mousePos = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    QVector2D mousePos = (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D();
     std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
 
     rapidjson::Value &domains = (*conf)["domains"];
@@ -70,7 +70,7 @@ void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model
 
 void MouseCreateDomainStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos)
 {
-    QVector2D start = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    QVector2D start = (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D();
 
     start = Snapping::Snap(model, start);
 
@@ -82,7 +82,7 @@ void MouseCreateDomainStrategy::mousePressEvent(std::shared_ptr<Model> const &mo
 
 void MouseCreateDomainStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    QVector2D end = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    QVector2D end = (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D();
 
     end = Snapping::Snap(model, end);
 
@@ -92,7 +92,7 @@ void MouseCreateDomainStrategy::mouseMoveEvent(std::shared_ptr<Model> const &mod
 
 void MouseCreateDomainStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    QVector2D end = (model->view->value.inverted() * pos.toVector3D()).toVector2D();
+    QVector2D end = (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D();
 
     end = Snapping::Snap(model, end);
 

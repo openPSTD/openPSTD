@@ -105,6 +105,14 @@ public:
     VisualSettings visual;
 };
 
+class View: public InvalidationDataItemI
+{
+public:
+    QMatrix4x4 viewMatrix;
+    QMatrix4x4 worldMatrix;
+    QMatrix4x4 aspectMatrix;
+};
+
 class Model
 {
 public:
@@ -112,7 +120,7 @@ public:
 
     InvalidationData invalidation;
     std::unique_ptr<PSTDFile> d;
-    std::shared_ptr<InvalidationDataItem<QMatrix4x4>> view;
+    std::shared_ptr<View> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;
     std::shared_ptr<Settings> settings;

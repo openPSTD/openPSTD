@@ -44,8 +44,6 @@ public:
     explicit Viewer2D(QWidget *parent = 0);
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
-    void UpdateViewMatrix(QMatrix4x4 matrix);
-    QMatrix4x4 GetViewMatrix(){return _view_matrix;}
     void UpdateFromModel(std::shared_ptr<Model> const &model);
     void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
 
@@ -61,7 +59,6 @@ protected:
 
 private:
     std::vector<std::shared_ptr<Layer>> layers;
-    QMatrix4x4 _view_matrix;
     std::shared_ptr<OperationRunner> operationRunner;
 };
 
@@ -70,7 +67,6 @@ void GLError(std::string name);
 class Layer
 {
 protected:
-    QMatrix4x4 viewMatrix;
     bool visible;
 
 public:
@@ -82,7 +78,6 @@ public:
     virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) = 0;
     virtual MinMaxValue GetMinMax() = 0;
-    virtual void UpdateViewMatrix(QMatrix4x4 viewMatrix){ this->viewMatrix = viewMatrix; };
 };
 
 #endif //OPENPSTD_VIEWER2D_H

@@ -61,7 +61,7 @@ void InvalidationData::Reset()
     }
 }
 
-Model::Model() : interactive(new InteractiveModel()), view(new InvalidationDataItem<QMatrix4x4>()),
+Model::Model() : interactive(new InteractiveModel()), view(new View()),
                  settings(new Settings())
 {
     this->invalidation.Register(interactive);

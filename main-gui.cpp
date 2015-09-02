@@ -52,6 +52,21 @@ void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
     }
 }
 
+void Controller::RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation)
+{
+    Reciever r;
+    r.model = this->model;
+    r.operationRunner = this->operationRunner;
+    runningOp = true;
+    operation->Run(r);
+    runningOp = false;
+}
+void Controller::UpdateWithoutOperation()
+{
+    this->w->UpdateFromModel(this->model);
+    this->model->invalidation.Reset();
+}
+
 void Controller::SetArguments(int argc, char *argv[])
 {
     this->argc = argc;
@@ -61,12 +76,14 @@ void Controller::SetArguments(int argc, char *argv[])
 int Controller::RunApplication()
 {
     this->model = std::shared_ptr<Model>(new Model());
+    this->RunOperationWithoutUpdate(std::shared_ptr<BaseOperation>(new InitializationOperation()));
 
     this->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
     this->w = std::unique_ptr<MainWindow>(new MainWindow(this->operationRunner));
+
     this->w->show();
 
-    this->operationRunner->RunOperation(std::shared_ptr<BaseOperation>(new InitializationOperation()));
+    this->UpdateWithoutOperation();
 
     return a->exec();
 }

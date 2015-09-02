@@ -22,6 +22,9 @@ public:
     virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
 
 private:
+    void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
+    void UpdateWithoutOperation();
+
     bool runningOp;
     std::shared_ptr<OperationRunner> operationRunner;
     std::shared_ptr<Model> model;

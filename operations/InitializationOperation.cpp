@@ -9,8 +9,9 @@
 void InitializationOperation::Run(const Reciever &reciever)
 {
     reciever.model->d = std::unique_ptr<PSTDFile>(PSTDFile::New("test.jps"));
-    reciever.model->view->value = QMatrix4x4();
-    reciever.model->view->value.scale(0.5f);
+    reciever.model->view->aspectMatrix = QMatrix4x4();
+    reciever.model->view->viewMatrix = QMatrix4x4();
+    reciever.model->view->worldMatrix = QMatrix4x4();
     reciever.model->view->Change();
 
     reciever.model->settings->visual.colorScheme = std::unique_ptr<StandardColorScheme>(new StandardColorScheme());

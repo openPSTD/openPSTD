@@ -63,7 +63,7 @@ void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QO
     program->bind();
     if(m->view->IsChanged())
     {
-        program->setUniformValue("u_view", this->viewMatrix);
+        program->setUniformValue("u_view", m->view->viewMatrix);
     }
 
     if(m->settings->IsChanged())

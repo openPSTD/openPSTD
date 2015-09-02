@@ -47,6 +47,7 @@ void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
 {
     program->bind();
     this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
+    this->viewMatrix = m->view->viewMatrix;
     if(m->view->IsChanged())
     {
         UpdateLines();
@@ -54,7 +55,7 @@ void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
         f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
         f->glBufferData(GL_ARRAY_BUFFER, this->positions->size()*sizeof(float), this->positions->data(), GL_DYNAMIC_DRAW);
 
-        program->setUniformValue("u_view", this->viewMatrix);
+        program->setUniformValue("u_view", m->view->viewMatrix);
     }
 
     if(m->settings->changed)
