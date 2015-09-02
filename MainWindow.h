@@ -14,26 +14,27 @@
 
 class MainWindow: public QMainWindow
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
-        explicit MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
+public:
+    explicit MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
 
-        void UpdateFromModel(std::shared_ptr<Model> const &model);
+    void UpdateFromModel(std::shared_ptr<Model> const &model);
 
-    private:
-        std::unique_ptr<Ui_MainWindow> ui;
-        std::unique_ptr<DomainProperties> domainProperties;
-        std::shared_ptr<OperationRunner> operationRunner;
-        std::vector<QAction*> MouseHandlersActions;
+private:
+    std::unique_ptr<Ui_MainWindow> ui;
+    std::unique_ptr<DomainProperties> domainProperties;
+    std::shared_ptr<OperationRunner> operationRunner;
+    std::vector<QAction*> MouseHandlersActions;
 
-        void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
-        void EditSelectedDomain();
+    void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
+    void EditSelectedDomain();
+    void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
 
-    public slots:
-        void New();
-        void Open();
-        void Save();
+public slots:
+    void New();
+    void Open();
+    void Save();
 
 
 };

@@ -49,6 +49,8 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
     ui->mainView->UpdateFromModel(model);
     ui->mainView->update();
 
+    this->UpdateDisableWidgets(model);
+
     if(model->interactive->changed && model->interactive->SelectedDomainIndex != -1)
     {
         std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
@@ -131,4 +133,11 @@ void MainWindow::EditSelectedDomain()
         op->LRR = this->domainProperties->LRR();
         this->operationRunner->RunOperation(op);
     }
+}
+
+void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
+{
+    ui->actionDelete_selected_Domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
+    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
+    ui->actionResize_domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
 }
