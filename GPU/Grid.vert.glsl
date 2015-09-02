@@ -18,27 +18,10 @@
 //////////////////////////////////////////////////////////////////////////
 #version 330
 
-
-uniform float vmin;
-uniform float vmax;
-
-in float v_value;
-
-uniform sampler1D colormap;
+uniform mat4 u_view;
+in vec2 a_position;
 
 void main()
 {
-    float value = v_value;
-
-    if(value < vmin)
-    {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
-
-    value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = texture(colormap, value);
+    gl_Position = (u_view * vec4(a_position, 0, 1));
 }

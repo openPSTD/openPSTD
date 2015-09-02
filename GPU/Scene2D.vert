@@ -17,15 +17,16 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-uniform mat3 u_view;
-attribute vec2 a_position;
-attribute float a_value;
-varying float v_value;
+#version 330
+
+uniform mat4 u_view;
+in vec2 a_position;
+in float a_value;
+out float v_value;
 
 void main()
 {
-    vec2 position = (u_view * vec3(a_position, 1)).xy;
-    gl_Position = vec4(position, 0.0, 1.0);
+    gl_Position = (u_view * vec4(a_position, 0, 1));
 
     v_value = a_value;
 }

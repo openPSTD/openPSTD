@@ -18,27 +18,9 @@
 //////////////////////////////////////////////////////////////////////////
 #version 330
 
-
-uniform float vmin;
-uniform float vmax;
-
-in float v_value;
-
-uniform sampler1D colormap;
+uniform vec4 u_color;
 
 void main()
 {
-    float value = v_value;
-
-    if(value < vmin)
-    {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
-
-    value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = texture(colormap, value);
+    gl_FragColor = u_color;
 }
