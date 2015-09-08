@@ -371,6 +371,13 @@ void PSTDFile::SetSettings(PSTDFileSettings settings)
     (*conf)["tfactRK"] = settings.GetFactRK();
     (*conf)["SaveNth"] = settings.GetSaveNth();
 
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    conf->Accept(writer);
+
+    // Output {"project":"rapidjson","stars":11}
+    std::cout << buffer.GetString() << std::endl;
+
     this->SetSceneConf(conf);
 }
 
@@ -398,11 +405,11 @@ void PSTDFileSettings::SetRenderTime(float value)
 {
     this->calctime = value;
 }
-float PSTDFileSettings::GetPMLCells()
+int PSTDFileSettings::GetPMLCells()
 {
     return this->PMLCells;
 }
-void PSTDFileSettings::SetPMLCells(float value)
+void PSTDFileSettings::SetPMLCells(int value)
 {
     this->PMLCells = value;
 }
@@ -438,11 +445,11 @@ void PSTDFileSettings::SetFactRK(float value)
 {
     this->tfactRK = value;
 }
-float PSTDFileSettings::GetSaveNth()
+int PSTDFileSettings::GetSaveNth()
 {
     return this->SaveNth;
 }
-void PSTDFileSettings::SetSaveNth(float value)
+void PSTDFileSettings::SetSaveNth(int value)
 {
     this->SaveNth = value;
 }

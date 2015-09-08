@@ -33,8 +33,8 @@ public:
     void SetPatchError(float value);
     float GetRenderTime();
     void SetRenderTime(float value);
-    float GetPMLCells();
-    void SetPMLCells(float value);
+    int GetPMLCells();
+    void SetPMLCells(int value);
     float GetAttenuationOfPMLCells();
     void SetAttenuationOfPMLCells(float value);
     float GetDensityOfAir();
@@ -43,8 +43,8 @@ public:
     void SetSoundSpeed(float value);
     float GetFactRK();
     void SetFactRK(float value);
-    float GetSaveNth();
-    void SetSaveNth(float value);
+    int GetSaveNth();
+    void SetSaveNth(int value);
 };
 
 enum PSTD_DOMAIN_SIDE
