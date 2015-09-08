@@ -15,63 +15,9 @@ class Model;
 #include "MouseHandlers.h"
 #include <QVector2D>
 #include "Colors.h"
+#include "InvalidationData.h"
 
-class InvalidationDataItemI
-{
-public:
-    InvalidationDataItemI() : changed(true)
-    {
-
-    }
-
-    bool changed;
-    bool IsChanged();
-    void Change();
-    void Reset();
-};
-
-template<typename T>
-class InvalidationDataItem: public InvalidationDataItemI
-{
-public:
-    T value;
-
-    InvalidationDataItem()
-    {
-
-    }
-
-    InvalidationDataItem(T internalValue): InvalidationDataItemI()
-    {
-        this->value = internalValue;
-    }
-    T Get()
-    {
-        return value;
-    }
-
-    void Set(T value)
-    {
-        this->value = value;
-    }
-
-    operator T&() { return value; }
-    operator T() const { return value; }
-};
-
-class InvalidationData
-{
-private:
-    std::vector<std::weak_ptr<InvalidationDataItemI>> items;
-
-public:
-    void Register(std::weak_ptr<InvalidationDataItemI> item);
-
-    bool IsChanged();
-    void Reset();
-};
-
-class InteractiveModel: public InvalidationDataItemI
+class InteractiveModel: public InvalidationData
 {
 public:
     struct {
@@ -98,14 +44,14 @@ public:
     std::unique_ptr<BaseColorScheme> colorScheme;
 };
 
-class Settings: public InvalidationDataItemI
+class Settings: public InvalidationData
 {
 public:
     SnappingSettings snapping;
     VisualSettings visual;
 };
 
-class View: public InvalidationDataItemI
+class View: public InvalidationData
 {
 public:
     QMatrix4x4 viewMatrix;
@@ -113,12 +59,11 @@ public:
     QMatrix4x4 aspectMatrix;
 };
 
-class Model
+class Model: public InvalidationData
 {
 public:
     Model();
 
-    InvalidationData invalidation;
     std::unique_ptr<PSTDFile> d;
     std::shared_ptr<View> view;
     std::unique_ptr<MouseStrategy> mouseHandler;

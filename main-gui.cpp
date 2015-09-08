@@ -48,7 +48,7 @@ void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
         {
             this->w->UpdateFromModel(this->model);
         }
-        this->model->invalidation.Reset();
+        this->model->Reset();
     }
 }
 
@@ -64,7 +64,7 @@ void Controller::RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operat
 void Controller::UpdateWithoutOperation()
 {
     this->w->UpdateFromModel(this->model);
-    this->model->invalidation.Reset();
+    this->model->Reset();
 }
 
 void Controller::SetArguments(int argc, char *argv[])
