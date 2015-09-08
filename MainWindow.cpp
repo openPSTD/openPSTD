@@ -15,7 +15,8 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     QMainWindow(parent),
     ui(new Ui_MainWindow()),
     operationRunner(operationRunner),
-    domainProperties(new DomainProperties())
+    domainProperties(new DomainProperties()),
+    documentSettings(new DocumentSettings())
 {
     ui->setupUi(this);
 
@@ -38,6 +39,7 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     QObject::connect(ui->actionDelete_selected_Domain, &QAction::triggered, this,
                      [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedDomainOperation>(new RemoveSelectedDomainOperation()));});
     QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this, &MainWindow::EditSelectedDomain);
+    QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
 }
 
 void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
@@ -46,6 +48,8 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
     ui->mainView->update();
 
     this->UpdateDisableWidgets(model);
+
+    documentSettings->UpdateFromModel(model);
 
     if(model->interactive->changed && model->interactive->SelectedDomainIndex != -1)
     {
@@ -104,7 +108,7 @@ void MainWindow::Save()
 
 void MainWindow::ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler)
 {
-    for(int i = 0; i < this->MouseHandlersActions.size(); i++)
+    for (int i = 0; i < this->MouseHandlersActions.size(); i++)
     {
         this->MouseHandlersActions[i]->setChecked(false);
     }
@@ -136,4 +140,13 @@ void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
     ui->actionDelete_selected_Domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
     ui->actionEdit_properties_of_domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
     ui->actionResize_domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
+}
+
+void MainWindow::EditDocumentSettings()
+{
+    if (this->documentSettings->exec() == QDialog::Accepted)
+    {
+        this->operationRunner->RunOperation(std::shared_ptr<EditDocumentSettingsOperation>(
+                new EditDocumentSettingsOperation(this->documentSettings->GetResult())));
+    }
 }

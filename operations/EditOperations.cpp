@@ -180,3 +180,13 @@ void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
 
     reciever.model->d->SetSceneConf(conf);
 }
+
+EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDFileSettings settings): Settings(settings)
+{
+
+}
+
+void EditDocumentSettingsOperation::Run(const Reciever &reciever)
+{
+    reciever.model->d->SetSettings(this->Settings);
+}

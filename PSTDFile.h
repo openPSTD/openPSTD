@@ -14,6 +14,39 @@
 
 using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
 
+class PSTDFileSettings
+{
+private:
+    float calctime;
+    float c1;
+    float ampMax;
+    float rho;
+    float patcherror;
+    float tfactRK;
+    float gridSpacing;
+    int PMLCells;
+    int SaveNth;
+public:
+    float GetGridSpacing();
+    void SetGridSpacing(float value);
+    float GetPatchError();
+    void SetPatchError(float value);
+    float GetRenderTime();
+    void SetRenderTime(float value);
+    float GetPMLCells();
+    void SetPMLCells(float value);
+    float GetAttenuationOfPMLCells();
+    void SetAttenuationOfPMLCells(float value);
+    float GetDensityOfAir();
+    void SetDensityOfAir(float value);
+    float GetSoundSpeed();
+    void SetSoundSpeed(float value);
+    float GetFactRK();
+    void SetFactRK(float value);
+    float GetSaveNth();
+    void SetSaveNth(float value);
+};
+
 enum PSTD_DOMAIN_SIDE
 {
     PSTD_DOMAIN_SIDE_TOP,
@@ -86,6 +119,9 @@ public:
 
     std::shared_ptr<rapidjson::Document> GetPSTDConf();
     void SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD);
+
+    PSTDFileSettings GetSettings();
+    void SetSettings(PSTDFileSettings value);
 
     int GetDomainCount();
     int GetFrameCount(unsigned int domain);
