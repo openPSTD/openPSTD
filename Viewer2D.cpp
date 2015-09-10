@@ -17,6 +17,7 @@
 #include <memory>
 #include "GridLayer.h"
 #include "SceneLayer.h"
+#include "IconLayer.h"
 #include "InteractiveLayer.h"
 #include <boost/lexical_cast.hpp>
 #include "operations/ViewOperations.h"
@@ -53,8 +54,9 @@ Viewer2D::Viewer2D(QWidget *parent)
     : QOpenGLWidget(parent), layers()
 {
     std::cout << "create layers" << std::endl;
-    this->layers.push_back(std::shared_ptr<GridLayer>(new GridLayer()));
+    //this->layers.push_back(std::shared_ptr<GridLayer>(new GridLayer()));
     this->layers.push_back(std::shared_ptr<SceneLayer>(new SceneLayer()));
+    this->layers.push_back(std::shared_ptr<IconLayer>(new IconLayer()));
     this->layers.push_back(std::shared_ptr<InteractiveLayer>(new InteractiveLayer()));
 }
 
