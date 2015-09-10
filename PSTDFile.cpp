@@ -371,13 +371,6 @@ void PSTDFile::SetSettings(PSTDFileSettings settings)
     (*conf)["tfactRK"] = settings.GetFactRK();
     (*conf)["SaveNth"] = settings.GetSaveNth();
 
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    conf->Accept(writer);
-
-    // Output {"project":"rapidjson","stars":11}
-    std::cout << buffer.GetString() << std::endl;
-
     this->SetSceneConf(conf);
 }
 
