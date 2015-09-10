@@ -36,7 +36,7 @@ void MouseSelectStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model,
         }
     }
     //deselects the domain
-    std::shared_ptr<SelectDomainOperation> op1(new SelectDomainOperation(-1));
+    std::shared_ptr<DeselectDomainOperation> op1(new DeselectDomainOperation());
     operationRunner->RunOperation(op1);
 }
 

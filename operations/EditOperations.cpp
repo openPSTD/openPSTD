@@ -66,12 +66,12 @@ void CreateDomainOperation::Run(const Reciever &reciever)
 
 void RemoveSelectedDomainOperation::Run(const Reciever &reciever)
 {
-    int index = reciever.model->interactive->SelectedDomainIndex;
-    if(index >= 0)
+    if(reciever.model->interactive->Selection.Type == SELECTION_DOMAIN)
     {
+        int index = reciever.model->interactive->Selection.SelectedIndex;
         std::shared_ptr<RemoveDomainOperation> op1(new RemoveDomainOperation(index));
         reciever.operationRunner->RunOperation(op1);
-        std::shared_ptr<SelectDomainOperation> op2(new SelectDomainOperation(-1));
+        std::shared_ptr<DeselectDomainOperation> op2(new DeselectDomainOperation());
         reciever.operationRunner->RunOperation(op2);
     }
     else
@@ -164,7 +164,7 @@ void EditDomainEdgeLrOperation::Run(const Reciever &reciever)
 
 void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
 {
-    int index = reciever.model->interactive->SelectedDomainIndex;
+    int index = reciever.model->interactive->Selection.SelectedIndex;
     using namespace rapidjson;
 
     std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();

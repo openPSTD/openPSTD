@@ -51,12 +51,12 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
 
     documentSettings->UpdateFromModel(model);
 
-    if(model->interactive->IsChanged() && model->interactive->SelectedDomainIndex != -1)
+    if(model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
     {
         std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
 
         rapidjson::Value& domains = (*conf)["domains"];
-        int i = model->interactive->SelectedDomainIndex;
+        int i = model->interactive->Selection.SelectedIndex;
 
         float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
         float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
@@ -137,9 +137,9 @@ void MainWindow::EditSelectedDomain()
 
 void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
 {
-    ui->actionDelete_selected_Domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
-    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
-    ui->actionResize_domain->setEnabled(model->interactive->SelectedDomainIndex != -1);
+    ui->actionDelete_selected_Domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
+    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
+    ui->actionResize_domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
 }
 
 void MainWindow::EditDocumentSettings()

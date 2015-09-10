@@ -17,6 +17,14 @@ class Model;
 #include "Colors.h"
 #include "InvalidationData.h"
 
+enum SelectionType
+{
+    SELECTION_NONE,
+    SELECTION_DOMAIN,
+    SELECTION_RECEIVER,
+    SELECTION_SPEAKER
+};
+
 class InteractiveModel: public InvalidationData
 {
 public:
@@ -26,7 +34,11 @@ public:
         QVector2D start;
         QVector2D currentEnd;
     } CreateDomain;
-    int SelectedDomainIndex;
+
+    struct {
+        int SelectedIndex;
+        SelectionType Type;
+    } Selection;
 };
 
 class SnappingSettings

@@ -17,5 +17,11 @@ public:
     virtual void Run(const Reciever &reciever) override;
 };
 
+class DeselectDomainOperation : public BaseOperation
+{
+public:
+    virtual void Run(const Reciever &reciever) override;
+};
+
 
 #endif //OPENPSTD_SELECTDOMAINOPERATION_H

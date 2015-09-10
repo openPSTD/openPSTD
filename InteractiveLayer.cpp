@@ -60,7 +60,7 @@ void InteractiveLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunction
 
 void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
-    if(m->interactive->IsChanged())
+    if(m->interactive->IsChanged() || m->d->IsChanged())
     {
         this->addDomainVisible = m->interactive->CreateDomain.visible;
 
@@ -74,14 +74,14 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
             f->glBufferData(GL_ARRAY_BUFFER, positions->size() * sizeof(float), positions->data(), GL_DYNAMIC_DRAW);
         }
 
-        this->selectDomainVisible = (m->interactive->SelectedDomainIndex >= 0);
+        this->selectDomainVisible = (m->interactive->Selection.Type != SELECTION_NONE);
 
         if(this->selectDomainVisible)
         {
             std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
             rapidjson::Value& domains = (*conf)["domains"];
 
-            int i = m->interactive->SelectedDomainIndex;
+            int i = m->interactive->Selection.SelectedIndex;
             QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
             QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
 
