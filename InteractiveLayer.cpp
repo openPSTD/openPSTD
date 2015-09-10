@@ -74,7 +74,7 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
             f->glBufferData(GL_ARRAY_BUFFER, positions->size() * sizeof(float), positions->data(), GL_DYNAMIC_DRAW);
         }
 
-        this->selectDomainVisible = (m->interactive->Selection.Type != SELECTION_NONE);
+        this->selectDomainVisible = (m->interactive->Selection.Type == SELECTION_DOMAIN);
 
         if(this->selectDomainVisible)
         {

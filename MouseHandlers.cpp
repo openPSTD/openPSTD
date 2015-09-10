@@ -17,27 +17,8 @@ void MouseStrategy::SetOperationRunner(std::shared_ptr<OperationRunner> operatio
 
 void MouseSelectStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
-    QVector2D mousePos = (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D();
-    std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
-
-    rapidjson::Value &domains = (*conf)["domains"];
-
-    for (rapidjson::SizeType i = 0; i < domains.Size(); i++)
-    {
-        QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
-        QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
-
-        if (PointInSquare(tl, size, mousePos))
-        {
-            //execute operation that selects the correct index
-            std::shared_ptr<SelectDomainOperation> op1(new SelectDomainOperation(i));
-            operationRunner->RunOperation(op1);
-            return;
-        }
-    }
-    //deselects the domain
-    std::shared_ptr<DeselectDomainOperation> op1(new DeselectDomainOperation());
-    operationRunner->RunOperation(op1);
+    std::shared_ptr<SelectObjectOperation> op(new SelectObjectOperation(pos));
+    operationRunner->RunOperation(op);
 }
 
 void MouseMoveSceneStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
