@@ -46,10 +46,11 @@ void GridLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
 void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
 {
     program->bind();
-    this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
-    this->viewMatrix = m->view->viewMatrix;
-    if(m->view->IsChanged())
+    if(m->view->IsChanged() || m->d->IsChanged())
     {
+        this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
+        this->viewMatrix = m->view->viewMatrix;
+
         UpdateLines();
 
         f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
@@ -58,7 +59,7 @@ void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
         program->setUniformValue("u_view", m->view->viewMatrix);
     }
 
-    if(m->settings->changed)
+    if(m->settings->IsChanged())
     {
         program->bind();
         program->setUniformValue("u_color", m->settings->visual.colorScheme->EditorLineColor());

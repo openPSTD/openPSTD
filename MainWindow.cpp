@@ -51,7 +51,7 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
 
     documentSettings->UpdateFromModel(model);
 
-    if(model->interactive->changed && model->interactive->SelectedDomainIndex != -1)
+    if(model->interactive->IsChanged() && model->interactive->SelectedDomainIndex != -1)
     {
         std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
 

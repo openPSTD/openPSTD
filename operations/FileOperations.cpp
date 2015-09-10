@@ -8,28 +8,32 @@
 #include <rapidjson/encodedstream.h>
 
 
-OpenFileOperation::OpenFileOperation(std::string filename)
+OpenFileOperation::OpenFileOperation(std::string filename): filename(filename)
 {
-    this->filename = filename;
 }
 
 void OpenFileOperation::Run(const Reciever &reciever)
 {
     reciever.model->d = PSTDFile::Open(this->filename);
+    reciever.model->d->Change();
+    reciever.model->Register(reciever.model->d);
 }
 
 
-NewFileOperation::NewFileOperation(std::string filename)
+NewFileOperation::NewFileOperation(std::string filename): filename(filename)
 {
-    this->filename = filename;
 }
 
 void NewFileOperation::Run(const Reciever &reciever)
 {
     reciever.model->d = PSTDFile::New(this->filename);
+    reciever.model->d->Change();
+    reciever.model->Register(reciever.model->d);
 }
 
 void SaveFileOperation::Run(const Reciever &reciever)
 {
     reciever.model->d->Commit();
+    reciever.model->d->Change();
+    reciever.model->Register(reciever.model->d);
 }

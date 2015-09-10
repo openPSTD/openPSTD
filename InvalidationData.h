@@ -16,7 +16,7 @@ class InvalidationData
 {
 private:
     std::vector<std::weak_ptr<InvalidationData>> items;
-    virtual bool changed;
+    bool changed;
 
 public:
     /**

@@ -116,7 +116,7 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
     std::unique_ptr<QOpenGLFunctions, void(*)(void*)> f(QOpenGLContext::currentContext()->functions(), DeleteNothing);
 
-    if(model->settings->changed)
+    if(model->settings->IsChanged())
     {
         QColor clearColor = model->settings->visual.colorScheme->EditorBackgroundColor();
         f->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());

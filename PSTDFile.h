@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 #include "GeneralTypes.h"
+#include "InvalidationData.h"
 
 using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
 
@@ -57,7 +58,7 @@ enum PSTD_DOMAIN_SIDE
 
 std::string DomainSideToString(PSTD_DOMAIN_SIDE side);
 
-class PSTDFile
+class PSTDFile: public InvalidationData
 {
 private:
     bool changed;

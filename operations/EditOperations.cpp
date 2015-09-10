@@ -61,6 +61,7 @@ void CreateDomainOperation::Run(const Reciever &reciever)
     (*conf)["domains"].PushBack(Domain, allocator);
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 void RemoveSelectedDomainOperation::Run(const Reciever &reciever)
@@ -93,6 +94,7 @@ void RemoveDomainOperation::Run(const Reciever &reciever)
     (*conf)["domains"].Erase((*conf)["domains"].Begin()+this->index);;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDomainPositionsOperation::EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint):
@@ -118,6 +120,7 @@ void EditDomainPositionsOperation::Run(const Reciever &reciever)
     (*conf)["domains"][index]["size"][1] = fabsf(this->StartPoint[1] - this->EndPoint[1]);
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDomainEdgeAbsorptionOperation::EditDomainEdgeAbsorptionOperation(int index, PSTD_DOMAIN_SIDE side, float newValue):
@@ -137,6 +140,7 @@ void EditDomainEdgeAbsorptionOperation::Run(const Reciever &reciever)
     (*conf)["domains"][index]["edges"][DomainSideToString(this->Side)]["a"] = this->NewValue;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDomainEdgeLrOperation::EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue):
@@ -155,6 +159,7 @@ void EditDomainEdgeLrOperation::Run(const Reciever &reciever)
     (*conf)["domains"][index]["edges"][DomainSideToString(this->Side)]["ls"] = this->NewValue;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
@@ -179,6 +184,7 @@ void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
     std::cout << this->AbsorptionT << " == " << (*conf)["domains"][index]["edges"]["t"]["a"].GetDouble() << std::endl;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDFileSettings settings): Settings(settings)
@@ -189,4 +195,5 @@ EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDFileSettings se
 void EditDocumentSettingsOperation::Run(const Reciever &reciever)
 {
     reciever.model->d->SetSettings(this->Settings);
+    reciever.model->d->Change();
 }

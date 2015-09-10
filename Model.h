@@ -64,7 +64,7 @@ class Model: public InvalidationData
 public:
     Model();
 
-    std::unique_ptr<PSTDFile> d;
+    std::shared_ptr<PSTDFile> d;
     std::shared_ptr<View> view;
     std::unique_ptr<MouseStrategy> mouseHandler;
     std::shared_ptr<InteractiveModel> interactive;

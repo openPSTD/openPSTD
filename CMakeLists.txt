@@ -133,7 +133,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/MouseOperations.cpp operatio
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
 # OpenGL viewer
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp InteractiveLayer.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp InteractiveLayer.cpp IconLayer.cpp IconLayer.h)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp DomainProperties.cpp DocumentSettings.cpp)
 # Remaining
