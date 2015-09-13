@@ -96,7 +96,7 @@ message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
 message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
 
 #------------------------------------
-# Unqlite
+# OpenGL
 find_package(OpenGL)
 message(STATUS "OpenGL found: ${OPENGL_FOUND}")
 message(STATUS "OpenGL xmesa found: ${OPENGL_XMESA_FOUND}")
@@ -120,7 +120,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #------------------------------------
 # Kernel
 set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp kernel/core/kernel_functions.cpp)
-add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI} kernel/utilities.h kernel/utilities.cpp)
+add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 
 #------------------------------------
 # UI

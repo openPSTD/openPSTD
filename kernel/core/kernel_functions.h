@@ -7,23 +7,36 @@
 
 #include <eigen/Eigen/Dense>
 #include <iostream>
+#include <vector>
 #include <math.h>
 
+/**
+ * Helper function equivalent to numpy.arange()
+ */
+template<typename T>
+std::vector<T> arange(T start, T stop, T step = 1) {
+    std::vector<T> list;
+    for (T i = start; i < stop; i += step)
+        list.push_back(i);
+    return list;
+}
 
 struct rMatrices2D {
-    Matrix<double, 4, 4> pressure;
-    Matrix<double, 4, 4> velocity;
+    Eigen::Matrix<double, 4, 4> pressure;
+    Eigen::Matrix<double, 4, 4> velocity;
 };
 
 struct rMatrices1D {
-    Matrix<double, 4, 2> pressure;
-    Matrix<double, 4, 2> velocity;
+    Eigen::Matrix<double, 4, 2> pressure;
+    Eigen::Matrix<double, 4, 2> velocity;
 };
 
-struct rMatrices2D;
 struct Config {
     double c1;
     double freqMax;
+    int PML_attenuation; //Attenuation of PML cells
+    int PML_n_cells; //Number of PML cells
+    double medium_density; //(Louis): "rho" in original python code
 }; //Todo (0mar): Create a configuration data structure
 
 /**
@@ -64,4 +77,14 @@ double getGridSpacing(const Config cnf);
  * return 2^k >= n
  */
 int next2Power(double n);
+
+/**
+ * Computes the attenuation coefficients of PML cells (pressure and velocity) as per the formula:
+ * coef = alpha(point_distance/PML_thickness)^4 (Hornikx et al. 2010)
+ * @param cnf config object containing the properties of the geometry
+ * @return a tuple of vectors, the first being the coefficients for pressure,
+ * the second for velocity.
+ */
+std::tuple<std::vector<float_t>, std::vector<float_t>> PML(const Config cnf);
+
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H
