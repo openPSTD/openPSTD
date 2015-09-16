@@ -48,6 +48,29 @@ public:
     void SetSaveNth(int value);
 };
 
+class DomainEdge
+{
+    float Absorption;
+    bool LR;
+};
+
+class Domain
+{
+public:
+    QVector2D TopLeft;
+    QVector2D Size;
+    DomainEdge T, L, B, R;
+};
+
+class PSTDFileConfiguration
+{
+public:
+    PSTDFileSettings Settings;
+    std::vector<QVector3D> Speakers;
+    std::vector<QVector3D> Receivers;
+    std::vector<Domain> Domains;
+};
+
 enum PSTD_DOMAIN_SIDE
 {
     PSTD_DOMAIN_SIDE_TOP,
