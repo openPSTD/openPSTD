@@ -49,7 +49,7 @@ void InteractiveLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunction
         program->bind();
 
         program->enableAttributeArray("a_position");
-        f->glBindBuffer(GL_ARRAY_BUFFER, this->newDomainBuffer);
+        f->glBindBuffer(GL_ARRAY_BUFFER, this->selectDomainBuffer);
         f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         f->glLineWidth(1.0f);
@@ -89,7 +89,7 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
 
             AddSquareBuffer(positions, tl, size);
 
-            f->glBindBuffer(GL_ARRAY_BUFFER, this->newDomainBuffer);
+            f->glBindBuffer(GL_ARRAY_BUFFER, this->selectDomainBuffer);
             f->glBufferData(GL_ARRAY_BUFFER, positions->size() * sizeof(float), positions->data(), GL_DYNAMIC_DRAW);
         }
     }
