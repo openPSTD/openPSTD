@@ -34,9 +34,9 @@ struct rMatrices1D {
 struct Config {
     double c1;
     double freqMax;
-    int PML_attenuation; //Attenuation of PML cells
+    int PML_attenuation; //Attenuation of PML cells, "ampmax" in original python code
     int PML_n_cells; //Number of PML cells
-    double medium_density; //(Louis): "rho" in original python code
+    double medium_density; //"rho" in original python code
 }; //Todo (0mar): Create a configuration data structure
 
 /**
@@ -85,6 +85,6 @@ int next2Power(double n);
  * @return a tuple of vectors, the first being the coefficients for pressure,
  * the second for velocity.
  */
-std::tuple<std::vector<float_t>, std::vector<float_t>> PML(const Config cnf);
+std::tuple<std::vector<double>, std::vector<double>> PML(const Config cnf); //TODO Louis change cnf argument
 
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H

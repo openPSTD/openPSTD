@@ -100,12 +100,12 @@ double getGridSpacing(const Config cnf) {
     return dxv.size() - 1;
 }
 
-tuple<vector<float_t>, vector<float_t>> PML(const Config cnf) {
-    vector<float_t> cell_list_p = arange<float_t>(0.5, cnf.PML_n_cells +0.5, 1);
+tuple<vector<double>, vector<double>> PML(const Config cnf) {
+    vector<double> cell_list_p = arange<double>(0.5, cnf.PML_n_cells +0.5, 1);
     for (int i=0; i<cell_list_p.size(); i++) {
         cell_list_p[i] = cnf.PML_attenuation * pow(cell_list_p[i] / cnf.PML_n_cells, 4);
     }
-    vector<float_t> cell_list_u = arange<float_t>(0, cnf.PML_n_cells +1, 1);
+    vector<double> cell_list_u = arange<double>(0, cnf.PML_n_cells +1, 1);
     for (int i=0; i<cell_list_u.size(); i++) {
         cell_list_u[i] = cnf.PML_attenuation * pow(cell_list_u[i] / cnf.PML_n_cells, 4);
         cell_list_u[i] = cnf.medium_density * cell_list_u[i];
