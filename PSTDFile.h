@@ -12,6 +12,8 @@
 #include <vector>
 #include "GeneralTypes.h"
 #include "InvalidationData.h"
+#include <QVector2D>
+#include <QVector3D>
 
 using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
 
