@@ -24,10 +24,10 @@ public:
     SelectDomainOperation(int selectDomainIndex);
 };
 
-class DeselectDomainOperation : public SelectIndexedObjectOperation
+class DeselectOperation : public SelectIndexedObjectOperation
 {
 public:
-    DeselectDomainOperation();
+    DeselectOperation();
 };
 
 class SelectObjectOperation: public BaseOperation
