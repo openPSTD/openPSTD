@@ -31,11 +31,11 @@ public:
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> p0;
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> px0;
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> pz0;
-    KernelDomain left[];
-    KernelDomain right[];
-    KernelDomain top[];
-    KernelDomain bottom[];
-    KernelDomain pml_for[];
+    KernelDomain *left = nullptr;
+    KernelDomain *right = nullptr;
+    KernelDomain *top = nullptr;
+    KernelDomain *bottom = nullptr;
+    KernelDomain *pml_for = nullptr;
     bool is_sec_pml;
 
     rMatrices2D rho_matrices[]; //TODO generalize to 3d
@@ -50,10 +50,10 @@ public:
      * @param topleft coordinates of the top left corner (x,y,(z))
      * @param size lengths of the domain edges (x,y,(z))
      * @param is_pml true if domain is pml domain
-     * @param pml_for array of adjacent domains for a PML domain. Defaults to nullptr.
+     * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
      */
     KernelDomain(const Config cnf, const int id, const double alpha, const int topleft[],
-                 const int size[], const bool is_pml, const KernelDomain pml_for[] = nullptr);
+                 const int size[], const bool is_pml, const KernelDomain *pml_for[] = nullptr);
 
     /**
      * Calculates the rho matrices for all edges touching another domain
