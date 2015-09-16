@@ -38,3 +38,24 @@ void AddSquareBuffer(std::unique_ptr<std::vector<float>> const &buffer, QVector2
     buffer->push_back(right); buffer->push_back(top);
     buffer->push_back(right); buffer->push_back(bottom);
 }
+
+void AddSquareBuffer(std::unique_ptr<std::vector<QVector2D>> const &buffer, QVector2D tl, QVector2D size)
+{
+    float left = tl[0];
+    float top = tl[1];
+
+    float right = tl[0]+size[0];
+    float bottom = tl[1]+size[1];
+
+    buffer->push_back(QVector2D(left, top));
+    buffer->push_back(QVector2D(right, top));
+
+    buffer->push_back(QVector2D(left, top));
+    buffer->push_back(QVector2D(left, bottom));
+
+    buffer->push_back(QVector2D(left, bottom));
+    buffer->push_back(QVector2D(right, bottom));
+
+    buffer->push_back(QVector2D(right, top));
+    buffer->push_back(QVector2D(right, bottom));
+}

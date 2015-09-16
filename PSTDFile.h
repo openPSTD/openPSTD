@@ -11,8 +11,67 @@
 #include <memory>
 #include <vector>
 #include "GeneralTypes.h"
+#include "InvalidationData.h"
+#include <QVector2D>
+#include <QVector3D>
 
 using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
+
+class PSTDFileSettings
+{
+private:
+    float calctime;
+    float c1;
+    float ampMax;
+    float rho;
+    float patcherror;
+    float tfactRK;
+    float gridSpacing;
+    int PMLCells;
+    int SaveNth;
+public:
+    float GetGridSpacing();
+    void SetGridSpacing(float value);
+    float GetPatchError();
+    void SetPatchError(float value);
+    float GetRenderTime();
+    void SetRenderTime(float value);
+    int GetPMLCells();
+    void SetPMLCells(int value);
+    float GetAttenuationOfPMLCells();
+    void SetAttenuationOfPMLCells(float value);
+    float GetDensityOfAir();
+    void SetDensityOfAir(float value);
+    float GetSoundSpeed();
+    void SetSoundSpeed(float value);
+    float GetFactRK();
+    void SetFactRK(float value);
+    int GetSaveNth();
+    void SetSaveNth(int value);
+};
+
+class DomainEdge
+{
+    float Absorption;
+    bool LR;
+};
+
+class Domain
+{
+public:
+    QVector2D TopLeft;
+    QVector2D Size;
+    DomainEdge T, L, B, R;
+};
+
+class PSTDFileConfiguration
+{
+public:
+    PSTDFileSettings Settings;
+    std::vector<QVector3D> Speakers;
+    std::vector<QVector3D> Receivers;
+    std::vector<Domain> Domains;
+};
 
 enum PSTD_DOMAIN_SIDE
 {
@@ -24,7 +83,7 @@ enum PSTD_DOMAIN_SIDE
 
 std::string DomainSideToString(PSTD_DOMAIN_SIDE side);
 
-class PSTDFile
+class PSTDFile: public InvalidationData
 {
 private:
     bool changed;
@@ -86,6 +145,9 @@ public:
 
     std::shared_ptr<rapidjson::Document> GetPSTDConf();
     void SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD);
+
+    PSTDFileSettings GetSettings();
+    void SetSettings(PSTDFileSettings value);
 
     int GetDomainCount();
     int GetFrameCount(unsigned int domain);

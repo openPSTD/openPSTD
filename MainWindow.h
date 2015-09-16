@@ -11,6 +11,7 @@
 #include "operations/BaseOperation.h"
 #include "MouseHandlers.h"
 #include "DomainProperties.h"
+#include "DocumentSettings.h"
 
 class MainWindow: public QMainWindow
 {
@@ -24,11 +25,13 @@ public:
 private:
     std::unique_ptr<Ui_MainWindow> ui;
     std::unique_ptr<DomainProperties> domainProperties;
+    std::unique_ptr<DocumentSettings> documentSettings;
     std::shared_ptr<OperationRunner> operationRunner;
     std::vector<QAction*> MouseHandlersActions;
 
     void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
     void EditSelectedDomain();
+    void EditDocumentSettings();
     void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
 
 public slots:

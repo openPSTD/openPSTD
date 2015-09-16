@@ -58,7 +58,8 @@ const char* PSTDEmptyScene = "{\n"
         "    ],\n"
         "    \"tfactRK\": 0.5,\n"
         "    \"grid_spacing\": 0.20000000298023224,\n"
-        "    \"PMLcells\": 50\n"
+        "    \"PMLcells\": 50,"
+        "    \"SaveNth\": 1\n"
         "}";
 
 #define PSTD_FILE_PREFIX_SCENE 1
@@ -333,4 +334,115 @@ std::string DomainSideToString(PSTD_DOMAIN_SIDE side)
         case PSTD_DOMAIN_SIDE_LEFT  : return "l";
         case PSTD_DOMAIN_SIDE_RIGHT  : return "r";
     }
+}
+
+PSTDFileSettings PSTDFile::GetSettings()
+{
+    using namespace rapidjson;
+
+    std::shared_ptr<Document> conf = this->GetSceneConf();
+
+    PSTDFileSettings settings;
+    settings.SetGridSpacing((*conf)["grid_spacing"].GetDouble());
+    settings.SetPatchError((*conf)["patcherror"].GetDouble());
+    settings.SetRenderTime((*conf)["calctime"].GetDouble());
+    settings.SetPMLCells((*conf)["PMLcells"].GetInt());
+    settings.SetAttenuationOfPMLCells((*conf)["ampmax"].GetDouble());
+    settings.SetDensityOfAir((*conf)["rho"].GetDouble());
+    settings.SetSoundSpeed((*conf)["c1"].GetDouble());
+    settings.SetFactRK((*conf)["tfactRK"].GetDouble());
+    settings.SetSaveNth((*conf)["SaveNth"].GetInt());
+
+    return settings;
+}
+void PSTDFile::SetSettings(PSTDFileSettings settings)
+{
+    using namespace rapidjson;
+
+    std::shared_ptr<Document> conf = this->GetSceneConf();
+
+    (*conf)["grid_spacing"] = settings.GetGridSpacing();
+    (*conf)["patcherror"] = settings.GetPatchError();
+    (*conf)["calctime"] = settings.GetRenderTime();
+    (*conf)["PMLcells"] = settings.GetPMLCells();
+    (*conf)["ampmax"] = settings.GetAttenuationOfPMLCells();
+    (*conf)["rho"] = settings.GetDensityOfAir();
+    (*conf)["c1"] = settings.GetSoundSpeed();
+    (*conf)["tfactRK"] = settings.GetFactRK();
+    (*conf)["SaveNth"] = settings.GetSaveNth();
+
+    this->SetSceneConf(conf);
+}
+
+float PSTDFileSettings::GetGridSpacing()
+{
+    return this->gridSpacing;
+}
+void PSTDFileSettings::SetGridSpacing(float value)
+{
+    this->gridSpacing = value;
+}
+float PSTDFileSettings::GetPatchError()
+{
+    return this->patcherror;
+}
+void PSTDFileSettings::SetPatchError(float value)
+{
+    this->patcherror = value;
+}
+float PSTDFileSettings::GetRenderTime()
+{
+    return this->calctime;
+}
+void PSTDFileSettings::SetRenderTime(float value)
+{
+    this->calctime = value;
+}
+int PSTDFileSettings::GetPMLCells()
+{
+    return this->PMLCells;
+}
+void PSTDFileSettings::SetPMLCells(int value)
+{
+    this->PMLCells = value;
+}
+float PSTDFileSettings::GetAttenuationOfPMLCells()
+{
+    return this->ampMax;
+}
+void PSTDFileSettings::SetAttenuationOfPMLCells(float value)
+{
+    this->ampMax = value;
+}
+float PSTDFileSettings::GetDensityOfAir()
+{
+    return this->rho;
+}
+void PSTDFileSettings::SetDensityOfAir(float value)
+{
+    this->rho = value;
+}
+float PSTDFileSettings::GetSoundSpeed()
+{
+    return this->c1;
+}
+void PSTDFileSettings::SetSoundSpeed(float value)
+{
+    this->c1 = value;
+}
+float PSTDFileSettings::GetFactRK()
+{
+    return this->tfactRK;
+}
+void PSTDFileSettings::SetFactRK(float value)
+{
+    this->tfactRK = value;
+}
+int PSTDFileSettings::GetSaveNth()
+{
+    return this->SaveNth;
+}
+void PSTDFileSettings::SetSaveNth(int value)
+{
+    this->SaveNth = value;
 }

@@ -17,6 +17,7 @@
 #include <memory>
 #include "GridLayer.h"
 #include "SceneLayer.h"
+#include "IconLayer.h"
 #include "InteractiveLayer.h"
 #include <boost/lexical_cast.hpp>
 #include "operations/ViewOperations.h"
@@ -53,8 +54,9 @@ Viewer2D::Viewer2D(QWidget *parent)
     : QOpenGLWidget(parent), layers()
 {
     std::cout << "create layers" << std::endl;
-    this->layers.push_back(std::shared_ptr<GridLayer>(new GridLayer()));
+    //this->layers.push_back(std::shared_ptr<GridLayer>(new GridLayer()));
     this->layers.push_back(std::shared_ptr<SceneLayer>(new SceneLayer()));
+    this->layers.push_back(std::shared_ptr<IconLayer>(new IconLayer()));
     this->layers.push_back(std::shared_ptr<InteractiveLayer>(new InteractiveLayer()));
 }
 
@@ -116,7 +118,7 @@ void Viewer2D::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
     std::unique_ptr<QOpenGLFunctions, void(*)(void*)> f(QOpenGLContext::currentContext()->functions(), DeleteNothing);
 
-    if(model->settings->changed)
+    if(model->settings->IsChanged())
     {
         QColor clearColor = model->settings->visual.colorScheme->EditorBackgroundColor();
         f->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());

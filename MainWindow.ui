@@ -247,7 +247,7 @@
      <addaction name="action3D"/>
     </widget>
     <addaction name="menuDimension"/>
-    <addaction name="actionAdvanced_options"/>
+    <addaction name="actionDocument_Settings"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -366,11 +366,6 @@
     <string>3D</string>
    </property>
   </action>
-  <action name="actionAdvanced_options">
-   <property name="text">
-    <string>Advanced options</string>
-   </property>
-  </action>
   <action name="actionOpenPSTD_help">
    <property name="text">
     <string>OpenPSTD help</string>
@@ -463,6 +458,11 @@
   <action name="actionEdit_properties_of_domain">
    <property name="text">
     <string>Edit properties of domain</string>
+   </property>
+  </action>
+  <action name="actionDocument_Settings">
+   <property name="text">
+    <string>Document Settings</string>
    </property>
   </action>
  </widget>

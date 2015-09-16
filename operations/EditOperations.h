@@ -92,6 +92,15 @@ public:
     virtual void Run(const Reciever &reciever) override;
 };
 
+class EditDocumentSettingsOperation: public BaseOperation
+{
+public:
+    EditDocumentSettingsOperation(){};
+    EditDocumentSettingsOperation(PSTDFileSettings settings);
+    PSTDFileSettings Settings;
+    virtual void Run(const Reciever &reciever) override;
+};
+
 template <typename T>
 class EditPropertyOperation: public BaseOperation
 {

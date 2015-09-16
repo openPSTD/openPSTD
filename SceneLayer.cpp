@@ -71,58 +71,77 @@ void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QO
         this->lineWidth = m->settings->visual.EdgeSize;
     }
 
-    std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
-
-    rapidjson::Value& domains = (*conf)["domains"];
-
-    this->positions->clear();
-    this->values->clear();
-    this->lines = 0;
-
-    for(rapidjson::SizeType i = 0; i < domains.Size(); i++)
+    if(m->d->IsChanged())
     {
-        QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
-        QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
-        QVector2D br = tl+size;
-        float left = tl[0];
-        float top = tl[1];
+        std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
 
-        float right = br[0];
-        float bottom = br[1];
+        rapidjson::Value &domains = (*conf)["domains"];
 
-        float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
-        float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
-        float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
-        float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
+        this->positions->clear();
+        this->values->clear();
+        this->lines = 0;
 
-        this->positions->push_back(left); this->positions->push_back(top);
-        this->values->push_back(aTop);
-        this->positions->push_back(right); this->positions->push_back(top);
-        this->values->push_back(aTop);
+        for (rapidjson::SizeType i = 0; i < domains.Size(); i++)
+        {
+            QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
+            QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
+            QVector2D br = tl + size;
+            float left = tl[0];
+            float top = tl[1];
 
-        this->positions->push_back(left); this->positions->push_back(top);
-        this->values->push_back(aLeft);
-        this->positions->push_back(left); this->positions->push_back(bottom);
-        this->values->push_back(aLeft);
+            float right = br[0];
+            float bottom = br[1];
 
-        this->positions->push_back(left); this->positions->push_back(bottom);
-        this->values->push_back(aBottom);
-        this->positions->push_back(right); this->positions->push_back(bottom);
-        this->values->push_back(aBottom);
+            float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
+            float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
+            float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
+            float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
 
-        this->positions->push_back(right); this->positions->push_back(top);
-        this->values->push_back(aRight);
-        this->positions->push_back(right); this->positions->push_back(bottom);
-        this->values->push_back(aRight);
+            this->positions->push_back(left);
+            this->positions->push_back(top);
+            this->values->push_back(aTop);
 
-        this->lines += 4;
+            this->positions->push_back(right);
+            this->positions->push_back(top);
+            this->values->push_back(aTop);
+
+
+            this->positions->push_back(left);
+            this->positions->push_back(top);
+            this->values->push_back(aLeft);
+
+            this->positions->push_back(left);
+            this->positions->push_back(bottom);
+            this->values->push_back(aLeft);
+
+
+            this->positions->push_back(left);
+            this->positions->push_back(bottom);
+            this->values->push_back(aBottom);
+
+            this->positions->push_back(right);
+            this->positions->push_back(bottom);
+            this->values->push_back(aBottom);
+
+
+            this->positions->push_back(right);
+            this->positions->push_back(top);
+            this->values->push_back(aRight);
+
+            this->positions->push_back(right);
+            this->positions->push_back(bottom);
+            this->values->push_back(aRight);
+
+            this->lines += 4;
+        }
+
+        f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+        f->glBufferData(GL_ARRAY_BUFFER, this->positions->size() * sizeof(float), this->positions->data(),
+                        GL_DYNAMIC_DRAW);
+
+        f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
+        f->glBufferData(GL_ARRAY_BUFFER, this->values->size() * sizeof(float), this->values->data(), GL_DYNAMIC_DRAW);
     }
-
-    f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
-    f->glBufferData(GL_ARRAY_BUFFER, this->positions->size()*sizeof(float), this->positions->data(), GL_DYNAMIC_DRAW);
-
-    f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
-    f->glBufferData(GL_ARRAY_BUFFER, this->values->size()*sizeof(float), this->values->data(), GL_DYNAMIC_DRAW);
 }
 
 MinMaxValue SceneLayer::GetMinMax()

@@ -61,16 +61,17 @@ void CreateDomainOperation::Run(const Reciever &reciever)
     (*conf)["domains"].PushBack(Domain, allocator);
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 void RemoveSelectedDomainOperation::Run(const Reciever &reciever)
 {
-    int index = reciever.model->interactive->SelectedDomainIndex;
-    if(index >= 0)
+    if(reciever.model->interactive->Selection.Type == SELECTION_DOMAIN)
     {
+        int index = reciever.model->interactive->Selection.SelectedIndex;
         std::shared_ptr<RemoveDomainOperation> op1(new RemoveDomainOperation(index));
         reciever.operationRunner->RunOperation(op1);
-        std::shared_ptr<SelectDomainOperation> op2(new SelectDomainOperation(-1));
+        std::shared_ptr<DeselectDomainOperation> op2(new DeselectDomainOperation());
         reciever.operationRunner->RunOperation(op2);
     }
     else
@@ -93,6 +94,7 @@ void RemoveDomainOperation::Run(const Reciever &reciever)
     (*conf)["domains"].Erase((*conf)["domains"].Begin()+this->index);;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDomainPositionsOperation::EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint):
@@ -118,6 +120,7 @@ void EditDomainPositionsOperation::Run(const Reciever &reciever)
     (*conf)["domains"][index]["size"][1] = fabsf(this->StartPoint[1] - this->EndPoint[1]);
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDomainEdgeAbsorptionOperation::EditDomainEdgeAbsorptionOperation(int index, PSTD_DOMAIN_SIDE side, float newValue):
@@ -137,6 +140,7 @@ void EditDomainEdgeAbsorptionOperation::Run(const Reciever &reciever)
     (*conf)["domains"][index]["edges"][DomainSideToString(this->Side)]["a"] = this->NewValue;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 EditDomainEdgeLrOperation::EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue):
@@ -155,11 +159,12 @@ void EditDomainEdgeLrOperation::Run(const Reciever &reciever)
     (*conf)["domains"][index]["edges"][DomainSideToString(this->Side)]["ls"] = this->NewValue;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
 }
 
 void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
 {
-    int index = reciever.model->interactive->SelectedDomainIndex;
+    int index = reciever.model->interactive->Selection.SelectedIndex;
     using namespace rapidjson;
 
     std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
@@ -179,4 +184,16 @@ void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
     std::cout << this->AbsorptionT << " == " << (*conf)["domains"][index]["edges"]["t"]["a"].GetDouble() << std::endl;
 
     reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
+}
+
+EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDFileSettings settings): Settings(settings)
+{
+
+}
+
+void EditDocumentSettingsOperation::Run(const Reciever &reciever)
+{
+    reciever.model->d->SetSettings(this->Settings);
+    reciever.model->d->Change();
 }
