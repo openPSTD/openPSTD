@@ -12,9 +12,11 @@ class InteractiveLayer : public Layer
 private:
     std::unique_ptr<QOpenGLShaderProgram> program;
     bool addDomainVisible;
-    bool selectDomainVisible;
+    bool selectionVisible;
     unsigned int newDomainBuffer;
-    unsigned int selectDomainBuffer;
+    unsigned int selectionBuffer;
+    QColor newDomainColor;
+    QColor selectionColor;
 public:
     InteractiveLayer();
 
