@@ -50,7 +50,7 @@ public:
     std::vector <Boundary> boundary_list;
     std::vector <Receiver> receiver_list;
     std::vector <Speaker> source_list;
-    Point top_left, bottom_right, size;
+    Point *top_left, *bottom_right, *size; //Todo (0mar): Still necessary?
 
     /**
      * Constructor of Scene object
@@ -91,7 +91,7 @@ public:
     void compute_pml_matrices();
     void add_pml_domains();
     void apply_pml_matrices();
-    ~KernelScene();
+    //~KernelScene();
 
 };
 

@@ -37,6 +37,6 @@ public:
     const double z;
     Receiver(const double x,const double y,const double z);
 
-    ~Receiver();
+    //~Receiver();
 };
 #endif //OPENPSTD_RECEIVER_H

@@ -37,6 +37,6 @@ public:
     const double z;
     Speaker(const double x,const double y,const double z);
 
-    ~Speaker();
+    // ~Speaker();
 };
 #endif //OPENPSTD_SPEAKER_H

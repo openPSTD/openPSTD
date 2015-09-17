@@ -70,7 +70,7 @@ public:
      */
     KernelDomain *neighbour_list();
 
-    ~KernelDomain();
+    //~KernelDomain();
 };
 
 
