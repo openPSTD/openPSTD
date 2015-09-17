@@ -1,3 +1,31 @@
+//////////////////////////////////////////////////////////////////////////
+// This file is part of openPSTD.                                       //
+//                                                                      //
+// openPSTD is free software: you can redistribute it and/or modify     //
+// it under the terms of the GNU General Public License as published by //
+// the Free Software Foundation, either version 3 of the License, or    //
+// (at your option) any later version.                                  //
+//                                                                      //
+// openPSTD is distributed in the hope that it will be useful,          //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of       //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        //
+// GNU General Public License for more details.                         //
+//                                                                      //
+// You should have received a copy of the GNU General Public License    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Date:
+//
+//
+// Authors:
+//
+//
+//////////////////////////////////////////////////////////////////////////
+
 //
 // Created by michiel on 18-7-2015.
 //
@@ -36,8 +64,8 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     QObject::connect(ui->actionSelect, &QAction::triggered, this,
                      [&](bool checked){ChangeMouseHandler(ui->actionSelect, std::unique_ptr<MouseSelectStrategy>(new MouseSelectStrategy()));});
 
-    QObject::connect(ui->actionDelete_selected_Domain, &QAction::triggered, this,
-                     [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedDomainOperation>(new RemoveSelectedDomainOperation()));});
+    QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
+                     [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedObjectOperation>(new RemoveSelectedObjectOperation()));});
     QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this, &MainWindow::EditSelectedDomain);
     QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
 }
@@ -137,9 +165,9 @@ void MainWindow::EditSelectedDomain()
 
 void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
 {
-    ui->actionDelete_selected_Domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
-    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
-    ui->actionResize_domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
+    ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
+    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
+    ui->actionResize_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
 }
 
 void MainWindow::EditDocumentSettings()

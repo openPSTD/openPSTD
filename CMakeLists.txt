@@ -83,9 +83,13 @@ message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES}")
 message(STATUS "Qt5 include path: ${Qt5_INCLUDE_DIRS}")
 message(STATUS "Qt5 version: ${Qt5_VERSION_STRING}")
 
-if (NOT Qt5Widgets_FOUND)
-    message(FATAL_ERROR "Missing Qt5 Libs.")
-endif ()
+if (Qt5_POSITION_INDEPENDENT_CODE)
+    SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
+if(NOT Qt5Widgets_FOUND)
+  message( FATAL_ERROR "Missing Qt5 Libs." )
+endif()
 
 #------------------------------------
 # Rapidjson

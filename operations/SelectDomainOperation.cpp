@@ -1,3 +1,31 @@
+//////////////////////////////////////////////////////////////////////////
+// This file is part of openPSTD.                                       //
+//                                                                      //
+// openPSTD is free software: you can redistribute it and/or modify     //
+// it under the terms of the GNU General Public License as published by //
+// the Free Software Foundation, either version 3 of the License, or    //
+// (at your option) any later version.                                  //
+//                                                                      //
+// openPSTD is distributed in the hope that it will be useful,          //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of       //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        //
+// GNU General Public License for more details.                         //
+//                                                                      //
+// You should have received a copy of the GNU General Public License    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Date:
+//
+//
+// Authors:
+//
+//
+//////////////////////////////////////////////////////////////////////////
+
 //
 // Created by michiel on 31-8-2015.
 //
@@ -20,7 +48,7 @@ void SelectIndexedObjectOperation::Run(const Reciever &reciever)
     std::cout << "Select a " << type << " with index " << index << std::endl;
 }
 
-DeselectDomainOperation::DeselectDomainOperation(): SelectIndexedObjectOperation(SELECTION_NONE, -1)
+DeselectOperation::DeselectOperation(): SelectIndexedObjectOperation(SELECTION_NONE, -1)
 { }
 
 SelectDomainOperation::SelectDomainOperation(int selectDomainIndex) : SelectIndexedObjectOperation(SELECTION_DOMAIN,
@@ -74,6 +102,6 @@ void SelectObjectOperation::Run(const Reciever &reciever)
         }
     }
     //deselects the domain
-    std::shared_ptr<DeselectDomainOperation> op1(new DeselectDomainOperation());
+    std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
     reciever.operationRunner->RunOperation(op1);
 }

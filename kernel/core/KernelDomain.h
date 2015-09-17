@@ -1,3 +1,34 @@
+//////////////////////////////////////////////////////////////////////////
+// This file is part of openPSTD.                                       //
+//                                                                      //
+// openPSTD is free software: you can redistribute it and/or modify     //
+// it under the terms of the GNU General Public License as published by //
+// the Free Software Foundation, either version 3 of the License, or    //
+// (at your option) any later version.                                  //
+//                                                                      //
+// openPSTD is distributed in the hope that it will be useful,          //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of       //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        //
+// GNU General Public License for more details.                         //
+//                                                                      //
+// You should have received a copy of the GNU General Public License    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Date:
+//
+//
+// Authors:
+//
+//
+// Purpose:
+//
+//
+//////////////////////////////////////////////////////////////////////////
+
 //
 // Created by louis on 16-9-15.
 //
@@ -9,6 +40,15 @@
 #include <map>
 #include <string>
 #include "kernel_functions.h"
+#include "PSTDFile.h"
+
+struct domain_values {
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> w0;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> p0;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> px0;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> pz0;
+};
 
 /**
  * A representation of one domain, as seen by the kernel.
@@ -20,17 +60,13 @@ public:
     double alpha;
     double impedance;
     double rho;
-    int* cfg; //TODO (Louis): point this to the configuration data structure when it exists
     int topleft[];
     int size[];
     int bottomright[];
     bool is_pml;
+    domain_values current_dvals;
+    domain_values prev_dvals;
 
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> w0;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> p0;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> px0;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> pz0;
     KernelDomain *left = nullptr;
     KernelDomain *right = nullptr;
     KernelDomain *top = nullptr;
@@ -41,6 +77,8 @@ public:
     rMatrices2D rho_matrices[]; //TODO generalize to 3d
 
 private:
+    PSTDFile *cfg;
+
 public:
     /**
      * Default constructor
