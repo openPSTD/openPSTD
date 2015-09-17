@@ -19,9 +19,9 @@ message(STATUS "Python lib path: ${PYTHON_LIBRARIES}")
 message(STATUS "Python include path: ${PYTHON_INCLUDE_DIRS}")
 message(STATUS "Python version: ${PYTHONLIBS_VERSION_STRING}")
 
-if(NOT PYTHONLIBS_FOUND)
-   message( FATAL_ERROR "Missing Python Libs." )
-endif()
+if (NOT PYTHONLIBS_FOUND)
+    message(FATAL_ERROR "Missing Python Libs.")
+endif ()
 
 #------------------------------------
 # BOOST
@@ -37,9 +37,9 @@ message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")
 
-if(NOT Boost_FOUND)
-  message(FATAL_ERROR "Missing Boost Libs.")
-endif()
+if (NOT Boost_FOUND)
+    message(FATAL_ERROR "Missing Boost Libs.")
+endif ()
 
 #------------------------------------
 # QT5
@@ -56,19 +56,22 @@ macro(loadQtPackage QtModule)
     set(${QtModule}_DIR "${Qt5_DIR}\\${Qt5_CMAKE}\\${QtModule}")
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
     find_package(${QtModule})
-    if(Qt5_FIRST)
+    if (Qt5_FIRST)
         set(Qt5_FIRST 0)
         set(Qt5_FOUND 1)
-    endif()
+    endif ()
 
-    if(Qt5_FOUND AND ${${QtModule}_FOUND})
+    if (Qt5_FOUND AND ${${QtModule}_FOUND})
         set(Qt5_FOUND 1)
     else()
         set(Qt5_FOUND 0)
-    endif()
+    endif ()
     set(Qt5_LIBRARIES "${Qt5_LIBRARIES}${${QtModule}_LIBRARIES};")
     set(Qt5_INCLUDE_DIRS "${Qt5_INCLUDE_DIRS}${${QtModule}_INCLUDE_DIRS};")
     set(Qt5_VERSION_STRING "${${QtModule}_VERSION_STRING}")
+    if (Qt5_POSITION_INDEPENDENT_CODE)
+        SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    endif ()
 endmacro(loadQtPackage)
 
 loadQtPackage(Qt5Widgets)
@@ -123,8 +126,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #------------------------------------
 # Kernel
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp kernel/core/kernel_functions.cpp kernel/core/KernelDomain.cpp kernel/core/KernelDomain.h)
-add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
+        kernel/core/kernel_functions.cpp kernel/core/KernelDomain.cpp kernel/core/KernelDomain.h
+        kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/KernelScene.cpp kernel/core/KernelScene.h
+        kernel/core/Receiver.cpp kernel/core/Receiver.h)
+add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI} kernel/core/Boundary.cpp kernel/core/Boundary.h)
 
 #------------------------------------
 # UI
@@ -141,13 +147,13 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp Sc
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp DomainProperties.cpp DocumentSettings.cpp)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp kernel/core/Boundary.cpp kernel/core/Boundary.h)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
 # link libraries
 target_link_libraries(OpenPSTD-cli ${PYTHON_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
+target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
 
 target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
