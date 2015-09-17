@@ -12,7 +12,7 @@
 // GNU General Public License for more details.                         //
 //                                                                      //
 // You should have received a copy of the GNU General Public License    //
-// along with openPSTD.  If not, see <http://www.gnu.org/licenses/\>.    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
@@ -34,12 +34,11 @@
 class Point {
 public:
     const int x,y,z;
-    const int array[];
+    const int array[3];
     /**
      * Constructor for a point.
      */
     Point(const int x,const int y,const int z);
-    Point();
     friend Point operator+(const Point a, const Point b);
     friend Point operator-(const Point a, const Point b);
     //Todo (0mar): Add string override method
