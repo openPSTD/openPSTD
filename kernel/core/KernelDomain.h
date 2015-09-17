@@ -9,6 +9,15 @@
 #include <map>
 #include <string>
 #include "kernel_functions.h"
+#include "PSTDFile.h"
+
+struct domain_values {
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> w0;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> p0;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> px0;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> pz0;
+};
 
 /**
  * A representation of one domain, as seen by the kernel.
@@ -20,17 +29,13 @@ public:
     double alpha;
     double impedance;
     double rho;
-    int* cfg; //TODO (Louis): point this to the configuration data structure when it exists
     int topleft[];
     int size[];
     int bottomright[];
     bool is_pml;
+    domain_values current_dvals;
+    domain_values prev_dvals;
 
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> w0;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> p0;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> px0;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> pz0;
     KernelDomain *left = nullptr;
     KernelDomain *right = nullptr;
     KernelDomain *top = nullptr;
@@ -41,6 +46,8 @@ public:
     rMatrices2D rho_matrices[]; //TODO generalize to 3d
 
 private:
+    PSTDFile *cfg;
+
 public:
     /**
      * Default constructor
