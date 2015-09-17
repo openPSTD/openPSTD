@@ -31,3 +31,11 @@
 //
 
 #include "KernelDomain.h"
+
+using namespace Kernel;
+
+KernelDomain::KernelDomain(const Config cnf, const int id, const double alpha,
+                           const int topleft[], const int size[], const bool is_pml,
+                           const std::shared_ptr<KernelDomain> pml_for = std::shared_ptr<KernelDomain>(nullptr)){
+    //TODO implementeer dit
+};
