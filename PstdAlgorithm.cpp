@@ -3,6 +3,8 @@
 //
 
 #include "PstdAlgorithm.h"
+#include <QColor>
+#include <QVector4D>
 
 bool PointInSquare(QVector2D tl, QVector2D size, QVector2D point)
 {
@@ -58,4 +60,9 @@ void AddSquareBuffer(std::unique_ptr<std::vector<QVector2D>> const &buffer, QVec
 
     buffer->push_back(QVector2D(right, top));
     buffer->push_back(QVector2D(right, bottom));
+}
+
+QVector4D ToVectorRGBA(QColor color)
+{
+    return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 }
