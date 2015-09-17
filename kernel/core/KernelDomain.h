@@ -29,10 +29,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by louis on 16-9-15.
-//
-
 #ifndef OPENPSTD_KERNELDOMAIN_H
 #define OPENPSTD_KERNELDOMAIN_H
 
