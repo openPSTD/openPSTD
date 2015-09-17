@@ -71,13 +71,39 @@ void RemoveSelectedDomainOperation::Run(const Reciever &reciever)
         int index = reciever.model->interactive->Selection.SelectedIndex;
         std::shared_ptr<RemoveDomainOperation> op1(new RemoveDomainOperation(index));
         reciever.operationRunner->RunOperation(op1);
-        std::shared_ptr<DeselectDomainOperation> op2(new DeselectDomainOperation());
+        std::shared_ptr<DeselectOperation> op2(new DeselectOperation());
         reciever.operationRunner->RunOperation(op2);
     }
     else
     {
         //todo throw exception
     }
+}
+
+void RemoveSelectedObjectOperation::Run(const Reciever &reciever)
+{
+    int index = reciever.model->interactive->Selection.SelectedIndex;
+    if(reciever.model->interactive->Selection.Type == SELECTION_DOMAIN)
+    {
+        std::shared_ptr<RemoveDomainOperation> op1(new RemoveDomainOperation(index));
+        reciever.operationRunner->RunOperation(op1);
+    }
+    else if(reciever.model->interactive->Selection.Type == SELECTION_RECEIVER)
+    {
+        std::shared_ptr<RemoveReceiverOperation> op1(new RemoveReceiverOperation(index));
+        reciever.operationRunner->RunOperation(op1);
+    }
+    else if(reciever.model->interactive->Selection.Type == SELECTION_SPEAKER)
+    {
+        std::shared_ptr<RemoveSpeakerOperation> op1(new RemoveSpeakerOperation(index));
+        reciever.operationRunner->RunOperation(op1);
+    }
+    else
+    {
+        //todo throw exception
+    }
+    std::shared_ptr<DeselectOperation> op2(new DeselectOperation());
+    reciever.operationRunner->RunOperation(op2);
 }
 
 RemoveDomainOperation::RemoveDomainOperation(int index): index(index)
@@ -92,6 +118,40 @@ void RemoveDomainOperation::Run(const Reciever &reciever)
     std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
 
     (*conf)["domains"].Erase((*conf)["domains"].Begin()+this->index);;
+
+    reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
+}
+
+RemoveSpeakerOperation::RemoveSpeakerOperation(int index): index(index)
+{
+
+}
+
+void RemoveSpeakerOperation::Run(const Reciever &reciever)
+{
+    using namespace rapidjson;
+
+    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+
+    (*conf)["speakers"].Erase((*conf)["speakers"].Begin()+this->index);;
+
+    reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
+}
+
+RemoveReceiverOperation::RemoveReceiverOperation(int index): index(index)
+{
+
+}
+
+void RemoveReceiverOperation::Run(const Reciever &reciever)
+{
+    using namespace rapidjson;
+
+    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+
+    (*conf)["receivers"].Erase((*conf)["receivers"].Begin()+this->index);;
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();

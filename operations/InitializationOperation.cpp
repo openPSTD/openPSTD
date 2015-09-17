@@ -22,7 +22,7 @@ void InitializationOperation::Run(const Reciever &reciever)
     reciever.model->settings->Change();
 
     //select none of the domains
-    std::shared_ptr<DeselectDomainOperation> op1(new DeselectDomainOperation());
+    std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
     reciever.operationRunner->RunOperation(op1);
 
     //initialize Mouse handler

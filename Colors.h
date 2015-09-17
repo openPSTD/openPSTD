@@ -126,6 +126,7 @@ public:
     virtual QColor EditorDefualtDomainColor();
     virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
     virtual QColor EditorAddDomainColor();
+    virtual QColor EditorSelectionColor();
 
 };
 
@@ -146,6 +147,8 @@ public:
     virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
 
     virtual QColor EditorAddDomainColor();
+
+    virtual QColor EditorSelectionColor();
 
 };
 

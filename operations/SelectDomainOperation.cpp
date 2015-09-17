@@ -20,7 +20,7 @@ void SelectIndexedObjectOperation::Run(const Reciever &reciever)
     std::cout << "Select a " << type << " with index " << index << std::endl;
 }
 
-DeselectDomainOperation::DeselectDomainOperation(): SelectIndexedObjectOperation(SELECTION_NONE, -1)
+DeselectOperation::DeselectOperation(): SelectIndexedObjectOperation(SELECTION_NONE, -1)
 { }
 
 SelectDomainOperation::SelectDomainOperation(int selectDomainIndex) : SelectIndexedObjectOperation(SELECTION_DOMAIN,
@@ -74,6 +74,6 @@ void SelectObjectOperation::Run(const Reciever &reciever)
         }
     }
     //deselects the domain
-    std::shared_ptr<DeselectDomainOperation> op1(new DeselectDomainOperation());
+    std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
     reciever.operationRunner->RunOperation(op1);
 }

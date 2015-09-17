@@ -104,6 +104,7 @@ std::unique_ptr<BaseColorGradient> BaseColorScheme::EditorLineAbsoptionColorGrad
 QColor BaseColorScheme::EditorDefualtDomainColor() { return COLOR_WHITE; }
 std::unique_ptr<BaseColorGradient> BaseColorScheme::EditorDomainSignalColorGradient() { return COLOR_GRADIENT_WHITE; }
 QColor BaseColorScheme::EditorAddDomainColor(){ return COLOR_WHITE; }
+QColor BaseColorScheme::EditorSelectionColor(){ return COLOR_WHITE; }
 
 
 
@@ -138,4 +139,9 @@ std::unique_ptr<BaseColorGradient> StandardColorScheme::EditorDomainSignalColorG
 QColor StandardColorScheme::EditorAddDomainColor()
 {
     return COLOR_YELLOW;
+}
+
+QColor StandardColorScheme::EditorSelectionColor()
+{
+    return COLOR_BLACK;
 }
