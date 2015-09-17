@@ -3,3 +3,7 @@
 //
 
 #include "Receiver.h"
+
+namespace Kernel{
+
+}

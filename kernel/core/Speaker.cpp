@@ -3,3 +3,6 @@
 //
 
 #include "Speaker.h"
+namespace Kernel {
+
+}

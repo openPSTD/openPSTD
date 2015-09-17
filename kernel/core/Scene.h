@@ -36,17 +36,17 @@
 #include <map>
 #include <string>
 #include "kernel_functions.h"
-#include "KernelDomain.h"
+#include "Domain.h"
 #include "Geometry.h"
 #include "Speaker.h"
 #include "Receiver.h"
 #include "Boundary.h"
 #include "PSTDFile.h"
 namespace Kernel {
-    class KernelScene {
+    class Scene {
     public:
         PSTDFile *cfg;
-        std::vector<KernelDomain> domain_list;
+        std::vector<Domain> domain_list;
         std::vector<Boundary> boundary_list;
         std::vector<Receiver> receiver_list;
         std::vector<Speaker> source_list;
@@ -56,7 +56,7 @@ namespace Kernel {
          * Constructor of Scene object
          * @param cnf class containing configuration files
          */
-        KernelScene(PSTDFile *cnf);
+        Scene(PSTDFile *cnf);
 
         /**
          * Adds a receiver to the scene.
@@ -85,7 +85,7 @@ namespace Kernel {
          * whether they share a boundary or whether more PML domains have to be added(?).
          * @param domain: unprocessed domain object.
          */
-        void add_domain(KernelDomain domain);
+        void add_domain(Domain domain);
 
         void compute_rho_matrices();
 

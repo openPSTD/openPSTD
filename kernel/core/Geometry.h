@@ -30,18 +30,21 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_GEOMETRY_H
 #define OPENPSTD_GEOMETRY_H
+namespace Kernel {
+    class Point {
+    public:
+        const int x, y, z;
+        const int array[3];
 
-class Point {
-public:
-    const int x,y,z;
-    const int array[3];
-    /**
-     * Constructor for a point.
-     */
-    Point(const int x,const int y,const int z);
-    friend Point operator+(const Point a, const Point b);
-    friend Point operator-(const Point a, const Point b);
-    //Todo (0mar): Add string override method
-};
+        /**
+         * Constructor for a point.
+         */
+        Point(const int x, const int y, const int z);
 
+        friend Point operator+(const Point a, const Point b);
+
+        friend Point operator-(const Point a, const Point b);
+        //Todo (0mar): Add string override method
+    };
+}
 #endif //OPENPSTD_GEOMETRY_H

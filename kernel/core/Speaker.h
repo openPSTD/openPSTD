@@ -30,13 +30,16 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_SPEAKER_H
 #define OPENPSTD_SPEAKER_H
-class Speaker {
-public:
-    const double x;
-    const double y;
-    const double z;
-    Speaker(const double x,const double y,const double z);
+namespace Kernel {
+    class Speaker {
+    public:
+        const double x;
+        const double y;
+        const double z;
 
-    // ~Speaker();
-};
+        Speaker(const double x, const double y, const double z);
+
+        // ~Speaker();
+    };
+}
 #endif //OPENPSTD_SPEAKER_H

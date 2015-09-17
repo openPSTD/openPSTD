@@ -52,7 +52,7 @@ namespace Kernel {
      * A representation of one domain, as seen by the kernel.
      * TODO (Louis): hide some members in the private section? Not sure if useful
      */
-    class KernelDomain {
+    class Domain {
     public:
         int id;
         double alpha;
@@ -65,11 +65,11 @@ namespace Kernel {
         domain_values current_dvals;
         domain_values prev_dvals;
 
-        KernelDomain *left = nullptr;
-        KernelDomain *right = nullptr;
-        KernelDomain *top = nullptr;
-        KernelDomain *bottom = nullptr;
-        KernelDomain *pml_for = nullptr;
+        Domain *left = nullptr;
+        Domain *right = nullptr;
+        Domain *top = nullptr;
+        Domain *bottom = nullptr;
+        Domain *pml_for = nullptr;
         bool is_sec_pml;
 
         rMatrices2D rho_matrices[]; //TODO generalize to 3d
@@ -88,8 +88,8 @@ namespace Kernel {
          * @param is_pml true if domain is pml domain
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          */
-        KernelDomain(const Config cnf, const int id, const double alpha, const int topleft[],
-                     const int size[], const bool is_pml, const std::shared_ptr<KernelDomain> pml_for);
+        Domain(const Config cnf, const int id, const double alpha, const int topleft[],
+                     const int size[], const bool is_pml, const std::shared_ptr<Domain> pml_for);
 
         /**
          * Calculates the rho matrices for all edges touching another domain
@@ -104,9 +104,7 @@ namespace Kernel {
         /**
          * Method that returns a list of all domains touching this domain
          */
-        std::vector<KernelDomain> neighbour_list();
-
-        //~KernelDomain();
+        std::vector<Domain> neighbour_list();
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

@@ -31,17 +31,17 @@
 #ifndef OPENPSTD_BOUNDARY_H
 #define OPENPSTD_BOUNDARY_H
 
-#include "KernelDomain.h"
+#include "Domain.h"
+namespace Kernel {
+    class Boundary {
+        enum BoundaryType {
+            HORIZONTAL, VERTICAL
+        };
+        Domain domain1, domain2;
+        BoundaryType type;
 
-class Boundary {
-    enum BoundaryType {
-        HORIZONTAL, VERTICAL
+        Boundary(Domain domain1, Domain domain2);
     };
-    KernelDomain domain1, domain2;
-    BoundaryType type;
-
-    Boundary(KernelDomain domain1, KernelDomain domain2);
-};
-
+}
 
 #endif //OPENPSTD_BOUNDARY_H

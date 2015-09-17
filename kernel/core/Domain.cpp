@@ -30,12 +30,14 @@
 // Created by louis on 16-9-15.
 //
 
-#include "KernelDomain.h"
+#include "Domain.h"
 
-using namespace Kernel;
+namespace Kernel {
 
-KernelDomain::KernelDomain(const Config cnf, const int id, const double alpha,
-                           const int topleft[], const int size[], const bool is_pml,
-                           const std::shared_ptr<KernelDomain> pml_for = std::shared_ptr<KernelDomain>(nullptr)){
-    //TODO implementeer dit
-};
+    Domain::Domain(const Config cnf, const int id, const double alpha,
+                   const int topleft[], const int size[], const bool is_pml,
+                   const std::shared_ptr<Domain> pml_for = std::shared_ptr<Domain>(nullptr)) {
+        //TODO implementeer dit
+    };
+
+}

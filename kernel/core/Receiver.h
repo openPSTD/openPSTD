@@ -30,13 +30,15 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_RECEIVER_H
 #define OPENPSTD_RECEIVER_H
-class Receiver {
-public:
-    const double x;
-    const double y;
-    const double z;
-    Receiver(const double x,const double y,const double z);
+namespace Kernel {
+    class Receiver {
+    public:
+        const double x;
+        const double y;
+        const double z;
 
-    //~Receiver();
-};
+        Receiver(const double x, const double y, const double z);
+    };
+
+}
 #endif //OPENPSTD_RECEIVER_H
