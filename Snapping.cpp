@@ -13,18 +13,20 @@ QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
     {
         std::unique_ptr<std::vector<float>> edges0 = GetEdges(model, 0);
         std::unique_ptr<std::vector<float>> edges1 = GetEdges(model, 1);
-        auto it = edges0->begin();
-        float min0 = *std::min_element(edges0->begin(), edges0->end(), [&vector](const float& x, const float& y){return abs(x-vector[0]) < abs(y-vector[0]);});
-        float min1 = *std::min_element(edges1->begin(), edges1->end(), [&vector](const float& x, const float& y){return abs(x-vector[1]) < abs(y-vector[1]);});
-        if(abs(min0 - vector[0]) < model->settings->snapping.SnapToDomainEdgesDistance)
+        if(edges0->size() > 0 && edges1->size() > 0)
         {
-            vector[0] = min0;
-            snap0 = true;
-        }
-        if(abs(min1 - vector[1]) < model->settings->snapping.SnapToDomainEdgesDistance)
-        {
-            vector[1] = min1;
-            snap1 = true;
+            float min0 = *std::min_element(edges0->begin(), edges0->end(), [&vector](const float& x, const float& y){return abs(x-vector[0]) < abs(y-vector[0]);});
+            float min1 = *std::min_element(edges1->begin(), edges1->end(), [&vector](const float& x, const float& y){return abs(x-vector[1]) < abs(y-vector[1]);});
+            if(abs(min0 - vector[0]) < model->settings->snapping.SnapToDomainEdgesDistance)
+            {
+                vector[0] = min0;
+                snap0 = true;
+            }
+            if(abs(min1 - vector[1]) < model->settings->snapping.SnapToDomainEdgesDistance)
+            {
+                vector[1] = min1;
+                snap1 = true;
+            }
         }
     }
     if(model->settings->snapping.SnapToGrid)
