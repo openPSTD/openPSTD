@@ -64,8 +64,8 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     QObject::connect(ui->actionSelect, &QAction::triggered, this,
                      [&](bool checked){ChangeMouseHandler(ui->actionSelect, std::unique_ptr<MouseSelectStrategy>(new MouseSelectStrategy()));});
 
-    QObject::connect(ui->actionDelete_selected_Domain, &QAction::triggered, this,
-                     [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedDomainOperation>(new RemoveSelectedDomainOperation()));});
+    QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
+                     [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedObjectOperation>(new RemoveSelectedObjectOperation()));});
     QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this, &MainWindow::EditSelectedDomain);
     QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
 }
@@ -165,9 +165,9 @@ void MainWindow::EditSelectedDomain()
 
 void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
 {
-    ui->actionDelete_selected_Domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
-    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
-    ui->actionResize_domain->setEnabled(model->interactive->Selection.Type != SELECTION_DOMAIN);
+    ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
+    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
+    ui->actionResize_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
 }
 
 void MainWindow::EditDocumentSettings()

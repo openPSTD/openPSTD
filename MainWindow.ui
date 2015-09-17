@@ -280,7 +280,7 @@
     </property>
     <addaction name="actionSelect"/>
     <addaction name="actionAdd_Domain"/>
-    <addaction name="actionDelete_selected_Domain"/>
+    <addaction name="actionDelete_selected"/>
     <addaction name="actionResize_domain"/>
     <addaction name="actionEdit_properties_of_domain"/>
    </widget>
@@ -445,9 +445,12 @@
     <string>Select</string>
    </property>
   </action>
-  <action name="actionDelete_selected_Domain">
+  <action name="actionDelete_selected">
    <property name="text">
-    <string>Delete selected Domain</string>
+    <string>Delete selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete selected</string>
    </property>
   </action>
   <action name="actionResize_domain">

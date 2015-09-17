@@ -58,6 +58,12 @@ public:
     virtual void Run(const Reciever &reciever) override;
 };
 
+class RemoveSelectedObjectOperation: public BaseOperation
+{
+public:
+    virtual void Run(const Reciever &reciever) override;
+};
+
 class RemoveDomainOperation: public BaseOperation
 {
 private:
@@ -65,6 +71,28 @@ private:
 
 public:
     RemoveDomainOperation(int index);
+
+    virtual void Run(const Reciever &reciever) override;
+};
+
+class RemoveSpeakerOperation: public BaseOperation
+{
+private:
+    int index;
+
+public:
+    RemoveSpeakerOperation(int index);
+
+    virtual void Run(const Reciever &reciever) override;
+};
+
+class RemoveReceiverOperation: public BaseOperation
+{
+private:
+    int index;
+
+public:
+    RemoveReceiverOperation(int index);
 
     virtual void Run(const Reciever &reciever) override;
 };
