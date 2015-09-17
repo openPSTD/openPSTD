@@ -30,10 +30,10 @@ const float PI = 3.1415926;
 
 void main()
 {
-    float SizeCircle = 0.2;
+    float SizeCircle = 0.1;
     int PointsInCircle = 64;
-    vec4 SizeLines = vec4(0.4, 0.0, 0.0, 0.0);
-    vec4 SizeLines2 = vec4(0.0, 0.4, 0.0, 0.0);
+    vec4 SizeLines = vec4(0.2, 0.0, 0.0, 0.0);
+    vec4 SizeLines2 = vec4(0.0, 0.2, 0.0, 0.0);
 
     f_Color = v_color[0];
 
