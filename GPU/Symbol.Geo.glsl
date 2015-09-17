@@ -37,7 +37,6 @@ void main()
 
     f_Color = v_color[0];
 
-
     for (int i = 0; i <= PointsInCircle; i++)
     {
         // Angle between each side in radians

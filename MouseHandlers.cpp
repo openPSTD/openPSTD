@@ -18,10 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 17-09-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
@@ -114,3 +114,20 @@ void MouseCreateDomainStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &
     this->operationRunner->RunOperation(op);
 }
 
+MouseCreateSpeakerReceiverStrategy::MouseCreateSpeakerReceiverStrategy(PstdObjectType type): _type(type)
+{
+
+}
+
+void MouseCreateSpeakerReceiverStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                                        QVector2D pos)
+{
+
+}
+
+void MouseCreateSpeakerReceiverStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                                           QVector2D pos)
+{
+    std::shared_ptr<CreateReceiverSpeakerOperation> op(new CreateReceiverSpeakerOperation(this->_type, (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D()));
+    this->operationRunner->RunOperation(op);
+}

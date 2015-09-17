@@ -18,17 +18,14 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 18-07-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 18-7-2015.
-//
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -63,6 +60,10 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
                      [&](bool checked){ChangeMouseHandler(ui->actionAdd_Domain, std::unique_ptr<MouseCreateDomainStrategy>(new MouseCreateDomainStrategy()));});
     QObject::connect(ui->actionSelect, &QAction::triggered, this,
                      [&](bool checked){ChangeMouseHandler(ui->actionSelect, std::unique_ptr<MouseSelectStrategy>(new MouseSelectStrategy()));});
+    QObject::connect(ui->actionAdd_Receiver, &QAction::triggered, this,
+                     [&](bool checked){ChangeMouseHandler(ui->actionAdd_Receiver, std::unique_ptr<MouseCreateSpeakerReceiverStrategy>(new MouseCreateSpeakerReceiverStrategy(OBJECT_RECEIVER)));});
+    QObject::connect(ui->actionAdd_speaker, &QAction::triggered, this,
+                     [&](bool checked){ChangeMouseHandler(ui->actionAdd_speaker, std::unique_ptr<MouseCreateSpeakerReceiverStrategy>(new MouseCreateSpeakerReceiverStrategy(OBJECT_SPEAKER)));});
 
     QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
                      [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedObjectOperation>(new RemoveSelectedObjectOperation()));});

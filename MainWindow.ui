@@ -284,8 +284,20 @@
     <addaction name="actionResize_domain"/>
     <addaction name="actionEdit_properties_of_domain"/>
    </widget>
+   <widget class="QMenu" name="menuTool">
+    <property name="title">
+     <string>Tool</string>
+    </property>
+    <addaction name="actionSelect"/>
+    <addaction name="actionMove_scene"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdd_Domain"/>
+    <addaction name="actionAdd_speaker"/>
+    <addaction name="actionAdd_Receiver"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOption"/>
+   <addaction name="menuTool"/>
    <addaction name="menuOperations"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
@@ -441,6 +453,9 @@
    </property>
   </action>
   <action name="actionSelect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Select</string>
    </property>
@@ -466,6 +481,22 @@
   <action name="actionDocument_Settings">
    <property name="text">
     <string>Document Settings</string>
+   </property>
+  </action>
+  <action name="actionAdd_speaker">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add Speaker</string>
+   </property>
+  </action>
+  <action name="actionAdd_Receiver">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add Receiver</string>
    </property>
   </action>
  </widget>
