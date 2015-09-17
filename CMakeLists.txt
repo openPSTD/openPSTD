@@ -10,6 +10,7 @@ set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
 set(UNQLITE_INCLUDE "" CACHE PATH "The include directory of unqlite")
 set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
+set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 #------------------------------------
 # Python
@@ -100,6 +101,10 @@ message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
 message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
 
 #------------------------------------
+# Eigen
+message(STATUS "Eigen include path: ${EIGEN_INCLUDE}")
+
+#------------------------------------
 # OpenGL
 find_package(OpenGL)
 message(STATUS "OpenGL found: ${OPENGL_FOUND}")
@@ -116,6 +121,7 @@ include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
 include_directories(${UNQLITE_INCLUDE})
 include_directories(${OPENGL_INCLUDE_DIR})
+include_directories(${EIGEN_INCLUDE})
 
 #------------------------------------
 # Compiling flags

@@ -46,10 +46,12 @@ void IconLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
     f->glGenBuffers(1, &this->ColorBuffer);
 
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Symbol.vert.glsl"));
+    std::unique_ptr<std::string> geoFile = std::unique_ptr<std::string>(new std::string("GPU/Symbol.geo.glsl"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Symbol.frag.glsl"));
 
     program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
     program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
+    program->addShaderFromSourceFile(QOpenGLShader::Geometry, QString::fromStdString(*geoFile));
     program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString::fromStdString(*fragmentFile));
     program->link();
 
@@ -63,15 +65,19 @@ void IconLayer::PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void
     program->enableAttributeArray("a_position");
     f->glBindBuffer(GL_ARRAY_BUFFER, this->LineBuffers);
     f->glVertexAttribPointer((GLuint)program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+    GLError("a_position");
 
     program->enableAttributeArray("a_color");
     f->glBindBuffer(GL_ARRAY_BUFFER, this->ColorBuffer);
     f->glVertexAttribPointer((GLuint)program->attributeLocation("a_color"), 4, GL_FLOAT, GL_FALSE, 0, 0);
+    GLError("a_color");
 
     f->glLineWidth(1.0f);
-    f->glDrawArrays(GL_LINES, 0, lines*2);
+    f->glDrawArrays(GL_POINTS, 0, lines);
+    GLError("f->glDrawArrays");
     program->disableAttributeArray("a_position");
     program->disableAttributeArray("a_color");
+
 }
 
 void IconLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f)
@@ -86,39 +92,18 @@ void IconLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
         std::vector<QVector2D> speakers = GetSpeakers(m);
         for(int i = 0; i < speakers.size(); i++)
         {
-            positions->push_back(QVector2D(speakers[i].x()-SizeLines.x()/2, speakers[i].y()));
+            positions->push_back(speakers[i]);
             colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorSpeakerColor()));
-            positions->push_back(QVector2D(speakers[i].x()+SizeLines.x()/2, speakers[i].y()));
-            colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorSpeakerColor()));
-
-            positions->push_back(QVector2D(speakers[i].x(), speakers[i].y()-SizeLines.y()/2));
-            colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorSpeakerColor()));
-            positions->push_back(QVector2D(speakers[i].x(), speakers[i].y()+SizeLines.y()/2));
-            colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorSpeakerColor()));
-
-            AddSquareBuffer(positions, speakers[i]-SizeSquare/2, SizeSquare);
-            for(int j = 0; j < 8; j++) colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorSpeakerColor()));
         }
 
         std::vector<QVector2D> receivers = GetReceivers(m);
         for(int i = 0; i < receivers.size(); i++)
         {
-            positions->push_back(QVector2D(receivers[i].x()-SizeLines.x()/2, receivers[i].y()));
+            positions->push_back(receivers[i]);
             colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorReceiverColor()));
-            positions->push_back(QVector2D(receivers[i].x()+SizeLines.x()/2, receivers[i].y()));
-            colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorReceiverColor()));
-
-            positions->push_back(QVector2D(receivers[i].x(), receivers[i].y()-SizeLines.y()/2));
-            colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorReceiverColor()));
-            positions->push_back(QVector2D(receivers[i].x(), receivers[i].y()+SizeLines.y()/2));
-            colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorReceiverColor()));
-
-            AddSquareBuffer(positions, receivers[i]-SizeSquare/2, SizeSquare);
-            for(int j = 0; j < 8; j++) colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorReceiverColor()));
         }
 
-
-        this->lines = speakers.size()*6 + receivers.size()*6;
+        this->lines = speakers.size() + receivers.size();
 
         f->glBindBuffer(GL_ARRAY_BUFFER, this->LineBuffers);
         f->glBufferData(GL_ARRAY_BUFFER, positions->size()*sizeof(QVector2D), positions->data(), GL_DYNAMIC_DRAW);

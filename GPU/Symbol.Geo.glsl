@@ -18,12 +18,44 @@
 //////////////////////////////////////////////////////////////////////////
 #version 330
 
-in vec4 a_color;
-in vec2 a_position;
-out vec4 v_color;
+layout(points) in;
+layout(line_strip, max_vertices = 69) out;
+
+uniform mat4 u_view;
+
+in vec4 v_color[];
+out vec4 f_Color;
+
+const float PI = 3.1415926;
 
 void main()
 {
-    gl_Position = vec4(a_position, 0, 1);
-    v_color = a_color;
+    float SizeCircle = 0.2;
+    int PointsInCircle = 64;
+    vec4 SizeLines = vec4(0.4, 0.0, 0.0, 0.0);
+    vec4 SizeLines2 = vec4(0.0, 0.4, 0.0, 0.0);
+
+    f_Color = v_color[0];
+
+
+    for (int i = 0; i <= PointsInCircle; i++)
+    {
+        // Angle between each side in radians
+        float ang = PI * 2.0 / PointsInCircle * i;
+
+        // Offset from center of point (0.3 to accomodate for aspect ratio)
+        vec4 offset = vec4(cos(ang) * SizeCircle, -sin(ang) * SizeCircle, 0.0, 0.0);
+        gl_Position = u_view * (gl_in[0].gl_Position + offset);
+
+        EmitVertex();
+    }
+    EndPrimitive();
+
+    gl_Position = u_view * (gl_in[0].gl_Position - SizeLines); EmitVertex();
+    gl_Position = u_view * (gl_in[0].gl_Position + SizeLines); EmitVertex();
+    EndPrimitive();
+
+    gl_Position = u_view * (gl_in[0].gl_Position - SizeLines2); EmitVertex();
+    gl_Position = u_view * (gl_in[0].gl_Position + SizeLines2); EmitVertex();
+    EndPrimitive();
 }
