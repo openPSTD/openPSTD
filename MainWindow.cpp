@@ -35,6 +35,8 @@
 #include "MouseHandlers.h"
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
+#include "AboutBoxesText.h"
+#include <QMessageBox>
 
 MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent) :
     QMainWindow(parent),
@@ -50,6 +52,9 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     MouseHandlersActions.push_back(ui->actionMove_scene);
     MouseHandlersActions.push_back(ui->actionAdd_Domain);
     MouseHandlersActions.push_back(ui->actionSelect);
+
+    QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::ShowAbout);
+    QObject::connect(ui->actionAbout_icons, &QAction::triggered, this, &MainWindow::ShowAboutIcons);
 
     QObject::connect(ui->actionNew, &QAction::triggered, this, &MainWindow::New);
     QObject::connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::Open);
@@ -178,4 +183,14 @@ void MainWindow::EditDocumentSettings()
         this->operationRunner->RunOperation(std::shared_ptr<EditDocumentSettingsOperation>(
                 new EditDocumentSettingsOperation(this->documentSettings->GetResult())));
     }
+}
+
+void MainWindow::ShowAbout()
+{
+    QMessageBox::about(this, "About OpenPSTD", QString::fromStdString(ABOUT_OPENPSTD));
+}
+
+void MainWindow::ShowAboutIcons()
+{
+    QMessageBox::about(this, "About icons", QString::fromStdString(ABOUT_NOUN_ICONS));
 }

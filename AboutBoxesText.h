@@ -18,10 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 22-9-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 // Purpose:
@@ -29,52 +29,21 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 18-7-2015.
-//
+#ifndef OPENPSTD_NOUNICONSCREDIT_H
+#define OPENPSTD_NOUNICONSCREDIT_H
 
-#ifndef OPENPSTD_MAINWINDOW_H
-#define OPENPSTD_MAINWINDOW_H
+#include <string>
 
-#include <QMainWindow>
-#include <ui_MainWindow.h>
-#include <memory>
-#include "operations/BaseOperation.h"
-#include "MouseHandlers.h"
-#include "DomainProperties.h"
-#include "DocumentSettings.h"
+const std::string ABOUT_OPENPSTD = "OpenPSTD Application\n"
+        "Website: http://www.openpstd.org/\n"
+        "Development: https://github.com/openPSTD/openPSTD";
 
-class MainWindow: public QMainWindow
-{
-Q_OBJECT
-
-public:
-    explicit MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
-
-    void UpdateFromModel(std::shared_ptr<Model> const &model);
-
-private:
-    std::unique_ptr<Ui_MainWindow> ui;
-    std::unique_ptr<DomainProperties> domainProperties;
-    std::unique_ptr<DocumentSettings> documentSettings;
-    std::shared_ptr<OperationRunner> operationRunner;
-    std::vector<QAction*> MouseHandlersActions;
-
-    void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
-    void EditSelectedDomain();
-    void EditDocumentSettings();
-    void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
-
-    void ShowAbout();
-    void ShowAboutIcons();
-
-public slots:
-    void New();
-    void Open();
-    void Save();
+const std::string ABOUT_NOUN_ICONS = "Speaker by Edward Boatman from the Noun Project\n"
+        "Microphone by Alex Auda Samora from the Noun Project\n"
+        "Add by Leonides Delgado from the Noun Project\n"
+        "Full Screen by iconsmind.com from the Noun Project\n"
+        "Selection Square by Thomas Helbig from the Noun Project\n"
+        "https://thenounproject.com/";
 
 
-};
-
-
-#endif //OPENPSTD_MAINWINDOW_H
+#endif //OPENPSTD_NOUNICONSCREDIT_H

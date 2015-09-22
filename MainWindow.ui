@@ -116,6 +116,7 @@
     <addaction name="actionOpenPSTD_help"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
+    <addaction name="actionAbout_icons"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -167,23 +168,34 @@
    <addaction name="actionSelect"/>
    <addaction name="actionMove_scene"/>
    <addaction name="actionAdd_Domain"/>
+   <addaction name="actionAdd_speaker"/>
+   <addaction name="actionAdd_Receiver"/>
    <addaction name="separator"/>
    <addaction name="actionView_complete_scene"/>
    <addaction name="separator"/>
   </widget>
   <action name="actionNew">
    <property name="text">
-    <string>New</string>
+    <string>&amp;New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionSave_as">
@@ -192,6 +204,9 @@
    </property>
    <property name="text">
     <string>Save as.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
    <property name="visible">
     <bool>false</bool>
@@ -227,6 +242,9 @@
   <action name="actionOpenPSTD_help">
    <property name="text">
     <string>OpenPSTD help</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -270,26 +288,6 @@
     <string>Add Domain</string>
    </property>
   </action>
-  <action name="actionDebug1">
-   <property name="text">
-    <string>Debug1</string>
-   </property>
-  </action>
-  <action name="actionDebug2">
-   <property name="text">
-    <string>Debug2</string>
-   </property>
-  </action>
-  <action name="actionDebug3">
-   <property name="text">
-    <string>Debug3</string>
-   </property>
-  </action>
-  <action name="actionDebug4">
-   <property name="text">
-    <string>Debug4</string>
-   </property>
-  </action>
   <action name="actionShow_grid">
    <property name="checkable">
     <bool>true</bool>
@@ -302,6 +300,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/noun_120460_cc.png</normaloff>Images/noun_120460_cc.png</iconset>
+   </property>
    <property name="text">
     <string>Select</string>
    </property>
@@ -313,36 +315,67 @@
    <property name="toolTip">
     <string>Delete selected</string>
    </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
   </action>
   <action name="actionResize_domain">
    <property name="text">
     <string>Resize domain</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionEdit_properties_of_domain">
    <property name="text">
     <string>Edit properties of domain</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
   </action>
   <action name="actionDocument_Settings">
    <property name="text">
     <string>Document Settings</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
   <action name="actionAdd_speaker">
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/noun_100_cc.png</normaloff>Images/noun_100_cc.png</iconset>
+   </property>
    <property name="text">
     <string>Add Speaker</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="actionAdd_Receiver">
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/noun_33232_cc.png</normaloff>Images/noun_33232_cc.png</iconset>
+   </property>
    <property name="text">
     <string>Add Receiver</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionAbout_icons">
+   <property name="text">
+    <string>About icons</string>
    </property>
   </action>
  </widget>
