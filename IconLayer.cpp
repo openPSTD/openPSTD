@@ -45,9 +45,9 @@ void IconLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
     f->glGenBuffers(1, &this->LineBuffers);
     f->glGenBuffers(1, &this->ColorBuffer);
 
-    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Symbol.vert.glsl"));
-    std::unique_ptr<std::string> geoFile = std::unique_ptr<std::string>(new std::string("GPU/Symbol.geo.glsl"));
-    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Symbol.frag.glsl"));
+    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string(":/GPU/Symbol.vert.glsl"));
+    std::unique_ptr<std::string> geoFile = std::unique_ptr<std::string>(new std::string(":/GPU/Symbol.geo.glsl"));
+    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string(":/GPU/Symbol.frag.glsl"));
 
     program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
     program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));

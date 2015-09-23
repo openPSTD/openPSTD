@@ -146,6 +146,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp InteractiveLayer.cpp IconLayer.cpp)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp DomainProperties.cpp DocumentSettings.cpp)
+# Resource files
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Resources.qrc)
 # Remaining
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)

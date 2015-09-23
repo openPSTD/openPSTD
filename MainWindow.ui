@@ -257,8 +257,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/noun_1476.png</normaloff>Images/noun_1476.png</iconset>
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/noun_1476.png</normaloff>:/Images/noun_1476.png</iconset>
    </property>
    <property name="text">
     <string>Move scene</string>
@@ -269,8 +269,8 @@
   </action>
   <action name="actionView_complete_scene">
    <property name="icon">
-    <iconset>
-     <normaloff>Images/noun_70430_cc.png</normaloff>Images/noun_70430_cc.png</iconset>
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/noun_70430_cc.png</normaloff>:/Images/noun_70430_cc.png</iconset>
    </property>
    <property name="text">
     <string>View complete scene</string>
@@ -281,8 +281,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/noun_40980_cc.png</normaloff>Images/noun_40980_cc.png</iconset>
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/noun_40980_cc.png</normaloff>:/Images/noun_40980_cc.png</iconset>
    </property>
    <property name="text">
     <string>Add Domain</string>
@@ -301,8 +301,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/noun_120460_cc.png</normaloff>Images/noun_120460_cc.png</iconset>
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/noun_120460_cc.png</normaloff>:/Images/noun_120460_cc.png</iconset>
    </property>
    <property name="text">
     <string>Select</string>
@@ -348,8 +348,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/noun_100_cc.png</normaloff>Images/noun_100_cc.png</iconset>
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/noun_100_cc.png</normaloff>:/Images/noun_100_cc.png</iconset>
    </property>
    <property name="text">
     <string>Add Speaker</string>
@@ -363,8 +363,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/noun_33232_cc.png</normaloff>Images/noun_33232_cc.png</iconset>
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/noun_33232_cc.png</normaloff>:/Images/noun_33232_cc.png</iconset>
    </property>
    <property name="text">
     <string>Add Receiver</string>
@@ -387,7 +387,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="Resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionClose</sender>

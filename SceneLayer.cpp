@@ -48,8 +48,8 @@ void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions
     f->glGenBuffers(1, &this->valuesBuffer);
     f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
 
-    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Scene2D.vert"));
-    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Scene2D.frag"));
+    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string(":/GPU/Scene2D.vert"));
+    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string(":/GPU/Scene2D.frag"));
 
     program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
     program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
