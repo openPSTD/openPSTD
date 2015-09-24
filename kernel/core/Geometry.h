@@ -30,6 +30,7 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_GEOMETRY_H
 #define OPENPSTD_GEOMETRY_H
+
 #include <vector>
 namespace Kernel {
     class Point {

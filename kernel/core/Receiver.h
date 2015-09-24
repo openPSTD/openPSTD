@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: omar
+// Authors: 0mar
 //
 //
 // Purpose:
@@ -30,13 +30,30 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_RECEIVER_H
 #define OPENPSTD_RECEIVER_H
+
+#include <vector>
+#include <iostream>
+#include <memory>
+#include "PSTDFile.h"
 #include "Geometry.h"
+#include <string>
+
 namespace Kernel {
     class Receiver {
     public:
         const double x;
         const double y;
         const double z;
+        std::string id;
+        enum InterpolationType {
+            NearestNeighbour, SpectralInterpolation
+        };
+        std::vector<double> location;
+        std::shared_ptr<PSTDFile> config;
+        std::shared_ptr<Point> grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
+        std::vector<double> grid_offset;
+        std::shared_ptr<Domain> container_domain;
+        std::vector<double> received_values;
 
         /**
          * Initializes a receiver on coordinates (x,y,z) in world space (not fixed to grid)
@@ -44,7 +61,12 @@ namespace Kernel {
          * @param y coordinate in world space
          * @param z coordinate in world space
          */
-        Receiver(const double x, const double y, const double z);
+        Receiver(std::vector<double> location, std::shared_ptr<PSTDFile> config, std::string id,
+                 std::shared_ptr<Domain> container);
+
+        double compute_received_value();
+
+        std::string to_string();
 
         /**
          * Calculates the pressure at the receiver. Method depends on config:nearest_neighbour:
@@ -53,6 +75,7 @@ namespace Kernel {
          * @see spatderp3
          */
         void calc_local_pressure();
+        
     };
 
 }
