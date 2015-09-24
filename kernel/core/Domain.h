@@ -60,9 +60,9 @@ namespace Kernel {
         double alpha;
         double impedance;
         double rho;
-        Point topleft;
-        Point size;
-        Point bottomright
+        std::shared_ptr<Point> topleft;
+        std::shared_ptr<Point> size;
+        std::shared_ptr<Point> bottomright
         bool is_pml;
         domain_values current_dvals;
         domain_values prev_dvals;
