@@ -9,6 +9,6 @@ namespace Kernel {
                        std::shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
         this->config = config;
         this->location = location;
-        this->grid_location = Point::Point((int)this->x,(int)this->y,(int)this->z);
+        this->grid_location = std::make_shared<Point>(Point(this->x, this->y, this->z));
     }
 }

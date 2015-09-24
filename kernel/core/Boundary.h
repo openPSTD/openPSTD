@@ -30,11 +30,14 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_BOUNDARY_H
 #define OPENPSTD_BOUNDARY_H
+
 #include <string>
 
 #include "Domain.h"
+
 namespace Kernel {
     class Boundary {
+    public:
         enum BoundaryType {
             HORIZONTAL, VERTICAL
         };

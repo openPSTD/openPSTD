@@ -37,7 +37,6 @@ namespace Kernel{
         this->domain2 = domain2;
         this->type = type;
     }
-
     std::string Boundary::to_string() {
         // Todo (0mar): String representation?
         return "Boundary between two domains";

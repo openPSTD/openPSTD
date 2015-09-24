@@ -30,20 +30,22 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_GEOMETRY_H
 #define OPENPSTD_GEOMETRY_H
+
+#include <vector>
 namespace Kernel {
     class Point {
     public:
         const int x, y, z;
-        const int array[3];
+        std::vector<int> array;
 
         /**
-         * Constructor for a point.
+         * Constructor for a point in grid coordinates
          */
-        Point(const int x, const int y, const int z);
+        Point(int x, int y, int z);
 
-        friend Point operator+(const Point a, const Point b);
+        friend Point operator+(Point a, Point b);
 
-        friend Point operator-(const Point a, const Point b);
+        friend Point operator-(Point a, Point b);
         //Todo (0mar): Add string override method
     };
 }

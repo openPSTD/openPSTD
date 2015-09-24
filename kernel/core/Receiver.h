@@ -49,17 +49,25 @@ namespace Kernel {
         };
         std::vector<double> location;
         std::shared_ptr<PSTDFile> config;
-        Point grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
+        std::shared_ptr<Point> grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
         std::vector<double> grid_offset;
         std::shared_ptr<Domain> container_domain;
         std::vector<double> received_values;
 
+        /**
+         * Initializes a receiver on coordinates (x,y,z) in world space (not fixed to grid)
+         * @param x coordinate in world space
+         * @param y coordinate in world space
+         * @param z coordinate in world space
+         */
         Receiver(std::vector<double> location, std::shared_ptr<PSTDFile> config, std::string id,
                  std::shared_ptr<Domain> container);
 
         double compute_received_value();
 
         std::string to_string();
+
+        void calc_self();
     };
 
 }
