@@ -38,9 +38,6 @@
 namespace Kernel {
     class Boundary {
     public:
-        enum BoundaryType {
-            HORIZONTAL, VERTICAL
-        };
         std::shared_ptr<Domain> domain1, domain2;
         BoundaryType type;
 

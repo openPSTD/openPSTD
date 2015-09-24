@@ -50,10 +50,10 @@ namespace Kernel {
 
     /**
      * A representation of one domain, as seen by the kernel.
-     * TODO (Louis): hide some members in the private section? Not sure if useful
      */
     class Domain {
     public:
+        std::shared_ptr<PSTDFile> cfg;
         int id;
         double alpha;
         double impedance;
@@ -65,18 +65,14 @@ namespace Kernel {
         domain_values current_dvals;
         domain_values prev_dvals;
 
-        Domain *left = nullptr;
-        Domain *right = nullptr;
-        Domain *top = nullptr;
-        Domain *bottom = nullptr;
-        Domain *pml_for = nullptr;
+        std::vector<std::shared_ptr<Domain>> left;
+        std::vector<std::shared_ptr<Domain>> right;
+        std::vector<std::shared_ptr<Domain>> top;
+        std::vector<std::shared_ptr<Domain>> bottom;
+        std::vector<std::shared_ptr<Domain>> pml_for;
         bool is_sec_pml;
 
-        rMatrices2D rho_matrices[]; //TODO generalize to 3d
-
     private:
-        std::shared_ptr<PSTDFile> cfg;
-
     public:
         /**
          * Default constructor
@@ -105,6 +101,35 @@ namespace Kernel {
          * Method that returns a list of all domains touching this domain
          */
         std::vector<Domain> neighbour_list();
+
+        /**
+         * Method that checks if this domain is touching the input domain
+         * @param d Domain to check against this domain
+         */
+        bool is_neighbour_of(Domain d);
+
+        /**
+         * Returns true if the domain is rigid
+         */
+        bool is_rigid();
+
+        /**
+         * Calculate one timestep of propagation in this domain
+         * @param bt Boundary type (calculation direction)
+         * @param ct Calculation type (pressure/velocity)
+         * @param dest Values to be used as factor to compute derivative in wavenumber domain
+         * @see spatderp3
+         */
+        void calc(BoundaryType bt, CalculationType ct, std::vector<float> dest);
+
+        /**
+         * Calculate one timestep of propagation in this domain
+         * @param bt Boundary type (calculation direction)
+         * @param ct Calculation type (pressure/velocity)
+         * @see spatderp3
+         */
+        void calc(BoundaryType bt, CalculationType ct);
+
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

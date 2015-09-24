@@ -75,7 +75,7 @@ namespace Kernel {
          * @see spatderp3
          */
         void calc_local_pressure();
-        
+
     };
 
 }
