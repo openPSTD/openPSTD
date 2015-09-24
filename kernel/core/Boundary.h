@@ -34,13 +34,14 @@
 #include "Domain.h"
 namespace Kernel {
     class Boundary {
+    public:
         enum BoundaryType {
             HORIZONTAL, VERTICAL
         };
-        Domain domain1, domain2;
+        std::shared_ptr<Domain> domain1, domain2;
         BoundaryType type;
 
-        Boundary(Domain domain1, Domain domain2);
+        Boundary(std::shared_ptr<Domain> domain1,std::shared_ptr<Domain> domain2, BoundaryType type);
     };
 }
 

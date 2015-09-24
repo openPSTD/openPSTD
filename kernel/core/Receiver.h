@@ -37,7 +37,18 @@ namespace Kernel {
         const double y;
         const double z;
 
+        /**
+         * Initializes a receiver on coordinates (x,y,z) in world space (not fixed to grid)
+         * @param x coordinate in world space
+         * @param y coordinate in world space
+         * @param z coordinate in world space
+         */
         Receiver(const double x, const double y, const double z);
+
+        /**
+         *
+         */
+        void calc_self();
     };
 
 }
