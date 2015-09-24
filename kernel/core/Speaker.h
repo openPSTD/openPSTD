@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: omar
+// Authors: 0mar
 //
 //
 // Purpose:
@@ -30,6 +30,8 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_SPEAKER_H
 #define OPENPSTD_SPEAKER_H
+#include <string>
+
 namespace Kernel {
     class Speaker {
     public:

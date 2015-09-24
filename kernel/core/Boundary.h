@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: omar
+// Authors: 0mar
 //
 //
 // Purpose: Modelling boundaries between domains.
@@ -30,6 +30,7 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_BOUNDARY_H
 #define OPENPSTD_BOUNDARY_H
+#include <string>
 
 #include "Domain.h"
 namespace Kernel {
@@ -37,10 +38,12 @@ namespace Kernel {
         enum BoundaryType {
             HORIZONTAL, VERTICAL
         };
-        Domain domain1, domain2;
+        std::shared_ptr<Domain> domain1, domain2;
         BoundaryType type;
 
-        Boundary(Domain domain1, Domain domain2);
+        Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, BoundaryType type);
+
+        std::string to_string();
     };
 }
 

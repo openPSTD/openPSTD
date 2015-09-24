@@ -4,6 +4,11 @@
 
 #include "Receiver.h"
 
-namespace Kernel{
-
+namespace Kernel {
+    Receiver::Receiver(std::vector<double> location,std::shared_ptr<PSTDFile> config, std::string id,
+                       std::shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
+        this->config = config;
+        this->location = location;
+        this->grid_location = Point::Point((int)this->x,(int)this->y,(int)this->z);
+    }
 }
