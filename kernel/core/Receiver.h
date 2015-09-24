@@ -30,6 +30,7 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_RECEIVER_H
 #define OPENPSTD_RECEIVER_H
+#include "Geometry.h"
 namespace Kernel {
     class Receiver {
     public:
@@ -46,9 +47,12 @@ namespace Kernel {
         Receiver(const double x, const double y, const double z);
 
         /**
-         *
+         * Calculates the pressure at the receiver. Method depends on config:nearest_neighbour:
+         * if it is True, this method will return the pressure of the closest gridpoint
+         * If nearest_neighbour is False, interpolation will be used (slower, but more accurate).
+         * @see spatderp3
          */
-        void calc_self();
+        void calc_local_pressure();
     };
 
 }
