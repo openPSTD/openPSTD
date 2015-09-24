@@ -36,7 +36,9 @@
 #include <eigen/Eigen/Dense>
 #include <map>
 #include <string>
+#include <numeric>
 #include "kernel_functions.h"
+#include "Geometry.h"
 #include "PSTDFile.h"
 namespace Kernel {
 
@@ -58,9 +60,9 @@ namespace Kernel {
         double alpha;
         double impedance;
         double rho;
-        int topleft[];
-        int size[];
-        int bottomright[];
+        Point topleft;
+        Point size;
+        Point bottomright
         bool is_pml;
         domain_values current_dvals;
         domain_values prev_dvals;
@@ -112,6 +114,13 @@ namespace Kernel {
          * Returns true if the domain is rigid
          */
         bool is_rigid();
+
+        /**
+         * Returns a vector of 1d locations of all nodes spanned by the domain in world grid
+         * coordinates in direction bt. This exists to facilitate porting the legacy code.
+         * @param bt Direction in which the range is requested
+         */
+        std::vector<int> get_range(BoundaryType bt);
 
         /**
          * Calculate one timestep of propagation in this domain

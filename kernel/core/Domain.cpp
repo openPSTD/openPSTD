@@ -62,4 +62,20 @@ namespace Kernel {
         std::vector<float> dest;
         Domain::calc(bt, ct, dest);
     }
+
+
+    std::vector<int> Domain::get_range(BoundaryType bt) {
+        int a_l,b_l;
+        if (bt == HORIZONTAL) {
+            a_l = this->topleft.x;
+            b_l = this->bottomright.x;
+        } else {
+            a_l = this->topleft.y;
+            b_l = this->bottomright.y;
+        }
+        std::vector<int> tmp(b_l - a_l);
+        std::iota(tmp.begin(),tmp.end(), a_l);
+
+        return tmp;
+    }
 }
