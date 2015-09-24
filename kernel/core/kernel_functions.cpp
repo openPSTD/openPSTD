@@ -67,7 +67,7 @@ namespace Kernel {
 
         // Todo (0mar): Assignments have structure; put them into a for-loop
         // Todo (0mar): Merge getRMatrices method to 1 generic method for all 3 dimensional options?
-        // This method is not used.
+        // Todo (0mar): This method is not used, remove.
         double znLeft = rhoLeft / rho;
         double inv_znLeft = rho / rhoLeft;
         double rlw1 = (znLeft - 1) / (znLeft + 1);
