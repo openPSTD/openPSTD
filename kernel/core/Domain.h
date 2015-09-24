@@ -42,12 +42,12 @@
 
 namespace Kernel {
 
-    struct domain_values {
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> w0;
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> p0;
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> px0;
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> pz0;
+    struct field_values {
+        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
+        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> w0;
+        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> p0;
+        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> px0;
+        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> pz0;
     };
 
     /**
@@ -55,7 +55,10 @@ namespace Kernel {
      */
     class Domain {
     public:
-        std::shared_ptr<PSTDFile> cfg;
+        std::shared_ptr<PSTDFile> pstd_file;
+        std::shared_ptr<PSTDFileSettings> settings;
+        std::shared_ptr<PSTDFileConfiguration> config;
+        //Todo: Note that these three are not the same/don't overlap. Which one is needed for a domain?
         int id;
         double alpha;
         double impedance;
@@ -64,8 +67,8 @@ namespace Kernel {
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
-        domain_values current_dvals;
-        domain_values prev_dvals;
+        field_values current_values;
+        field_values previous_values;
 
         std::vector<std::shared_ptr<Domain>> left;
         std::vector<std::shared_ptr<Domain>> right;
@@ -81,12 +84,12 @@ namespace Kernel {
          * @param cnf class containing configuration files //TODO
          * @param id identifier for this domain
          * @param alpha alpha of the domain, used in calculating impedance
-         * @param topleft coordinates of the top left corner (x,y,(z))
+         * @param top_left coordinates of the top left corner (x,y,(z))
          * @param size lengths of the domain edges (x,y,(z))
          * @param is_pml true if domain is pml domain
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          */
-        Domain(const Config cnf, const int id, const double alpha,
+        Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const double alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                const std::shared_ptr<Domain> pml_for);
 

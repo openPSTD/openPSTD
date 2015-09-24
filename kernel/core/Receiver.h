@@ -56,10 +56,10 @@ namespace Kernel {
         std::vector<double> received_values;
 
         /**
-         * Initializes a receiver on coordinates (x,y,z) in world space (not fixed to grid)
-         * @param x coordinate in world space
-         * @param y coordinate in world space
-         * @param z coordinate in world space
+         * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
+         * @param x coordinate in grid space
+         * @param y coordinate in grid space
+         * @param z coordinate in grid space
          */
         Receiver(std::vector<double> location, std::shared_ptr<PSTDFile> config, std::string id,
                  std::shared_ptr<Domain> container);

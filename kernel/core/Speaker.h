@@ -49,7 +49,7 @@ namespace Kernel {
 
         // ~Speaker();
 
-        Eigen::ArrayXXd computeDomainContribution(std::shared_ptr<Domain> domain);
+        void addDomainContribution(std::shared_ptr<Domain> domain);
 
     };
 }

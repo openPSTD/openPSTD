@@ -58,6 +58,7 @@ private:
     float patcherror;
     float tfactRK;
     float gridSpacing;
+    double band_width;
     int PMLCells;
     int SaveNth;
 public:
@@ -79,6 +80,8 @@ public:
     void SetFactRK(float value);
     int GetSaveNth();
     void SetSaveNth(int value);
+    double getBandWidth();
+    void setBandWidth(double value);
 };
 
 class DomainEdge

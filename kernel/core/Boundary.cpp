@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: omar
+// Authors: 0mar Richardson
 //
 //
 // Purpose:

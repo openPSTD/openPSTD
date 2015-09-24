@@ -474,3 +474,9 @@ void PSTDFileSettings::SetSaveNth(int value)
 {
     this->SaveNth = value;
 }
+double PSTDFileSettings::getBandWidth() {
+    return this->band_width;
+}
+void PSTDFileSettings::setBandWidth(double value) {
+    this->band_width = value;
+}

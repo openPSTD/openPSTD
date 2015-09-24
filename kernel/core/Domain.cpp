@@ -30,10 +30,11 @@
 
 namespace Kernel {
 
-    Domain::Domain(const Config cnf, const int id, const double alpha,
+    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const double alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    const std::shared_ptr<Domain> pml_for = std::shared_ptr<Domain>(nullptr)) {
         //Todo (Louis): Implementeer dit verder
+        this->settings = settings;
         this->top_left = top_left;
         this->size = size;
         this->bottom_right = bottom_right;

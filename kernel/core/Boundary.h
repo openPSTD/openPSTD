@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: 0mar
+// Authors: 0mar Richardson
 //
 //
 // Purpose: Modelling boundaries between domains.
