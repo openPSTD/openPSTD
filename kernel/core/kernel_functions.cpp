@@ -36,7 +36,7 @@ using namespace std;
 using namespace Eigen;
 
 namespace Kernel {
-
+    //Todo: Refactor: remove 'using namespace' and adapt filename to coding style
     rMatrices1D getRMatrices1D(const double rho1, const double rho2, const double rho) {
         // 0mar: I switched the order of parameters in this function. Remember when porting classes.py.
         double zn1 = rho1 / rho;

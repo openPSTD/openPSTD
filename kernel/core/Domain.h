@@ -22,11 +22,11 @@
 //      16-9-2015
 //
 // Authors:
-//      Louis van Harten
+//      Louis van Harten, 0mar Richardson
 //
 // Purpose:
-//      Class containing a representation of a domain as handled by
-//      the kernel. Stores computed values for velocity/pressure.
+//      Class containing a numerical representation of a domain as part of
+//      the Scene. Stores computed values for velocity/pressure.
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +38,8 @@
 #include <string>
 #include "kernel_functions.h"
 #include "PSTDFile.h"
+#include "Geometry.h"
+
 namespace Kernel {
 
     struct domain_values {
@@ -58,9 +60,9 @@ namespace Kernel {
         double alpha;
         double impedance;
         double rho;
-        int topleft[];
-        int size[];
-        int bottomright[];
+        std::shared_ptr<Point> top_left;
+        std::shared_ptr<Point> bottom_right;
+        std::shared_ptr<Point> size;
         bool is_pml;
         domain_values current_dvals;
         domain_values prev_dvals;
@@ -84,8 +86,9 @@ namespace Kernel {
          * @param is_pml true if domain is pml domain
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          */
-        Domain(const Config cnf, const int id, const double alpha, const int topleft[],
-                     const int size[], const bool is_pml, const std::shared_ptr<Domain> pml_for);
+        Domain(const Config cnf, const int id, const double alpha,
+               std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+               const std::shared_ptr<Domain> pml_for);
 
         /**
          * Calculates the rho matrices for all edges touching another domain

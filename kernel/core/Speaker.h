@@ -30,6 +30,8 @@
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_SPEAKER_H
 #define OPENPSTD_SPEAKER_H
+
+#include "Domain.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -43,11 +45,11 @@ namespace Kernel {
         const double z;
         std::vector<double> location;
 
-        Speaker(const double x, const double y, const double z);
+        Speaker(std::vector<double> location);
 
         // ~Speaker();
 
-        Eigen::ArrayXXf EigencomputeDomainContribution(std::shared_ptr<Domain> domain);
+        Eigen::ArrayXXd computeDomainContribution(std::shared_ptr<Domain> domain);
 
     };
 }
