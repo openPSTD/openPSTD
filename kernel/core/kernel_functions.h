@@ -54,6 +54,20 @@ namespace Kernel {
         return list;
     }
 
+    /**
+     * Helper enums - used to distinguish different calculationtype/boundarytype combination
+     */
+    enum BoundaryType {
+        HORIZONTAL, VERTICAL
+    };
+
+    /**
+     * Helper enums - used to distinguish different calculationtype/boundarytype combination
+     */
+    enum CalculationType {
+        PRESSURE, VELOCITY
+    };
+
     struct rMatrices2D {
         Eigen::Matrix<double, 4, 4> pressure;
         Eigen::Matrix<double, 4, 4> velocity;

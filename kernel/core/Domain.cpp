@@ -40,4 +40,26 @@ namespace Kernel {
         //TODO implementeer dit
     };
 
+    void Domain::calc(BoundaryType bt, CalculationType ct, std::vector<float> dest) {
+        std::vector<std::shared_ptr<Domain>> d1, d2;
+        if (bt == HORIZONTAL) {
+            d1 = this->left;
+            d2 = this->right;
+        } else {
+            d1 = this->bottom;
+            d2 = this->top;
+        }
+
+
+        //TODO (Louis) finish this method
+    }
+
+    /**
+     * Near-alias to calc(BoundaryType bt, CalculationType ct, std::vector<float> dest), but with
+     * a default empty vector as dest.
+     */
+    void Domain::calc(BoundaryType bt, CalculationType ct) {
+        std::vector<float> dest;
+        Domain::calc(bt, ct, dest);
+    }
 }
