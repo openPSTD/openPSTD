@@ -59,6 +59,8 @@ private:
     float tfactRK;
     float gridSpacing;
     double band_width;
+    double wave_length;
+    bool spectral_interpolation;
     int PMLCells;
     int SaveNth;
 public:
@@ -82,6 +84,14 @@ public:
     void SetSaveNth(int value);
     double getBandWidth();
     void setBandWidth(double value);
+
+    bool getSpectralInterpolation();
+
+    void setSpectralInterpolation(bool value);
+
+    double getWaveLength();
+
+    void setWaveLength(double value);
 };
 
 class DomainEdge

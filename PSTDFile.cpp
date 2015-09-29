@@ -480,3 +480,19 @@ double PSTDFileSettings::getBandWidth() {
 void PSTDFileSettings::setBandWidth(double value) {
     this->band_width = value;
 }
+
+double PSTDFileSettings::getWaveLength() {
+    return this->wave_length;
+}
+
+void PSTDFileSettings::setWaveLength(double value) {
+    this->wave_length = value;
+}
+
+bool PSTDFileSettings::getSpectralInterpolation() {
+    return this->spectral_interpolation;
+}
+
+void PSTDFileSettings::setSpectralInterpolation(bool value) {
+    this->spectral_interpolation = value;
+}

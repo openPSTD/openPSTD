@@ -18,53 +18,45 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 17-9-15
+// Date: 29-9-15
 //
 //
-// Authors: Omar Richardson
+// Authors: 0mar
 //
 //
-// Purpose: This class models a speaker: the source of sound propagation
-// in the domain.
+// Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
-#ifndef OPENPSTD_SPEAKER_H
-#define OPENPSTD_SPEAKER_H
+#include "wave_numbers.h"
 
-#include "Domain.h"
-#include <string>
-#include <memory>
-#include <vector>
-#include <eigen/Eigen/Dense>
+using namespace kernel;
 
-namespace Kernel {
-    class Speaker {
-        /*
-         * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
-         * Note that speaker locations (just like receiver locations) are defined on the grid,
-         * but don't need to lie on grid points; their coordinates are not rounded off.
-         */
-    public:
-        const double x;
-        const double y;
-        const double z;
-        std::vector<double> location;
+WaveNumberDiscretizer::WaveNumberDiscretizer() {
 
-        /*
-         * Speaker initialization with (unrounded) grid coordinates
-         * @param location: vector of grid world coordinates
-         */
-        Speaker(std::vector<double> location);
-
-        // ~Speaker();
-
-        /*
-         * Adds the initial sound pressure to the domain values.
-         * @param domain: domain to compute sound pressure contribution for
-         */
-        void addDomainContribution(std::shared_ptr<Domain> domain);
-
-    };
 }
-#endif //OPENPSTD_SPEAKER_H
+
+Discretization WaveNumberDiscretizer::discretize_wave_numbers(double dx, int N) {
+    double max_wave_number = M_PI / dx;
+    int two_power = pow(2, N - 1);
+    double dka = max_wave_number / two_power;
+    Discretization discr;
+    double wave = 0;
+    std::vector<double> wave_numbers;
+    while (wave < max_wave_number + dka) {
+        wave_numbers.push_back(wave);
+        wave += dka;
+    }
+    wave = max_wave_number - dka;
+    while (wave < 0) {
+        wave_numbers.push_back(wave);
+        wave -= dka;
+    }
+    discr.wave_numbers(wave_numbers.data());
+    std::complex<double> i(0, 1);
+    Eigen::ArrayXd im_part = Eigen::ArrayXd::Constant(two_power + 1, 1) * i;
+    Eigen::ArrayXd re_part = Eigen::ArrayXd::Constant(two_power - 1, -1);
+    discr.imag_factors(im_part.rows() + re_part.rows()); // Right init?
+    discr.imag_factors << im_part, re_part;
+    return discr;
+}

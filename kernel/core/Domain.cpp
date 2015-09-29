@@ -67,11 +67,11 @@ namespace Kernel {
     std::vector<int> Domain::get_range(BoundaryType bt) {
         int a_l,b_l;
         if (bt == HORIZONTAL) {
-            a_l = this->topleft.x;
-            b_l = this->bottomright.x;
+            a_l = this->top_left->x;
+            b_l = this->bottom_right->x;
         } else {
-            a_l = this->topleft.y;
-            b_l = this->bottomright.y;
+            a_l = this->top_left->y;
+            b_l = this->bottom_right->y;
         }
         std::vector<int> tmp(b_l - a_l);
         std::iota(tmp.begin(),tmp.end(), a_l);

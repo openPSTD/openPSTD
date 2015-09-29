@@ -18,53 +18,44 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 17-9-15
+// Date: 29-9-15
 //
 //
 // Authors: Omar Richardson
 //
 //
-// Purpose: This class models a speaker: the source of sound propagation
-// in the domain.
+// Purpose: Discretize wave numbers dynamically,
+// and optimize them for FFT computations
 //
 //
 //////////////////////////////////////////////////////////////////////////
-#ifndef OPENPSTD_SPEAKER_H
-#define OPENPSTD_SPEAKER_H
+#ifndef OPENPSTD_WAVE_NUMBERS_H
+#define OPENPSTD_WAVE_NUMBERS_H
 
-#include "Domain.h"
-#include <string>
-#include <memory>
-#include <vector>
+#include <map>
+#include <math.h>
+#include <complex>
 #include <eigen/Eigen/Dense>
 
-namespace Kernel {
-    class Speaker {
-        /*
-         * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
-         * Note that speaker locations (just like receiver locations) are defined on the grid,
-         * but don't need to lie on grid points; their coordinates are not rounded off.
-         */
-    public:
-        const double x;
-        const double y;
-        const double z;
-        std::vector<double> location;
+using namespace kernel;
 
-        /*
-         * Speaker initialization with (unrounded) grid coordinates
-         * @param location: vector of grid world coordinates
-         */
-        Speaker(std::vector<double> location);
-
-        // ~Speaker();
-
-        /*
-         * Adds the initial sound pressure to the domain values.
-         * @param domain: domain to compute sound pressure contribution for
-         */
-        void addDomainContribution(std::shared_ptr<Domain> domain);
-
+class WaveNumberDiscretizer {
+public:
+    struct Discretization {
+        Eigen::ArrayXd wave_numbers;
+        Eigen::ArrayXd imag_factors;
     };
-}
-#endif //OPENPSTD_SPEAKER_H
+    std::map<int, Discretization> computed_discretization;
+
+    Discretization get_discretization(double dx, int N); // Method get
+
+
+    WaveNumberDiscretizer();
+    //~WaveNumberDiscretizer();
+
+private:
+    Discretization discretize_wave_numbers(double dx, int N); //Todo: Needs a better name
+    void compute_wave_number_discretization(double dx, int N); // Method calc
+};
+
+#endif //OPENPSTD_WAVE_NUMBERS_H

@@ -55,14 +55,14 @@ namespace Kernel {
     }
 
     /**
-     * Helper enums - used to distinguish different calculationtype/boundarytype combination
+     * Helper enums - used to distinguish horizontal boundaries from vertical boundaries
      */
     enum BoundaryType {
         HORIZONTAL, VERTICAL
     };
 
     /**
-     * Helper enums - used to distinguish different calculationtype/boundarytype combination
+     * Helper enums - used to distinguish pressure computations from velocity computations
      */
     enum CalculationType {
         PRESSURE, VELOCITY
@@ -78,14 +78,6 @@ namespace Kernel {
         Eigen::Matrix<double, 4, 2> velocity;
     };
 
-    struct Config {
-        double c1;
-        double freqMax;
-        int PML_attenuation; //Attenuation of PML cells, "ampmax" in original python code
-        int PML_n_cells; //Number of PML cells
-        double medium_density; //"rho" in original python code
-    }; //Todo (0mar): Create a configuration data structure
-
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
      * based on density of a domain and 2 opposite neighbours(?)
@@ -95,19 +87,6 @@ namespace Kernel {
      * return struct containing pressure and velocity matrix (4x2)
      */
     rMatrices1D getRMatrices1D(const double rho1, const double rho2, const double rho);
-
-    /**
-     * Computes and return reflection and transmission matrices for pressure and velocity
-     * based on density of a domain and 4 surrounding neighbours(?)
-     * @param rhoLeft density of first neighbour
-     * @param rhoRight density of first neighbour
-     * @param rhoLower density of first neighbour
-     * @param rhoUpper density of domain
-     * @param rho density of opposite neighbour
-     * return  struct containing pressure and velocity matrix (4x4)
-     */
-    rMatrices2D getRMatrices2D(const double rhoLeft, const double rhoRight, const double rhoUpper,
-                               const double rhoLower, const double rho);
 
     /**
      * Computes the largest grid spacing possible based
