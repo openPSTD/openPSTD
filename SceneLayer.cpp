@@ -18,22 +18,19 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 26-8-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 26-8-2015.
-//
 
 #include "SceneLayer.h"
+#include "Edges.h"
 
-SceneLayer::SceneLayer() : positions(new std::vector<float>()), values(new std::vector<float>()), lines(0),
-                           positionsBuffer(), valuesBuffer()
+SceneLayer::SceneLayer() : lines(0), positionsBuffer(), valuesBuffer()
 {
 
 }
@@ -101,74 +98,37 @@ void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QO
 
     if(m->d->IsChanged())
     {
-        std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+        std::unique_ptr<std::vector<Edge>> edges = GetAllEdges(m);
+        std::unique_ptr<std::vector<Edge>> edgesWithoutDuplicates = RemoveDuplicateEdges(std::move(edges));
 
-        rapidjson::Value &domains = (*conf)["domains"];
+        std::unique_ptr<std::vector<QVector2D>> positions(new std::vector<QVector2D>());
+        std::unique_ptr<std::vector<float>> absorption(new std::vector<float>());
+        std::unique_ptr<std::vector<bool>> localReacting(new std::vector<bool>());//is not used yet, but for future use
 
-        this->positions->clear();
-        this->values->clear();
-        this->lines = 0;
+        //reserve for speed improvement
+        positions->reserve(edgesWithoutDuplicates->size()*2);
+        absorption->reserve(edgesWithoutDuplicates->size()*2);
+        localReacting->reserve(edgesWithoutDuplicates->size()*2);
 
-        for (rapidjson::SizeType i = 0; i < domains.Size(); i++)
+        for (int i = 0; i < edgesWithoutDuplicates->size(); i++)
         {
-            QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
-            QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
-            QVector2D br = tl + size;
-            float left = tl[0];
-            float top = tl[1];
+            positions->push_back((*edgesWithoutDuplicates)[i].GetStart());
+            absorption->push_back((*edgesWithoutDuplicates)[i].GetAbsorption());
+            localReacting->push_back((*edgesWithoutDuplicates)[i].GetLocalReacting());
 
-            float right = br[0];
-            float bottom = br[1];
-
-            float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
-            float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
-            float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
-            float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
-
-            this->positions->push_back(left);
-            this->positions->push_back(top);
-            this->values->push_back(aTop);
-
-            this->positions->push_back(right);
-            this->positions->push_back(top);
-            this->values->push_back(aTop);
-
-
-            this->positions->push_back(left);
-            this->positions->push_back(top);
-            this->values->push_back(aLeft);
-
-            this->positions->push_back(left);
-            this->positions->push_back(bottom);
-            this->values->push_back(aLeft);
-
-
-            this->positions->push_back(left);
-            this->positions->push_back(bottom);
-            this->values->push_back(aBottom);
-
-            this->positions->push_back(right);
-            this->positions->push_back(bottom);
-            this->values->push_back(aBottom);
-
-
-            this->positions->push_back(right);
-            this->positions->push_back(top);
-            this->values->push_back(aRight);
-
-            this->positions->push_back(right);
-            this->positions->push_back(bottom);
-            this->values->push_back(aRight);
-
-            this->lines += 4;
+            positions->push_back((*edgesWithoutDuplicates)[i].GetEnd());
+            absorption->push_back((*edgesWithoutDuplicates)[i].GetAbsorption());
+            localReacting->push_back((*edgesWithoutDuplicates)[i].GetLocalReacting());
         }
 
+        this->lines = edgesWithoutDuplicates->size();
+
         f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
-        f->glBufferData(GL_ARRAY_BUFFER, this->positions->size() * sizeof(float), this->positions->data(),
+        f->glBufferData(GL_ARRAY_BUFFER, positions->size() * sizeof(QVector2D), positions->data(),
                         GL_DYNAMIC_DRAW);
 
         f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
-        f->glBufferData(GL_ARRAY_BUFFER, this->values->size() * sizeof(float), this->values->data(), GL_DYNAMIC_DRAW);
+        f->glBufferData(GL_ARRAY_BUFFER, absorption->size() * sizeof(float), absorption->data(), GL_DYNAMIC_DRAW);
     }
 }
 
@@ -193,4 +153,56 @@ void SceneLayer::CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr
         f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
+}
+
+std::unique_ptr<std::vector<Edge>> SceneLayer::GetAllEdges(std::shared_ptr<Model> const &m)
+{
+    std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+
+    rapidjson::Value &domains = (*conf)["domains"];
+
+    std::unique_ptr<std::vector<Edge>> result(new std::vector<Edge>());
+
+    for (rapidjson::SizeType i = 0; i < domains.Size(); i++)
+    {
+        QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
+        QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
+        QVector2D br = tl + size;
+
+        float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
+        float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
+        float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
+        float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
+
+        bool lrTop = domains[i]["edges"]["t"]["lr"].GetBool();
+        bool lrBottom = domains[i]["edges"]["b"]["lr"].GetBool();
+        bool lrLeft = domains[i]["edges"]["l"]["lr"].GetBool();
+        bool lrRight = domains[i]["edges"]["r"]["lr"].GetBool();
+
+        float left = tl[0];
+        float top = tl[1];
+
+        float right = br[0];
+        float bottom = br[1];
+
+        result->push_back(Edge(QVector2D(left, top), QVector2D(left, bottom), aLeft, lrLeft));
+        result->push_back(Edge(QVector2D(right, top), QVector2D(right, bottom), aRight, lrRight));
+
+        result->push_back(Edge(QVector2D(left, bottom), QVector2D(right, bottom), aBottom, lrBottom));
+        result->push_back(Edge(QVector2D(left, top), QVector2D(right, top), aTop, lrTop));
+    }
+
+    return std::move(result);
+};
+
+std::unique_ptr<std::vector<Edge>> SceneLayer::RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges)
+{
+    std::unique_ptr<std::vector<Edge>> result(new std::vector<Edge>());
+
+    for(int i = 0; i < edges->size(); i++)
+    {
+        std::vector<Edge> tmp = Edge::SubstractListFromEdge((*edges)[i], *edges, {i});
+        result->insert(result->end(), tmp.begin(), tmp.end());
+    }
+    return std::move(result);
 }

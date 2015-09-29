@@ -18,10 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 26-8-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 // Purpose:
@@ -29,14 +29,13 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 26-8-2015.
-//
-
 #ifndef OPENPSTD_SCENELAYER_H
 #define OPENPSTD_SCENELAYER_H
 
 #include "Viewer2D.h"
+#include <vector>
+#include <tuple>
+#include "Edges.h"
 
 class SceneLayer: public Layer
 {
@@ -44,13 +43,14 @@ private:
     std::unique_ptr<QOpenGLShaderProgram> program;
     unsigned int positionsBuffer;
     unsigned int valuesBuffer;
-    std::unique_ptr<std::vector<float>> positions;
-    std::unique_ptr<std::vector<float>> values;
     GLuint textureID;
     int lines;
     float lineWidth;
 
     void CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+    std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
+    std::unique_ptr<std::vector<Edge>> RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges);
 
 public:
     SceneLayer();
