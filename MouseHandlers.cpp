@@ -26,14 +26,10 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 17-8-2015.
-//
-
 #include "MouseHandlers.h"
 #include "operations/ViewOperations.h"
 #include "operations/EditOperations.h"
-#include "operations/SelectDomainOperation.h"
+#include "operations/SelectionOperations.h"
 #include <iostream>
 #include "Snapping.h"
 #include "PstdAlgorithm.h"
@@ -51,6 +47,7 @@ void MouseSelectStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model,
 
 void MouseMoveSceneStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
 {
+    pos = (model->view->aspectMatrix.inverted() * pos.toVector3D()).toVector2D();
     QVector2D offset = pos - this->mousePos;
     this->mousePos = pos;
 
@@ -64,6 +61,7 @@ void MouseMoveSceneStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model,
 
 void MouseMoveSceneStrategy::wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos)
 {
+    pos = (model->view->aspectMatrix.inverted() * pos.toVector3D()).toVector2D();
     float delta = mouseEvent->delta();
     float delta2 = powf(2, delta/120);
 
@@ -73,6 +71,7 @@ void MouseMoveSceneStrategy::wheelEvent(std::shared_ptr<Model> const &model, QWh
 
 void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *event, QVector2D pos)
 {
+    pos = (model->view->aspectMatrix.inverted() * pos.toVector3D()).toVector2D();
     this->mousePos = pos;
 }
 

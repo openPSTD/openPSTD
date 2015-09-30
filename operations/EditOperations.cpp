@@ -29,7 +29,7 @@
 
 #include "EditOperations.h"
 #include "Snapping.h"
-#include "SelectDomainOperation.h"
+#include "SelectionOperations.h"
 
 CreateDomainOperation::CreateDomainOperation(QVector2D startPoint,
                                              QVector2D endPoint): StartPoint(startPoint), EndPoint(endPoint)

@@ -18,10 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 17-8-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@
 
 #include "InitializationOperation.h"
 #include "MouseOperations.h"
-#include "SelectDomainOperation.h"
+#include "SelectionOperations.h"
 
 void InitializationOperation::Run(const Reciever &reciever)
 {
