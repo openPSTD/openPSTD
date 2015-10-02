@@ -37,25 +37,25 @@
 #include <complex>
 #include <eigen/Eigen/Dense>
 
-using namespace kernel;
+namespace Kernel {
+    class WaveNumberDiscretizer {
+    public:
+        struct Discretization {
+            Eigen::ArrayXd wave_numbers;
+            Eigen::ArrayXd imag_factors;
+        };
+        std::map<int, Discretization> computed_discretization;
 
-class WaveNumberDiscretizer {
-public:
-    struct Discretization {
-        Eigen::ArrayXd wave_numbers;
-        Eigen::ArrayXd imag_factors;
+        Discretization get_discretization(double dx, int N); // Method get
+
+
+        WaveNumberDiscretizer();
+        //~WaveNumberDiscretizer();
+
+    private:
+        Discretization discretize_wave_numbers(double dx, int N); //Todo: Needs a better name
+        void compute_wave_number_discretization(double dx, int N); // Method calc
     };
-    std::map<int, Discretization> computed_discretization;
-
-    Discretization get_discretization(double dx, int N); // Method get
-
-
-    WaveNumberDiscretizer();
-    //~WaveNumberDiscretizer();
-
-private:
-    Discretization discretize_wave_numbers(double dx, int N); //Todo: Needs a better name
-    void compute_wave_number_discretization(double dx, int N); // Method calc
-};
+}
 
 #endif //OPENPSTD_WAVE_NUMBERS_H

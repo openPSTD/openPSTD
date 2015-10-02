@@ -58,7 +58,7 @@ namespace Kernel {
             NearestNeighbour, SpectralInterpolation
         };
         std::vector<double> location;
-        std::shared_ptr<PSTDFile> config;
+        std::shared_ptr<PSTDFileSettings> config;
         std::shared_ptr<Point> grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
         std::vector<double> grid_offset;
         std::shared_ptr<Domain> container_domain;
@@ -71,7 +71,7 @@ namespace Kernel {
          * @param id: Unique receiver identifier
          * @param container: The domain in which the receiver is located. This should not be a PML-domain.
          */
-        Receiver(std::vector<double> location, std::shared_ptr<PSTDFile> config, std::string id,
+        Receiver(std::vector<double> location, std::shared_ptr<PSTDFileSettings> config, std::string id,
                  std::shared_ptr<Domain> container);
 
         /**

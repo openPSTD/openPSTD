@@ -115,10 +115,10 @@ namespace Kernel {
 
     }
 
-    double getGridSpacing(const Config cnf) {
+    double getGridSpacing(PSTDFileSettings cnf) {
         Array<double, 9, 1> dxv;
         dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1;
-        double waveLength = 0.5 * cnf.c1 / cnf.freqMax; // This is the wavelength, right?
+        double waveLength = 0.5 * cnf.GetSoundSpeed() / cnf.freqMax; // This is the wavelength, right?
         // Todo (0mar): Throw a ValueError when waveLength does not exceed 2e-3
         for (int i = 0; i < dxv.size(); i++) {
             if (dxv[i] >= waveLength) {
@@ -128,15 +128,15 @@ namespace Kernel {
         return dxv.size() - 1;
     }
 
-    tuple<vector<double>, vector<double>> PML(const Config cnf) {
-        vector<double> cell_list_p = arange<double>(0.5, cnf.PML_n_cells + 0.5, 1);
+    tuple<vector<double>, vector<double>> PML(PSTDFileSettings cnf) {
+        vector<double> cell_list_p = arange<double>(0.5, cnf.GetPMLCells() + 0.5, 1);
         for (int i = 0; i < cell_list_p.size(); i++) {
-            cell_list_p[i] = cnf.PML_attenuation * pow(cell_list_p[i] / cnf.PML_n_cells, 4);
+            cell_list_p[i] = cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4);
         }
-        vector<double> cell_list_u = arange<double>(0, cnf.PML_n_cells + 1, 1);
+        vector<double> cell_list_u = arange<double>(0, cnf.GetPMLCells() + 1, 1);
         for (int i = 0; i < cell_list_u.size(); i++) {
-            cell_list_u[i] = cnf.PML_attenuation * pow(cell_list_u[i] / cnf.PML_n_cells, 4);
-            cell_list_u[i] = cnf.medium_density * cell_list_u[i];
+            cell_list_u[i] = cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4);
+            cell_list_u[i] = cnf.GetDensityOfAir() * cell_list_u[i];
         }
         return make_tuple(cell_list_p, cell_list_u);
     }

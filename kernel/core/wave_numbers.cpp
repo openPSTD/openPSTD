@@ -30,13 +30,13 @@
 //////////////////////////////////////////////////////////////////////////
 #include "wave_numbers.h"
 
-using namespace kernel;
+using namespace Kernel;
 
 WaveNumberDiscretizer::WaveNumberDiscretizer() {
 
 }
 
-Discretization WaveNumberDiscretizer::discretize_wave_numbers(double dx, int N) {
+WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(double dx, int N) {
     double max_wave_number = M_PI / dx;
     int two_power = pow(2, N - 1);
     double dka = max_wave_number / two_power;
@@ -52,6 +52,7 @@ Discretization WaveNumberDiscretizer::discretize_wave_numbers(double dx, int N) 
         wave_numbers.push_back(wave);
         wave -= dka;
     }
+    // TODO; fix this
     discr.wave_numbers(wave_numbers.data());
     std::complex<double> i(0, 1);
     Eigen::ArrayXd im_part = Eigen::ArrayXd::Constant(two_power + 1, 1) * i;

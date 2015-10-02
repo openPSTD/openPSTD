@@ -19,13 +19,14 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Date:
-//
+//      3-9-2015
 //
 // Authors:
-//
+//      Omar Richardson
+//      Louis van Harten
 //
 // Purpose:
-//
+//      Contains procedural functions that don't fit with any one class.
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include "PSTDFile.h"
 
 namespace Kernel {
 
@@ -95,7 +97,7 @@ namespace Kernel {
      * @param cnf config object containing the properties of the geometry
      * @return double corresponding to the grid size
     */
-    double getGridSpacing(const Config cnf);
+    double getGridSpacing(PSTDFileSettings cnf);
 
     /**
      * Computes the smallest power of 2 larger or equal to n
@@ -111,7 +113,7 @@ namespace Kernel {
      * @return a tuple of vectors, the first being the coefficients for pressure,
      * the second for velocity.
      */
-    std::tuple<std::vector<double>, std::vector<double>> PML(const Config cnf); //TODO Louis change cnf argument
+    std::tuple<std::vector<double>, std::vector<double>> PML(PSTDFileSettings cnf); //TODO Louis change cnf argument
 
 }
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H
