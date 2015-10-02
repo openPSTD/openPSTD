@@ -142,6 +142,15 @@ namespace Kernel {
          */
         void calc(BoundaryType bt, CalculationType ct);
 
+        /**
+         * Method that gives the current domain initialized with zeroes, extended by the input
+         * arguments in respective directions
+         * @param x extension in x direction
+         * @param y extension in y direction
+         * @param z extension in z direction (default: 0)
+         */
+        Eigen::ArrayXXf extended_zeros(int x, int y, int z = 0);
+
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H
