@@ -54,6 +54,7 @@ private:
     float calctime;
     float c1;
     float ampMax;
+    float freqMax;
     float rho;
     float patcherror;
     float tfactRK;
@@ -76,6 +77,8 @@ public:
     void SetAttenuationOfPMLCells(float value);
     float GetDensityOfAir();
     void SetDensityOfAir(float value);
+    float GetMaxFrequency();
+    void SetMaxFrequency(float value);
     float GetSoundSpeed();
     void SetSoundSpeed(float value);
     float GetFactRK();

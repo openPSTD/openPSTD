@@ -19,18 +19,16 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Date:
-//
+//      1-9-2015
 //
 // Authors:
-//
+//      Omar Richardson
+//      Louis van Harten
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by omar on 1-9-15.
-//
-
 #include "kernel_functions.h"
+#include "PSTDFile.h"
 
 using namespace std;
 using namespace Eigen;
@@ -117,8 +115,8 @@ namespace Kernel {
 
     double getGridSpacing(PSTDFileSettings cnf) {
         Array<double, 9, 1> dxv;
-        dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1;
-        double waveLength = 0.5 * cnf.GetSoundSpeed() / cnf.freqMax; // This is the wavelength, right?
+        dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //Louis: is there a good reason to disallow other vals?
+        double waveLength = 0.5 * cnf.GetSoundSpeed() / cnf.GetMaxFrequency(); // Omar: This is the wavelength, right?
         // Todo (0mar): Throw a ValueError when waveLength does not exceed 2e-3
         for (int i = 0; i < dxv.size(); i++) {
             if (dxv[i] >= waveLength) {

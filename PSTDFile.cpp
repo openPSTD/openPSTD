@@ -409,6 +409,7 @@ float PSTDFileSettings::GetGridSpacing()
 void PSTDFileSettings::SetGridSpacing(float value)
 {
     this->gridSpacing = value;
+    //TODO edit max frequency here as well
 }
 float PSTDFileSettings::GetPatchError()
 {
@@ -449,6 +450,18 @@ float PSTDFileSettings::GetDensityOfAir()
 void PSTDFileSettings::SetDensityOfAir(float value)
 {
     this->rho = value;
+}
+/**
+ * TODO: add dynamic behavior to setters of freqMax and grid spacing
+ */
+float PSTDFileSettings::GetMaxFrequency()
+{
+    return this->freqMax;
+}
+void PSTDFileSettings::SetMaxFrequency(float value)
+{
+    this->freqMax = value;
+    //TODO edit grid spacing as well
 }
 float PSTDFileSettings::GetSoundSpeed()
 {
