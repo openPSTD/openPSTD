@@ -509,3 +509,10 @@ bool PSTDFileSettings::getSpectralInterpolation() {
 void PSTDFileSettings::setSpectralInterpolation(bool value) {
     this->spectral_interpolation = value;
 }
+
+int PSTDFileSettings::GetWindowSize() {
+    //directly translated from original Python implementation
+    int tmp = std::round((this->patcherror*0.7-17)/2.);
+    tmp = std::round(tmp*2);
+    return tmp;
+}

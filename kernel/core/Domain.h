@@ -46,7 +46,7 @@ namespace Kernel {
 
 
     struct field_values {
-        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
+        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change double to T, derive a double and a float class
         Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> w0;
         Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> p0;
         Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> px0;

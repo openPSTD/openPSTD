@@ -69,6 +69,7 @@ public:
     void SetGridSpacing(float value);
     float GetPatchError();
     void SetPatchError(float value);
+    int GetWindowSize();
     float GetRenderTime();
     void SetRenderTime(float value);
     int GetPMLCells();

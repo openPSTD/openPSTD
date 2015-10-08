@@ -66,6 +66,7 @@ namespace Kernel {
 
         // Note: this does not iterate over an empty set for either domain like the Python version
         // used to do, as surrounding domains are always added to domains calc is called on.
+        // TODO, urgent: not actually sure if this is correct anymore, check before proceeding
         for (int i = 0; i != domains1.size(); i++ ) {
             for (int j = 0; i != domains2.size(); j++) {
                 std::vector<std::shared_ptr<Domain>> rho_matrix_key;
@@ -81,6 +82,17 @@ namespace Kernel {
 
                 if (range_intersection.size() == 0) {
                     continue;
+                }
+
+                int range_start = *std::min_element(range_intersection.begin(),range_intersection.end());
+                int range_end = *std::max_element(range_intersection.begin(),range_intersection.end())+1;
+                int primary_dimension = (bt == BoundaryType::HORIZONTAL) ? this->size->x : this->size->y;
+                int N_total = 2*this->settings->GetWindowSize();
+
+                if (ct == CalculationType::PRESSURE) {
+                    N_total++;
+                } else {
+                    primary_dimension++;
                 }
 
                 //TODO (Louis) finish this method
