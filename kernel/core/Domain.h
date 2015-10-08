@@ -110,7 +110,7 @@ namespace Kernel {
          * @param: Specified direction enum
          * @return vector of domain pointers.
          */
-        std::vector<std::shared_ptr<Domain>> get_neighbour_at(Direction direction);
+        std::vector<std::shared_ptr<Domain>> get_neighbours_at(Direction direction);
 
         /**
          * Method that checks if this domain is touching the input domain
