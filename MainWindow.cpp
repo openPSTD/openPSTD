@@ -52,6 +52,8 @@ MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget
     MouseHandlersActions.push_back(ui->actionMove_scene);
     MouseHandlersActions.push_back(ui->actionAdd_Domain);
     MouseHandlersActions.push_back(ui->actionSelect);
+    MouseHandlersActions.push_back(ui->actionAdd_Receiver);
+    MouseHandlersActions.push_back(ui->actionAdd_speaker);
 
     QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::ShowAbout);
     QObject::connect(ui->actionAbout_icons, &QAction::triggered, this, &MainWindow::ShowAboutIcons);
