@@ -101,6 +101,10 @@ namespace Kernel {
          */
         double compute_with_si();
 
+        double compute_factors(Point size, BoundaryType bt);
+
+        double compute_domain_factors(Domain domain, BoundaryType bt);
+
     };
 
 }

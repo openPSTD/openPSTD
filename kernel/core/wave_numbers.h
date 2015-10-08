@@ -35,16 +35,17 @@
 #include <map>
 #include <math.h>
 #include <complex>
+#include <memory>
 #include <eigen/Eigen/Dense>
 
 namespace Kernel {
     class WaveNumberDiscretizer {
     public:
         struct Discretization {
-            Eigen::ArrayXd wave_numbers;
-            Eigen::ArrayXd imag_factors;
-            Eigen::ArrayXd pressure_deriv_factors;
-            Eigen::ArrayXd velocity_deriv_factors;
+            std::shared_ptr<Eigen::ArrayXXcd> wave_numbers;
+            std::shared_ptr<Eigen::ArrayXXcd> complex_factors;
+            std::shared_ptr<Eigen::ArrayXXcd> pressure_deriv_factors;
+            std::shared_ptr<Eigen::ArrayXXcd> velocity_deriv_factors;
         };
 
         /*

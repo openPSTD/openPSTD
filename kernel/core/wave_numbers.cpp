@@ -49,35 +49,46 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(
 }
 
 
-
 WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(double dx, int N) {
     double max_wave_number = M_PI / dx;
     int two_power = pow(2, N - 1);
     double dka = max_wave_number / two_power;
     Discretization discr;
     double wave = 0;
-    std::vector<double> wave_numbers;
+    int wave_number_amount1 = ceil(max_wave_number / dka);
+    int wave_number_amount2 = ceil((max_wave_number - dka) / dka);
+    Eigen::ArrayXXcd wave_number_array(wave_number_amount1 + wave_number_amount2, 1);
     while (wave < max_wave_number + dka) {
-        wave_numbers.push_back(wave);
+        wave_number_array << wave;
         wave += dka;
     }
     wave = max_wave_number - dka;
     while (wave < 0) {
-        wave_numbers.push_back(wave);
+        wave_number_array << wave;
         wave -= dka;
     }
-    discr.wave_numbers(wave_numbers.data());
+    discr.wave_numbers = std::make_shared<Eigen::ArrayXXcd>(wave_number_array);
+    Eigen::ArrayXXcd complex_factor_array(2 * two_power, 1);
     std::complex<double> i(0, 1);
-    Eigen::ArrayXd im_part = Eigen::ArrayXd::Constant(two_power + 1, 1) * i;
-    Eigen::ArrayXd re_part = Eigen::ArrayXd::Constant(two_power - 1, -1);
-    discr.imag_factors(im_part.rows() + re_part.rows()); // Right init?
-    discr.imag_factors << im_part, re_part;
-    for (int i = 0; i < discr.imag_factors.rows(); i++) {
-        discr.pressure_deriv_factors(i) = exp(-discr.imag_factors(i) * discr.wave_numbers(i) * dx / 2)
-                                          * discr.imag_factors(i) * discr.wave_numbers(i);
-        discr.velocity_deriv_factors(i) = exp(discr.imag_factors(i) * discr.wave_numbers(i) * dx / 2)
-                                          * discr.imag_factors(i) * discr.wave_numbers(i);
+    for (int j = 0; j < two_power + 1; j++) {
+        complex_factor_array.real() << 1;
     }
+    for (int j = 0; j < two_power - 1; j++) {
+        complex_factor_array.imag() << -1;
+    }
+
+    discr.complex_factors = std::make_shared<Eigen::ArrayXXcd>(complex_factor_array);
+    Eigen::ArrayXXcd pderfact_array(complex_factor_array.rows(), 1);
+    Eigen::ArrayXXcd vderfact_array(complex_factor_array.rows(), 1);
+    for (int j = 0; j < complex_factor_array.rows(); j++) {
+        pderfact_array << exp(-complex_factor_array(j) * wave_number_array(j) * dx / 2.)
+                          * complex_factor_array(j) * wave_number_array(j);
+        vderfact_array << exp(complex_factor_array(j) * wave_number_array(j) * dx / 2.)
+                          * complex_factor_array(j) * wave_number_array(j);
+    }
+    discr.pressure_deriv_factors = std::make_shared<Eigen::ArrayXXcd>(pderfact_array);
+    discr.velocity_deriv_factors = std::make_shared<Eigen::ArrayXXcd>(vderfact_array);
+
     return discr;
 }
 

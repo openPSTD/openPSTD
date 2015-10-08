@@ -59,18 +59,18 @@ namespace Kernel {
     /**
      * Helper enums - used to distinguish horizontal boundaries from vertical boundaries
      */
-    enum BoundaryType {
+    enum class BoundaryType {
         HORIZONTAL, VERTICAL
     };
 
     /**
      * Helper enums - used to distinguish pressure computations from velocity computations
      */
-    enum CalculationType {
+    enum class CalculationType {
         PRESSURE, VELOCITY
     };
 
-    enum Direction {
+    enum class Direction {
         LEFT, RIGHT, TOP, BOTTOM
     };
 
