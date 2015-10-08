@@ -33,8 +33,8 @@ namespace Kernel {
         //Todo: Is this the wave length number?
         double wave_length_number = 2 * this->config->getWaveLength() + primary_dimension + 1;
         //Pressure grid is staggered, hence + 1
-        //std::shared_ptr<Domain> top = this->container_domain->get_neighbour_at(Direction::TOP);
-        //std::shared_ptr<Domain> bottom = this->container_domain->get_neighbour_at(Direction::BOTTOM);
+        std::vector<std::shared_ptr<Domain>> tops = this->container_domain->get_neighbours_at(Direction::TOP);
+        std::vector<std::shared_ptr<Domain>> bottoms = this->container_domain->get_neighbours_at(Direction::BOTTOM);
         //Todo: Finish
 
         return 0;

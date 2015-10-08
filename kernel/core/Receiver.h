@@ -37,6 +37,7 @@
 #include <memory>
 #include "PSTDFile.h"
 #include "Geometry.h"
+#include "Domain.h"
 #include <string>
 #include "kernel_functions.h"
 

@@ -130,8 +130,10 @@ namespace Kernel {
         return tmp;
     }
 
-    std::vector<std::shared_ptr<Domain>> Domain::get_neighbour_at(Direction direction) {
+    std::vector<std::shared_ptr<Domain>> Domain::get_neighbours_at(Direction direction) {
+        // Make one that obtains a vector of domains, and one that obtains a domain in a location
         std::vector<std::shared_ptr<Domain>> s;
+        //NYI
         return s;
     }
 }
