@@ -1,3 +1,31 @@
+########################################################################
+# This file is part of openPSTD.                                       #
+#                                                                      #
+# openPSTD is free software: you can redistribute it and/or modify     #
+# it under the terms of the GNU General Public License as published by #
+# the Free Software Foundation, either version 3 of the License, or    #
+# (at your option) any later version.                                  #
+#                                                                      #
+# openPSTD is distributed in the hope that it will be useful,          #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of       #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        #
+# GNU General Public License for more details.                         #
+#                                                                      #
+# You should have received a copy of the GNU General Public License    #
+# along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    #
+#                                                                      #
+########################################################################
+
+########################################################################
+#
+# Date: 17-09-2015
+#
+#
+# Authors: M. R. Fortuin
+#
+#
+########################################################################
+
 cmake_minimum_required(VERSION 3.1)
 project(OpenPSTD)
 
@@ -10,6 +38,7 @@ set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
 set(UNQLITE_INCLUDE "" CACHE PATH "The include directory of unqlite")
 set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
+set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 #------------------------------------
 # Python
@@ -103,6 +132,10 @@ message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
 message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
 
 #------------------------------------
+# Eigen
+message(STATUS "Eigen include path: ${EIGEN_INCLUDE}")
+
+#------------------------------------
 # OpenGL
 find_package(OpenGL)
 message(STATUS "OpenGL found: ${OPENGL_FOUND}")
@@ -119,6 +152,7 @@ include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
 include_directories(${UNQLITE_INCLUDE})
 include_directories(${OPENGL_INCLUDE_DIR})
+include_directories(${EIGEN_INCLUDE})
 
 #------------------------------------
 # Compiling flags
@@ -140,15 +174,17 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
 # Operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/MouseOperations.cpp operations/SelectDomainOperation.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/MouseOperations.cpp operations/SelectionOperations.cpp)
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
 # OpenGL viewer
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp InteractiveLayer.cpp IconLayer.cpp)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp DomainProperties.cpp DocumentSettings.cpp)
+# Resource files
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Resources.qrc)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp Edges.cpp Edges.h)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------

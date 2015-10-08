@@ -18,10 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 22-9-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 // Purpose:
@@ -29,47 +29,21 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 31-8-2015.
-//
+#ifndef OPENPSTD_NOUNICONSCREDIT_H
+#define OPENPSTD_NOUNICONSCREDIT_H
 
-#ifndef OPENPSTD_SELECTDOMAINOPERATION_H
-#define OPENPSTD_SELECTDOMAINOPERATION_H
+#include <string>
 
-#include "BaseOperation.h"
+const std::string ABOUT_OPENPSTD = "OpenPSTD Application\n"
+        "Website: http://www.openpstd.org/\n"
+        "Development: https://github.com/openPSTD/openPSTD";
 
-class SelectIndexedObjectOperation : public BaseOperation
-{
-private:
-    SelectionType type;
-    int index;
-public:
-    SelectIndexedObjectOperation(SelectionType type, int index);
-
-    virtual void Run(const Reciever &reciever) override;
-};
-
-class SelectDomainOperation : public SelectIndexedObjectOperation
-{
-public:
-    SelectDomainOperation(int selectDomainIndex);
-};
-
-class DeselectOperation : public SelectIndexedObjectOperation
-{
-public:
-    DeselectOperation();
-};
-
-class SelectObjectOperation: public BaseOperation
-{
-private:
-    QVector2D ScreenPosition;
-public:
-    SelectObjectOperation(QVector2D ScreenPosition);
-
-    virtual void Run(const Reciever &reciever) override;
-};
+const std::string ABOUT_NOUN_ICONS = "Speaker by Edward Boatman from the Noun Project\n"
+        "Microphone by Alex Auda Samora from the Noun Project\n"
+        "Add by Leonides Delgado from the Noun Project\n"
+        "Full Screen by iconsmind.com from the Noun Project\n"
+        "Selection Square by Thomas Helbig from the Noun Project\n"
+        "https://thenounproject.com/";
 
 
-#endif //OPENPSTD_SELECTDOMAINOPERATION_H
+#endif //OPENPSTD_NOUNICONSCREDIT_H

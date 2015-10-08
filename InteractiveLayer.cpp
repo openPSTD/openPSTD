@@ -45,8 +45,8 @@ void InteractiveLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFun
     f->glGenBuffers(1, &this->newDomainBuffer);
     f->glGenBuffers(1, &this->selectionBuffer);
 
-    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Interactive.vert.glsl"));
-    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Interactive.frag.glsl"));
+    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string(":/GPU/Interactive.vert.glsl"));
+    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string(":/GPU/Interactive.frag.glsl"));
 
     program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
     program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));

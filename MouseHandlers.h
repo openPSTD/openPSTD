@@ -18,20 +18,16 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 17-08-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 // Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
-
-//
-// Created by michiel on 17-8-2015.
-//
 
 #ifndef OPENPSTD_MOUSEHANDLERS_H
 #define OPENPSTD_MOUSEHANDLERS_H
@@ -40,6 +36,7 @@ class MouseStrategy;
 class MouseVoidStrategy;
 class MouseMoveSceneStrategy;
 class MouseCreateDomainStrategy;
+class MouseCreateSpeakerReceiverStrategy;
 
 #include <memory>
 #include "operations/BaseOperation.h"
@@ -94,6 +91,19 @@ public:
 
     virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
 };
+
+class MouseCreateSpeakerReceiverStrategy : public MouseStrategy
+{
+private:
+    PstdObjectType _type;
+public:
+    MouseCreateSpeakerReceiverStrategy(PstdObjectType type);
+
+    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
+
+    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
+};
+
 
 #endif //OPENPSTD_MOUSEHANDLERS_H
 
