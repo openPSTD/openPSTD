@@ -63,9 +63,24 @@ namespace Kernel {
             source = extended_zeros(0,0);
         }
 
+        // Note: this does not iterate over an empty set for either domain like the Python version
+        // used to do, as surrounding domains are always added to domains calc is called on.
         for (int i = 0; i != domains1.size(); i++ ) {
             for (int j = 0; i != domains2.size(); j++) {
+                std::vector<std::shared_ptr<Domain>> rho_matrix_key;
+                rho_matrix_key.push_back(domains1[i]);
+                rho_matrix_key.push_back(domains2[j]);
 
+                std::vector<int> range_intersection, range1, range2;
+                range1 = domains1[i]->get_range(bt);
+                range2 = domains2[j]->get_range(bt);
+                set_intersection(range1.begin(), range1.end(),
+                                 range2.begin(), range2.end(),
+                                 back_inserter(range_intersection));
+
+                if (range_intersection.size() == 0) {
+                    continue;
+                }
 
                 //TODO (Louis) finish this method
             }

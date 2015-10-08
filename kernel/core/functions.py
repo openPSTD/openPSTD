@@ -146,9 +146,9 @@ def kcalc(dx,N):
     
     dkA = kmax/A
     
-    k =    np.concatenate((np.arange(0.,kmax+dkA, dkA),  np.arange(kmax-dkA, 0,-dkA)), axis=1)   
+    k = np.concatenate((np.arange(0.,kmax+dkA, dkA),  np.arange(kmax-dkA, 0,-dkA)), axis=1)
     
-    jfact =   1j*np.concatenate((np.ones((1.,A+1.)), -np.ones((1.,A-1.))), axis=1)
+    jfact = 1j*np.concatenate((np.ones((1.,A+1.)), -np.ones((1.,A-1.))), axis=1)
     
     return k, jfact
 
