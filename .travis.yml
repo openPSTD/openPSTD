@@ -4,6 +4,7 @@ sudo: required
 
 install:
  - sudo apt-get update -qq
+ - apt-cache search qt
  - sudo apt-get install libboost-program-options-dev libqt5widgets5 libqt5opengl5-dev libqt5core5a
 
 script: 
