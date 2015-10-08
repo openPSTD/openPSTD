@@ -8,7 +8,7 @@ before_install:
  - apt-cache search qt
 
 install:
- - sudo apt-get install libboost-program-options-dev libqt5widgets5 libqt5opengl5-dev libqt5core5a
+ - sudo apt-get install libboost-program-options-dev libqt5widgets5 libqt5opengl5 libqt5core5
 
 script: 
  - cmake -G Unix\ Makefiles
