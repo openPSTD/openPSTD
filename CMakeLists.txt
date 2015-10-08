@@ -31,26 +31,12 @@ project(OpenPSTD)
 
 #------------------------------------
 # configuration options in the cache
-set(PYTHON_LIBRARY "" CACHE PATH "The library of python 3.4, empty then it does autodetect")
-set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then it does autodetect")
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
 set(UNQLITE_INCLUDE "" CACHE PATH "The include directory of unqlite")
 set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
-
-#------------------------------------
-# Python
-find_package(PythonLibs)
-message(STATUS "Python found: ${PYTHONLIBS_FOUND}")
-message(STATUS "Python lib path: ${PYTHON_LIBRARIES}")
-message(STATUS "Python include path: ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "Python version: ${PYTHONLIBS_VERSION_STRING}")
-
-if(NOT PYTHONLIBS_FOUND)
-   message( FATAL_ERROR "Missing Python Libs." )
-endif()
 
 #------------------------------------
 # BOOST
@@ -143,7 +129,6 @@ message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
 
 #------------------------------------
 # include directories
-include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
@@ -163,7 +148,7 @@ add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 #------------------------------------
 # UI
 # CLI source files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
+# set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI}) Uses python
 # Operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)
@@ -182,10 +167,8 @@ add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
 # link libraries
-target_link_libraries(OpenPSTD-cli ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
 
-target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
