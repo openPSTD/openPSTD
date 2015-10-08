@@ -161,11 +161,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #------------------------------------
 # Kernel
 set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
-        kernel/core/kernel_functions.cpp kernel/core/Domain.cpp kernel/core/Domain.h
-        kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/Scene.cpp kernel/core/Scene.h
-        kernel/core/Receiver.cpp kernel/core/Receiver.h kernel/core/Boundary.cpp kernel/core/Boundary.h
-        kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h)
-add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI} kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h)
+        kernel/core/kernel_functions.cpp kernel/core/Domain.cpp
+        kernel/core/Speaker.cpp kernel/core/Scene.cpp
+        kernel/core/Receiver.cpp kernel/core/Boundary.cpp
+        kernel/core/Geometry.cpp PSTDFile.cpp InvalidationData.cpp)
+add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI} )
 
 #------------------------------------
 # UI
@@ -191,6 +191,7 @@ add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 # link libraries
 target_link_libraries(OpenPSTD-cli ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
 
 target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
