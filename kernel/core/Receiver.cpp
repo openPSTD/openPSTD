@@ -13,11 +13,13 @@ namespace Kernel {
     }
 
     double Receiver::compute_local_pressure() {
+        double pressure;
         if (this->config->getSpectralInterpolation()) {
-            return this->compute_with_si();
+            pressure = this->compute_with_si();
         } else {
-            return this->compute_with_nn();
+            pressure = this->compute_with_nn();
         }
+        this->received_values.push_back(pressure);
     }
 
     double Receiver::compute_fft_factor(Point size, BoundaryType bt) {
@@ -30,7 +32,9 @@ namespace Kernel {
         //Todo: Is this the wave length number?
         double wave_length_number = 2 * this->config->getWaveLength() + primary_dimension + 1;
         //Pressure grid is staggered, hence + 1
-        //Todo: Finish this
+        Domain top = this->container_domain.get_neighbour_at(Direction.TOP);
+        Domain bottom = this->container_domain.get_neighbour_at(Direction.BOTTOM);
+        //Todo: Finish
 
         return 0;
 
@@ -41,6 +45,14 @@ namespace Kernel {
     }
 
     double Receiver::compute_with_si() {
+
+    }
+
+    double Receiver::compute_factors(Point size, BoundaryType bt) {
+
+    }
+
+    double Receiver::compute_domain_factors(Domain domain, BoundaryType bt) {
 
     }
 }

@@ -70,6 +70,10 @@ namespace Kernel {
         PRESSURE, VELOCITY
     };
 
+    enum Direction {
+        LEFT, RIGHT, TOP, BOTTOM
+    };
+
     struct rMatrices2D {
         Eigen::Matrix<double, 4, 4> pressure;
         Eigen::Matrix<double, 4, 4> velocity;
