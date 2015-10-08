@@ -1,5 +1,9 @@
 language: cpp
 
+install:
+ - apt-get update
+ - apt-get install cmake
+
 script: 
  - cmake -G Unix\ Makefiles
  - make
