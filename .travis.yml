@@ -5,6 +5,7 @@ sudo: required
 before_install:
  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo apt-get update -qq
+ - apt-cache search qtbase5
  - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download -O boost_1_59_0.tar.bz2
  - tar -xjf boost_1_59_0.tar.bz2
  - cd boost_1_59_0/
