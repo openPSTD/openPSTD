@@ -6,7 +6,7 @@ before_install:
  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo apt-get update -qq
  - apt-cache search qt
- - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download
+ - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download -O boost_1_59_0.tar.bz2
  - tar -xvzf boost_1_54_0.tar.gz
  - cd boost_1_54_0/
  - ./bootstrap.sh --with-libraries=program_options
