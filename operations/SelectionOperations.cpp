@@ -18,19 +18,16 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 31-8-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 31-8-2015.
-//
 
-#include "SelectDomainOperation.h"
+#include "SelectionOperations.h"
 #include <iostream>
 #include <PstdAlgorithm.h>
 
@@ -45,7 +42,6 @@ void SelectIndexedObjectOperation::Run(const Reciever &reciever)
     reciever.model->interactive->Selection.Type = type;
     reciever.model->interactive->Selection.SelectedIndex = index;
     reciever.model->interactive->Change();
-    std::cout << "Select a " << type << " with index " << index << std::endl;
 }
 
 DeselectOperation::DeselectOperation(): SelectIndexedObjectOperation(SELECTION_NONE, -1)

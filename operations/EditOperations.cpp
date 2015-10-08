@@ -18,21 +18,18 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 16-08-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 16-8-2015.
-//
 
 #include "EditOperations.h"
 #include "Snapping.h"
-#include "SelectDomainOperation.h"
+#include "SelectionOperations.h"
 
 CreateDomainOperation::CreateDomainOperation(QVector2D startPoint,
                                              QVector2D endPoint): StartPoint(startPoint), EndPoint(endPoint)
@@ -87,6 +84,42 @@ void CreateDomainOperation::Run(const Reciever &reciever)
     Domain.AddMember("edges", edges, allocator);
 
     (*conf)["domains"].PushBack(Domain, allocator);
+
+    reciever.model->d->SetSceneConf(conf);
+    reciever.model->d->Change();
+}
+
+CreateReceiverSpeakerOperation::CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position) : _type(type),
+                                                                                                _position(position)
+{
+
+}
+
+void CreateReceiverSpeakerOperation::Run(const Reciever &reciever)
+{
+    using namespace rapidjson;
+
+    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+
+    Document::AllocatorType& allocator = conf->GetAllocator();
+
+    Value jsonPosition(kArrayType);
+    jsonPosition.PushBack(this->_position[0], allocator);
+    jsonPosition.PushBack(this->_position[1], allocator);
+    jsonPosition.PushBack(this->_position[2], allocator);
+
+    if(this->_type == OBJECT_RECEIVER)
+    {
+        (*conf)["receivers"].PushBack(jsonPosition, allocator);
+    }
+    else if(this->_type == OBJECT_SPEAKER)
+    {
+        (*conf)["speakers"].PushBack(jsonPosition, allocator);
+    }
+    else
+    {
+        //todo throw exception here
+    }
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();

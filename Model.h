@@ -18,10 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 18-07-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 // Purpose:
@@ -29,14 +29,27 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 18-7-2015.
-//
 
 #ifndef OPENPSTD_MODEL_H
 #define OPENPSTD_MODEL_H
 
 class Model;
+
+enum SelectionType
+{
+    SELECTION_NONE,
+    SELECTION_DOMAIN,
+    SELECTION_RECEIVER,
+    SELECTION_SPEAKER
+};
+
+enum PstdObjectType
+{
+    OBJECT_NONE,
+    OBJECT_DOMAIN,
+    OBJECT_RECEIVER,
+    OBJECT_SPEAKER
+};
 
 #include <rapidjson/document.h>
 #include <memory>
@@ -47,14 +60,6 @@ class Model;
 #include <QVector2D>
 #include "Colors.h"
 #include "InvalidationData.h"
-
-enum SelectionType
-{
-    SELECTION_NONE,
-    SELECTION_DOMAIN,
-    SELECTION_RECEIVER,
-    SELECTION_SPEAKER
-};
 
 class InteractiveModel: public InvalidationData
 {

@@ -65,6 +65,9 @@ private:
     void EditDocumentSettings();
     void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
 
+    void ShowAbout();
+    void ShowAboutIcons();
+
 public slots:
     void New();
     void Open();

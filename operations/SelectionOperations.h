@@ -18,42 +18,54 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 17-8-2015
+// Date: 31-8-2015
 //
 //
 // Authors: M. R. Fortuin
 //
 //
+// Purpose:
+//
+//
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 17-8-2015.
-//
+#ifndef OPENPSTD_SELECTDOMAINOPERATION_H
+#define OPENPSTD_SELECTDOMAINOPERATION_H
 
-#include "InitializationOperation.h"
-#include "MouseOperations.h"
-#include "SelectionOperations.h"
+#include "BaseOperation.h"
 
-void InitializationOperation::Run(const Reciever &reciever)
+class SelectIndexedObjectOperation : public BaseOperation
 {
-    //todo: make sure an no file is loaded
-    reciever.model->d = std::unique_ptr<PSTDFile>(PSTDFile::New("test.jps"));
-    reciever.model->d->Change();
-    reciever.model->Register(reciever.model->d);
+private:
+    SelectionType type;
+    int index;
+public:
+    SelectIndexedObjectOperation(SelectionType type, int index);
 
-    reciever.model->view->aspectMatrix = QMatrix4x4();
-    reciever.model->view->viewMatrix = QMatrix4x4();
-    reciever.model->view->worldMatrix = QMatrix4x4();
-    reciever.model->view->Change();
+    virtual void Run(const Reciever &reciever) override;
+};
 
-    reciever.model->settings->visual.colorScheme = std::unique_ptr<StandardColorScheme>(new StandardColorScheme());
-    reciever.model->settings->Change();
+class SelectDomainOperation : public SelectIndexedObjectOperation
+{
+public:
+    SelectDomainOperation(int selectDomainIndex);
+};
 
-    //select none of the domains
-    std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
-    reciever.operationRunner->RunOperation(op1);
+class DeselectOperation : public SelectIndexedObjectOperation
+{
+public:
+    DeselectOperation();
+};
 
-    //initialize Mouse handler
-    std::shared_ptr<ChangeMouseHandlerOperations> op2(new ChangeMouseHandlerOperations(std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy())));
-    reciever.operationRunner->RunOperation(op2);
-}
+class SelectObjectOperation: public BaseOperation
+{
+private:
+    QVector2D ScreenPosition;
+public:
+    SelectObjectOperation(QVector2D ScreenPosition);
+
+    virtual void Run(const Reciever &reciever) override;
+};
+
+
+#endif //OPENPSTD_SELECTDOMAINOPERATION_H

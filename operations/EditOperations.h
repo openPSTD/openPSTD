@@ -18,20 +18,16 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 16-08-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 // Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
-
-//
-// Created by michiel on 16-8-2015.
-//
 
 #ifndef OPENPSTD_EDITOPERATIONS_H
 #define OPENPSTD_EDITOPERATIONS_H
@@ -48,6 +44,18 @@ private:
 
 public:
     CreateDomainOperation(QVector2D StartPoint, QVector2D EndPoint);
+
+    virtual void Run(const Reciever &reciever) override;
+};
+
+class CreateReceiverSpeakerOperation: public BaseOperation
+{
+private:
+    PstdObjectType _type;
+    QVector3D _position;
+
+public:
+    CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position);
 
     virtual void Run(const Reciever &reciever) override;
 };

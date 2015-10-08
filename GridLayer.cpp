@@ -46,8 +46,8 @@ void GridLayer::InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions,
     f->glGenBuffers(1, &this->positionsBuffer);
     f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
 
-    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string("GPU/Grid.vert.glsl"));
-    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string("GPU/Grid.frag.glsl"));
+    std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(new std::string(":/GPU/Grid.vert.glsl"));
+    std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(new std::string(":/GPU/Grid.frag.glsl"));
 
     program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
     program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
