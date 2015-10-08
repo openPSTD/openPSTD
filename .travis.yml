@@ -6,14 +6,14 @@ before_install:
  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo apt-get update -qq
  - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download -O boost_1_59_0.tar.bz2
- - tar -xvjf boost_1_59_0.tar.bz2
+ - tar -xjf boost_1_59_0.tar.bz2
  - cd boost_1_59_0/
  - ./bootstrap.sh --with-libraries=program_options
  - cd ../
 
 install:
  - cd boost_1_59_0/
- - sudo ./b2 install
+ - sudo ./b2 -d0 install
  - cd ../
  - sudo apt-get install libqt5widgets5 libqt5opengl5 libqt5core5
 
