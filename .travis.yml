@@ -2,9 +2,12 @@ language: cpp
 
 sudo: required
 
-install:
+before_install:
+ - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo apt-get update -qq
  - apt-cache search qt
+
+install:
  - sudo apt-get install libboost-program-options-dev libqt5widgets5 libqt5opengl5-dev libqt5core5a
 
 script: 
