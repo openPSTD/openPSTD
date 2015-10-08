@@ -42,7 +42,7 @@ namespace Kernel {
 
     void Domain::calc(BoundaryType bt, CalculationType ct, std::vector<float> dest) {
         std::vector<std::shared_ptr<Domain>> domains1, domains2;
-        if (bt == HORIZONTAL) {
+        if (bt == BoundaryType::HORIZONTAL) {
             domains1 = this->left;
             domains2 = this->right;
         } else {
@@ -54,8 +54,8 @@ namespace Kernel {
 
         Eigen::ArrayXXf source;
 
-        if (!dest.empty() || ct == PRESSURE) {
-            if (bt == HORIZONTAL) {
+        if (!dest.empty() || ct == CalculationType::PRESSURE) {
+            if (bt == BoundaryType::HORIZONTAL) {
                 source = extended_zeros(0,1);
             } else {
                 source = extended_zeros(1,0);
@@ -100,7 +100,7 @@ namespace Kernel {
 
     std::vector<int> Domain::get_range(BoundaryType bt) {
         int a_l,b_l;
-        if (bt == HORIZONTAL) {
+        if (bt == BoundaryType::HORIZONTAL) {
             a_l = this->top_left->x;
             b_l = this->bottom_right->x;
         } else {
@@ -116,5 +116,10 @@ namespace Kernel {
         Eigen::ArrayXXf tmp(this->size->x + x, this->size->y + y);
         tmp.setZero();
         return tmp;
+    }
+
+    std::vector<std::shared_ptr<Domain>> Domain::get_neighbour_at(Direction direction) {
+        std::vector<std::shared_ptr<Domain>> s;
+        return s;
     }
 }

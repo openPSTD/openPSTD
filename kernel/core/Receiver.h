@@ -43,7 +43,7 @@
 namespace Kernel {
     class Receiver {
         /*
-        * Receiver class. This class measures and stores the sound pressure and velocity on each time step.
+        * Receiver class. This class measures and stores the sound pressure on each time step.
         * Note that receiver locations (just like speaker locations) are defined on the grid,
         * but don't need to lie on grid points; their coordinates are not rounded off.
          * If the Receiver is not located on a grid point, the sound values are interpolated,
@@ -100,6 +100,10 @@ namespace Kernel {
          * @return spectral interpolated pressure approximation
          */
         double compute_with_si();
+
+        double compute_factors(Point size, BoundaryType bt);
+
+        double compute_domain_factors(Domain domain, BoundaryType bt);
 
     };
 

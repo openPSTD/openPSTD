@@ -44,6 +44,7 @@
 
 namespace Kernel {
 
+
     struct field_values {
         Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change float to T, derive a double and a float class
         Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> w0;
@@ -71,15 +72,14 @@ namespace Kernel {
         bool is_pml;
         field_values current_values;
         field_values previous_values;
+        bool is_sec_pml;
 
+    private:
         std::vector<std::shared_ptr<Domain>> left;
         std::vector<std::shared_ptr<Domain>> right;
         std::vector<std::shared_ptr<Domain>> top;
         std::vector<std::shared_ptr<Domain>> bottom;
         std::vector<std::shared_ptr<Domain>> pml_for;
-        bool is_sec_pml;
-
-    private:
     public:
         /**
          * Default constructor
@@ -106,9 +106,11 @@ namespace Kernel {
         bool contains_point(int point[]);
 
         /**
-         * Method that returns a list of all domains touching this domain
+         * Method that returns a list of all domains touching this domain along a direction
+         * @param: Specified direction enum
+         * @return vector of domain pointers.
          */
-        std::vector<Domain> neighbour_list();
+        std::vector<std::shared_ptr<Domain>> get_neighbour_at(Direction direction);
 
         /**
          * Method that checks if this domain is touching the input domain

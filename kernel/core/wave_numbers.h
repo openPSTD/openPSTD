@@ -25,7 +25,7 @@
 //
 //
 // Purpose: Discretize wave numbers dynamically,
-// and optimize them for FFT computations
+// and optimize them for FFT computations.
 //
 //
 //////////////////////////////////////////////////////////////////////////
@@ -35,26 +35,52 @@
 #include <map>
 #include <math.h>
 #include <complex>
+#include <memory>
 #include <eigen/Eigen/Dense>
 
 namespace Kernel {
     class WaveNumberDiscretizer {
     public:
         struct Discretization {
-            Eigen::ArrayXd wave_numbers;
-            Eigen::ArrayXd imag_factors;
+            std::shared_ptr<Eigen::ArrayXXcd> wave_numbers;
+            std::shared_ptr<Eigen::ArrayXXcd> complex_factors;
+            std::shared_ptr<Eigen::ArrayXXcd> pressure_deriv_factors;
+            std::shared_ptr<Eigen::ArrayXXcd> velocity_deriv_factors;
         };
-        std::map<int, Discretization> computed_discretization;
 
-        Discretization get_discretization(double dx, int N); // Method get
+        /*
+         * Obtain the discretization for the given grid size and number of grid points.
+         * If discretization is unknown, it is computed and stored for future reference.
+         * @param dx: grid size
+         * @param N: number of grid points
+         * @return: Struct with wave discretization values.
+         */
+        Discretization get_discretization(double dx, int N); // Todo: How about using dx here?
 
-
+        /**
+         * Initializer for wave number discretizator. Initialize only a single instance to optimize computations.
+         */
         WaveNumberDiscretizer();
-        //~WaveNumberDiscretizer();
 
     private:
+
+        /**
+         * Compute discretization for the given grid size and number of grid points.
+         * @param dx: grid size
+         * @param N: number of grid points
+         * @return: Struct with wave discretization values.
+         */
         Discretization discretize_wave_numbers(double dx, int N); //Todo: Needs a better name
-        void compute_wave_number_discretization(double dx, int N); // Method calc
+
+        /**
+         * Internal storage of wave number discretizations.
+         */
+        std::map<int, Discretization> computed_discretization;
+
+        /**
+         * Compute the 2log of the number of grid cells.
+         */
+        int match_number(int n);
     };
 }
 
