@@ -32,12 +32,15 @@ namespace Kernel {
 
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const double alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-                   const std::shared_ptr<Domain> pml_for = std::shared_ptr<Domain>(nullptr)) {
+                   std::shared_ptr<WaveNumberDiscretizer> wnd,
+                   const std::shared_ptr<Domain> pml_for = std::shared_ptr<Domain>(nullptr)
+    ) {
         //Todo (Louis): Implementeer dit verder
         this->settings = settings;
         this->top_left = top_left;
         this->size = size;
         this->bottom_right = bottom_right;
+        this->wnd = wnd;
     };
 
     void Domain::calc(BoundaryType bt, CalculationType ct, std::vector<float> dest) {
@@ -135,5 +138,9 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> s;
         //NYI
         return s;
+    }
+
+    std::shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, std::vector<double> location) {
+        return NULL;
     }
 }

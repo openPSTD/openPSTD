@@ -40,6 +40,8 @@
 #include "Domain.h"
 #include <string>
 #include "kernel_functions.h"
+#include "wave_numbers.h"
+
 
 namespace Kernel {
     class Receiver {
@@ -86,9 +88,9 @@ namespace Kernel {
 
     private:
         /**
-         * Computes the fft_factor //todo: whut exactly?
+         * Computes the fft_factors along the provided boundary
          */
-        double compute_fft_factor(Point size, BoundaryType bt);
+        Eigen::ArrayXXcd compute_fft_factors(Point size, BoundaryType bt);
 
         /**
          * Computes the pressure from the nearest neighbour

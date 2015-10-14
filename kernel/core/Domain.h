@@ -41,6 +41,7 @@
 #include "Geometry.h"
 #include "PSTDFile.h"
 #include "Geometry.h"
+#include "wave_numbers.h"
 
 namespace Kernel {
 
@@ -72,6 +73,7 @@ namespace Kernel {
         bool is_pml;
         field_values current_values;
         field_values previous_values;
+        std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_sec_pml;
 
     private:
@@ -93,6 +95,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const double alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+               std::shared_ptr<WaveNumberDiscretizer> wnd,
                const std::shared_ptr<Domain> pml_for);
 
         /**
@@ -111,6 +114,13 @@ namespace Kernel {
          * @return vector of domain pointers.
          */
         std::vector<std::shared_ptr<Domain>> get_neighbours_at(Direction direction);
+
+        /**
+         * Method that returns a single domain of all domains touching this domain along a direction
+         * @param: Specified direction enum
+         * @return vector of domain pointers.
+         */
+        std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<double> location);
 
         /**
          * Method that checks if this domain is touching the input domain
@@ -137,7 +147,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        void calc(BoundaryType bt, CalculationType ct, std::vector<float> dest);
+        void calc(BoundaryType bt, CalculationType ct, std::vector<float> dest); //Todo: Not voids!
 
         /**
          * Calculate one timestep of propagation in this domain

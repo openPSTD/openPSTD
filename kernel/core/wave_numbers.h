@@ -55,7 +55,7 @@ namespace Kernel {
          * @param N: number of grid points
          * @return: Struct with wave discretization values.
          */
-        Discretization get_discretization(double dx, int N); // Todo: How about using dx here?
+        Discretization get_discretization(double dx, int N); //Todo: should we include dx here?
 
         /**
          * Initializer for wave number discretizator. Initialize only a single instance to optimize computations.
