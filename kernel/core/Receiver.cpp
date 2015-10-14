@@ -5,7 +5,7 @@
 #include "Receiver.h"
 
 namespace Kernel {
-    Receiver::Receiver(std::vector<double> location,std::shared_ptr<PSTDFileSettings> config, std::string id,
+    Receiver::Receiver(std::vector<double> location, std::shared_ptr<PSTDFileSettings> config, std::string id,
                        std::shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
         this->config = config;
         this->location = location;
@@ -27,7 +27,7 @@ namespace Kernel {
         return pressure;
     }
 
-    Eigen::ArrayXXcd Receiver::compute_fft_factors(Point size, BoundaryType bt) {
+    Eigen::ArrayXcf Receiver::get_fft_factors(Point size, BoundaryType bt) {
         int primary_dimension = 0;
         if (bt == BoundaryType::HORIZONTAL) {
             primary_dimension = size.x;
@@ -45,19 +45,18 @@ namespace Kernel {
         } else {
             offset = this->grid_offset.at(1);
         }
-        Eigen::ArrayXXcd fft_factors(discr.wave_numbers->rows(), discr.wave_numbers->cols());
+        Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
         for (int i = 0; i < discr.wave_numbers->rows(); i++) {
-            for (int j = 0; j < discr.wave_numbers->cols(); j++) {
-                std::complex<double> wave_number = (*discr.wave_numbers.get())(i, j);
-                std::complex<double> complex_factor = (*discr.complex_factors.get())(i, j);
-                fft_factors(i, j) = exp(offset * dx * wave_number * complex_factor);
-            }
+            std::complex<double> wave_number = (*discr.wave_numbers.get())(i);
+            std::complex<double> complex_factor = (*discr.complex_factors.get())(i);
+            fft_factors(i) = exp(offset * dx * wave_number * complex_factor);
         }
         return fft_factors;
     }
 
     double Receiver::compute_with_nn() {
-        Point rel_location = *(this->grid_location.get()) - *(this->container_domain->top_left.get());
+        Point rel_location =
+                *(this->grid_location) - *(this->container_domain->top_left); // Todo: Parentheses necessary?
         double nn_value = this->container_domain->current_values.p0(rel_location.x, rel_location.y);
         return nn_value;
     }
@@ -66,13 +65,25 @@ namespace Kernel {
         std::shared_ptr<Domain> top_domain = this->container_domain->get_neighbour_at(Direction::TOP, this->location);
         std::shared_ptr<Domain> bottom_domain = this->container_domain->get_neighbour_at(Direction::BOTTOM,
                                                                                          this->location);
+        Eigen::ArrayXXf p0dx = this->compute_domain_factors(this->container_domain, BoundaryType::HORIZONTAL);
+        Eigen::ArrayXXf p0dx_top = this->compute_domain_factors(top_domain, BoundaryType::HORIZONTAL);
+        Eigen::ArrayXXf p0dx_bottom = this->compute_domain_factors(bottom_domain, BoundaryType::HORIZONTAL);
+        int rel_x_distance = this->grid_location->x - this->container_domain->top_left->x;
+        int top_rel_x_distance = this->grid_location->x - top_domain->top_left->x;
+        int bottom_rel_x_distance = this->grid_location->x - bottom_domain->top_left->x;
+        Eigen::ArrayXcf z_fact = this->get_fft_factors(Point(1, this->container_domain->size->y),
+                                                       BoundaryType::VERTICAL);
+        float wave_number = 2 * this->config->getWaveLength() + this->container_domain->size->y + 1;
+        int opt_wave_number = next2Power(wave_number);
+        //Keys? What to do with that?
+
+
+
     }
 
-    double Receiver::compute_factors(Point size, BoundaryType bt) {
-
-    }
-
-    double Receiver::compute_domain_factors(Domain domain, BoundaryType bt) {
-
+    Eigen::ArrayXXf Receiver::compute_domain_factors(std::shared_ptr<Domain> domain, BoundaryType bt) {
+        Eigen::ArrayXXf domain_result = domain->calc(bt, CalculationType::PRESSURE,
+                                                     this->get_fft_factors(*(domain->size), bt));
+        return domain_result;
     }
 }

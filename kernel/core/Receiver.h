@@ -90,7 +90,7 @@ namespace Kernel {
         /**
          * Computes the fft_factors along the provided boundary
          */
-        Eigen::ArrayXXcd compute_fft_factors(Point size, BoundaryType bt);
+        Eigen::ArrayXcf get_fft_factors(Point size, BoundaryType bt);
 
         /**
          * Computes the pressure from the nearest neighbour
@@ -104,9 +104,7 @@ namespace Kernel {
          */
         double compute_with_si();
 
-        double compute_factors(Point size, BoundaryType bt);
-
-        double compute_domain_factors(Domain domain, BoundaryType bt);
+        Eigen::ArrayXXf compute_domain_factors(std::shared_ptr<Domain> container, BoundaryType bt);
 
     };
 

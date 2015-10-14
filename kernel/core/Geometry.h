@@ -41,7 +41,7 @@ namespace Kernel {
         /**
          * Constructor for a point in grid coordinates
          */
-        Point(int x, int y, int z);
+        Point(int x, int y, int z = 0);
 
         friend Point operator+(Point a, Point b);
 

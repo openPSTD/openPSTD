@@ -55,7 +55,7 @@ namespace Kernel {
         return result;
     }
 
-    int next2Power(double n) {
+    int next2Power(float n) {
 
         return (int) pow(2, ceil(log2(n)));
 

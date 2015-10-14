@@ -108,7 +108,7 @@ namespace Kernel {
      * @param n
      * return 2^k >= n
      */
-    int next2Power(double n);
+    int next2Power(float n);
 
     /**
      * Computes the attenuation coefficients of PML cells (pressure and velocity) as per the formula:

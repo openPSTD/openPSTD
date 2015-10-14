@@ -4,7 +4,7 @@
 
 #include "Geometry.h"
 namespace Kernel {
-    Point::Point(int x, int y, int z = 0) : x(x), y(y), z(z) {
+    Point::Point(int x, int y, int z) : x(x), y(y), z(z) {
         this->array = {x, y, z};
     }
 
