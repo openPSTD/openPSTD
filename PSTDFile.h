@@ -59,8 +59,8 @@ private:
     float patcherror;
     float tfactRK;
     float gridSpacing;
-    double band_width;
-    double wave_length;
+    float band_width;
+    float wave_length;
     bool spectral_interpolation;
     int PMLCells;
     int SaveNth;
@@ -86,14 +86,15 @@ public:
     void SetFactRK(float value);
     int GetSaveNth();
     void SetSaveNth(int value);
-    double getBandWidth();
+
+    float getBandWidth();
     void setBandWidth(double value);
 
     bool getSpectralInterpolation();
 
     void setSpectralInterpolation(bool value);
 
-    double getWaveLength();
+    float getWaveLength();
 
     void setWaveLength(double value);
 };

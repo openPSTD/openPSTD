@@ -47,11 +47,11 @@ namespace Kernel {
 
 
     struct field_values {
-        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> u0; //TODO (Louis): change double to T, derive a double and a float class
-        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> w0;
-        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> p0;
-        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> px0;
-        Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> pz0;
+        Eigen::ArrayXXf u0; //TODO (Louis): change double to T, derive a double and a float class
+        Eigen::ArrayXXf w0;
+        Eigen::ArrayXXf p0;
+        Eigen::ArrayXXf px0;
+        Eigen::ArrayXXf pz0;
     };
 
     /**
@@ -147,7 +147,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        void calc(BoundaryType bt, CalculationType ct, std::vector<float> dest); //Todo: Not voids!
+        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest);
 
         /**
          * Calculate one timestep of propagation in this domain

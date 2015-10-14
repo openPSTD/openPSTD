@@ -36,7 +36,7 @@ WaveNumberDiscretizer::WaveNumberDiscretizer() {
 
 }
 
-WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(double dx, int N) {
+WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(float dx, int N) {
     int matched_int = this->match_number(N);
     auto search = this->computed_discretization.find(matched_int);
     if (search != this->computed_discretization.end()) {
@@ -49,15 +49,15 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(
 }
 
 
-WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(double dx, int N) {
-    double max_wave_number = M_PI / dx;
+WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(float dx, int N) {
+    float max_wave_number = M_PI / dx;
     int two_power = pow(2, N - 1);
-    double dka = max_wave_number / two_power;
+    float dka = max_wave_number / two_power;
     Discretization discr;
-    double wave = 0;
+    float wave = 0;
     int wave_number_amount1 = ceil(max_wave_number / dka);
     int wave_number_amount2 = ceil((max_wave_number - dka) / dka);
-    Eigen::ArrayXXcd wave_number_array(wave_number_amount1 + wave_number_amount2, 1);
+    Eigen::ArrayXcf wave_number_array(wave_number_amount1 + wave_number_amount2);
     while (wave < max_wave_number + dka) {
         wave_number_array << wave;
         wave += dka;
@@ -67,9 +67,9 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
         wave_number_array << wave;
         wave -= dka;
     }
-    discr.wave_numbers = std::make_shared<Eigen::ArrayXXcd>(wave_number_array);
-    Eigen::ArrayXXcd complex_factor_array(2 * two_power, 1);
-    std::complex<double> i(0, 1);
+    discr.wave_numbers = std::make_shared<Eigen::ArrayXcf>(wave_number_array);
+    Eigen::ArrayXcf complex_factor_array(2 * two_power);
+    std::complex<float> i(0, 1);
     for (int j = 0; j < two_power + 1; j++) {
         complex_factor_array.real() << 1;
     }
@@ -77,17 +77,17 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
         complex_factor_array.imag() << -1;
     }
 
-    discr.complex_factors = std::make_shared<Eigen::ArrayXXcd>(complex_factor_array);
-    Eigen::ArrayXXcd pderfact_array(complex_factor_array.rows(), 1);
-    Eigen::ArrayXXcd vderfact_array(complex_factor_array.rows(), 1);
+    discr.complex_factors = std::make_shared<Eigen::ArrayXcf>(complex_factor_array);
+    Eigen::ArrayXcf pderfact_array(complex_factor_array.rows());
+    Eigen::ArrayXcf vderfact_array(complex_factor_array.rows());
     for (int j = 0; j < complex_factor_array.rows(); j++) {
-        pderfact_array << exp(-complex_factor_array(j) * wave_number_array(j) * dx / 2.)
+        pderfact_array << exp(-complex_factor_array(j) * wave_number_array(j) * dx / (float) 2.)
                           * complex_factor_array(j) * wave_number_array(j);
-        vderfact_array << exp(complex_factor_array(j) * wave_number_array(j) * dx / 2.)
+        vderfact_array << exp(complex_factor_array(j) * wave_number_array(j) * dx / (float) 2.)
                           * complex_factor_array(j) * wave_number_array(j);
     }
-    discr.pressure_deriv_factors = std::make_shared<Eigen::ArrayXXcd>(pderfact_array);
-    discr.velocity_deriv_factors = std::make_shared<Eigen::ArrayXXcd>(vderfact_array);
+    discr.pressure_deriv_factors = std::make_shared<Eigen::ArrayXcf>(pderfact_array);
+    discr.velocity_deriv_factors = std::make_shared<Eigen::ArrayXcf>(vderfact_array);
 
     return discr;
 }

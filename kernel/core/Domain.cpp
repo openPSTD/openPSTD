@@ -43,7 +43,7 @@ namespace Kernel {
         this->wnd = wnd;
     };
 
-    void Domain::calc(BoundaryType bt, CalculationType ct, std::vector<float> dest) {
+    Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest) {
         std::vector<std::shared_ptr<Domain>> domains1, domains2;
         if (bt == BoundaryType::HORIZONTAL) {
             domains1 = this->left;
@@ -57,7 +57,7 @@ namespace Kernel {
 
         Eigen::ArrayXXf source;
 
-        if (!dest.empty() || ct == CalculationType::PRESSURE) {
+        if (&dest != nullptr || ct == CalculationType::PRESSURE) { // Todo: Allowed?
             if (bt == BoundaryType::HORIZONTAL) {
                 source = extended_zeros(0,1);
             } else {
@@ -108,7 +108,7 @@ namespace Kernel {
      * a default empty vector as dest.
      */
     void Domain::calc(BoundaryType bt, CalculationType ct) {
-        std::vector<float> dest;
+        Eigen::ArrayXcf dest;
         Domain::calc(bt, ct, dest);
     }
 

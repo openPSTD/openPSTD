@@ -42,10 +42,10 @@ namespace Kernel {
     class WaveNumberDiscretizer {
     public:
         struct Discretization {
-            std::shared_ptr<Eigen::ArrayXXcd> wave_numbers;
-            std::shared_ptr<Eigen::ArrayXXcd> complex_factors;
-            std::shared_ptr<Eigen::ArrayXXcd> pressure_deriv_factors;
-            std::shared_ptr<Eigen::ArrayXXcd> velocity_deriv_factors;
+            std::shared_ptr<Eigen::ArrayXcf> wave_numbers;
+            std::shared_ptr<Eigen::ArrayXcf> complex_factors;
+            std::shared_ptr<Eigen::ArrayXcf> pressure_deriv_factors;
+            std::shared_ptr<Eigen::ArrayXcf> velocity_deriv_factors;
         };
 
         /*
@@ -55,7 +55,7 @@ namespace Kernel {
          * @param N: number of grid points
          * @return: Struct with wave discretization values.
          */
-        Discretization get_discretization(double dx, int N); //Todo: should we include dx here?
+        Discretization get_discretization(float dx, int N); //Todo: should we include dx here?
 
         /**
          * Initializer for wave number discretizator. Initialize only a single instance to optimize computations.
@@ -70,7 +70,7 @@ namespace Kernel {
          * @param N: number of grid points
          * @return: Struct with wave discretization values.
          */
-        Discretization discretize_wave_numbers(double dx, int N); //Todo: Needs a better name
+        Discretization discretize_wave_numbers(float dx, int N); //Todo: Needs a better name
 
         /**
          * Internal storage of wave number discretizations.
