@@ -166,14 +166,32 @@ namespace Kernel {
                     primary_dimension++;
                 }
 
-                Eigen::ArrayXXf matrix1, matrix2;
+                std::shared_ptr<Eigen::ArrayXXf> matrix0 = nullptr, matrix1 = nullptr, matrix2 = nullptr;
+                std::shared_ptr<Domain> current_self(this);
                 if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                     if (bt == BoundaryType::HORIZONTAL) {
-                        matrix1 = extended_zeros(0, 1);
-                        matrix2 = extended_zeros(0, 1);
-                        d1 = d2 = this; //TODO louis: illegal, but can't find how to solve. Check tomorrow.
+                        *matrix1 = extended_zeros(0, 1);
+                        *matrix2 = extended_zeros(0, 1);
+                        d1 = d2 = current_self; //TODO Louis: check if this is legal
+                    }
+                } else {
+                    if (d1 == nullptr) {
+                        d1 = current_self;
+                    }
+                    if (d2 == nullptr) {
+                        d2 = current_self;
                     }
                 }
+
+                if (ct == CalculationType::PRESSURE) {
+                    *matrix0 = this->current_values.p0; //TODO Louis: Shouldn't  these be initialised?
+                } else if (bt == BoundaryType::HORIZONTAL) {
+                    *matrix0 = this->current_values.u0;
+                } else {
+                    *matrix0 = this->current_values.w0;
+                }
+
+
             }
         }
     }
