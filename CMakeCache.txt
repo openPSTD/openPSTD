@@ -1,0 +1,3 @@
+RAPIDJSON_ROOT:PATH=/home/travis/build/micfort/openPSTD/rapidjson
+#UNQLITE_INCLUDE:PATH=/home/travis/build/micfort/openPSTD/rapidjson
+#EIGEN_INCLUDE:PATH=/home/travis/build/micfort/openPSTD/rapidjson
