@@ -104,7 +104,7 @@ namespace Kernel {
          */
         float compute_with_si();
 
-        std::shared_ptr<Eigen::ArrayXXf> compute_domain_factors(std::shared_ptr<Domain> container, BoundaryType bt);
+        std::shared_ptr<Eigen::ArrayXXf> calc_domain_fields(std::shared_ptr<Domain> container, BoundaryType bt);
 
     };
 

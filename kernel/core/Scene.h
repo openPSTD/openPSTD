@@ -47,7 +47,7 @@ namespace Kernel {
     public:
         std::vector<std::shared_ptr<Domain>> domain_list;
         std::shared_ptr<PSTDFileConfiguration> config;
-        std::shared_ptr<PSTDFileSettings> settings;
+        std::shared_ptr<PSTDFileSettings> settings; // Derived from config
 
         std::vector<std::shared_ptr<Boundary>> boundary_list;
         std::vector<std::shared_ptr<Receiver>> receiver_list;

@@ -164,8 +164,9 @@ set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
         kernel/core/kernel_functions.cpp kernel/core/Domain.cpp kernel/core/Domain.h
         kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/Scene.cpp kernel/core/Scene.h
         kernel/core/Receiver.cpp kernel/core/Receiver.h kernel/core/Boundary.cpp kernel/core/Boundary.h
-        kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h PSTDFile.cpp InvalidationData.cpp)
-add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI} kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h)
+        kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h PSTDFile.cpp
+        kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h InvalidationData.cpp)
+add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 
 #------------------------------------
 # UI

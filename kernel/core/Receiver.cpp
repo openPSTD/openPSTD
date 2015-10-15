@@ -61,18 +61,18 @@ namespace Kernel {
         std::shared_ptr<Domain> top_domain = this->container_domain->get_neighbour_at(Direction::TOP, this->location);
         std::shared_ptr<Domain> bottom_domain = this->container_domain->get_neighbour_at(Direction::BOTTOM,
                                                                                          this->location);
-        std::shared_ptr<Eigen::ArrayXXf> p0dx = this->compute_domain_factors(this->container_domain,
+        std::shared_ptr<Eigen::ArrayXXf> p0dx = this->calc_domain_fields(this->container_domain,
                                                                              BoundaryType::HORIZONTAL);
         int rel_x_point = this->grid_location->x - this->container_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx->middleCols(rel_x_point, 1));
 
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->compute_domain_factors(top_domain, BoundaryType::HORIZONTAL);
+        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->calc_domain_fields(top_domain, BoundaryType::HORIZONTAL);
         int top_rel_x_point = this->grid_location->x - top_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_top_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx_top->middleCols(top_rel_x_point, 1));
 
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom = this->compute_domain_factors(bottom_domain,
+        std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom = this->calc_domain_fields(bottom_domain,
                                                                                     BoundaryType::HORIZONTAL);
         int bottom_rel_x_point = this->grid_location->x - bottom_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom_slice = std::make_shared<Eigen::ArrayXXf>(
@@ -94,7 +94,7 @@ namespace Kernel {
     }
 
     // Todo: Different name;
-    std::shared_ptr<Eigen::ArrayXXf> Receiver::compute_domain_factors(std::shared_ptr<Domain> domain, BoundaryType bt) {
+    std::shared_ptr<Eigen::ArrayXXf> Receiver::calc_domain_fields(std::shared_ptr<Domain> domain, BoundaryType bt) {
         Eigen::ArrayXXf domain_result = domain->calc(bt, CalculationType::PRESSURE,
                                                      this->get_fft_factors(*(domain->size), bt));
         return std::make_shared<Eigen::ArrayXXf>(domain_result);

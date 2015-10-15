@@ -43,7 +43,6 @@ namespace Kernel {
 
         Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, BoundaryType type);
 
-        std::string to_string();
     };
 }
 

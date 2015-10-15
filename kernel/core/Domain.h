@@ -59,10 +59,7 @@ namespace Kernel {
      */
     class Domain : std::enable_shared_from_this<Domain>{
     public:
-        std::shared_ptr<PSTDFile> pstd_file;
         std::shared_ptr<PSTDFileSettings> settings;
-        std::shared_ptr<PSTDFileConfiguration> config;
-        //Todo: Note that these three are not the same/don't overlap. Which one is needed for a domain?
         int id;
         float alpha;
         float impedance;
@@ -86,7 +83,7 @@ namespace Kernel {
     public:
         /**
          * Default constructor
-         * @param cnf class containing configuration files //TODO
+         * @param settings: PSTD settings pointer
          * @param id identifier for this domain
          * @param alpha alpha of the domain, used in calculating impedance
          * @param top_left coordinates of the top left corner (x,y,(z))

@@ -46,7 +46,6 @@ namespace Kernel {
         friend Point operator+(Point a, Point b);
 
         friend Point operator-(Point a, Point b);
-        //Todo (0mar): Add string override method
     };
 }
 #endif //OPENPSTD_GEOMETRY_H

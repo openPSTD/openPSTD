@@ -214,11 +214,6 @@ namespace Kernel {
 
     }
 
-    void Domain::calc_rho_matrices() {
-
-    }
-
-
     std::vector<int> Domain::get_range(BoundaryType bt) {
         int a_l,b_l;
         if (bt == BoundaryType::HORIZONTAL) {
