@@ -12,6 +12,7 @@ before_install:
  - tar -xzf rapidjson-v1.0.2.tar.gz
  - ls -al
  - pwd
+ - ls -al rapidjson-1.0.2
  - mv rapidjson-1.0.2/rapidjson-v1.0.2 rapidjson
  - rm -R rapidjson-1.0.2
 
