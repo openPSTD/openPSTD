@@ -11,6 +11,11 @@ before_install:
  - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-v1.0.2.tar.gz
  - tar -xzf rapidjson-v1.0.2.tar.gz
  - mv rapidjson-1.0.2 rapidjson
+ - mkdir unqlite
+ - cd unqlite
+ - git clone --depth=50 --branch=master https://github.com/micfort/unqlite.git ./
+ - cmake -G Unix\ Makefiles
+ - cd ..
 
 install:
  - sudo apt-get install gcc-4.9 g++-4.9
@@ -21,7 +26,10 @@ install:
  - sudo ./b2 -d0 install
  - cd ../
  - sudo apt-get install qtbase5-dev
- - sudo apt-get install gcc
+ - cd unqlite
+ - make
+ - ls -al
+ - cd ..
 
 before_script:
  - uname -r
