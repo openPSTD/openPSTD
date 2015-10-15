@@ -39,12 +39,7 @@ namespace Kernel {
         //Pressure grid is staggered, hence + 1
         WaveNumberDiscretizer::Discretization discr = this->container_domain->wnd->get_discretization(dx,
                                                                                                       wave_length_number);
-        double offset;
-        if (bt == BoundaryType::HORIZONTAL) { //Todo: If this happens more often, add indices to the enum
-            offset = this->grid_offset.at(0);
-        } else {
-            offset = this->grid_offset.at(1);
-        }
+        double offset = this->grid_offset.at(static_cast<int>(bt));
         Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
         for (int i = 0; i < discr.wave_numbers->rows(); i++) {
             std::complex<double> wave_number = (*discr.wave_numbers.get())(i);
@@ -76,9 +71,10 @@ namespace Kernel {
         float wave_number = 2 * this->config->getWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
         //Keys? What to do with that?
+        double si_value;
 
 
-
+        return si_value;
     }
 
     Eigen::ArrayXXf Receiver::compute_domain_factors(std::shared_ptr<Domain> domain, BoundaryType bt) {
