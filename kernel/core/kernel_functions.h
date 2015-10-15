@@ -85,6 +85,29 @@ namespace Kernel {
     };
 
     /**
+     * Function computing the spatial derivatives of the domains.
+     *
+     * The domain for which the derivative is being computed is p2. p1 and p3 are its neighbours.     *
+     *
+     * @param p2 variable matrix subdomain 2
+     * @param derfact factor to compute derivative in wavenumber domain
+     * @param Wlength length of window function
+     * @param A window function
+     * @param N1 batch (domain size in non-dominant direction)
+     * @param N2 dimension of the ffts ( next_2pow(len(p2)+2*Wlenght) )
+     * @param Rmatrix matrix of reflection coefficients
+     * @param p1 variable matrix subdomain 1
+     * @param p3 variable matrix subdomain 3
+     * @param var variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
+     * @param direct direction for computation of derivative: 0,1 for z, x direction respectively
+     * @returns a 2d array containing the derivative of p2
+     */
+    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
+                              int Wlength, std::shared_ptr<Eigen::ArrayXf> A, int N1, int N2,
+                              Eigen::Matrix<float,1,4> Rmatrix, std::shared_ptr<Eigen::ArrayXXf> p1,
+                              std::shared_ptr<Eigen::ArrayXXf>p3, int var, int direct);
+
+    /**
      * Computes and return reflection and transmission matrices for pressure and velocity
      * based on density of a domain and 2 opposite neighbours(?)
      * @param rho1 density of first neighbour
