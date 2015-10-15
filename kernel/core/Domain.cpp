@@ -216,7 +216,7 @@ namespace Kernel {
             a_l = this->top_left->y;
             b_l = this->bottom_right->y;
         }
-        std::vector<int> tmp(b_l - a_l);
+        std::vector<int> tmp((unsigned long) (b_l - a_l));
         std::iota(tmp.begin(),tmp.end(), a_l);
         return tmp;
     }
@@ -236,5 +236,14 @@ namespace Kernel {
 
     std::shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, std::vector<double> location) {
         return NULL;
+    }
+
+    void Domain::calc_rho_matrices() {
+        std::vector<std::shared_ptr<Domain>> left_domains = this->left;
+        std::vector<std::shared_ptr<Domain>> right_domains = this->right;
+        std::vector<std::shared_ptr<Domain>> top_domains = this->top;
+        std::vector<std::shared_ptr<Domain>> bottom_domains = this->bottom;
+        
+        //TODO Louis finish this
     }
 }
