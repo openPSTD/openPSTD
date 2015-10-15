@@ -9,7 +9,7 @@ before_install:
  - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download -O boost_1_59_0.tar.bz2
  - tar -xjf boost_1_59_0.tar.bz2
  - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-v1.0.2.tar.gz
- - unzip -xzf rapidjson-v1.0.2.tar.gz
+ - tar -xzf rapidjson-v1.0.2.tar.gz
  - mv rapidjson-v1.0.2 rapidjson
 
 install:
