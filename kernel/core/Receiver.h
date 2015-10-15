@@ -53,28 +53,28 @@ namespace Kernel {
          * either from the nearest grid point or using a spectral interpolation method.
         */
     public:
-        const double x;
-        const double y;
-        const double z;
-        std::string id;
+        const float x;
+        const float y;
+        const float z;
+        int id;
         enum InterpolationType {
             NearestNeighbour, SpectralInterpolation
         };
-        std::vector<double> location;
+        std::vector<float> location;
         std::shared_ptr<PSTDFileSettings> config;
         std::shared_ptr<Point> grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
-        std::vector<double> grid_offset;
+        std::vector<float> grid_offset;
         std::shared_ptr<Domain> container_domain;
-        std::vector<double> received_values;
+        std::vector<float> received_values;
 
         /**
          * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
-         * @param location double coordinates in 3D grid space. For 2D, leave z=0
+         * @param location float coordinates in 3D grid space. For 2D, leave z=0
          * @param config: Pointer to configuration object
          * @param id: Unique receiver identifier
          * @param container: The domain in which the receiver is located. This should not be a PML-domain.
          */
-        Receiver(std::vector<double> location, std::shared_ptr<PSTDFileSettings> config, std::string id,
+        Receiver(std::vector<float> location, std::shared_ptr<PSTDFileSettings> config, int id,
                  std::shared_ptr<Domain> container);
 
         /**
@@ -84,27 +84,27 @@ namespace Kernel {
          * @see spatderp3
          * @see config
          */
-        double compute_local_pressure();
+        float compute_local_pressure();
 
     private:
         /**
          * Computes the fft_factors along the provided boundary
          */
-        Eigen::ArrayXcf get_fft_factors(Point size, BoundaryType bt);
+        std::shared_ptr<Eigen::ArrayXcf> get_fft_factors(Point size, BoundaryType bt);
 
         /**
          * Computes the pressure from the nearest neighbour
          * @return nearest neighbour pressure approximation
          */
-        double compute_with_nn();
+        float compute_with_nn();
 
         /**
          * Computes the pressure using spectral interpolation
          * @return spectral interpolated pressure approximation
          */
-        double compute_with_si();
+        float compute_with_si();
 
-        Eigen::ArrayXXf compute_domain_factors(std::shared_ptr<Domain> container, BoundaryType bt);
+        std::shared_ptr<Eigen::ArrayXXf> compute_domain_factors(std::shared_ptr<Domain> container, BoundaryType bt);
 
     };
 

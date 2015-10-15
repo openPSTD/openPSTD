@@ -74,14 +74,16 @@ namespace Kernel {
         LEFT, RIGHT, TOP, BOTTOM
     };
 
+    Direction opposite(Direction direction);
+
     struct rMatrices2D {
-        Eigen::Matrix<double, 4, 4> pressure;
-        Eigen::Matrix<double, 4, 4> velocity;
+        Eigen::Matrix<float, 4, 4> pressure;
+        Eigen::Matrix<float, 4, 4> velocity;
     };
 
     struct rMatrices1D {
-        Eigen::Matrix<double, 4, 2> pressure;
-        Eigen::Matrix<double, 4, 2> velocity;
+        Eigen::Matrix<float, 4, 2> pressure;
+        Eigen::Matrix<float, 4, 2> velocity;
     };
 
     /**
@@ -92,7 +94,6 @@ namespace Kernel {
      * @param p2 variable matrix subdomain 2
      * @param derfact factor to compute derivative in wavenumber domain
      * @param Wlength length of window function
-     * @param A window function
      * @param N1 batch (domain size in non-dominant direction)
      * @param N2 dimension of the ffts ( next_2pow(len(p2)+2*Wlenght) )
      * @param Rmatrix matrix of reflection coefficients
@@ -103,9 +104,9 @@ namespace Kernel {
      * @returns a 2d array containing the derivative of p2
      */
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              int Wlength, std::shared_ptr<Eigen::ArrayXf> A, int N1, int N2,
-                              Eigen::Matrix<float,1,4> Rmatrix, std::shared_ptr<Eigen::ArrayXXf> p1,
-                              std::shared_ptr<Eigen::ArrayXXf>p3, int var, int direct);
+                              int Wlength, int N1, int N2, Eigen::Matrix<float, 1, 4> Rmatrix,
+                              std::shared_ptr<Eigen::ArrayXXf> p1,
+                              std::shared_ptr<Eigen::ArrayXXf> p3, int var, int direct);
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
@@ -115,16 +116,16 @@ namespace Kernel {
      * @param rho density of opposite neighbour
      * return struct containing pressure and velocity matrix (4x2)
      */
-    rMatrices1D getRMatrices1D(const double rho1, const double rho2, const double rho);
+    rMatrices1D getRMatrices1D(const float rho1, const float rho2, const float rho);
 
     /**
      * Computes the largest grid spacing possible based
      * on the speed of the medium and the maximum frequency
      * Throws an exception if no compatible grid size can be found
      * @param cnf config object containing the properties of the geometry
-     * @return double corresponding to the grid size
+     * @return float corresponding to the grid size
     */
-    double getGridSpacing(PSTDFileSettings cnf);
+    float getGridSpacing(PSTDFileSettings cnf);
 
     /**
      * Computes the smallest power of 2 larger or equal to n
@@ -140,7 +141,7 @@ namespace Kernel {
      * @return a tuple of vectors, the first being the coefficients for pressure,
      * the second for velocity.
      */
-    std::tuple<std::vector<double>, std::vector<double>> PML(PSTDFileSettings cnf); //TODO Louis change cnf argument
+    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf); //TODO Louis change cnf argument
 
 }
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H

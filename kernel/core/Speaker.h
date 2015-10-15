@@ -46,16 +46,16 @@ namespace Kernel {
          * but don't need to lie on grid points; their coordinates are not rounded off.
          */
     public:
-        const double x;
-        const double y;
-        const double z;
-        std::vector<double> location;
+        const float x;
+        const float y;
+        const float z;
+        std::vector<float> location;
 
         /*
          * Speaker initialization with (unrounded) grid coordinates
          * @param location: vector of grid world coordinates
          */
-        Speaker(std::vector<double> location);
+        Speaker(std::vector<float> location);
 
         // ~Speaker();
 

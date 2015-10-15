@@ -47,7 +47,7 @@ namespace Kernel {
 
 
     struct field_values {
-        Eigen::ArrayXXf u0; //TODO (Louis): change double to T, derive a double and a float class
+        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a float class
         Eigen::ArrayXXf w0;
         Eigen::ArrayXXf p0;
         Eigen::ArrayXXf px0;
@@ -64,9 +64,10 @@ namespace Kernel {
         std::shared_ptr<PSTDFileConfiguration> config;
         //Todo: Note that these three are not the same/don't overlap. Which one is needed for a domain?
         int id;
-        double alpha;
-        double impedance;
-        double rho;
+        float alpha;
+        float impedance;
+        float rho;
+        rMatrices1D rho_matrix;
         std::shared_ptr<Point> top_left;
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
@@ -93,7 +94,7 @@ namespace Kernel {
          * @param is_pml true if domain is pml domain
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const double alpha,
+        Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                std::shared_ptr<WaveNumberDiscretizer> wnd,
                const std::shared_ptr<Domain> pml_for);
@@ -106,7 +107,9 @@ namespace Kernel {
         /**
          * Checks if a certain point is contained in this domain
          */
-        bool contains_point(int point[]);
+        bool contains_point(Point point);
+
+        bool contains_location(std::vector<float> location);
 
         /**
          * Method that returns a list of all domains touching this domain along a direction
@@ -120,7 +123,7 @@ namespace Kernel {
          * @param: Specified direction enum
          * @return vector of domain pointers.
          */
-        std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<double> location);
+        std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<float> location);
 
         /**
          * Method that checks if this domain is touching the input domain
@@ -147,7 +150,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest);
+        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
 
         /**
          * Calculate one timestep of propagation in this domain

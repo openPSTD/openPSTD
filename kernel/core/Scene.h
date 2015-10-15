@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: omar
+// Authors: Omar Richardson
 //
 //
 // Purpose:
@@ -45,18 +45,19 @@
 namespace Kernel {
     class Scene {
     public:
-        PSTDFile *cfg;
-        std::vector<Domain> domain_list;
-        std::vector<Boundary> boundary_list;
-        std::vector<Receiver> receiver_list;
-        std::vector<Speaker> source_list;
-        Point *top_left, *bottom_right, *size; //Todo (0mar): Still necessary?
+        std::vector<std::shared_ptr<Domain>> domain_list;
+        std::shared_ptr<PSTDFileConfiguration> config;
+        std::shared_ptr<PSTDFileSettings> settings;
+
+        std::vector<std::shared_ptr<Boundary>> boundary_list;
+        std::vector<std::shared_ptr<Receiver>> receiver_list;
+        std::vector<std::shared_ptr<Speaker>> speaker_list;
 
         /**
          * Constructor of Scene object
          * @param cnf class containing configuration files
          */
-        Scene(PSTDFile *cnf);
+        Scene(std::shared_ptr<PSTDFileConfiguration> config);
 
         /**
          * Adds a receiver to the scene.
@@ -67,7 +68,7 @@ namespace Kernel {
          * @param y coordinate on grid in y dimension
          * @param x coordinate on grid in z dimension
          */
-        void add_receiver(const double x, const double y, const double z);
+        void add_receiver(const float x, const float y, const float z);
 
         /**
          * Adds a speaker to the scene.
@@ -78,7 +79,7 @@ namespace Kernel {
          * @param y coordinate on grid in y dimension
          * @param x coordinate on grid in z dimension
          */
-        void add_speaker(const double x, const double y, const double z);
+        void add_speaker(const float x, const float y, const float z);
 
         /**
          * Add domain to the scene. Checks for every other domain

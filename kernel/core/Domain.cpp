@@ -30,7 +30,7 @@
 
 namespace Kernel {
 
-    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const double alpha,
+    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    std::shared_ptr<WaveNumberDiscretizer> wnd,
                    const std::shared_ptr<Domain> pml_for = std::shared_ptr<Domain>(nullptr)
@@ -44,7 +44,7 @@ namespace Kernel {
     };
 
     // version of calc that would have a return value.
-    Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest) {
+    Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest) {
         std::vector<std::shared_ptr<Domain>> domains1, domains2;
         if (bt == BoundaryType::HORIZONTAL) {
             domains1 = this->left;
@@ -143,8 +143,20 @@ namespace Kernel {
      * a default empty vector as dest.
      */
     void Domain::calc(BoundaryType bt, CalculationType ct) {
-        Eigen::ArrayXcf dest;
+        std::shared_ptr<Eigen::ArrayXcf> dest(nullptr);
         Domain::calc(bt, ct, dest);
+    }
+
+    bool Domain::contains_point(Point point) {
+
+    }
+
+    bool Domain::contains_location(std::vector<float> location) {
+
+    }
+
+    void Domain::calc_rho_matrices() {
+
     }
 
 
@@ -175,7 +187,7 @@ namespace Kernel {
         return s;
     }
 
-    std::shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, std::vector<double> location) {
+    std::shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, std::vector<float> location) {
         return NULL;
     }
 }

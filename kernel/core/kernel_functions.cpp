@@ -32,21 +32,21 @@
 #include <stdexcept>
 
 namespace Kernel {
-    rMatrices1D getRMatrices1D(const double rho1, const double rho2, const double rho) {
+    rMatrices1D getRMatrices1D(const float rho1, const float rho2, const float rho) {
         // 0mar: I switched the order of parameters in this function. Remember when porting classes.py.
-        double zn1 = rho1 / rho;
-        double inv_zn1 = rho / rho1;
-        double rlw1 = (zn1 - 1.) / (zn1 + 1);
-        double rlw2 = (inv_zn1 - 1) / (inv_zn1 + 1);
-        double tlw1 = (2 * zn1) / (zn1 + 1);
-        double tlw2 = (2 * inv_zn1) / (inv_zn1 + 1);
+        float zn1 = rho1 / rho;
+        float inv_zn1 = rho / rho1;
+        float rlw1 = (zn1 - 1.) / (zn1 + 1);
+        float rlw2 = (inv_zn1 - 1) / (inv_zn1 + 1);
+        float tlw1 = (2 * zn1) / (zn1 + 1);
+        float tlw2 = (2 * inv_zn1) / (inv_zn1 + 1);
 
-        double zn2 = rho2 / rho;
-        double inv_zn2 = rho / rho2;
-        double rrw1 = (zn2 - 1) / (zn2 + 1);
-        double rrw2 = (inv_zn2 - 1) / (inv_zn2 + 1);
-        double trw1 = (2 * zn2) / (zn2 + 1);
-        double trw2 = (2 * inv_zn2) / (inv_zn2 + 1);
+        float zn2 = rho2 / rho;
+        float inv_zn2 = rho / rho2;
+        float rrw1 = (zn2 - 1) / (zn2 + 1);
+        float rrw2 = (inv_zn2 - 1) / (inv_zn2 + 1);
+        float trw1 = (2 * zn2) / (zn2 + 1);
+        float trw2 = (2 * inv_zn2) / (inv_zn2 + 1);
         rMatrices1D result;
         result.pressure << rlw1, rlw2, rrw1, rrw2,
                 tlw1, tlw2, trw1, trw2;
@@ -61,10 +61,10 @@ namespace Kernel {
 
     }
 
-    double getGridSpacing(PSTDFileSettings cnf) {
-        Eigen::Array<double, 9, 1> dxv;
+    float getGridSpacing(PSTDFileSettings cnf) {
+        Eigen::Array<float, 9, 1> dxv;
         dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //Louis: is there a good reason to disallow other vals?
-        double waveLength = 0.5 * cnf.GetSoundSpeed() / cnf.GetMaxFrequency();
+        float waveLength = 0.5 * cnf.GetSoundSpeed() / cnf.GetMaxFrequency();
         if (waveLength < 0.002) {
             throw std::invalid_argument("Wavelength (speed/frequency) is too small");
         }
@@ -76,12 +76,16 @@ namespace Kernel {
         return dxv.size() - 1;
     }
 
-    std::tuple<std::vector<double>, std::vector<double>> PML(PSTDFileSettings cnf) {
-        std::vector<double> cell_list_p = arange<double>(0.5, cnf.GetPMLCells() + 0.5, 1);
+    Direction opposite(Direction direction) {
+
+    }
+
+    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
+        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5, 1);
         for (int i = 0; i < cell_list_p.size(); i++) {
             cell_list_p[i] = cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4);
         }
-        std::vector<double> cell_list_u = arange<double>(0, cnf.GetPMLCells() + 1, 1);
+        std::vector<float> cell_list_u = arange<float>(0, cnf.GetPMLCells() + 1, 1);
         for (int i = 0; i < cell_list_u.size(); i++) {
             cell_list_u[i] = cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4);
             cell_list_u[i] = cnf.GetDensityOfAir() * cell_list_u[i];
@@ -89,4 +93,10 @@ namespace Kernel {
         return make_tuple(cell_list_p, cell_list_u);
     }
 
+    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
+                              int Wlength, int N1, int N2, Eigen::Matrix<float, 1, 4> Rmatrix,
+                              std::shared_ptr<Eigen::ArrayXXf> p1,
+                              std::shared_ptr<Eigen::ArrayXXf> p3, int var, int direct) {
+
+    }
 }
