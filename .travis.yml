@@ -12,7 +12,8 @@ before_install:
  - tar -xzf rapidjson-v1.0.2.tar.gz
  - ls -al
  - pwd
- - mv rapidjson-v1.0.2 rapidjson
+ - mv rapidjson-1.0.2/rapidjson-v1.0.2 rapidjson
+ - rm -R rapidjson-1.0.2
 
 install:
  - sudo apt-get install gcc-4.9 g++-4.9
