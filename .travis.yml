@@ -11,9 +11,9 @@ before_install:
  - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-v1.0.2.tar.gz
  - tar -xzf rapidjson-v1.0.2.tar.gz
  - mv rapidjson-1.0.2 rapidjson
- - mkdir unqlite
  - cd unqlite
- - git clone --depth=50 --branch=master https://github.com/micfort/unqlite.git ./
+ - wget http://unqlite.org/db/unqlite-db-116.zip
+ - unzip unqlite-db-116.zip
  - cmake -G Unix\ Makefiles
  - cd ..
 
