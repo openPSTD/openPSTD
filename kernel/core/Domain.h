@@ -57,7 +57,7 @@ namespace Kernel {
     /**
      * A representation of one domain, as seen by the kernel.
      */
-    class Domain {
+    class Domain : std::enable_shared_from_this<Domain>{
     public:
         std::shared_ptr<PSTDFile> pstd_file;
         std::shared_ptr<PSTDFileSettings> settings;
@@ -147,7 +147,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest);
+        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
 
         /**
          * Calculate one timestep of propagation in this domain
@@ -164,7 +164,7 @@ namespace Kernel {
          * @param y extension in y direction
          * @param z extension in z direction (default: 0)
          */
-        Eigen::ArrayXXf extended_zeros(int x, int y, int z = 0);
+        std::shared_ptr<Eigen::ArrayXXf> extended_zeros(int x, int y, int z = 0);
 
     };
 }

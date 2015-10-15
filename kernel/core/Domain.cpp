@@ -41,10 +41,11 @@ namespace Kernel {
         this->size = size;
         this->bottom_right = bottom_right;
         this->wnd = wnd;
+        this->id = id;
     };
 
     // version of calc that would have a return value.
-    Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest) {
+    Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest) {
         std::vector<std::shared_ptr<Domain>> domains1, domains2;
         if (bt == BoundaryType::HORIZONTAL) {
             domains1 = this->left;
@@ -56,9 +57,9 @@ namespace Kernel {
 
         std::vector<int> own_range = get_range(bt);
 
-        Eigen::ArrayXXf source;
+        std::shared_ptr<Eigen::ArrayXXf> source;
 
-        if (&dest != nullptr || ct == CalculationType::PRESSURE) { // Todo: Allowed?
+        if (dest != nullptr || ct == CalculationType::PRESSURE) {
             if (bt == BoundaryType::HORIZONTAL) {
                 source = extended_zeros(0,1);
             } else {
@@ -74,12 +75,12 @@ namespace Kernel {
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
             for (int j = 0; i != domains2.size()+1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
-                std::vector<std::shared_ptr<Domain>> rho_matrix_key;
-                rho_matrix_key.push_back(d1);
-                rho_matrix_key.push_back(d2);
+                std::vector<int> rho_matrix_key;
+                rho_matrix_key.push_back(d1->id);
+                rho_matrix_key.push_back(d2->id);
 
+                //The range is determined and clipped to the neighbour domain ranges
                 std::vector<int> own_range = this->get_range(bt);
-
                 std::vector<int> range_intersection = own_range;
 
                 if (d1 != nullptr) {
@@ -95,14 +96,16 @@ namespace Kernel {
                                      back_inserter(range_intersection));
                 }
 
+                // If there is nothing left after clipping to domains, continue with a different set of domains
                 if (range_intersection.size() == 0) {
                     continue;
                 }
 
+                // Set up various parameters and intermediates that are needed for the spatial derivatives
                 int range_start = *std::min_element(range_intersection.begin(),range_intersection.end());
                 int range_end = *std::max_element(range_intersection.begin(),range_intersection.end())+1;
                 int primary_dimension = (bt == BoundaryType::HORIZONTAL) ? this->size->x : this->size->y;
-                int N_total = 2*this->settings->GetWindowSize();
+                int N_total = 2*this->settings->GetWindowSize() + primary_dimension;
 
                 if (ct == CalculationType::PRESSURE) {
                     N_total++;
@@ -111,29 +114,85 @@ namespace Kernel {
                 }
 
                 std::shared_ptr<Eigen::ArrayXXf> matrix0 = nullptr, matrix1 = nullptr, matrix2 = nullptr;
-                std::shared_ptr<Domain> current_self(this);
                 if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
+                    // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
+                    // TODO Louis: Why only zeroes for ct==velocity? Should zeroes also be added in the else{} block?
+                    // a PML domain can also have a neighbour, see:
+                    //   |             |
+                    // __|_____________|___
+                    //   |     PML     |
+                    //  <--------------->
+                    d1 = d2 = shared_from_this();
                     if (bt == BoundaryType::HORIZONTAL) {
-                        *matrix1 = extended_zeros(0, 1);
-                        *matrix2 = extended_zeros(0, 1);
-                        d1 = d2 = current_self; //TODO Louis: check if this is legal
+                        matrix1 = extended_zeros(0, 1);
+                        matrix2 = extended_zeros(0, 1);
+                    } else {
+                        matrix1 = extended_zeros(1, 0);
+                        matrix2 = extended_zeros(1, 0);
                     }
                 } else {
                     if (d1 == nullptr) {
-                        d1 = current_self;
+                        d1 = shared_from_this();
                     }
                     if (d2 == nullptr) {
-                        d2 = current_self;
+                        d2 = shared_from_this();
                     }
                 }
 
                 if (ct == CalculationType::PRESSURE) {
-                    *matrix0 = this->current_values.p0; //TODO Louis: Shouldn't  these be initialised?
+                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.p0);
                 } else if (bt == BoundaryType::HORIZONTAL) {
-                    *matrix0 = this->current_values.u0;
+                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.u0);
                 } else {
-                    *matrix0 = this->current_values.w0;
+                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.w0);
                 }
+
+                // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
+                if (matrix1 == nullptr) {
+                    if (ct == CalculationType::PRESSURE) {
+                        matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.p0);
+                    } else {
+                        if(bt == BoundaryType::HORIZONTAL) {
+                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.u0);
+                        } else {
+                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.w0);
+                        }
+                    }
+                }
+                if (matrix2 == nullptr) {
+                    if (ct == CalculationType::PRESSURE) {
+                        matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.p0);
+                    } else {
+                        if(bt == BoundaryType::HORIZONTAL) {
+                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.u0);
+                        } else {
+                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.w0);
+                        }
+                    }
+                }
+
+                // Set up parameters for the spatial derivative later
+                int var_index=0, direction=0;
+                if (ct == CalculationType::VELOCITY){
+                    var_index = 1;
+                }
+                if (bt == BoundaryType::HORIZONTAL) {
+                    direction = 1;
+                }
+
+                std::shared_ptr<Eigen::ArrayXcf> derfact;
+                if (dest != nullptr) {
+                    derfact = dest;
+                } else {
+                    if (ct == CalculationType::PRESSURE) {
+                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(), N_total).pressure_deriv_factors;
+                    } else {
+                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(), N_total).velocity_deriv_factors;
+                    }
+                }
+
+                // Determine which rho matrix instance to use
+                Eigen::Matrix<float,1,4> rmat; // = something TODO Louis fix dit
             }
         }
     }
@@ -143,7 +202,7 @@ namespace Kernel {
      * a default empty vector as dest.
      */
     void Domain::calc(BoundaryType bt, CalculationType ct) {
-        Eigen::ArrayXcf dest;
+        std::shared_ptr<Eigen::ArrayXcf> dest;
         Domain::calc(bt, ct, dest);
     }
 
@@ -162,9 +221,9 @@ namespace Kernel {
         return tmp;
     }
 
-    Eigen::ArrayXXf Domain::extended_zeros(int x, int y, int z) {
-        Eigen::ArrayXXf tmp(this->size->x + x, this->size->y + y);
-        tmp.setZero();
+    std::shared_ptr<Eigen::ArrayXXf> Domain::extended_zeros(int x, int y, int z) {
+        std::shared_ptr<Eigen::ArrayXXf> tmp (new Eigen::ArrayXXf(this->size->x + x, this->size->y + y));
+        tmp->setZero();
         return tmp;
     }
 

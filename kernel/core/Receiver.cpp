@@ -83,7 +83,7 @@ namespace Kernel {
 
     Eigen::ArrayXXf Receiver::compute_domain_factors(std::shared_ptr<Domain> domain, BoundaryType bt) {
         Eigen::ArrayXXf domain_result = domain->calc(bt, CalculationType::PRESSURE,
-                                                     this->get_fft_factors(*(domain->size), bt));
+        std::make_shared<Eigen::ArrayXcf>(this->get_fft_factors(*(domain->size), bt)));
         return domain_result;
     }
 }
