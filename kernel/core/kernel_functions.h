@@ -99,14 +99,14 @@ namespace Kernel {
      * @param Rmatrix matrix of reflection coefficients
      * @param p1 variable matrix subdomain 1
      * @param p3 variable matrix subdomain 3
-     * @param var variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
-     * @param direct direction for computation of derivative: 0,1 for z, x direction respectively
-     * @returns a 2d array containing the derivative of p2
+     * @param var_index variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
+     * @param direction direction for computation of derivative: 0,1 for z, x direction respectively
+     * @return a 2d array containing the derivative of p2
      */
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
                               int Wlength, int N1, int N2, Eigen::Matrix<float, 1, 4> Rmatrix,
                               std::shared_ptr<Eigen::ArrayXXf> p1,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, int var, int direct);
+                              std::shared_ptr<Eigen::ArrayXXf> p3, int var_index, int direction);
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
