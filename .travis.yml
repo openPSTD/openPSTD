@@ -10,9 +10,13 @@ before_install:
  - tar -xjf boost_1_59_0.tar.bz2
 
 install:
- - sudo apt-get install gcc-4.9
- - export CXX=g++-4.9
- - export CC=gcc-4.9
+ - sudo apt-get install gcc-4.9 g++-4.9
+ - sudo update-alternatives --remove-all gcc 
+ - sudo update-alternatives --remove-all g++
+ - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20
+ - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 20
+ - sudo update-alternatives --config gcc
+ - sudo update-alternatives --config g++
  - cd boost_1_59_0/
  - ./bootstrap.sh --with-libraries=program_options
  - sudo ./b2 -d0 install
