@@ -56,7 +56,7 @@ namespace Kernel {
 
     double Receiver::compute_with_nn() {
         Point rel_location =
-                *(this->grid_location) - *(this->container_domain->top_left); // Todo: Parentheses necessary?
+                *(this->grid_location) - *(this->container_domain->top_left);
         double nn_value = this->container_domain->current_values.p0(rel_location.x, rel_location.y);
         return nn_value;
     }
