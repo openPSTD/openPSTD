@@ -10,11 +10,7 @@ before_install:
  - tar -xjf boost_1_59_0.tar.bz2
  - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-v1.0.2.tar.gz
  - tar -xzf rapidjson-v1.0.2.tar.gz
- - ls -al
- - pwd
- - ls -al rapidjson-1.0.2
  - mv rapidjson-1.0.2 rapidjson
- - rm -R rapidjson-1.0.2
 
 install:
  - sudo apt-get install gcc-4.9 g++-4.9
