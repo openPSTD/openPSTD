@@ -19,6 +19,10 @@ install:
  - sudo apt-get install qtbase5-dev
  - sudo apt-get install gcc
 
+before_script:
+ - uname -r
+ - gcc -v
+
 script: 
  - cmake -G Unix\ Makefiles
  - make
