@@ -10,6 +10,8 @@ before_install:
  - tar -xjf boost_1_59_0.tar.bz2
  - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-v1.0.2.tar.gz
  - tar -xzf rapidjson-v1.0.2.tar.gz
+ - ls -al
+ - pwd
  - mv rapidjson-v1.0.2 rapidjson
 
 install:
