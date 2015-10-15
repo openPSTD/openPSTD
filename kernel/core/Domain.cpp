@@ -43,6 +43,8 @@ namespace Kernel {
         this->wnd = wnd;
     };
 
+    // version of calc that would have a return value.
+    // TODO : This method is unfinished - discuss if implementation with dest/source is needed
     Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, Eigen::ArrayXcf dest) {
         std::vector<std::shared_ptr<Domain>> domains1, domains2;
         if (bt == BoundaryType::HORIZONTAL) {
@@ -67,14 +69,19 @@ namespace Kernel {
             source = extended_zeros(0,0);
         }
 
-        // Note: this does not iterate over an empty set for either domain like the Python version
-        // used to do, as surrounding domains are always added to domains calc is called on.
-        // TODO, urgent: not actually sure if this is correct anymore, check before proceeding
-        for (int i = 0; i != domains1.size(); i++ ) {
-            for (int j = 0; i != domains2.size(); j++) {
+        // loop over all possible combinations of neighbours for this domain (including null on one side)
+        std::shared_ptr<Domain> d1, d2;
+        for (int i = 0; i != domains1.size()+1; i++ ) {
+            d1 = (i != domains1.size()) ? domains1[i] : nullptr;
+            for (int j = 0; i != domains2.size()+1; j++) {
+                d2 = (i != domains2.size()) ? domains2[i] : nullptr;
                 std::vector<std::shared_ptr<Domain>> rho_matrix_key;
-                rho_matrix_key.push_back(domains1[i]);
-                rho_matrix_key.push_back(domains2[j]);
+                rho_matrix_key.push_back(d1);
+                rho_matrix_key.push_back(d2);
+
+                std::vector<int> own_range = this->get_range(bt);
+
+
 
                 std::vector<int> range_intersection, range1, range2;
                 range1 = domains1[i]->get_range(bt);
@@ -97,8 +104,76 @@ namespace Kernel {
                 } else {
                     primary_dimension++;
                 }
+                // TODO: finish this or scrap it in favour of void function
+            }
+        }
+    }
 
-                //TODO (Louis) finish this method
+    /*
+     * A simplified version of calc, removing the parts that were not used in openPSTD 1.0
+     */
+    void Domain::calc(BoundaryType bt, CalculationType ct) {
+        std::vector<std::shared_ptr<Domain>> domains1, domains2;
+        if (bt == BoundaryType::HORIZONTAL) {
+            domains1 = this->left;
+            domains2 = this->right;
+        } else {
+            domains1 = this->bottom;
+            domains2 = this->top;
+        }
+
+        std::vector<int> own_range = get_range(bt);
+
+        // loop over all possible combinations of neighbours for this domain (including null on one side)
+        std::shared_ptr<Domain> d1, d2;
+        for (int i = 0; i != domains1.size()+1; i++ ) {
+            d1 = (i != domains1.size()) ? domains1[i] : nullptr;
+            for (int j = 0; i != domains2.size()+1; j++) {
+                d2 = (i != domains2.size()) ? domains2[i] : nullptr;
+                std::vector<std::shared_ptr<Domain>> rho_matrix_key;
+                rho_matrix_key.push_back(d1);
+                rho_matrix_key.push_back(d2);
+
+                std::vector<int> own_range = this->get_range(bt);
+
+                std::vector<int> range_intersection = own_range;
+
+                if (d1 != nullptr) {
+                    std::vector<int> range1 = d1->get_range(bt);
+                    set_intersection(range1.begin(), range1.end(),
+                                     range_intersection.begin(), range_intersection.end(),
+                                     back_inserter(range_intersection));
+                }
+                if (d2 != nullptr) {
+                    std::vector<int> range2 = d1->get_range(bt);
+                    set_intersection(range2.begin(), range2.end(),
+                                     range_intersection.begin(), range_intersection.end(),
+                                     back_inserter(range_intersection));
+                }
+
+                if (range_intersection.size() == 0) {
+                    continue;
+                }
+
+                int range_start = *std::min_element(range_intersection.begin(),range_intersection.end());
+                int range_end = *std::max_element(range_intersection.begin(),range_intersection.end())+1;
+                int primary_dimension = (bt == BoundaryType::HORIZONTAL) ? this->size->x : this->size->y;
+                int N_total = 2*this->settings->GetWindowSize();
+
+                if (ct == CalculationType::PRESSURE) {
+                    N_total++;
+                } else {
+                    primary_dimension++;
+                }
+
+                Eigen::ArrayXXf matrix1, matrix2;
+                if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
+                    if (bt == BoundaryType::HORIZONTAL) {
+                        matrix1 = extended_zeros(0, 1);
+                        matrix2 = extended_zeros(0, 1);
+                        d1 = d2 = this; //TODO louis: illegal, but can't find how to solve. Check tomorrow.
+                    }
+                }
             }
         }
     }
@@ -107,11 +182,12 @@ namespace Kernel {
      * Near-alias to calc(BoundaryType bt, CalculationType ct, std::vector<float> dest), but with
      * a default empty vector as dest.
      */
+/**    TODO: (temporarily?) removed as dest/source were giving trouble.
     void Domain::calc(BoundaryType bt, CalculationType ct) {
         Eigen::ArrayXcf dest;
         Domain::calc(bt, ct, dest);
     }
-
+**/
 
     std::vector<int> Domain::get_range(BoundaryType bt) {
         int a_l,b_l;
