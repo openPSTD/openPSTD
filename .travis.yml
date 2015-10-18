@@ -28,8 +28,10 @@ install:
  - ./bootstrap.sh --with-libraries=program_options
  - sudo ./b2 -d0 install
  - cd ../
- - sudo apt-get install qt-latest qtcreator-latest
+ - sudo apt-get install qt553d qt55canvas3d
+ - sudo apt-get install qtcreator-latest
  - ls -al /opt/qt55/*
+ - export PATH=$PATH:/opt/qt55/bin/
  - cd unqlite
  - make
  - cd ..
