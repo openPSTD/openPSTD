@@ -39,6 +39,10 @@ set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 #------------------------------------
+# General
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+#------------------------------------
 # BOOST
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
