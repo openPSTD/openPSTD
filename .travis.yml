@@ -5,6 +5,7 @@ sudo: required
 before_install:
  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+ - sudo add-apt-repository --yes ppa:beineri/opt-qt55
  - sudo apt-get update -qq
  - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download -O boost_1_59_0.tar.bz2
  - tar -xjf boost_1_59_0.tar.bz2
@@ -27,7 +28,7 @@ install:
  - ./bootstrap.sh --with-libraries=program_options
  - sudo ./b2 -d0 install
  - cd ../
- - sudo apt-get install qtbase5-dev
+ - sudo apt-get install qt-latest
  - cd unqlite
  - make
  - ls -al
