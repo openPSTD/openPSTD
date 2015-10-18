@@ -28,7 +28,7 @@ install:
  - ./bootstrap.sh --with-libraries=program_options
  - sudo ./b2 -d0 install
  - cd ../
- - sudo apt-get install qt-latest
+ - sudo apt-get install qt-latest qtcreator-latest
  - cd unqlite
  - make
  - ls -al
