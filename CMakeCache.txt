@@ -2,3 +2,4 @@ RAPIDJSON_ROOT:PATH=/home/travis/build/micfort/openPSTD/rapidjson
 UNQLITE_INCLUDE:PATH=/home/travis/build/micfort/openPSTD/unqlite
 UNQLITE_LIB:PATH=/home/travis/build/micfort/openPSTD/unqlite/libunqlite.a
 #EIGEN_INCLUDE:PATH=/home/travis/build/micfort/openPSTD/rapidjson
+Qt5_DIR:PATH=/opt/qt55
