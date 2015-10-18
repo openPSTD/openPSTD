@@ -64,11 +64,11 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #function for easy loading Qt modules
-set(Qt5_CMAKE "lib\\cmake")
+set(Qt5_CMAKE "lib/cmake")
 set(Qt5_FIRST 1)
 set(Qt5_FOUND 0)
 macro(loadQtPackage QtModule)
-    set(${QtModule}_DIR "${Qt5_DIR}\\${Qt5_CMAKE}\\${QtModule}")
+    set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
     find_package(${QtModule})
     if(Qt5_FIRST)
