@@ -33,7 +33,7 @@ namespace Kernel {
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    std::shared_ptr<WaveNumberDiscretizer> wnd,
-                   const std::shared_ptr<Domain> pml_for = std::shared_ptr<Domain>(nullptr)
+                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)
     ) {
         //Todo (Louis): Implementeer dit verder
         this->settings = settings;
@@ -42,6 +42,9 @@ namespace Kernel {
         this->bottom_right = bottom_right;
         this->wnd = wnd;
         this->id = id;
+        if (is_pml) {
+            this->pml_for_domain_list.push_back(pml_for_domain);
+        }
     };
 
     // version of calc that would have a return value.
@@ -207,11 +210,23 @@ namespace Kernel {
     }
 
     bool Domain::contains_point(Point point) {
-
+        return false; //Todo
     }
 
     bool Domain::contains_location(std::vector<float> location) {
+        return false; // Todo
+    }
 
+    bool Domain::is_neighbour_of(std::shared_ptr<Domain> domain) {
+        return false; // Todo
+    }
+
+    bool Domain::is_pml_for(std::shared_ptr<Domain> domain) {
+        return false; // Todo
+    }
+
+    bool is_rigid() {
+        return false; //Todo
     }
 
     std::vector<int> Domain::get_range(BoundaryType bt) {

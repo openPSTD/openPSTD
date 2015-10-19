@@ -30,9 +30,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by omar on 3-9-15.
-//
 
 #ifndef OPENPSTD_KERNEL_FUNCTIONS_H
 #define OPENPSTD_KERNEL_FUNCTIONS_H
@@ -40,6 +37,7 @@
 #include <eigen/Eigen/Dense>
 #include <iostream>
 #include <vector>
+#include <map>
 #include <math.h>
 #include "PSTDFile.h"
 
@@ -74,7 +72,10 @@ namespace Kernel {
         LEFT, RIGHT, TOP, BOTTOM
     };
 
-    Direction opposite(Direction direction);
+//    std::map<Direction,Direction> opposites= {{Direction::LEFT,Direction::RIGHT},
+//                                               {Direction::RIGHT,Direction::LEFT},
+//                                               {Direction::TOP,Direction::BOTTOM},
+//                                               {Direction::BOTTOM,Direction::TOP}};
 
     struct rMatrices2D {
         Eigen::Matrix<float, 4, 4> pressure;

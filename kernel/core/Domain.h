@@ -73,13 +73,13 @@ namespace Kernel {
         field_values previous_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_sec_pml;
+        std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
 
     private:
         std::vector<std::shared_ptr<Domain>> left;
         std::vector<std::shared_ptr<Domain>> right;
         std::vector<std::shared_ptr<Domain>> top;
         std::vector<std::shared_ptr<Domain>> bottom;
-        std::vector<std::shared_ptr<Domain>> pml_for;
     public:
         /**
          * Default constructor
@@ -94,7 +94,7 @@ namespace Kernel {
         Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                std::shared_ptr<WaveNumberDiscretizer> wnd,
-               const std::shared_ptr<Domain> pml_for);
+               const std::shared_ptr<Domain> pml_for_domain);
 
         /**
          * Calculates the rho matrices for all edges touching another domain
@@ -126,8 +126,9 @@ namespace Kernel {
          * Method that checks if this domain is touching the input domain
          * @param d Domain to check against this domain
          */
-        bool is_neighbour_of(Domain d);
+        bool is_neighbour_of(std::shared_ptr<Domain> domain);
 
+        bool is_pml_for(std::shared_ptr<Domain> domain);
         /**
          * Returns true if the domain is rigid
          */

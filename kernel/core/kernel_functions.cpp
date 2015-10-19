@@ -28,7 +28,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "kernel_functions.h"
-#include "PSTDFile.h"
 #include <stdexcept>
 
 namespace Kernel {
@@ -64,7 +63,7 @@ namespace Kernel {
     float getGridSpacing(PSTDFileSettings cnf) {
         Eigen::Array<float, 9, 1> dxv;
         dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //Louis: is there a good reason to disallow other vals?
-        float waveLength = 0.5 * cnf.GetSoundSpeed() / cnf.GetMaxFrequency();
+        float waveLength = cnf.GetSoundSpeed() / cnf.GetMaxFrequency() / 2;
         if (waveLength < 0.002) {
             throw std::invalid_argument("Wavelength (speed/frequency) is too small");
         }
@@ -74,10 +73,6 @@ namespace Kernel {
             }
         }
         return dxv.size() - 1;
-    }
-
-    Direction opposite(Direction direction) {
-
     }
 
     std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {

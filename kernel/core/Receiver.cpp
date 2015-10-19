@@ -85,11 +85,11 @@ namespace Kernel {
 
         Eigen::Matrix<float, 1, 4> rho; //TODO: Needs the rho matrix
 
-        float si_value;
         Eigen::ArrayXXf p0shift = spatderp3(p0dx_slice, z_fact, this->config->getWaveLength(),
                                             1, opt_wave_number, rho, p0dx_bottom_slice,
                                             p0dx_top_slice, 0, 0);
-
+        int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;
+        float si_value = p0shift(rel_y_point, 0);
         return si_value;
     }
 

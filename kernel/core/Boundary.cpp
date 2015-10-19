@@ -24,7 +24,7 @@
 // Authors: 0mar Richardson
 //
 //
-// Purpose:
+// Purpose: Models a horizontal or vertical boundary between two rectangular domains.
 //
 //
 //////////////////////////////////////////////////////////////////////////

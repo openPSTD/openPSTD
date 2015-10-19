@@ -24,7 +24,7 @@
 // Authors: Omar Richardson
 //
 //
-// Purpose:
+// Purpose: Model a scene (a collections of rectangular domains).
 //
 //
 //////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,7 @@
 #include "Receiver.h"
 #include "Boundary.h"
 #include "PSTDFile.h"
+
 namespace Kernel {
     class Scene {
     public:
@@ -86,7 +87,7 @@ namespace Kernel {
          * whether they share a boundary or whether more PML domains have to be added(?).
          * @param domain: unprocessed domain object.
          */
-        void add_domain(Domain domain);
+        void add_domain(std::shared_ptr<Domain> domain);
 
         void compute_rho_matrices();
 
