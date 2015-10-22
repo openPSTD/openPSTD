@@ -72,10 +72,12 @@ namespace Kernel {
         LEFT, RIGHT, TOP, BOTTOM
     };
 
-//    std::map<Direction,Direction> opposites= {{Direction::LEFT,Direction::RIGHT},
-//                                               {Direction::RIGHT,Direction::LEFT},
-//                                               {Direction::TOP,Direction::BOTTOM},
-//                                               {Direction::BOTTOM,Direction::TOP}};
+    /**
+     * Return the opposite direction of the provided direction
+     * @param direction: Direction enum
+     * @return: opposite direction
+     */
+    Direction get_opposite(Direction direction);
 
     struct RhoArray {
         Eigen::Array<float, 4, 2> pressure;
@@ -137,7 +139,7 @@ namespace Kernel {
      * @return a tuple of vectors, the first being the coefficients for pressure,
      * the second for velocity.
      */
-    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf); //TODO Louis change cnf argument
+    //std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf); //TODO Probably unused
 
 }
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H

@@ -75,18 +75,32 @@ namespace Kernel {
         return dxv.size() - 1;
     }
 
-    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
-        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5f, 1);
-        for (int i = 0; i < cell_list_p.size(); i++) {
-            cell_list_p[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4));
+    Direction get_opposite(Direction direction) {
+        switch (direction) {
+            case Direction::TOP:
+                return Direction::BOTTOM;
+            case Direction::BOTTOM:
+                return Direction::TOP;
+            case Direction::LEFT:
+                return Direction::RIGHT;
+            case Direction::RIGHT:
+                return Direction::LEFT;
         }
-        std::vector<float> cell_list_u = arange<float>(0, cnf.GetPMLCells() + 1, 1);
-        for (int i = 0; i < cell_list_u.size(); i++) {
-            cell_list_u[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4));
-            cell_list_u[i] = cnf.GetDensityOfAir() * cell_list_u[i];
-        }
-        return make_tuple(cell_list_p, cell_list_u);
+
     }
+
+//    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
+//        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5f, 1);
+//        for (int i = 0; i < cell_list_p.size(); i++) {
+//            cell_list_p[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4));
+//        }
+//        std::vector<float> cell_list_u = arange<float>(0, cnf.GetPMLCells() + 1, 1);
+//        for (int i = 0; i < cell_list_u.size(); i++) {
+//            cell_list_u[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4));
+//            cell_list_u[i] = cnf.GetDensityOfAir() * cell_list_u[i];
+//        }
+//        return make_tuple(cell_list_p, cell_list_u);
+//    }
 
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
                               int Wlength, int N1, int N2, Eigen::Matrix<float, 1, 4> Rmatrix,

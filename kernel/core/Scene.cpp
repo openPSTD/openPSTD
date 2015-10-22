@@ -73,13 +73,40 @@ namespace Kernel {
                     continue;
                 }
             }
-            std::shared_ptr<Boundary> boundary = nullptr;
-            std::string orientation = "";
-            //Boundary range checking.
-
-            //Adding domains and neigbours
-            //Todo (Omar) Finish
+            BoundaryType bt;
+            Direction orientation;
+            std::vector<int> intersection;
+            bool is_neighbour = true;
+            if (domain->bottom_right->x == other_domain->top_left->x) {
+                orientation = Direction::RIGHT;
+                bt = BoundaryType::VERTICAL;
+            } else if (domain->top_left->x == other_domain->bottom_right->x) {
+                orientation = Direction::LEFT;
+                bt = BoundaryType::VERTICAL;
+            } else if (domain->bottom_right->y == other_domain->top_left->y) {
+                orientation = Direction::BOTTOM;
+                bt = BoundaryType::HORIZONTAL;
+            } else if (domain->top_left->y == other_domain->bottom_right->y) {
+                orientation = Direction::TOP;
+                bt = BoundaryType::HORIZONTAL;
+            } else {
+                is_neighbour = false;
+            }
+            bool other_domain_pml_for_different_domain =
+                    other_domain->is_pml && !domain->is_pml && !other_domain->is_pml_for(domain);
+            bool domain_pml_for_different_domain =
+                    domain->is_pml && !other_domain->is_pml && !domain->is_pml_for(other_domain);
+            if (is_neighbour && !other_domain_pml_for_different_domain && !domain_pml_for_different_domain) {
+                intersection = domain->get_intersection_with(other_domain, orientation);
+                if (intersection.size()) {
+                    std::shared_ptr<Boundary> boundary(new Boundary(domain, other_domain, bt));
+                    this->boundary_list.push_back(boundary);
+                    domain->add_neighbour_at(other_domain, orientation);
+                    other_domain->add_neighbour_at(domain, get_opposite(orientation));
+                }
+            }
         }
+        this->domain_list.push_back(domain);
     }
 
 
