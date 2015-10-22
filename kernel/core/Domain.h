@@ -122,6 +122,8 @@ namespace Kernel {
          */
         std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<float> location);
 
+
+        void add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction);
         /**
          * Method that checks if this domain is touching the input domain
          * @param d Domain to check against this domain
@@ -140,6 +142,14 @@ namespace Kernel {
          * @param bt Direction in which the range is requested
          */
         std::vector<int> get_range(BoundaryType bt);
+
+        /**
+         * Computes the grid points in a given direction the domain has in common with another domain.
+         * @param other_domain: Domain this domain is compared to
+         * @param direction: Direction along which the grid points are checked.
+         * @return: vector of integers with shared grid point coordinates (in x/y/z direction)
+         */
+        std::vector<int> get_intersection_with(std::shared_ptr<Domain> other_domain, Direction direction);
 
         /**
          * Calculate one timestep of propagation in this domain

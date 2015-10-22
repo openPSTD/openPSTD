@@ -64,19 +64,19 @@ namespace Kernel {
 
         if (dest != nullptr || ct == CalculationType::PRESSURE) {
             if (bt == BoundaryType::HORIZONTAL) {
-                source = extended_zeros(0,1);
+                source = extended_zeros(0, 1);
             } else {
-                source = extended_zeros(1,0);
+                source = extended_zeros(1, 0);
             }
         } else {
-            source = extended_zeros(0,0);
+            source = extended_zeros(0, 0);
         }
 
         // loop over all possible combinations of neighbours for this domain (including null on one side)
         std::shared_ptr<Domain> d1, d2;
-        for (int i = 0; i != domains1.size()+1; i++ ) {
+        for (int i = 0; i != domains1.size() + 1; i++) {
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
-            for (int j = 0; i != domains2.size()+1; j++) {
+            for (int j = 0; i != domains2.size() + 1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
                 std::vector<int> rho_matrix_key;
                 rho_matrix_key.push_back(d1->id);
@@ -105,10 +105,10 @@ namespace Kernel {
                 }
 
                 // Set up various parameters and intermediates that are needed for the spatial derivatives
-                int range_start = *std::min_element(range_intersection.begin(),range_intersection.end());
-                int range_end = *std::max_element(range_intersection.begin(),range_intersection.end())+1;
+                int range_start = *std::min_element(range_intersection.begin(), range_intersection.end());
+                int range_end = *std::max_element(range_intersection.begin(), range_intersection.end()) + 1;
                 int primary_dimension = (bt == BoundaryType::HORIZONTAL) ? this->size->x : this->size->y;
-                int N_total = 2*this->settings->GetWindowSize() + primary_dimension;
+                int N_total = 2 * this->settings->GetWindowSize() + primary_dimension;
 
                 if (ct == CalculationType::PRESSURE) {
                     N_total++;
@@ -155,7 +155,7 @@ namespace Kernel {
                     if (ct == CalculationType::PRESSURE) {
                         matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.p0);
                     } else {
-                        if(bt == BoundaryType::HORIZONTAL) {
+                        if (bt == BoundaryType::HORIZONTAL) {
                             matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.u0);
                         } else {
                             matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.w0);
@@ -166,7 +166,7 @@ namespace Kernel {
                     if (ct == CalculationType::PRESSURE) {
                         matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.p0);
                     } else {
-                        if(bt == BoundaryType::HORIZONTAL) {
+                        if (bt == BoundaryType::HORIZONTAL) {
                             matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.u0);
                         } else {
                             matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.w0);
@@ -175,8 +175,8 @@ namespace Kernel {
                 }
 
                 // Set up parameters for the spatial derivative later
-                int var_index=0, direction=0;
-                if (ct == CalculationType::VELOCITY){
+                int var_index = 0, direction = 0;
+                if (ct == CalculationType::VELOCITY) {
                     var_index = 1;
                 }
                 if (bt == BoundaryType::HORIZONTAL) {
@@ -188,14 +188,16 @@ namespace Kernel {
                     derfact = dest;
                 } else {
                     if (ct == CalculationType::PRESSURE) {
-                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(), N_total).pressure_deriv_factors;
+                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(),
+                                                          N_total).pressure_deriv_factors;
                     } else {
-                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(), N_total).velocity_deriv_factors;
+                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(),
+                                                          N_total).velocity_deriv_factors;
                     }
                 }
 
                 // Determine which rho matrix instance to use
-                Eigen::Matrix<float,1,4> rmat; // = something TODO Louis fix dit
+                Eigen::Matrix<float, 1, 4> rmat; // = something TODO Louis fix dit
             }
         }
     }
@@ -230,7 +232,7 @@ namespace Kernel {
     }
 
     std::vector<int> Domain::get_range(BoundaryType bt) {
-        int a_l,b_l;
+        int a_l, b_l;
         if (bt == BoundaryType::HORIZONTAL) {
             a_l = this->top_left->x;
             b_l = this->bottom_right->x;
@@ -239,12 +241,33 @@ namespace Kernel {
             b_l = this->bottom_right->y;
         }
         std::vector<int> tmp((unsigned long) (b_l - a_l));
-        std::iota(tmp.begin(),tmp.end(), a_l);
+        std::iota(tmp.begin(), tmp.end(), a_l); // Increases with 1 from a_l
         return tmp;
     }
 
+    std::vector<int> Domain::get_intersection_with(std::shared_ptr<Domain> other_domain, Direction direction) {
+        std::vector<int> own_range;
+        std::vector<int> other_range;
+        switch (direction) {
+            case Direction::LEFT:
+            case Direction::RIGHT:
+                own_range = this->get_range(BoundaryType::VERTICAL);
+                other_range = other_domain->get_range(BoundaryType::VERTICAL);
+                break;
+            case Direction::TOP:
+            case Direction::BOTTOM:
+                own_range = this->get_range(BoundaryType::HORIZONTAL);
+                other_range = other_domain->get_range(BoundaryType::HORIZONTAL);
+                break;
+        }
+        std::vector<int> range_intersection = own_range;
+        set_intersection(other_range.begin(), other_range.end(), range_intersection.begin(), range_intersection.end(),
+                         back_inserter(range_intersection));
+        return range_intersection;
+    }
+
     std::shared_ptr<Eigen::ArrayXXf> Domain::extended_zeros(int x, int y, int z) {
-        std::shared_ptr<Eigen::ArrayXXf> tmp (new Eigen::ArrayXXf(this->size->x + x, this->size->y + y));
+        std::shared_ptr<Eigen::ArrayXXf> tmp(new Eigen::ArrayXXf(this->size->x + x, this->size->y + y));
         tmp->setZero();
         return tmp;
     }
@@ -260,12 +283,25 @@ namespace Kernel {
         return NULL;
     }
 
+    void Domain::add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction) {
+        switch (direction) {
+            case Direction::LEFT:
+                this->left.push_back(domain);
+            case Direction::RIGHT:
+                this->right.push_back(domain);
+            case Direction::TOP:
+                this->top.push_back(domain);
+            case Direction::BOTTOM:
+                this->bottom.push_back(domain);
+        }
+    }
+
     void Domain::calc_rho_matrices() {
         std::vector<std::shared_ptr<Domain>> left_domains = this->left;
         std::vector<std::shared_ptr<Domain>> right_domains = this->right;
         std::vector<std::shared_ptr<Domain>> top_domains = this->top;
         std::vector<std::shared_ptr<Domain>> bottom_domains = this->bottom;
-        
+
         //TODO Louis finish this
     }
 }
