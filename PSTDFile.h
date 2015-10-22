@@ -88,7 +88,8 @@ public:
     void SetSaveNth(int value);
 
     float getBandWidth();
-    void setBandWidth(double value);
+
+    void setBandWidth(float value);
 
     bool getSpectralInterpolation();
 
@@ -96,7 +97,7 @@ public:
 
     float getWaveLength();
 
-    void setWaveLength(double value);
+    void setWaveLength(float value);
 };
 
 class DomainEdge

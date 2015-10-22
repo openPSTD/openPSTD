@@ -491,7 +491,8 @@ void PSTDFileSettings::SetSaveNth(int value)
 float PSTDFileSettings::getBandWidth() {
     return this->band_width;
 }
-void PSTDFileSettings::setBandWidth(double value) {
+
+void PSTDFileSettings::setBandWidth(float value) {
     this->band_width = value;
 }
 
@@ -499,7 +500,7 @@ float PSTDFileSettings::getWaveLength() {
     return this->wave_length;
 }
 
-void PSTDFileSettings::setWaveLength(double value) {
+void PSTDFileSettings::setWaveLength(float value) {
     this->wave_length = value;
 }
 

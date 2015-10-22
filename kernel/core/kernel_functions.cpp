@@ -35,7 +35,7 @@ namespace Kernel {
         // 0mar: I switched the order of parameters in this function. Remember when porting classes.py.
         float zn1 = rho1 / rho;
         float inv_zn1 = rho / rho1;
-        float rlw1 = (zn1 - 1.) / (zn1 + 1);
+        float rlw1 = (zn1 - 1) / (zn1 + 1);
         float rlw2 = (inv_zn1 - 1) / (inv_zn1 + 1);
         float tlw1 = (2 * zn1) / (zn1 + 1);
         float tlw2 = (2 * inv_zn1) / (inv_zn1 + 1);
@@ -76,13 +76,13 @@ namespace Kernel {
     }
 
     std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
-        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5, 1);
+        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5f, 1);
         for (int i = 0; i < cell_list_p.size(); i++) {
-            cell_list_p[i] = cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4);
+            cell_list_p[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4));
         }
         std::vector<float> cell_list_u = arange<float>(0, cnf.GetPMLCells() + 1, 1);
         for (int i = 0; i < cell_list_u.size(); i++) {
-            cell_list_u[i] = cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4);
+            cell_list_u[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4));
             cell_list_u[i] = cnf.GetDensityOfAir() * cell_list_u[i];
         }
         return make_tuple(cell_list_p, cell_list_u);
