@@ -112,7 +112,7 @@ namespace Kernel {
      * @param rho density of opposite neighbour
      * return struct containing pressure and velocity matrix (4x2)
      */
-    RhoArray get_rho_array(const float rho1, const float rho2, const float rho);
+    RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2);
 
     /**
      * Computes the largest grid spacing possible based

@@ -261,11 +261,77 @@ namespace Kernel {
     }
 
     void Domain::calc_rho_matrices() {
+        //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
+        struct index_strings {
+            std::string id(std::shared_ptr<Domain> d1, Domain *dm, std::shared_ptr<Domain> d2) {
+                return std::to_string(d1->id)+std::to_string(dm->id)+std::to_string(d2->id);
+            }
+            std::string id(std::shared_ptr<Domain> d1, Domain *dm) {
+                return std::to_string(d1->id)+std::to_string(dm->id);
+            }
+            std::string id(Domain *dm, std::shared_ptr<Domain> d2) {
+                return std::to_string(dm->id)+std::to_string(d2->id);
+            }
+            std::string id(Domain *dm) {
+                return std::to_string(dm->id));
+            }
+        };
+        index_strings x;
         std::vector<std::shared_ptr<Domain>> left_domains = this->left;
         std::vector<std::shared_ptr<Domain>> right_domains = this->right;
         std::vector<std::shared_ptr<Domain>> top_domains = this->top;
         std::vector<std::shared_ptr<Domain>> bottom_domains = this->bottom;
-        
-        //TODO Louis finish this
+
+        float max_float = std::numeric_limits<float>::max();
+
+        // we should probably refactor to a prettier solution
+        if(left_domains.size()){
+            for (std::shared_ptr<Domain> d1 : left_domains) {
+                if(right_domains.size()){
+                    for (std::shared_ptr<Domain> d2 : right_domains) {
+                        std::vector<float> rhos = {d1->rho, d2->rho};
+                        this->rho_arrays[x.id(d1,this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    }
+                } else {
+                    std::vector<float> rhos = {d1->rho, max_float};
+                    this->rho_arrays[x.id(d1,this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                }
+            }
+        } else {
+            if(right_domains.size()){
+                for (std::shared_ptr<Domain> d2 : right_domains) {
+                    std::vector<float> rhos = {max_float, d2->rho};
+                    this->rho_arrays[x.id(this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                }
+            } else {
+                std::vector<float> rhos = {max_float, max_float};
+                this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+            }
+        }
+
+        if(bottom_domains.size()){
+            for (std::shared_ptr<Domain> d1 : bottom_domains) {
+                if(top_domains.size()){
+                    for (std::shared_ptr<Domain> d2 : top_domains) {
+                        std::vector<float> rhos = {d1->rho, d2->rho};
+                        this->rho_arrays[x.id(d1,this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    }
+                } else {
+                    std::vector<float> rhos = {d1->rho, max_float};
+                    this->rho_arrays[x.id(d1,this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                }
+            }
+        } else {
+            if(top_domains.size()){
+                for (std::shared_ptr<Domain> d2 : top_domains) {
+                    std::vector<float> rhos = {max_float, d2->rho};
+                    this->rho_arrays[x.id(this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                }
+            } else {
+                std::vector<float> rhos = {max_float, max_float};
+                this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+            }
+        }
+
     }
 }

@@ -31,17 +31,17 @@
 #include <stdexcept>
 
 namespace Kernel {
-    RhoArray get_rho_array(const float rho1, const float rho2, const float rho) {
+    RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2) {
         // 0mar: I switched the order of parameters in this function. Remember when porting classes.py.
-        float zn1 = rho1 / rho;
-        float inv_zn1 = rho / rho1;
+        float zn1 = rho1 / rho_self;
+        float inv_zn1 = rho_self / rho1;
         float rlw1 = (zn1 - 1) / (zn1 + 1);
         float rlw2 = (inv_zn1 - 1) / (inv_zn1 + 1);
         float tlw1 = (2 * zn1) / (zn1 + 1);
         float tlw2 = (2 * inv_zn1) / (inv_zn1 + 1);
 
-        float zn2 = rho2 / rho;
-        float inv_zn2 = rho / rho2;
+        float zn2 = rho2 / rho_self;
+        float inv_zn2 = rho_self / rho2;
         float rrw1 = (zn2 - 1) / (zn2 + 1);
         float rrw2 = (inv_zn2 - 1) / (inv_zn2 + 1);
         float trw1 = (2 * zn2) / (zn2 + 1);
