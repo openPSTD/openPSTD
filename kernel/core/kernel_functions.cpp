@@ -31,7 +31,7 @@
 #include <stdexcept>
 
 namespace Kernel {
-    rMatrices1D getRMatrices1D(const float rho1, const float rho2, const float rho) {
+    RhoArray get_rho_array(const float rho1, const float rho2, const float rho) {
         // 0mar: I switched the order of parameters in this function. Remember when porting classes.py.
         float zn1 = rho1 / rho;
         float inv_zn1 = rho / rho1;
@@ -46,7 +46,7 @@ namespace Kernel {
         float rrw2 = (inv_zn2 - 1) / (inv_zn2 + 1);
         float trw1 = (2 * zn2) / (zn2 + 1);
         float trw2 = (2 * inv_zn2) / (inv_zn2 + 1);
-        rMatrices1D result;
+        RhoArray result;
         result.pressure << rlw1, rlw2, rrw1, rrw2,
                 tlw1, tlw2, trw1, trw2;
         result.velocity << -rlw1, -rlw2, -rrw1, -rrw2,

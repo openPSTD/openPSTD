@@ -64,7 +64,7 @@ namespace Kernel {
         float alpha;
         float impedance;
         float rho;
-        rMatrices1D rho_matrix;
+        RhoArray rho_matrix;
         std::shared_ptr<Point> top_left;
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;

@@ -77,14 +77,9 @@ namespace Kernel {
 //                                               {Direction::TOP,Direction::BOTTOM},
 //                                               {Direction::BOTTOM,Direction::TOP}};
 
-    struct rMatrices2D {
-        Eigen::Matrix<float, 4, 4> pressure;
-        Eigen::Matrix<float, 4, 4> velocity;
-    };
-
-    struct rMatrices1D {
-        Eigen::Matrix<float, 4, 2> pressure;
-        Eigen::Matrix<float, 4, 2> velocity;
+    struct RhoArray {
+        Eigen::Array<float, 4, 2> pressure;
+        Eigen::Array<float, 4, 2> velocity;
     };
 
     /**
@@ -117,7 +112,7 @@ namespace Kernel {
      * @param rho density of opposite neighbour
      * return struct containing pressure and velocity matrix (4x2)
      */
-    rMatrices1D getRMatrices1D(const float rho1, const float rho2, const float rho);
+    RhoArray get_rho_array(const float rho1, const float rho2, const float rho);
 
     /**
      * Computes the largest grid spacing possible based
