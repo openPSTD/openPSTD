@@ -62,8 +62,9 @@ class SingleThreaded:
             # Keep a reference to current matrix contents
             for domain in scene.domains: domain.push_values()
 
+            rkstep = 4;
             # Loop over subframes
-            for sub_frame in range(6):
+            for sub_frame in range(rkstep):
                 # Loop over calculation directions and measures
                 for domain in scene.domains:
                     calc_domain(domain)

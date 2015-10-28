@@ -52,7 +52,7 @@ class PSTD_Config_Base(object):
         # calculate coefficents array based of values from config
         coef = [float(s.strip()) for s in self.alphas.split(',')]
         f = lambda i: coef[i]/reduce(operator.mul, [f(r) for r in range(i+1,len(coef))], 1) if i < len(coef) else 1
-        self.alfa = np.array([(f(i),) for i in range(6)])
+        self.alfa = np.array([(f(i),) for i in range(4)])
         
         # PML matrices
         # attenuation coefficients of PMLcells for pressure
