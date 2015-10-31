@@ -3,43 +3,21 @@ language: cpp
 sudo: required
 
 before_install:
+ - sudo chmod 777 -R build
+ - export PATH=./build/:$PATH
  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
  - sudo add-apt-repository --yes ppa:beineri/opt-qt55
- - sudo apt-get update -qq
- - wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download -O boost_1_59_0.tar.bz2
- - tar -xjf boost_1_59_0.tar.bz2
- - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-v1.0.2.tar.gz
- - tar -xzf rapidjson-v1.0.2.tar.gz
- - mv rapidjson-1.0.2 rapidjson
- - cd unqlite
- - wget http://unqlite.org/db/unqlite-db-116.zip
- - unzip unqlite-db-116.zip
- - wget http://unqlite.org/db/g++421patch.diff
- - patch < g++421patch.diff
- - cmake -G Unix\ Makefiles
- - cd ..
 
 install:
- - sudo apt-get install qt553d qt55canvas3d
- - sudo apt-get install qtcreator-latest
- - uic DocumentSettings.ui > ui_DocumentSettings.h
- - uic DomainProperties.ui > ui_DomainProperties.h
- - uic MainWindow.ui > ui_MainWindow.h
- - sudo apt-get install gcc-4.9 g++-4.9
- - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50
- - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
- - cd boost_1_59_0/
- - ./bootstrap.sh --with-libraries=program_options
- - sudo ./b2 -d0 install
- - cd ../
- - ls -al /opt/qt55/include/QtGui/
- - export PATH=$PATH:/opt/qt55/bin/
- - cd unqlite
- - make
- - cd ..
+ - install_gcc49.sh
+ - install_Qt55.sh
+ - install_boost.sh
+ - install_rapidjson.sh
+ - install_unqlite.sh
 
 before_script:
+ - execute_uic.sh
  - uname -r
  - gcc -v
 
