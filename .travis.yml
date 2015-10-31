@@ -7,23 +7,16 @@ dist: trusty
 before_install:
  - sudo chmod 777 -R build
  - export PATH=./build/:$PATH
-# - export PATH=/opt/qt55/bin/:$PATH
- - uname -r
- - gcc -v
- - cmake --version
- - pwd
  - sudo apt-get update -qq
 
 install:
  - install_unqlite.sh
  - install_Qt55.sh
+ - rcc Resources.qrc
  - install_boost.sh
  - install_rapidjson.sh
 
 before_script:
- - ls -al /usr/lib/*
- - ls -al /usr/lib/x86_64-linux-gnu/*
-# - execute_uic.sh
  - uname -r
  - gcc -v
  - cmake --version
