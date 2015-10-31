@@ -2,6 +2,8 @@ language: cpp
 
 sudo: required
 
+dist: trusty
+
 before_install:
  - sudo chmod 777 -R build
  - export PATH=./build/:$PATH
@@ -12,6 +14,7 @@ before_install:
  - sudo apt-get update -qq
 
 install:
+ - install_cmake33.sh
  - install_gcc49.sh
  - install_unqlite.sh
  - install_Qt55.sh
