@@ -7,15 +7,17 @@ dist: trusty
 before_install:
  - sudo chmod 777 -R build
  - export PATH=./build/:$PATH
- - export PATH=/opt/qt55/bin/:$PATH
- - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
- - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
- - sudo add-apt-repository --yes ppa:beineri/opt-qt55
+# - export PATH=/opt/qt55/bin/:$PATH
+ - uname -r
+ - gcc -v
+# - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+# - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+# - sudo add-apt-repository --yes ppa:beineri/opt-qt55
  - sudo apt-get update -qq
 
+# - install_gcc49.sh
 install:
  - install_cmake33.sh
- - install_gcc49.sh
  - install_unqlite.sh
  - install_Qt55.sh
  - install_boost.sh
