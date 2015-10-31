@@ -14,9 +14,6 @@ before_install:
 install:
  - install_gcc49.sh
  - install_unqlite.sh
- - ls -al /home/travis/build/micfort/openPSTD/unqlite
- - nm /home/travis/build/micfort/openPSTD/unqlite/libunqlite.a
- - nm unqlite/libunqlite.a
  - install_Qt55.sh
  - install_boost.sh
  - install_rapidjson.sh
