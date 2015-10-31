@@ -33,7 +33,7 @@ install:
  - ./bootstrap.sh --with-libraries=program_options
  - sudo ./b2 -d0 install
  - cd ../
- - ls -al /opt/qt55/*
+ - ls -al /opt/qt55/include/QtGui/
  - export PATH=$PATH:/opt/qt55/bin/
  - cd unqlite
  - make
