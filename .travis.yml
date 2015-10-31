@@ -11,9 +11,6 @@ before_install:
  - uname -r
  - gcc -v
  - cmake --version
-# - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
-# - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-# - sudo add-apt-repository --yes ppa:beineri/opt-qt55
  - sudo apt-get update -qq
 
 install:
@@ -24,7 +21,7 @@ install:
  - install_rapidjson.sh
 
 before_script:
- - execute_uic.sh
+# - execute_uic.sh
  - uname -r
  - gcc -v
  - cmake --version
