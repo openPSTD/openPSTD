@@ -22,6 +22,8 @@ install:
  - install_rapidjson.sh
 
 before_script:
+ - ls -al /usr/lib/*
+ - ls -al /usr/lib/x86_64-linux-gnu/*
 # - execute_uic.sh
  - uname -r
  - gcc -v
