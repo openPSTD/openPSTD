@@ -23,9 +23,9 @@ before_install:
 install:
  - sudo apt-get install qt553d qt55canvas3d
  - sudo apt-get install qtcreator-latest
- - uic DocumentSettings.ui
- - uic DomainProperties.ui
- - uic MainWindow.ui
+ - uic DocumentSettings.ui > ui_DocumentSettings.h
+ - uic DomainProperties.ui > ui_DomainProperties.h
+ - uic MainWindow.ui > ui_MainWindow.h
  - sudo apt-get install gcc-4.9 g++-4.9
  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50
  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
@@ -44,6 +44,5 @@ before_script:
  - gcc -v
 
 script: 
- - uic *.ui
  - cmake -G Unix\ Makefiles
  - make OpenPSTD-gui
