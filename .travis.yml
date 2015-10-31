@@ -8,6 +8,7 @@ before_install:
  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
  - sudo add-apt-repository --yes ppa:beineri/opt-qt55
+ - sudo apt-get update -qq
 
 install:
  - install_gcc49.sh
