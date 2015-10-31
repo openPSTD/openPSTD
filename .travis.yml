@@ -41,5 +41,6 @@ before_script:
  - gcc -v
 
 script: 
+ - uic *.ui
  - cmake -G Unix\ Makefiles
  - make OpenPSTD-gui
