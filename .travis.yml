@@ -11,13 +11,14 @@ before_install:
  - uname -r
  - gcc -v
  - cmake --version
+ - pwd
  - sudo apt-get update -qq
 
 install:
 # - install_cmake33.sh
  - install_unqlite.sh
  - install_Qt55.sh
- - install_boost.sh
+# - install_boost.sh
  - install_rapidjson.sh
 
 before_script:
