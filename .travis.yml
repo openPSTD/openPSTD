@@ -27,5 +27,4 @@ before_script:
  - gcc -v
 
 script: 
- - cmake -G Unix\ Makefiles
- - make OpenPSTD-gui VERBOSE=1
+ - compile.sh
