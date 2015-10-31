@@ -13,10 +13,11 @@ before_install:
 
 install:
  - install_gcc49.sh
+ - install_unqlite.sh
+ - ls -al /home/travis/build/micfort/openPSTD/unqlite
  - install_Qt55.sh
  - install_boost.sh
  - install_rapidjson.sh
- - install_unqlite.sh
 
 before_script:
  - execute_uic.sh
