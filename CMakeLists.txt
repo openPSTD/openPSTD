@@ -26,13 +26,11 @@
 #
 ########################################################################
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.2)
 project(OpenPSTD)
 
 #------------------------------------
 # configuration options in the cache
-set(PYTHON_LIBRARY "" CACHE PATH "The library of python 3.4, empty then it does autodetect")
-set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then it does autodetect")
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
@@ -41,16 +39,8 @@ set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 #------------------------------------
-# Python
-find_package(PythonLibs)
-message(STATUS "Python found: ${PYTHONLIBS_FOUND}")
-message(STATUS "Python lib path: ${PYTHON_LIBRARIES}")
-message(STATUS "Python include path: ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "Python version: ${PYTHONLIBS_VERSION_STRING}")
-
-if(NOT PYTHONLIBS_FOUND)
-   message( FATAL_ERROR "Missing Python Libs." )
-endif()
+# General
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 #------------------------------------
 # BOOST
@@ -78,11 +68,11 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #function for easy loading Qt modules
-set(Qt5_CMAKE "lib\\cmake")
+set(Qt5_CMAKE "lib/cmake")
 set(Qt5_FIRST 1)
 set(Qt5_FOUND 0)
 macro(loadQtPackage QtModule)
-    set(${QtModule}_DIR "${Qt5_DIR}\\${Qt5_CMAKE}\\${QtModule}")
+    set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
     find_package(${QtModule})
     if(Qt5_FIRST)
@@ -143,7 +133,6 @@ message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
 
 #------------------------------------
 # include directories
-include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
@@ -153,7 +142,7 @@ include_directories(${EIGEN_INCLUDE})
 
 #------------------------------------
 # Compiling flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 #------------------------------------
 # Kernel
@@ -163,7 +152,7 @@ add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 #------------------------------------
 # UI
 # CLI source files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
+# set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
 # Operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)
@@ -182,10 +171,8 @@ add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
 # link libraries
-target_link_libraries(OpenPSTD-cli ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
 
-target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
