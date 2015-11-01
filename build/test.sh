@@ -1,0 +1,1 @@
+./OpenPSTD-gui-test
