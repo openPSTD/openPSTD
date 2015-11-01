@@ -26,7 +26,7 @@
 #
 ########################################################################
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 project(OpenPSTD)
 
 #------------------------------------
@@ -152,7 +152,7 @@ add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 #------------------------------------
 # UI
 # CLI source files
-# set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI}) Uses python
+# set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
 # Operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)

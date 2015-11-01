@@ -14,9 +14,9 @@ before_install:
 install:
  - install_unqlite.sh
  - install_Qt55.sh
- - rcc Resources.qrc
  - install_boost.sh
  - install_rapidjson.sh
+ - install_eigen.sh
 
 before_script:
  - uname -r
