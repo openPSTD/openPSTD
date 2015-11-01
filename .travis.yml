@@ -8,9 +8,7 @@ before_install:
  - sudo chmod 777 -R build
  - export PATH=./build/:$PATH
  - export PATH=/opt/qt55/bin/:$PATH
- - deb http://ppa.launchpad.net/beineri/opt-qt55-trusty/ubuntu trusty main
- - deb-src http://ppa.launchpad.net/beineri/opt-qt55-trusty/ubuntu trusty main 
-# - sudo add-apt-repository --yes ppa:beineri/opt-qt55
+ - sudo add-apt-repository --yes ppa:beineri/opt-qt55-trusty
  - sudo apt-get update -qq
 
 install:
