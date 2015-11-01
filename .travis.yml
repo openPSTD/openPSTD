@@ -7,6 +7,8 @@ dist: trusty
 before_install:
  - sudo chmod 777 -R build
  - export PATH=./build/:$PATH
+ - export PATH=/opt/qt55/bin/:$PATH
+ - sudo add-apt-repository --yes ppa:beineri/opt-qt55
  - sudo apt-get update -qq
 
 install:
