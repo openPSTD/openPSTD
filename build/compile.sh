@@ -7,4 +7,4 @@ cmake \
 	-D UNQLITE_LIB:PATH=/home/travis/build/micfort/openPSTD/unqlite/libunqlite.a \
 	-D Qt5_DIR:PATH=/opt/qt55 \
 	-G Unix\ Makefiles ./
-make OpenPSTD-gui VERBOSE=1
+make OpenPSTD-gui-test VERBOSE=1
