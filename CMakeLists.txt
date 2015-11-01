@@ -49,7 +49,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 
 message(STATUS "Boost root hint: ${BOOST_ROOT}")
-find_package(Boost 1.54.0 REQUIRED program_options)
+find_package(Boost 1.54.0 REQUIRED program_options unit_test_framework)
 message(STATUS "Boost found: ${Boost_FOUND}")
 message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
@@ -101,6 +101,7 @@ message(STATUS "Qt5 version: ${Qt5_VERSION_STRING}")
 
 if (Qt5_POSITION_INDEPENDENT_CODE)
     SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
 if(NOT Qt5Widgets_FOUND)
@@ -142,7 +143,7 @@ include_directories(${EIGEN_INCLUDE})
 
 #------------------------------------
 # Compiling flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #------------------------------------
 # Kernel
@@ -170,6 +171,14 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapp
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
+# UI test
+# CLI source files
+set(SOURCE_FILES_GUI_TEST ${SOURCE_FILES_GUI})
+# Remaining
+set(SOURCE_FILES_GUI_TEST ${SOURCE_FILES_GUI_TEST} Edges-test.cpp)
+add_executable(OpenPSTD-gui-test ${SOURCE_FILES_GUI_TEST} main-gui-test.cpp)
+
+#------------------------------------
 # link libraries
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
 
@@ -177,3 +186,8 @@ target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
+
+target_link_libraries(OpenPSTD-gui-test ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-gui-test ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-gui-test ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-gui-test ${OPENGL_LIBRARIES})
