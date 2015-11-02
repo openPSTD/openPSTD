@@ -1,1 +1,2 @@
-./OpenPSTD-gui-test
+#!/usr/bin/env bash
+./OpenPSTD-gui-test > test_results
