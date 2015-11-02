@@ -309,7 +309,7 @@ namespace Kernel {
                 return std::to_string(dm->id)+std::to_string(d2->id);
             }
             std::string id(Domain *dm) {
-                return std::to_string(dm->id));
+                return std::to_string(dm->id);
             }
         };
         index_strings x;
