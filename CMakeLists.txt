@@ -43,7 +43,6 @@ set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 #------------------------------------
 # General
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
->>>>>>> 9a9a664ff5278410a25d83bb4c79d0aa8eacdcd1
 
 #------------------------------------
 # BOOST
