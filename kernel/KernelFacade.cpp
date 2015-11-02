@@ -39,24 +39,25 @@ void KernelFacade::Configure(KernelConfiguration configuration)
 
 void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback)
 {
-    // TODO: discuss what to do with the callback
+    // TODO: discuss how to handle the callback
 
     std::shared_ptr<Kernel::Scene> cur_scene;
     cur_scene = std::make_shared<Kernel::Scene>(new Kernel::Scene(config));
 
     int solver_num = config->Settings.GetGPUAccel() + config->Settings.GetMultiThread() << 1;
+    Kernel::Solver *solver;
     switch(solver_num) {
         case 0:
-            Kernel::SingleThreadSolver(cur_scene);
+            solver = new Kernel::SingleThreadSolver(cur_scene);
             break;
         case 1:
-            Kernel::GPUSingleThreadSolver(cur_scene);
+            solver = new Kernel::GPUSingleThreadSolver(cur_scene);
             break;
         case 2:
-            Kernel::MultiThreadSolver(cur_scene);
+            solver = new Kernel::MultiThreadSolver(cur_scene);
             break;
         case 3:
-            Kernel::GPUMultiThreadSolver(cur_scene);
+            solver = new Kernel::GPUMultiThreadSolver(cur_scene);
             break;
         default:
             break;
