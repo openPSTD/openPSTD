@@ -180,6 +180,14 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapp
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
+# UI test
+# CLI source files
+set(SOURCE_FILES_GUI_TEST ${SOURCE_FILES_GUI})
+# Remaining
+set(SOURCE_FILES_GUI_TEST ${SOURCE_FILES_GUI_TEST} Edges-test.cpp)
+add_executable(OpenPSTD-gui-test ${SOURCE_FILES_GUI_TEST} main-gui-test.cpp)
+
+#------------------------------------
 # link libraries
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
 
