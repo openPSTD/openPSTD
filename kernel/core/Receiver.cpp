@@ -19,7 +19,7 @@ namespace Kernel {
 
     float Receiver::compute_local_pressure() {
         float pressure;
-        if (this->config->getSpectralInterpolation()) {
+        if (this->config->GetSpectralInterpolation()) {
             pressure = this->compute_with_si();
         } else {
             pressure = this->compute_with_nn();
@@ -36,7 +36,7 @@ namespace Kernel {
             primary_dimension = size.y;
         }
         float dx = this->config->GetGridSpacing();
-        int wave_length_number = (int) (2 * this->config->getWaveLength() + primary_dimension + 1);
+        int wave_length_number = (int) (2 * this->config->GetWaveLength() + primary_dimension + 1);
         //Pressure grid is staggered, hence + 1
         WaveNumberDiscretizer::Discretization discr = this->container_domain->wnd->get_discretization(dx,
                                                                                                       wave_length_number);
@@ -80,12 +80,12 @@ namespace Kernel {
 
         std::shared_ptr<Eigen::ArrayXcf> z_fact = this->get_fft_factors(Point(1, this->container_domain->size->y),
                                                        BoundaryType::VERTICAL);
-        float wave_number = 2 * this->config->getWaveLength() + this->container_domain->size->y + 1;
+        float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
 
         Eigen::Matrix<float, 1, 4> rho; //TODO: Needs the rho matrix
 
-        Eigen::ArrayXXf p0shift = spatderp3(p0dx_slice, z_fact, this->config->getWaveLength(),
+        Eigen::ArrayXXf p0shift = spatderp3(p0dx_slice, z_fact, this->config->GetWaveLength(),
                                             1, opt_wave_number, rho, p0dx_bottom_slice,
                                             p0dx_top_slice, 0, 0);
         int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;

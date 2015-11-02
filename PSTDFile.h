@@ -67,6 +67,8 @@ private:
     bool spectral_interpolation;
     int PMLCells;
     int SaveNth;
+    bool gpu;
+    bool multithread;
 public:
     float GetGridSpacing();
     void SetGridSpacing(float value);
@@ -91,16 +93,19 @@ public:
     void SetSaveNth(int value);
 
     float getBandWidth();
-
     void setBandWidth(float value);
 
-    bool getSpectralInterpolation();
+    bool GetSpectralInterpolation();
+    void SetSpectralInterpolation(bool value);
 
-    void setSpectralInterpolation(bool value);
+    float GetWaveLength();
+    void SetWaveLength(float value);
 
-    float getWaveLength();
+    bool GetGPUAccel();
+    void SetGOUAccel(bool value);
 
-    void setWaveLength(float value);
+    bool GetMultiThread();
+    void SetMultiThread(bool value);
 };
 
 class DomainEdge

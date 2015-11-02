@@ -499,19 +499,19 @@ void PSTDFileSettings::setBandWidth(float value) {
     this->band_width = value;
 }
 
-float PSTDFileSettings::getWaveLength() {
+float PSTDFileSettings::GetWaveLength() {
     return this->wave_length;
 }
 
-void PSTDFileSettings::setWaveLength(float value) {
+void PSTDFileSettings::SetWaveLength(float value) {
     this->wave_length = value;
 }
 
-bool PSTDFileSettings::getSpectralInterpolation() {
+bool PSTDFileSettings::GetSpectralInterpolation() {
     return this->spectral_interpolation;
 }
 
-void PSTDFileSettings::setSpectralInterpolation(bool value) {
+void PSTDFileSettings::SetSpectralInterpolation(bool value) {
     this->spectral_interpolation = value;
 }
 
