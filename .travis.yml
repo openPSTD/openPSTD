@@ -2,26 +2,34 @@ language: cpp
 sudo: required
 dist: trusty
 
-env:
-  - secure: STvQPHMUgqmcoOB0r7obZ041Beij9KJDA0yHBBvECvE5RTNVL0Z7NF+xe60vJDRlRrETbafw7or1tWpTEVqZ2cxOghKkUtePIlfpxZjlZ8tuDzaGo4Vn7tYgX6QR8Ii6WL33zDUZeyRfepfvzdH3/mjUE1xpH1ID2hVRsrBE9Sy1AWHlSvS95pXMQm8DtQz97scv/r2zuFGHaz2JVd2bVuXdzQOXtCKwnxueU1zmnfdeHK6NHrfHxK+8mF3eDtstsjY5PGuc9FymtLwHl6+c22NDCmCqgv5+tSevId5MW1v3+EwFExE71psRK1Q1g9pCwZY8eBlG+Hk4PjzMPTWXy81ovOWKpVf1NI3F/lfCEbp4OGRGR0iqRMOiytOe5emUuPnWQZmq6cYTPYOTfHm0rS7FaKgw0k3ZGA7+0k4lXtOjGbiPoSp6pkmCU86bFStzJszNt1GQ9kB5YZ7te9TLM4yUA0rz8WQy9PhkMUNESqR9mQOpiBdbIg4TGNdZYN49Tj0OGTj+AbB5VDyY7J9RpZQzJYL2DSkugN0MSBH7Z5ZaAlJuLmiIcNf1+SBLKwF56lAPb6wxstmPOfSJk6uFhPv7mBHHxkD8mcFPse1TIaVb4TNPzL5ILvHp7oZTYe5a6B1La4F1Vze994xsnC+uztAK/P2IrNQbrkrSZDFS/O0=
 before_install:
-- sudo chmod 777 -R build
-- export PATH=./build/:$PATH
-- export PATH=/opt/qt55/bin/:$PATH
-- sudo add-apt-repository --yes ppa:beineri/opt-qt55-trusty
-- sudo apt-get update -qq
+ - sudo chmod 777 -R build
+ - export PATH=./build/:$PATH
+ - export PATH=/opt/qt55/bin/:$PATH
+ - sudo add-apt-repository --yes ppa:beineri/opt-qt55-trusty
+ - sudo apt-get update -qq
+
 install:
-- install_unqlite.sh
-- install_Qt55.sh
-- install_boost.sh
-- install_rapidjson.sh
-- install_eigen.sh
+ - install_unqlite.sh
+ - install_Qt55.sh
+ - install_boost.sh
+ - install_rapidjson.sh
+ - install_eigen.sh
+
 before_script:
-- uname -r
-- gcc -v
-- cmake --version
+ - uname -r
+ - gcc -v
+ - cmake --version
+
 script:
-- compile.sh
-- test.sh
+ - compile.sh
+ - test.sh
+
 deploy:
-- publish.sh
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: TM2rvktT9Tl5TA+EL22ZpasLKbthYIORoTXaq9Hb8T37ego04Le+1UhfMr3M3j6FXF1rJfiGv3tdxe+oxudTMotVk7AXUUb5m6gO82CqHdHMW1fAb1yhr8p03iG6bBT275zaq78bELCgkBzM/KFyJpCmMbbzVRv0SlWT0m/BQjJpdTY+gYt/Al5BoLpVMPW0+91t83/wCZYWH2WLnKaptK1t1/2HmezTS88otItpEEQ24FDrIKY6rQ3l+64YZgFJ3xzYekzpfvwVyIoAYZmPuSqnR7r2NMu/hJf0NR1STNO6IN10AG6jXgBRkcxQW6cHHZ22y258MeSdcbcLYhIsujdOiwSnSMvlcv67m7xIO+ICz2D8sF3/GFbab+nzXg3jaNnYzVltxxkwar1NmmVhrUuqCpODfpeMKtXWfGtWS4ChG5IlyMRyjvg5c1YdgPnWAeFrVFrFFqRO54caAUkRW4jv1hJlyt7EbNYUfcVB7vBfzkPDLKTEtrRMwBaoGjgxveb1lZg076avlgT/7HeVAitLCYV+l44ur73NfaQCPebVXUIPQiBSry/ya2tU2iWlGNMvgWM5myMm3S3l+GLcNMLcrjytJTFnz5cEeE4ur2qnPu9AqX160BFrDaUeEBrryHbul1wSIQL6bquSb81+6EBQx+E1K1y6GLngXJ3YECk=
+  file: OpenPSTD-gui
+  on:
+    repo: openPSTD/openPSTD
