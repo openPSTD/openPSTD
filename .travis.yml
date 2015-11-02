@@ -33,3 +33,4 @@ deploy:
   file: OpenPSTD-gui
   on:
     repo: openPSTD/openPSTD
+    tags: true
