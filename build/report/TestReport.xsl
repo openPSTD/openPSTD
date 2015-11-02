@@ -5,7 +5,7 @@
             <body>
                 <h1>Test report</h1>
                 <p>
-                    Version: <xsl:value-of select="system-property('xsl:version')"/> <br />
+                    XSLT version: <xsl:value-of select="system-property('xsl:version')"/> <br />
                     Date: <xsl:value-of select="current-date()"/><br />
                     Time: <xsl:value-of select="current-time()"/>
                 </p>
