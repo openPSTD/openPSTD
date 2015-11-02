@@ -31,7 +31,10 @@
 //
 
 #include "PSTDFile.h"
+extern "C" 
+{
 #include <unqlite.h>
+}
 #include <iostream>
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"

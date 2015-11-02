@@ -37,7 +37,10 @@
 #define OPENPSTD_PSTDFILE_H
 
 #include <string>
+extern "C" 
+{
 #include <unqlite.h>
+}
 #include "rapidjson/document.h"
 #include <memory>
 #include <vector>

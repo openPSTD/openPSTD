@@ -1,0 +1,28 @@
+language: cpp
+
+sudo: required
+
+dist: trusty
+
+before_install:
+ - sudo chmod 777 -R build
+ - export PATH=./build/:$PATH
+ - export PATH=/opt/qt55/bin/:$PATH
+ - sudo add-apt-repository --yes ppa:beineri/opt-qt55-trusty
+ - sudo apt-get update -qq
+
+install:
+ - install_unqlite.sh
+ - install_Qt55.sh
+ - install_boost.sh
+ - install_rapidjson.sh
+ - install_eigen.sh
+
+before_script:
+ - uname -r
+ - gcc -v
+ - cmake --version
+
+script: 
+ - compile.sh
+ - test.sh

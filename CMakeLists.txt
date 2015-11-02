@@ -26,7 +26,7 @@
 #
 ########################################################################
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.2)
 project(OpenPSTD)
 
 #------------------------------------
@@ -41,16 +41,9 @@ set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 #------------------------------------
-# Python
-find_package(PythonLibs)
-message(STATUS "Python found: ${PYTHONLIBS_FOUND}")
-message(STATUS "Python lib path: ${PYTHON_LIBRARIES}")
-message(STATUS "Python include path: ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "Python version: ${PYTHONLIBS_VERSION_STRING}")
-
-if (NOT PYTHONLIBS_FOUND)
-    message(FATAL_ERROR "Missing Python Libs.")
-endif ()
+# General
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+>>>>>>> 9a9a664ff5278410a25d83bb4c79d0aa8eacdcd1
 
 #------------------------------------
 # BOOST
@@ -59,7 +52,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 
 message(STATUS "Boost root hint: ${BOOST_ROOT}")
-find_package(Boost 1.54.0 REQUIRED program_options)
+find_package(Boost 1.54.0 REQUIRED program_options unit_test_framework)
 message(STATUS "Boost found: ${Boost_FOUND}")
 message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
@@ -78,11 +71,11 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #function for easy loading Qt modules
-set(Qt5_CMAKE "lib\\cmake")
+set(Qt5_CMAKE "lib/cmake")
 set(Qt5_FIRST 1)
 set(Qt5_FOUND 0)
 macro(loadQtPackage QtModule)
-    set(${QtModule}_DIR "${Qt5_DIR}\\${Qt5_CMAKE}\\${QtModule}")
+    set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
     find_package(${QtModule})
     if (Qt5_FIRST)
@@ -146,7 +139,6 @@ message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
 
 #------------------------------------
 # include directories
-include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
@@ -190,12 +182,14 @@ add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
 # link libraries
-target_link_libraries(OpenPSTD-cli ${PYTHON_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
 
-target_link_libraries(OpenPSTD-gui ${PYTHON_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
+
+target_link_libraries(OpenPSTD-gui-test ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-gui-test ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-gui-test ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-gui-test ${OPENGL_LIBRARIES})
