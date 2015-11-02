@@ -35,6 +35,8 @@
 #define OPENPSTD_KERNELFACADE_H
 
 #include <string>
+#include "PSTDFile.h"
+#include "Solver.h"
 
 /**
  * The configuration of the kernel.
@@ -49,7 +51,7 @@ struct KernelConfiguration {
 /**
  * The status of the kernel when the callback is called.
  */
-enum class CALLBACKSTATUS
+enum CALLBACKSTATUS
 {
     CALLBACKSTATUS_ERROR,
     CALLBACKSTATUS_STARTING,
@@ -85,7 +87,7 @@ public:
      * Runs the kernel with a certain scene file. The callback has a single function that informs the rest of the
      * application of the progress of the kernel.
      */
-    void Run(std::string sceneFile, KernelFacadeCallback* callback);
+    void Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback);
 };
 
 
