@@ -10,4 +10,4 @@ cmake \
 	-G Unix\ Makefiles ./
 
 make OpenPSTD-gui
-make OpenPSTD-gui-test
+make OpenPSTD-test
