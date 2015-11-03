@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#-D EIGEN_INCLUDE:PATH=/home/travis/build/micfort/openPSTD/rapidjson
+set -e
 
 if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     QT5DIR=/opt/qt55

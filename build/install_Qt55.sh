@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 if [ $TRAVIS_OS_NAME = "linux" ]; then
     echo running on linux
     echo installing Qt with apt-get

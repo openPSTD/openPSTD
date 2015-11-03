@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
 cd unqlite
 wget http://unqlite.org/db/unqlite-db-116.zip
 unzip unqlite-db-116.zip
