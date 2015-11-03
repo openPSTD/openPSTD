@@ -7,11 +7,11 @@ os:
   - osx
 
 before_install:
- - sudo chmod 777 -R build
+ - sudo man chmod
+ - sudo chmod -R 777 build
  - export PATH=./build/:$PATH
  - export PATH=/opt/qt55/bin/:$PATH
- - sudo add-apt-repository --yes ppa:beineri/opt-qt55-trusty
- - sudo apt-get update -qq
+ - install_add_repo.sh
 
 install:
  - install_xsltproc.sh
