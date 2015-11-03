@@ -2,6 +2,10 @@ language: cpp
 sudo: required
 dist: trusty
 
+os:
+  - linux
+  - osx
+
 before_install:
  - sudo chmod 777 -R build
  - export PATH=./build/:$PATH
