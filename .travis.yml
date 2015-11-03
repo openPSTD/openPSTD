@@ -7,8 +7,7 @@ os:
   - osx
 
 before_install:
- - sudo man chmod
- - sudo chmod -R 777 build
+ - sudo chmod -R +x build
  - export PATH=./build/:$PATH
  - export PATH=/opt/qt55/bin/:$PATH
  - install_add_repo.sh
