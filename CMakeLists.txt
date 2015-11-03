@@ -57,6 +57,8 @@ message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")
+message(STATUS "Boost program_options lib: ${Boost_PROGRAM_OPTIONS_LIBRARY}")
+message(STATUS "Boost test lib: ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
 
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "Missing Boost Libs.")
@@ -147,7 +149,10 @@ include_directories(${EIGEN_INCLUDE})
 
 #------------------------------------
 # Compiling flags
+# Making sure it is compiled with c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# boost test framework flag
+add_definitions(-DBOOST_TEST_DYN_LINK)
 
 #------------------------------------
 # Kernel
@@ -180,23 +185,24 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapp
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
 #------------------------------------
-# UI test
-# CLI source files
-set(SOURCE_FILES_GUI_TEST ${SOURCE_FILES_GUI})
+# Test
+# GUI source files
+set(SOURCE_FILES_TEST ${SOURCE_FILES_GUI})
 # Remaining
-set(SOURCE_FILES_GUI_TEST ${SOURCE_FILES_GUI_TEST} Edges-test.cpp)
-add_executable(OpenPSTD-gui-test ${SOURCE_FILES_GUI_TEST} main-gui-test.cpp)
+set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} Edges-test.cpp)
+add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 
 #------------------------------------
 # link libraries
-target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES} )
+target_link_libraries(OpenPSTD-cli ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
-target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${Boost_PROGRAM_OPTIONS_LIBRARY})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
 
-target_link_libraries(OpenPSTD-gui-test ${Boost_LIBRARIES})
-target_link_libraries(OpenPSTD-gui-test ${Qt5_LIBRARIES})
-target_link_libraries(OpenPSTD-gui-test ${UNQLITE_LIB})
-target_link_libraries(OpenPSTD-gui-test ${OPENGL_LIBRARIES})
+target_link_libraries(OpenPSTD-test ${Boost_PROGRAM_OPTIONS_LIBRARY})
+target_link_libraries(OpenPSTD-test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-test ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
