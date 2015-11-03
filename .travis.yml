@@ -18,7 +18,7 @@ install:
  - install_Qt55.sh
  - install_boost.sh
  - install_rapidjson.sh
- - install_eigen.sh
+# - install_eigen.sh
 
 before_script:
  - uname -r
