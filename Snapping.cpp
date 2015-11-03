@@ -32,6 +32,7 @@
 
 #include "Snapping.h"
 #include <algorithm>
+#include <cmath>
 
 QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
 {
