@@ -15,7 +15,7 @@ XSLT version: <xsl:value-of select="system-property('xsl:version')"/>
 </xsl:text><xsl:call-template name="repeat">
 <xsl:with-param name="output" >=</xsl:with-param>
 <xsl:with-param name="count" select="$depth" />
-</xsl:call-template> Name: <xsl:value-of select="@name" />
+</xsl:call-template> Suite: <xsl:value-of select="@name" />
 <xsl:apply-templates select="TestSuite|TestCase" >
     <xsl:with-param name="depth" select="$depth+1" />
 </xsl:apply-templates>
@@ -26,7 +26,7 @@ XSLT version: <xsl:value-of select="system-property('xsl:version')"/>
 </xsl:text><xsl:call-template name="repeat">
     <xsl:with-param name="output" >-</xsl:with-param>
     <xsl:with-param name="count" select="$depth" />
-</xsl:call-template><xsl:text> </xsl:text><xsl:value-of select="@name" /><xsl:text>
+</xsl:call-template><xsl:text> Case: </xsl:text><xsl:value-of select="@name" /><xsl:text>
 </xsl:text><xsl:call-template name="repeat">
     <xsl:with-param name="output" >-</xsl:with-param>
     <xsl:with-param name="count" select="$depth+1" />
