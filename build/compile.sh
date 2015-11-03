@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 #-D EIGEN_INCLUDE:PATH=/home/travis/build/micfort/openPSTD/rapidjson
-#-D Qt5_DIR:PATH=/opt/qt55 \
+
+if [ ${TRAVIS_OS_NAME} = "linux" ]; then
+    QT5DIR=/opt/qt55
+else
+    QT5DIR=/usr/local/opt/qt5
+fi
 
 cmake \
 	-D RAPIDJSON_ROOT:PATH=$PWD/rapidjson \
 	-D UNQLITE_INCLUDE:PATH=$PWD/unqlite \
 	-D UNQLITE_LIB:PATH=$PWD/unqlite/libunqlite.a \
-	-D Qt5_DIR:PATH=/opt/qt55 \
+	-D EIGEN_INCLUDE:PATH=$PWD/eigen \
+	-D Qt5_DIR:PATH=${QT5DIR} \
 	-G Unix\ Makefiles ./
 
 make OpenPSTD-gui
