@@ -7,6 +7,7 @@ if [ $TRAVIS_OS_NAME = "linux" ]; then
     #sudo apt-get -y install qt5-default
 else
     echo running on mac os x
-    echo installing Qt from source
+    echo installing Qt with homebrew
+    sudo brew install qt5
 fi
 
