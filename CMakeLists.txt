@@ -145,7 +145,7 @@ include_directories(${EIGEN_INCLUDE})
 #------------------------------------
 # Compiling flags
 # Making sure it is compiled with c++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libstdc++")
 # boost test framework flag
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
