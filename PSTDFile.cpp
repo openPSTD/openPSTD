@@ -515,6 +515,23 @@ void PSTDFileSettings::SetSpectralInterpolation(bool value) {
     this->spectral_interpolation = value;
 }
 
+bool PSTDFileSettings::GetGPUAccel() {
+    return this->gpu;
+}
+
+void PSTDFileSettings::SetGPUAccel(bool value) {
+    this->gpu = value;
+}
+
+bool PSTDFileSettings::GetMultiThread() {
+    return this->multithread;
+}
+
+void PSTDFileSettings::SetMultiThread(bool value) {
+    this->multithread = value;
+}
+
+
 int PSTDFileSettings::GetWindowSize() {
     //directly translated from original Python implementation
     int tmp = std::round((this->patcherror*0.7-17)/2.);

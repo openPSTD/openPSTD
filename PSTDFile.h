@@ -102,7 +102,7 @@ public:
     void SetWaveLength(float value);
 
     bool GetGPUAccel();
-    void SetGOUAccel(bool value);
+    void SetGPUAccel(bool value);
 
     bool GetMultiThread();
     void SetMultiThread(bool value);

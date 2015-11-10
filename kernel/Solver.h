@@ -47,29 +47,44 @@ namespace Kernel {
         void addReceivers();
         void initRhoMatrices();
     public:
-        /**
-         * Default constructor
-         * @param scene The scene file for which the solver should be configured.
-         */
         Solver(std::shared_ptr<Scene> scene);
-        /**
-         * Blocking call: will not return until the solver is done.
-         */
-        void runSingleThread();
-        /**
-         * Blocking call: will not return until the solver is done.
-         */
-        void runGPUSingleThread();
-        /**
-         * Blocking call: will not return until the solver is done.
-         */
-        void runMultiThread();
-        /**
-         * Blocking call: will not return until the solver is done.
-         */
-        void runGPUMultiThread();
     };
 
+    class SingleThreadSolver : public Solver {
+    public:
+        /**
+         * Default constructor. Blocking call: will not return before the solver is done.
+         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         */
+        SingleThreadSolver(std::shared_ptr<Scene> scene);
+    };
+
+    class MultiThreadSolver : public Solver {
+    public:
+        /**
+         * Default constructor. Blocking call: will not return before the solver is done.
+         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         */
+        MultiThreadSolver(std::shared_ptr<Scene> scene);
+    };
+
+    class GPUSingleThreadSolver : public Solver {
+    public:
+        /**
+         * Default constructor. Blocking call: will not return before the solver is done.
+         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         */
+        GPUSingleThreadSolver(std::shared_ptr<Scene> scene);
+    };
+
+    class GPUMultiThreadSolver : public Solver {
+    public:
+        /**
+         * Default constructor. Blocking call: will not return before the solver is done.
+         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         */
+        GPUMultiThreadSolver(std::shared_ptr<Scene> scene);
+    };
 }
 
 #endif //OPENPSTD_SOLVER_H

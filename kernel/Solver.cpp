@@ -30,7 +30,7 @@
 
 namespace Kernel {
     Solver::Solver(std::shared_ptr<Scene> scene) {
-        this->config = scene.config;
+        this->config = scene->config;
     }
 
     SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {

@@ -42,7 +42,7 @@ void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFaca
     // TODO: discuss how to handle the callback
 
     std::shared_ptr<Kernel::Scene> cur_scene;
-    cur_scene = std::make_shared<Kernel::Scene>(new Kernel::Scene(config));
+    cur_scene = std::make_shared<Kernel::Scene>(Kernel::Scene(config));
 
     int solver_num = config->Settings.GetGPUAccel() + config->Settings.GetMultiThread() << 1;
     Kernel::Solver *solver;

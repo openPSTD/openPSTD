@@ -104,7 +104,8 @@ int main(int argc, const char *argv[])
     configuration.writeArray = vm.count("write-array")>0;
     kernel->Configure(configuration);
 
-    kernel->Run(vm["scene-file"].as<std::string>().c_str(), output);
+    //kernel->Run(vm["scene-file"].as<std::string>().c_str(), output);
+    //TODO Louis: feed a normal PSTDConfig to run
 
     delete output;
     delete kernel;
