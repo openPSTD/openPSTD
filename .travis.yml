@@ -13,9 +13,7 @@ before_install:
  - install_add_repo.sh
 
 install:
- - ls -al /usr/local/lib/
  - install_boost.sh
- - ls -al /usr/local/lib/
  - install_xsltproc.sh
  - install_unqlite.sh
  - install_Qt55.sh
