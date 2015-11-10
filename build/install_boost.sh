@@ -8,10 +8,10 @@ if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     tar -xjf boost_1_59_0.tar.bz2
     cd boost_1_59_0/
     ./bootstrap.sh --with-libraries=program_options,test
-    sudo ./b2 -d0 link=shared toolset=${TOOLSET} install
+    sudo ./b2 -d0 link=shared install
     cd ../
 else
     echo running on mac os x
     echo installing Boost with homebrew
-    sudo brew install boost
+    sudo brew upgrade boost
 fi
