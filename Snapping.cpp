@@ -32,6 +32,7 @@
 
 #include "Snapping.h"
 #include <algorithm>
+#include <cmath>
 
 QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
 {
@@ -63,9 +64,9 @@ QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
         float gridSpacing = (*conf)["grid_spacing"].GetDouble();
 
         if(!snap0)
-            vector[0] = roundf(vector[0] / gridSpacing) * gridSpacing;
+            vector[0] = round(vector[0] / gridSpacing) * gridSpacing;
         if(!snap1)
-            vector[1] = roundf(vector[1] / gridSpacing) * gridSpacing;
+            vector[1] = round(vector[1] / gridSpacing) * gridSpacing;
     }
 
     return vector;

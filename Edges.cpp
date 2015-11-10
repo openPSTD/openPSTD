@@ -94,7 +94,7 @@ float Edge::PosInDim(int dim) const
     }
     else
     {
-        return NAN;
+        return 0.0f/0.0f; //NaN
     }
 }
 
@@ -165,7 +165,7 @@ float Edge::StartInDim() const
         return std::min(_start[0], _end[0]);
     }
 
-    return NAN;
+    return 0.0f/0.0f; //NaN
 }
 
 float Edge::EndInDim() const
@@ -180,7 +180,7 @@ float Edge::EndInDim() const
     {
         return std::max(_start[0], _end[0]);
     }
-    return NAN;
+    return 0.0f/0.0f; //NaN
 }
 
 Edge Edge::CreateInSameDim(float start, float end) const
@@ -193,7 +193,7 @@ Edge Edge::CreateInSameDim(float start, float end) const
         }
     }
     //todo throw exception
-    return Edge(QVector2D(NAN, NAN), QVector2D(NAN, NAN), NAN, false);
+    return Edge(QVector2D(0.0f/0.0f, 0.0f/0.0f), QVector2D(0.0f/0.0f, 0.0f/0.0f), 0.0f/0.0f, false); //return NaNs
 }
 
 std::vector<Edge> Edge::SubstractEdgeFromList(std::vector<Edge> edges, Edge rhs)

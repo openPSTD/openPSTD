@@ -26,6 +26,14 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
+
 #include "Viewer2D.h"
 #include <qopenglcontext.h>
 #include <QOpenGLFunctions>
@@ -33,8 +41,6 @@
 #include <QOpenGLShader>
 #include <algorithm>
 #include <math.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include <string>
