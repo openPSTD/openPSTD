@@ -13,6 +13,7 @@ before_install:
  - install_add_repo.sh
 
 install:
+ - la -al /usr/local/lib/
  - install_boost.sh
  - nm -gU /usr/local/lib/libboost_unit_test_framework-mt.dylib
  - install_xsltproc.sh
