@@ -5,5 +5,5 @@ wget http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.b
 tar -xjf boost_1_59_0.tar.bz2
 cd boost_1_59_0/
 ./bootstrap.sh --with-libraries=program_options,test
-sudo ./b2 -d0 link=static install
+sudo ./b2 -d0 link=dynamic install
 cd ../
