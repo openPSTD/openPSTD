@@ -44,7 +44,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 #------------------------------------
 # BOOST
-set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 
@@ -145,7 +145,7 @@ include_directories(${EIGEN_INCLUDE})
 #------------------------------------
 # Compiling flags
 # Making sure it is compiled with c++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libstdc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # boost test framework flag
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
