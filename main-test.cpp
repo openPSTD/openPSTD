@@ -24,12 +24,10 @@
 // Authors: M. R. Fortuin
 //
 //
-// Purpose:
+// Purpose: The main entry point for the tests
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-// test_main.cpp
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Main
 #include <boost/test/unit_test.hpp>
