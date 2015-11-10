@@ -16,4 +16,4 @@ cmake \
 	-G Unix\ Makefiles ./
 
 make OpenPSTD-gui
-make OpenPSTD-test VERBOSE=1
+make OpenPSTD-test

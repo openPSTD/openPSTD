@@ -3,7 +3,7 @@ sudo: required
 dist: trusty
 
 os:
-#  - linux
+  - linux
   - osx
 
 before_install:
@@ -16,12 +16,11 @@ install:
  - ls -al /usr/local/lib/
  - install_boost.sh
  - ls -al /usr/local/lib/
- - nm -gU /usr/local/lib/libboost_unit_test_framework-mt.dylib
  - install_xsltproc.sh
  - install_unqlite.sh
  - install_Qt55.sh
  - install_rapidjson.sh
-# - install_eigen.sh
+ - install_eigen.sh
 
 before_script:
  - uname -r
