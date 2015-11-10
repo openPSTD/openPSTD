@@ -5,7 +5,6 @@ if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     DEPENDENCY_CHECKER=ldd
 else
     DEPENDENCY_CHECKER=otool\ -L
-    #this should also work, but otool doesn't recognize -L, while it should
 fi
 
 echo Dependencies for OpenPSTD-gui
