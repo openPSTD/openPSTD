@@ -412,6 +412,7 @@ float PSTDFileSettings::GetGridSpacing()
 void PSTDFileSettings::SetGridSpacing(float value)
 {
     this->gridSpacing = value;
+    //TODO edit max frequency here as well
 }
 float PSTDFileSettings::GetPatchError()
 {
@@ -453,6 +454,18 @@ void PSTDFileSettings::SetDensityOfAir(float value)
 {
     this->rho = value;
 }
+/**
+ * TODO: add dynamic behavior to setters of freqMax and grid spacing
+ */
+float PSTDFileSettings::GetMaxFrequency()
+{
+    return this->freqMax;
+}
+void PSTDFileSettings::SetMaxFrequency(float value)
+{
+    this->freqMax = value;
+    //TODO edit grid spacing as well
+}
 float PSTDFileSettings::GetSoundSpeed()
 {
     return this->c1;
@@ -476,4 +489,52 @@ int PSTDFileSettings::GetSaveNth()
 void PSTDFileSettings::SetSaveNth(int value)
 {
     this->SaveNth = value;
+}
+
+float PSTDFileSettings::getBandWidth() {
+    return this->band_width;
+}
+
+void PSTDFileSettings::setBandWidth(float value) {
+    this->band_width = value;
+}
+
+float PSTDFileSettings::GetWaveLength() {
+    return this->wave_length;
+}
+
+void PSTDFileSettings::SetWaveLength(float value) {
+    this->wave_length = value;
+}
+
+bool PSTDFileSettings::GetSpectralInterpolation() {
+    return this->spectral_interpolation;
+}
+
+void PSTDFileSettings::SetSpectralInterpolation(bool value) {
+    this->spectral_interpolation = value;
+}
+
+bool PSTDFileSettings::GetGPUAccel() {
+    return this->gpu;
+}
+
+void PSTDFileSettings::SetGPUAccel(bool value) {
+    this->gpu = value;
+}
+
+bool PSTDFileSettings::GetMultiThread() {
+    return this->multithread;
+}
+
+void PSTDFileSettings::SetMultiThread(bool value) {
+    this->multithread = value;
+}
+
+
+int PSTDFileSettings::GetWindowSize() {
+    //directly translated from original Python implementation
+    int tmp = std::round((this->patcherror*0.7-17)/2.);
+    tmp = std::round(tmp*2);
+    return tmp;
 }

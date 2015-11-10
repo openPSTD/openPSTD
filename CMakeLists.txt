@@ -31,6 +31,8 @@ project(OpenPSTD)
 
 #------------------------------------
 # configuration options in the cache
+set(PYTHON_LIBRARY "" CACHE PATH "The library of python 3.4, empty then it does autodetect")
+set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then it does autodetect")
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
@@ -58,9 +60,9 @@ message(STATUS "Boost libs: ${Boost_LIBRARIES}")
 message(STATUS "Boost program_options lib: ${Boost_PROGRAM_OPTIONS_LIBRARY}")
 message(STATUS "Boost test lib: ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
 
-if(NOT Boost_FOUND)
-  message(FATAL_ERROR "Missing Boost Libs.")
-endif()
+if (NOT Boost_FOUND)
+    message(FATAL_ERROR "Missing Boost Libs.")
+endif ()
 
 #------------------------------------
 # QT5
@@ -77,19 +79,22 @@ macro(loadQtPackage QtModule)
     set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
     find_package(${QtModule})
-    if(Qt5_FIRST)
+    if (Qt5_FIRST)
         set(Qt5_FIRST 0)
         set(Qt5_FOUND 1)
-    endif()
+    endif ()
 
-    if(Qt5_FOUND AND ${${QtModule}_FOUND})
+    if (Qt5_FOUND AND ${${QtModule}_FOUND})
         set(Qt5_FOUND 1)
     else()
         set(Qt5_FOUND 0)
-    endif()
+    endif ()
     set(Qt5_LIBRARIES "${Qt5_LIBRARIES}${${QtModule}_LIBRARIES};")
     set(Qt5_INCLUDE_DIRS "${Qt5_INCLUDE_DIRS}${${QtModule}_INCLUDE_DIRS};")
     set(Qt5_VERSION_STRING "${${QtModule}_VERSION_STRING}")
+    if (Qt5_POSITION_INDEPENDENT_CODE)
+        SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    endif ()
 endmacro(loadQtPackage)
 
 loadQtPackage(Qt5Widgets)
@@ -151,13 +156,19 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 #------------------------------------
 # Kernel
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp kernel/core/kernel_functions.cpp kernel/core/KernelDomain.cpp kernel/core/KernelDomain.h)
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
+        kernel/core/kernel_functions.cpp kernel/core/Domain.cpp kernel/core/Domain.h
+        kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/Scene.cpp kernel/core/Scene.h
+        kernel/core/Receiver.cpp kernel/core/Receiver.h kernel/core/Boundary.cpp kernel/core/Boundary.h
+        kernel/Solver.cpp kernel/Solver.h
+        kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h PSTDFile.cpp
+        kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h InvalidationData.cpp)
 add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 
 #------------------------------------
 # UI
 # CLI source files
-# set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
+set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
 # Operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)

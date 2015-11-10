@@ -18,16 +18,32 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 17-9-15
 //
 //
-// Authors:
+// Authors: 0mar Richardson
+//
+//
+// Purpose: Modelling boundaries between domains.
 //
 //
 //////////////////////////////////////////////////////////////////////////
+#ifndef OPENPSTD_BOUNDARY_H
+#define OPENPSTD_BOUNDARY_H
 
-//
-// Created by louis on 16-9-15.
-//
+#include <string>
 
-#include "KernelDomain.h"
+#include "Domain.h"
+
+namespace Kernel {
+    class Boundary {
+    public:
+        std::shared_ptr<Domain> domain1, domain2;
+        BoundaryType type;
+
+        Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, BoundaryType type);
+
+    };
+}
+
+#endif //OPENPSTD_BOUNDARY_H

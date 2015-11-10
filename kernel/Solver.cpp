@@ -12,54 +12,40 @@
 // GNU General Public License for more details.                         //
 //                                                                      //
 // You should have received a copy of the GNU General Public License    //
-// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/\>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 //
 // Date:
-//      18-7-2015
+//      2-11-15
 //
 // Authors:
-//      Michiel Fortuijn
+//      Louis van Harten
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "KernelFacade.h"
-#include "kernel/core/Scene.h"
+#include "Solver.h"
 
-//-----------------------------------------------------------------------------
-// interface of the kernel
+namespace Kernel {
+    Solver::Solver(std::shared_ptr<Scene> scene) {
+        this->config = scene->config;
+    }
 
-void KernelFacade::Configure(KernelConfiguration configuration)
-{
-    this->configuration = configuration;
-}
+    SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+        //TODO implement solver
+    }
 
-void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback)
-{
-    // TODO: discuss how to handle the callback
+    GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+        //TODO implement solver
+    }
 
-    std::shared_ptr<Kernel::Scene> cur_scene;
-    cur_scene = std::make_shared<Kernel::Scene>(Kernel::Scene(config));
+    MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+        //TODO implement solver
+    }
 
-    int solver_num = config->Settings.GetGPUAccel() + config->Settings.GetMultiThread() << 1;
-    Kernel::Solver *solver;
-    switch(solver_num) {
-        case 0:
-            solver = new Kernel::SingleThreadSolver(cur_scene);
-            break;
-        case 1:
-            solver = new Kernel::GPUSingleThreadSolver(cur_scene);
-            break;
-        case 2:
-            solver = new Kernel::MultiThreadSolver(cur_scene);
-            break;
-        case 3:
-            solver = new Kernel::GPUMultiThreadSolver(cur_scene);
-            break;
-        default:
-            break;
+    GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+        //TODO implement solver
     }
 }

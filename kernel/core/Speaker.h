@@ -18,48 +18,53 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 17-9-15
 //
-// Authors:
-//      Michiel Fortuijn
+//
+// Authors: Omar Richardson
+//
+//
+// Purpose: This class models a speaker: the source of sound propagation
+// in the domain.
+//
 //
 //////////////////////////////////////////////////////////////////////////
+#ifndef OPENPSTD_SPEAKER_H
+#define OPENPSTD_SPEAKER_H
 
-#include "KernelFacade.h"
-#include "kernel/core/Scene.h"
+#include "Domain.h"
+#include <string>
+#include <memory>
+#include <vector>
+#include <eigen/Eigen/Dense>
 
-//-----------------------------------------------------------------------------
-// interface of the kernel
+namespace Kernel {
+    class Speaker {
+        /*
+         * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
+         * Note that speaker locations (just like receiver locations) are defined on the grid,
+         * but don't need to lie on grid points; their coordinates are not rounded off.
+         */
+    public:
+        const float x;
+        const float y;
+        const float z;
+        std::vector<float> location;
 
-void KernelFacade::Configure(KernelConfiguration configuration)
-{
-    this->configuration = configuration;
+        /*
+         * Speaker initialization with (unrounded) grid coordinates
+         * @param location: vector of grid world coordinates
+         */
+        Speaker(std::vector<float> location);
+
+        // ~Speaker();
+
+        /*
+         * Adds the initial sound pressure to the domain values.
+         * @param domain: domain to compute sound pressure contribution for
+         */
+        void addDomainContribution(std::shared_ptr<Domain> domain);
+
+    };
 }
-
-void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback)
-{
-    // TODO: discuss how to handle the callback
-
-    std::shared_ptr<Kernel::Scene> cur_scene;
-    cur_scene = std::make_shared<Kernel::Scene>(Kernel::Scene(config));
-
-    int solver_num = config->Settings.GetGPUAccel() + config->Settings.GetMultiThread() << 1;
-    Kernel::Solver *solver;
-    switch(solver_num) {
-        case 0:
-            solver = new Kernel::SingleThreadSolver(cur_scene);
-            break;
-        case 1:
-            solver = new Kernel::GPUSingleThreadSolver(cur_scene);
-            break;
-        case 2:
-            solver = new Kernel::MultiThreadSolver(cur_scene);
-            break;
-        case 3:
-            solver = new Kernel::GPUMultiThreadSolver(cur_scene);
-            break;
-        default:
-            break;
-    }
-}
+#endif //OPENPSTD_SPEAKER_H

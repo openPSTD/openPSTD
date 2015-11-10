@@ -12,54 +12,29 @@
 // GNU General Public License for more details.                         //
 //                                                                      //
 // You should have received a copy of the GNU General Public License    //
-// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/\>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 17-9-15
 //
-// Authors:
-//      Michiel Fortuijn
+//
+// Authors: 0mar Richardson
+//
+//
+// Purpose: Models a horizontal or vertical boundary between two rectangular domains.
+//
 //
 //////////////////////////////////////////////////////////////////////////
+#include "Boundary.h"
 
-#include "KernelFacade.h"
-#include "kernel/core/Scene.h"
+namespace Kernel{
 
-//-----------------------------------------------------------------------------
-// interface of the kernel
-
-void KernelFacade::Configure(KernelConfiguration configuration)
-{
-    this->configuration = configuration;
-}
-
-void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback)
-{
-    // TODO: discuss how to handle the callback
-
-    std::shared_ptr<Kernel::Scene> cur_scene;
-    cur_scene = std::make_shared<Kernel::Scene>(Kernel::Scene(config));
-
-    int solver_num = config->Settings.GetGPUAccel() + config->Settings.GetMultiThread() << 1;
-    Kernel::Solver *solver;
-    switch(solver_num) {
-        case 0:
-            solver = new Kernel::SingleThreadSolver(cur_scene);
-            break;
-        case 1:
-            solver = new Kernel::GPUSingleThreadSolver(cur_scene);
-            break;
-        case 2:
-            solver = new Kernel::MultiThreadSolver(cur_scene);
-            break;
-        case 3:
-            solver = new Kernel::GPUMultiThreadSolver(cur_scene);
-            break;
-        default:
-            break;
+    Boundary::Boundary(std::shared_ptr<Domain> domain1,std::shared_ptr<Domain> domain2, BoundaryType type) {
+        this->domain1 = domain1;
+        this->domain2 = domain2;
+        this->type = type;
     }
 }

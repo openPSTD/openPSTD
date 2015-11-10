@@ -57,17 +57,24 @@ private:
     float calctime;
     float c1;
     float ampMax;
+    float freqMax;
     float rho;
     float patcherror;
     float tfactRK;
     float gridSpacing;
+    float band_width;
+    float wave_length;
+    bool spectral_interpolation;
     int PMLCells;
     int SaveNth;
+    bool gpu;
+    bool multithread;
 public:
     float GetGridSpacing();
     void SetGridSpacing(float value);
     float GetPatchError();
     void SetPatchError(float value);
+    int GetWindowSize();
     float GetRenderTime();
     void SetRenderTime(float value);
     int GetPMLCells();
@@ -76,12 +83,29 @@ public:
     void SetAttenuationOfPMLCells(float value);
     float GetDensityOfAir();
     void SetDensityOfAir(float value);
+    float GetMaxFrequency();
+    void SetMaxFrequency(float value);
     float GetSoundSpeed();
     void SetSoundSpeed(float value);
     float GetFactRK();
     void SetFactRK(float value);
     int GetSaveNth();
     void SetSaveNth(int value);
+
+    float getBandWidth();
+    void setBandWidth(float value);
+
+    bool GetSpectralInterpolation();
+    void SetSpectralInterpolation(bool value);
+
+    float GetWaveLength();
+    void SetWaveLength(float value);
+
+    bool GetGPUAccel();
+    void SetGPUAccel(bool value);
+
+    bool GetMultiThread();
+    void SetMultiThread(bool value);
 };
 
 class DomainEdge

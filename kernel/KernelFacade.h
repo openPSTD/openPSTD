@@ -19,24 +19,24 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Date:
-//
+//      18-7-2015
 //
 // Authors:
-//
+//      Michiel Fortuijn
+//      Louis van Harten
 //
 // Purpose:
-//
+//      The KernelFacade is the interface between the front- and backend
+//      of the program.
 //
 //////////////////////////////////////////////////////////////////////////
-
-//
-// Created by michiel on 18-7-2015.
-//
 
 #ifndef OPENPSTD_KERNELFACADE_H
 #define OPENPSTD_KERNELFACADE_H
 
 #include <string>
+#include "PSTDFile.h"
+#include "Solver.h"
 
 /**
  * The configuration of the kernel.
@@ -77,8 +77,6 @@ class KernelFacade
 private:
     KernelConfiguration configuration;
 
-    void OutputPythonHomeAndPath();
-
 public:
     /**
      * Configures the kernel
@@ -87,9 +85,9 @@ public:
 
     /**
      * Runs the kernel with a certain scene file. The callback has a single function that informs the rest of the
-     * application how the progress is of the kernel.
+     * application of the progress of the kernel.
      */
-    void Run(std::string sceneFile, KernelFacadeCallback* callback);
+    void Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback);
 };
 
 
