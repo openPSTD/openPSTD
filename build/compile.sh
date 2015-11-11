@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-#set -e
+set -e
 
 if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     QT5DIR=/opt/qt55
-    PACKAGE=Bundle
+    PACKAGE=STGZ;TGZ
 else
     QT5DIR=/usr/local/opt/qt5
-    PACKAGE=STGZ;TGZ
+    PACKAGE=Bundle
 fi
 
 cmake \
