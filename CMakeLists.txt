@@ -164,7 +164,7 @@ set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
         kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h PSTDFile.cpp
         kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h InvalidationData.cpp)
 add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
-install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
+#install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
 
 #------------------------------------
 # UI

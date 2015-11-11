@@ -3,7 +3,7 @@ set -e
 
 if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     QT5DIR=/opt/qt55
-    PACKAGE=STGZ;TGZ
+    PACKAGE=STGZ\;TGZ
 else
     QT5DIR=/usr/local/opt/qt5
     PACKAGE=Bundle
