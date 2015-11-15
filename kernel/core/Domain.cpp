@@ -319,7 +319,8 @@ namespace Kernel {
 
         float max_float = std::numeric_limits<float>::max();
 
-        // we should probably refactor to a prettier solution
+        // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
+        // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
         if(left_domains.size()){
             for (std::shared_ptr<Domain> d1 : left_domains) {
                 if(right_domains.size()){

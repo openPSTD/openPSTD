@@ -98,6 +98,8 @@ namespace Kernel {
 
         /**
          * Calculates the rho matrices for all edges touching another domain
+         * "rho matrices" is the term used in the python code. In some parts of the C++ code,
+         * they are referred to as "rho arrays". TODO (optional) rename this for internal consistency
          */
         void calc_rho_matrices();
 
