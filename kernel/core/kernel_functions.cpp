@@ -32,7 +32,6 @@
 
 namespace Kernel {
     RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2) {
-        // 0mar: I switched the order of parameters in this function. Remember when porting classes.py.
         float zn1 = rho1 / rho_self;
         float inv_zn1 = rho_self / rho1;
         float rlw1 = (zn1 - 1) / (zn1 + 1);
