@@ -33,8 +33,7 @@ namespace Kernel {
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    std::shared_ptr<WaveNumberDiscretizer> wnd,
-                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)
-    ) {
+                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr) ) {
         //Todo (Louis): Implementeer dit verder
         this->settings = settings;
         this->top_left = top_left;
