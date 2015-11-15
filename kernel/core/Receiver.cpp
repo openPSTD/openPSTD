@@ -83,11 +83,10 @@ namespace Kernel {
         float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
 
-        Eigen::Matrix<float, 1, 4> rho; //TODO: Needs the rho matrix
+        Eigen::Matrix<float, 4, 2> rho; //TODO: Needs the rho matrix
 
-        Eigen::ArrayXXf p0shift = spatderp3(p0dx_slice, z_fact, this->config->GetWaveLength(),
-                                            1, opt_wave_number, rho, p0dx_bottom_slice,
-                                            p0dx_top_slice, 0, 0);
+        Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice, z_fact, rho, 0, 0);
+
         int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;
         float si_value = p0shift(rel_y_point, 0);
         return si_value;
