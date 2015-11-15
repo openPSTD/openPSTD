@@ -196,7 +196,28 @@ namespace Kernel {
                 }
 
                 // Determine which rho matrix instance to use
-                Eigen::Matrix<float, 1, 4> rmat; // = something TODO Louis fix dit
+                std::string rmat_id;
+                if (d1 != nullptr) {
+                    if (d2 != nullptr) {
+                        rmat_id = std::to_string(d1->id) + std::to_string(this->id) + std::to_string(d2->id);
+                    } else {
+                        rmat_id = std::to_string(d1->id) + std::to_string(this->id);
+                    }
+                } else {
+                    if (d2 != nullptr) {
+                        rmat_id = std::to_string(this->id) + std::to_string(d2->id);
+                    } else {
+                        rmat_id = std::to_string(this->id);
+                    }
+                }
+                Eigen::Array<float, 4, 2> rmat;
+                if (ct == CalculationType::PRESSURE) {
+                    rmat = this->rho_arrays[rmat_id].pressure;
+                } else {
+                    rmat = this->rho_arrays[rmat_id].velocity;
+                }
+
+                //TODO: set matrix
             }
         }
     }
