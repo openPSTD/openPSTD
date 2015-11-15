@@ -105,8 +105,47 @@ namespace Kernel {
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
                               Eigen::Matrix<float, 4, 2> Rmatrix, int var, int direct) {
 
-        //N1 batch (domain size in non-dominant direction)
-        //N2 dimension of the ffts ( next_2pow(len(p2)+2*Wlenght) )
+
+        //fft_batch (domain size in non-dominant direction)
+        //fft_length ( next_2pow(len(p2)+2*Wlenght) )
+        //in the Python code: N1 = fft_batch and N2 = fft_length
+
+
+        //grab the window and required window_length from the config
+
+
+        //if direct == 0, transpose p1, p2 and p3
+
+
+        //branch into velocity and pressure calculation.
+        //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
+        //slicing and the values pulled from the Rmatrix is slightly different for the two branches
+        //check and double check the Python code before, during and after implementing this part
+
+
+        //set G1 = the product of the last $window_length values in p1 by the first $window_length values in the window
+
+
+        //set G2 = the product of the first $window_length values in p3 by the last $window_length values in the window
+
+
+        //set catemp = concatenate (G1, p2, G3)
+
+
+        //set catemp_fft = fft(catemp) with fft length $fft_length. fft one dimensional, applied to every row of catemp.
+        //the fft should use the same scaling as numpy.fft (that is, no scaling in the fft and 1/n scaling in the ifft,
+        //with the fft defined as $A_k=sum_{m=0}^{n-1} e^{2*\pi i*f*m*\delta*t} * e^{-2*\pi i*m*k/n}, k=0,...,n-1$ and
+        //the ifft defined as $a_m=1/n*sum_{k=0}^{n-1} A_k * e^{-2*\pi i*m*k/n}, m=0,...,n-1$
+
+
+        //set catemp_fft_der to catemp_fft * derfact ((!) complex element-wise multiplication)
+
+
+        //set Ltemp = real(ifft(catemp_fft_der))
+
+
+        //slice the result properly, transpose it if direct == 0
+
 
     }
 }
