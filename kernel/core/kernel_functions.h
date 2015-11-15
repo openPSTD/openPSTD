@@ -89,22 +89,24 @@ namespace Kernel {
      *
      * The domain for which the derivative is being computed is p2. p1 and p3 are its neighbours.     *
      *
-     * @param p2 variable matrix subdomain 2
-     * @param derfact factor to compute derivative in wavenumber domain
-     * @param Wlength length of window function
-     * @param N1 batch (domain size in non-dominant direction)
-     * @param N2 dimension of the ffts ( next_2pow(len(p2)+2*Wlenght) )
-     * @param Rmatrix matrix of reflection coefficients
+     * //TODO (remove the warning on the next line when everything is ported)
+     * WARNING - order in Python code:  (p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct)
+     *           order in the C++ code: (p1,p2,p3,derfact,Rmatrix,var_index,direct)
+     *           var_index=var and N1, N2 and Ns2 are derived from other inputs
+     *           WLength and A are pulled from the config
+     *
      * @param p1 variable matrix subdomain 1
+     * @param p2 variable matrix subdomain 2
      * @param p3 variable matrix subdomain 3
+     * @param derfact factor to compute derivative in wavenumber domain
+     * @param Rmatrix matrix of reflection coefficients
      * @param var_index variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
-     * @param direction direction for computation of derivative: 0,1 for z, x direction respectively
+     * @param direct direction for computation of derivative: 0,1 for z, x direction respectively
      * @return a 2d array containing the derivative of p2
      */
-    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              int Wlength, int N1, int N2, Eigen::Matrix<float, 1, 4> Rmatrix,
-                              std::shared_ptr<Eigen::ArrayXXf> p1,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, int var_index, int direction);
+    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
+                              std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
+                              Eigen::Matrix<float, 4, 2> Rmatrix, int var, int direct);
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity

@@ -101,10 +101,12 @@ namespace Kernel {
 //        return make_tuple(cell_list_p, cell_list_u);
 //    }
 
-    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p2, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              int Wlength, int N1, int N2, Eigen::Matrix<float, 1, 4> Rmatrix,
-                              std::shared_ptr<Eigen::ArrayXXf> p1,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, int var, int direct) {
+    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
+                              std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
+                              Eigen::Matrix<float, 4, 2> Rmatrix, int var, int direct) {
+
+        //N1 batch (domain size in non-dominant direction)
+        //N2 dimension of the ffts ( next_2pow(len(p2)+2*Wlenght) )
 
     }
 }
