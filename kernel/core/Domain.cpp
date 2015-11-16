@@ -38,7 +38,7 @@ namespace Kernel {
         this->settings = settings;
         this->top_left = top_left;
         this->size = size;
-        this->bottom_right = bottom_right;
+        this->bottom_right = std::make_shared<Point>(*top_left + *size);
         this->wnd = wnd;
         this->id = id;
         if (is_pml) {
@@ -82,7 +82,7 @@ namespace Kernel {
                 rho_matrix_key.push_back(d2->id);
 
                 //The range is determined and clipped to the neighbour domain ranges
-                std::vector<int> own_range = this->get_range(bt);
+                std::vector<int> own_range = this->get_range(bt); //Todo: Different range than before?
                 std::vector<int> range_intersection = own_range;
 
                 if (d1 != nullptr) {
@@ -300,19 +300,53 @@ namespace Kernel {
     }
 
     std::shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, std::vector<float> location) {
-        return NULL;
+        std::shared_ptr<Domain> correct_domain = nullptr;
+        switch (direction) {
+            case Direction::LEFT:
+                for (std::shared_ptr<Domain> domain:this->left) {
+                    if (domain->contains_location(location)) {
+                        correct_domain = domain;
+                    }
+                }
+                break;
+            case Direction::RIGHT:
+                for (std::shared_ptr<Domain> domain:this->right) {
+                    if (domain->contains_location(location)) {
+                        correct_domain = domain;
+                    }
+                }
+                break;
+            case Direction::TOP:
+                for (std::shared_ptr<Domain> domain:this->top) {
+                    if (domain->contains_location(location)) {
+                        correct_domain = domain;
+                    }
+                }
+                break;
+            case Direction::BOTTOM:
+                for (std::shared_ptr<Domain> domain:this->bottom) {
+                    if (domain->contains_location(location)) {
+                        correct_domain = domain;
+                    }
+                }
+                break;
+        }
     }
 
     void Domain::add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction) {
         switch (direction) {
             case Direction::LEFT:
                 this->left.push_back(domain);
+                break;
             case Direction::RIGHT:
                 this->right.push_back(domain);
+                break;
             case Direction::TOP:
                 this->top.push_back(domain);
+                break;
             case Direction::BOTTOM:
                 this->bottom.push_back(domain);
+                break;
         }
     }
 
@@ -388,6 +422,23 @@ namespace Kernel {
                 std::vector<float> rhos = {max_float, max_float};
                 this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
             }
+        }
+    }
+
+    Eigen::ArrayXXi Domain::get_vacant_range(Direction direction) {
+        std::vector<int> range;
+        switch (direction) {
+            case Direction::LEFT:
+            case Direction::RIGHT:
+                range = this->get_range(BoundaryType::HORIZONTAL); //todo: Refactored...
+                break;
+            case Direction::TOP:
+            case Direction::BOTTOM:
+                range = this->get_range(BoundaryType::HORIZONTAL); //todo: Refactored...
+                break;
+        }
+        for (int i = 0; i < range.size(); i++) {
+            //Todo: Set intersection of this with boundary ranges.
         }
     }
 }

@@ -34,13 +34,56 @@ namespace Kernel {
     }
 
     void Scene::add_pml_domains() {
+        int number_of_cells = this->settings->GetPMLCells();
+        std::vector<Direction> directions{Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
+        std::vector<std::string> dir_strings{"left", "right", "top", "bottom"};
+
+
+        std::vector<std::shared_ptr<Domain>> first_order_pmls;
+        std::vector<std::shared_ptr<Domain>> second_order_pmls;
+
+        for (std::shared_ptr<Domain> domain:this->domain_list) {
+            if (domain->is_pml) {
+                continue;
+            }
+            for (int i = 0; i < directions.size(); i++) {
+                Direction direction = directions.at(i);
+                Eigen::ArrayXXi vacant_range = domain->get_vacant_range(direction);
+                for (int i = 0; i < vacant_range.rows(); i++) {
+                    std::ostringstream pml_ss;
+                    pml_ss << domain->id << dir_strings.at(i);
+                    if (vacant_range.rows() > 1) {
+                        pml_ss << "_" << i;
+                    }
+                    int x, y, z;
+                    switch (direction) {
+                        case Direction::LEFT:
+                            x = -number_of_cells;
+                            y = vacant_range(i, 0) - domain->top_left->y;
+                            break;
+                        case Direction::RIGHT:
+                            x = domain->size->x;
+                            y = vacant_range(i, 0) - domain->top_left->y;
+                            break;
+                        case Direction::TOP:
+                            x = vacant_range(i, 0) - domain->top_left->x;
+                            y = domain->size->y;
+                            break;
+                        case Direction::BOTTOM:
+                            x = vacant_range(i, 0) - domain->top_left->x;
+                            y = -number_of_cells;
+                            break;
+                    }
+                    //todo (0mar) : Finish
+                }
+            }
+        }
 
     }
 
     void Scene::add_domain(std::shared_ptr<Domain> domain) {
         for (int i = 0; i < this->domain_list.size(); i++) {
-            std::shared_ptr<Domain> other_domain = domain_list.at(
-                    i); // Todo: Gives parameter type mismatch error; important?
+            std::shared_ptr<Domain> other_domain = domain_list.at(i);
             if (domain->is_sec_pml && other_domain->is_sec_pml) {
                 // Cannot interact, since no secondary PML domains are adjacent
                 continue;
