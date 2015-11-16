@@ -430,11 +430,11 @@ namespace Kernel {
         switch (direction) {
             case Direction::LEFT:
             case Direction::RIGHT:
-                range = this->get_range(BoundaryType::HORIZONTAL); //todo: Refactored...
+                range = this->get_range(CalcDirection::X);
                 break;
             case Direction::TOP:
             case Direction::BOTTOM:
-                range = this->get_range(BoundaryType::HORIZONTAL); //todo: Refactored...
+                range = this->get_range(CalcDirection::Y);
                 break;
         }
         for (int i = 0; i < range.size(); i++) {
