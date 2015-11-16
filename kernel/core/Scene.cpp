@@ -73,22 +73,22 @@ namespace Kernel {
                     continue;
                 }
             }
-            BoundaryType bt;
+            CalcDirection bt;
             Direction orientation;
             std::vector<int> intersection;
             bool is_neighbour = true;
             if (domain->bottom_right->x == other_domain->top_left->x) {
                 orientation = Direction::RIGHT;
-                bt = BoundaryType::VERTICAL;
+                bt = CalcDirection::Y;
             } else if (domain->top_left->x == other_domain->bottom_right->x) {
                 orientation = Direction::LEFT;
-                bt = BoundaryType::VERTICAL;
+                bt = CalcDirection::Y;
             } else if (domain->bottom_right->y == other_domain->top_left->y) {
                 orientation = Direction::BOTTOM;
-                bt = BoundaryType::HORIZONTAL;
+                bt = CalcDirection::X;
             } else if (domain->top_left->y == other_domain->bottom_right->y) {
                 orientation = Direction::TOP;
-                bt = BoundaryType::HORIZONTAL;
+                bt = CalcDirection::X;
             } else {
                 is_neighbour = false;
             }

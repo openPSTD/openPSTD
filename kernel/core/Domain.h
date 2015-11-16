@@ -143,7 +143,7 @@ namespace Kernel {
          * coordinates in direction bt. This exists to facilitate porting the legacy code.
          * @param bt Direction in which the range is requested
          */
-        std::vector<int> get_range(BoundaryType bt);
+        std::vector<int> get_range(CalcDirection bt);
 
         /**
          * Computes the grid points in a given direction the domain has in common with another domain.
@@ -160,7 +160,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
+        Eigen::ArrayXXf calc(CalcDirection bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
 
         /**
          * Calculate one timestep of propagation in this domain
@@ -168,7 +168,7 @@ namespace Kernel {
          * @param ct Calculation type (pressure/velocity)
          * @see spatderp3
          */
-        void calc(BoundaryType bt, CalculationType ct);
+        void calc(CalcDirection bt, CalculationType ct);
 
         /**
          * Method that gives the current domain initialized with zeroes, extended by the input

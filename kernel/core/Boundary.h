@@ -39,9 +39,9 @@ namespace Kernel {
     class Boundary {
     public:
         std::shared_ptr<Domain> domain1, domain2;
-        BoundaryType type;
+        CalcDirection type;
 
-        Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, BoundaryType type);
+        Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, CalcDirection type);
 
     };
 }

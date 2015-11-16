@@ -28,9 +28,9 @@ namespace Kernel {
         return pressure;
     }
 
-    std::shared_ptr<Eigen::ArrayXcf> Receiver::get_fft_factors(Point size, BoundaryType bt) {
+    std::shared_ptr<Eigen::ArrayXcf> Receiver::get_fft_factors(Point size, CalcDirection bt) {
         int primary_dimension = 0;
-        if (bt == BoundaryType::HORIZONTAL) {
+        if (bt == CalcDirection::X) {
             primary_dimension = size.x;
         } else {
             primary_dimension = size.y;
@@ -62,24 +62,24 @@ namespace Kernel {
         std::shared_ptr<Domain> bottom_domain = this->container_domain->get_neighbour_at(Direction::BOTTOM,
                                                                                          this->location);
         std::shared_ptr<Eigen::ArrayXXf> p0dx = this->calc_domain_fields(this->container_domain,
-                                                                             BoundaryType::HORIZONTAL);
+                                                                             CalcDirection::X);
         int rel_x_point = this->grid_location->x - this->container_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx->middleCols(rel_x_point, 1));
 
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->calc_domain_fields(top_domain, BoundaryType::HORIZONTAL);
+        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->calc_domain_fields(top_domain, CalcDirection::X);
         int top_rel_x_point = this->grid_location->x - top_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_top_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx_top->middleCols(top_rel_x_point, 1));
 
         std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom = this->calc_domain_fields(bottom_domain,
-                                                                                    BoundaryType::HORIZONTAL);
+                                                                                    CalcDirection::X);
         int bottom_rel_x_point = this->grid_location->x - bottom_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx_bottom->middleCols(bottom_rel_x_point, 1));
 
         std::shared_ptr<Eigen::ArrayXcf> z_fact = this->get_fft_factors(Point(1, this->container_domain->size->y),
-                                                       BoundaryType::VERTICAL);
+                                                       CalcDirection::Y);
         float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
 
@@ -93,7 +93,7 @@ namespace Kernel {
     }
 
     // Todo: Different name;
-    std::shared_ptr<Eigen::ArrayXXf> Receiver::calc_domain_fields(std::shared_ptr<Domain> domain, BoundaryType bt) {
+    std::shared_ptr<Eigen::ArrayXXf> Receiver::calc_domain_fields(std::shared_ptr<Domain> domain, CalcDirection bt) {
         Eigen::ArrayXXf domain_result = domain->calc(bt, CalculationType::PRESSURE,
                                                      this->get_fft_factors(*(domain->size), bt));
         return std::make_shared<Eigen::ArrayXXf>(domain_result);
