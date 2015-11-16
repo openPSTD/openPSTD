@@ -217,7 +217,7 @@ namespace Kernel {
                     rmat = this->rho_arrays[rmat_id].velocity;
                 }
 
-                //TODO: set matrix
+                //TODO: set matrix to result of spatderp3
             }
         }
     }
@@ -271,13 +271,13 @@ namespace Kernel {
         switch (direction) {
             case Direction::LEFT:
             case Direction::RIGHT:
-                own_range = this->get_range(CalcDirection::Y);
-                other_range = other_domain->get_range(CalcDirection::Y);
+                own_range = this->get_range(CalcDirection::X);
+                other_range = other_domain->get_range(CalcDirection::X);
                 break;
             case Direction::TOP:
             case Direction::BOTTOM:
-                own_range = this->get_range(CalcDirection::X);
-                other_range = other_domain->get_range(CalcDirection::X);
+                own_range = this->get_range(CalcDirection::Y);
+                other_range = other_domain->get_range(CalcDirection::Y);
                 break;
         }
         std::vector<int> range_intersection = own_range;
