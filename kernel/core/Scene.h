@@ -35,6 +35,7 @@
 #include <eigen/Eigen/Dense>
 #include <map>
 #include <string>
+#include <sstream>
 #include "kernel_functions.h"
 #include "Domain.h"
 #include "Geometry.h"

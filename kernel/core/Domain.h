@@ -170,6 +170,13 @@ namespace Kernel {
          */
         void calc(CalcDirection bt, CalculationType ct);
 
+
+        /**
+         * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
+         * @param direction: Domain side under consideration
+         * @return: 2D array each row a range start and end variable
+         */
+        Eigen::ArrayXXi get_vacant_range(Direction direction);
         /**
          * Method that gives the current domain initialized with zeroes, extended by the input
          * arguments in respective directions
