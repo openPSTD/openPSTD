@@ -210,4 +210,9 @@ target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
 
+set(CPACK_BUNDLE_NAME OpenPSTD)
+set(CPACK_BUNDLE_ICON "")
+set(CPACK_BUNDLE_PLIST "")
+set(CPACK_BUNDLE_STARTUP_COMMAND OpenPSTD-gui)
+
 include(CPack)

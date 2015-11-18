@@ -24,6 +24,9 @@ before_script:
  - uname -r
  - gcc -v
  - cmake --version
+ - cmake --help
+ - cpack --version
+ - cpack --help
 
 script:
  - compile.sh
