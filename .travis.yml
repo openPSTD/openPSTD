@@ -42,5 +42,5 @@ deploy:
    - "OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Linux.sh"
    - "OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Linux.tar.gz"
   on:
-    repo: openPSTD/openPSTD
+    repo: micfort/openPSTD
     tags: true
