@@ -46,7 +46,7 @@ SET(OPENPSTD_VERSION_PATCH 0 CACHE STRING "Patch version number")
 
 #------------------------------------
 # Version numbering
-message(STATUS "Building version: ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}.${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}.${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
+message(STATUS "Building version: ${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}")
 
 #------------------------------------
 # General
