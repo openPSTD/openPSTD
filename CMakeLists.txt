@@ -40,6 +40,14 @@ set(UNQLITE_INCLUDE "" CACHE PATH "The include directory of unqlite")
 set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
+SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")
+SET(OPENPSTD_VERSION_MINOR 0 CACHE STRING "Minor version number")
+SET(OPENPSTD_VERSION_PATCH 0 CACHE STRING "Patch version number")
+
+#------------------------------------
+# Version numbering
+message(STATUS "Building version: ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}.${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}.${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
+
 #------------------------------------
 # General
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -214,5 +222,9 @@ set(CPACK_BUNDLE_NAME OpenPSTD)
 set(CPACK_BUNDLE_ICON OpenPSTD.icns)
 set(CPACK_BUNDLE_PLIST Info.plist)
 set(CPACK_BUNDLE_STARTUP_COMMAND OpenPSTD-gui)
+
+set(CPACK_PACKAGE_VERSION_MAJOR ${OPENPSTD_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${OPENPSTD_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${OPENPSTD_VERSION_PATCH})
 
 include(CPack)
