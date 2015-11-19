@@ -54,14 +54,15 @@ namespace Kernel {
     }
 
     int next2Power(float n) {
-
         return (int) pow(2, ceil(log2(n)));
-
+    }
+    int next2Power(int n) {
+        return (int) pow(2, ceil(log2(n)));
     }
 
     float getGridSpacing(PSTDFileSettings cnf) {
         Eigen::Array<float, 9, 1> dxv;
-        dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //Louis: is there a good reason to disallow other vals?
+        dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //TODO: is there a good reason to disallow other vals?
         float waveLength = cnf.GetSoundSpeed() / cnf.GetMaxFrequency() / 2;
         if (waveLength < 0.002) {
             throw std::invalid_argument("Wavelength (speed/frequency) is too small");
@@ -85,7 +86,6 @@ namespace Kernel {
             case Direction::RIGHT:
                 return Direction::LEFT;
         }
-
     }
 
 //    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
@@ -103,12 +103,15 @@ namespace Kernel {
 
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Matrix<float, 4, 2> Rmatrix, int var, int direct) {
+                              Eigen::Matrix<float, 4, 2> Rmatrix, std::vector<float> window,
+                              int wlen, int var, int direct) {
 
 
         //fft_batch (domain size in non-dominant direction)
         //fft_length ( next_2pow(len(p2)+2*Wlenght) )
         //in the Python code: N1 = fft_batch and N2 = fft_length
+        int fft_batch = (int) p2->rows();
+        int fft_length = next2Power((int) p2->cols() + wlen*2);
 
 
         //grab the window and required window_length from the config

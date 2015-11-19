@@ -91,9 +91,8 @@ namespace Kernel {
      *
      * //TODO (remove the warning on the next line when everything is ported)
      * WARNING - order in Python code:  (p2,derfact,Wlength,A,Ns2,N1,N2,Rmatrix,p1,p3,var,direct)
-     *           order in the C++ code: (p1,p2,p3,derfact,Rmatrix,var_index,direct)
+     *           order in the C++ code: (p1,p2,p3,derfact,Rmatrix,window,wlen,var_index,direct)
      *           var_index=var and N1, N2 and Ns2 are derived from other inputs
-     *           WLength and A are pulled from the config
      *
      * @param p1 variable matrix subdomain 1
      * @param p2 variable matrix subdomain 2
@@ -106,7 +105,8 @@ namespace Kernel {
      */
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Matrix<float, 4, 2> Rmatrix, int var, int direct);
+                              Eigen::Matrix<float, 4, 2> Rmatrix, std::vector<float> window,
+                              int wlen, int var, int direct);
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
@@ -133,15 +133,6 @@ namespace Kernel {
      * return 2^k >= n
      */
     int next2Power(float n);
-
-    /**
-     * Computes the attenuation coefficients of PML cells (pressure and velocity) as per the formula:
-     * coef = alpha(point_distance/PML_thickness)^4 (Hornikx et al. 2010)
-     * @param cnf config object containing the properties of the geometry
-     * @return a tuple of vectors, the first being the coefficients for pressure,
-     * the second for velocity.
-     */
-    //std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf); //TODO Probably unused
 
 }
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H
