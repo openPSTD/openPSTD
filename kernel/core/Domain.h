@@ -179,7 +179,7 @@ namespace Kernel {
          * @see spatderp3
          */
         void calc(CalcDirection bt, CalculationType ct);
-        
+
         /**
          * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
          * @param direction: Domain side under consideration

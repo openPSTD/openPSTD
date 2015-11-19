@@ -88,33 +88,14 @@ namespace Kernel {
         }
     }
 
-//    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
-//        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5f, 1);
-//        for (int i = 0; i < cell_list_p.size(); i++) {
-//            cell_list_p[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4));
-//        }
-//        std::vector<float> cell_list_u = arange<float>(0, cnf.GetPMLCells() + 1, 1);
-//        for (int i = 0; i < cell_list_u.size(); i++) {
-//            cell_list_u[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_u[i] / cnf.GetPMLCells(), 4));
-//            cell_list_u[i] = cnf.GetDensityOfAir() * cell_list_u[i];
-//        }
-//        return make_tuple(cell_list_p, cell_list_u);
-//    }
-
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
                               Eigen::Matrix<float, 4, 2> Rmatrix, std::vector<float> window,
                               int wlen, int var, int direct) {
 
-
-        //fft_batch (domain size in non-dominant direction)
-        //fft_length ( next_2pow(len(p2)+2*Wlenght) )
         //in the Python code: N1 = fft_batch and N2 = fft_length
         int fft_batch = (int) p2->rows();
         int fft_length = next2Power((int) p2->cols() + wlen*2);
-
-
-        //grab the window and required window_length from the config
 
 
         //if direct == 0, transpose p1, p2 and p3
