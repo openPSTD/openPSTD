@@ -69,6 +69,7 @@ private:
     int SaveNth;
     bool gpu;
     bool multithread;
+    std::vector<float> window;
 public:
     float GetGridSpacing();
     void SetGridSpacing(float value);
@@ -91,21 +92,18 @@ public:
     void SetFactRK(float value);
     int GetSaveNth();
     void SetSaveNth(int value);
-
     float getBandWidth();
     void setBandWidth(float value);
-
     bool GetSpectralInterpolation();
     void SetSpectralInterpolation(bool value);
-
     float GetWaveLength();
     void SetWaveLength(float value);
-
     bool GetGPUAccel();
     void SetGPUAccel(bool value);
-
     bool GetMultiThread();
     void SetMultiThread(bool value);
+    std::vector<float> GetWindow();
+    void SetWindow(std::vector<float> A);
 };
 
 class DomainEdge

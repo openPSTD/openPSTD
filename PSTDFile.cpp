@@ -531,6 +531,13 @@ void PSTDFileSettings::SetMultiThread(bool value) {
     this->multithread = value;
 }
 
+void PSTDFileSettings::SetWindow(std::vector<float> A) {
+    this->window = A;
+}
+
+std::vector<float> PSTDFileSettings::GetWindow() {
+    return this->window;
+}
 
 int PSTDFileSettings::GetWindowSize() {
     //directly translated from original Python implementation

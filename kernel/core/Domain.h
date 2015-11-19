@@ -114,8 +114,6 @@ namespace Kernel {
 
         bool should_update(std::shared_ptr<Domain> domain);
 
-        bool is_rigid();
-
         int number_of_neighbours(bool count_pml);
 
         /**
@@ -184,8 +182,7 @@ namespace Kernel {
          * @see spatderp3
          */
         void calc(CalcDirection bt, CalculationType ct);
-
-
+        
         /**
          * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
          * @param direction: Domain side under consideration

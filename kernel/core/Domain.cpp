@@ -82,7 +82,6 @@ namespace Kernel {
                 rho_matrix_key.push_back(d2->id);
 
                 //The range is determined and clipped to the neighbour domain ranges
-                std::vector<int> own_range = this->get_range(bt); //Todo: Different range than before?
                 std::vector<int> range_intersection = own_range;
 
                 if (d1 != nullptr) {
