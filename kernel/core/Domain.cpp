@@ -47,9 +47,9 @@ namespace Kernel {
     };
 
     // version of calc that would have a return value.
-    Eigen::ArrayXXf Domain::calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest) {
+    Eigen::ArrayXXf Domain::calc(CalcDirection bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest) {
         std::vector<std::shared_ptr<Domain>> domains1, domains2;
-        if (bt == BoundaryType::HORIZONTAL) {
+        if (bt == CalcDirection::X) {
             domains1 = this->left;
             domains2 = this->right;
         } else {
@@ -62,7 +62,7 @@ namespace Kernel {
         std::shared_ptr<Eigen::ArrayXXf> source;
 
         if (dest != nullptr || ct == CalculationType::PRESSURE) {
-            if (bt == BoundaryType::HORIZONTAL) {
+            if (bt == CalcDirection::X) {
                 source = extended_zeros(0, 1);
             } else {
                 source = extended_zeros(1, 0);
@@ -106,7 +106,7 @@ namespace Kernel {
                 // Set up various parameters and intermediates that are needed for the spatial derivatives
                 int range_start = *std::min_element(range_intersection.begin(), range_intersection.end());
                 int range_end = *std::max_element(range_intersection.begin(), range_intersection.end()) + 1;
-                int primary_dimension = (bt == BoundaryType::HORIZONTAL) ? this->size->x : this->size->y;
+                int primary_dimension = (bt == CalcDirection::X) ? this->size->x : this->size->y;
                 int N_total = 2 * this->settings->GetWindowSize() + primary_dimension;
 
                 if (ct == CalculationType::PRESSURE) {
@@ -125,7 +125,7 @@ namespace Kernel {
                     //   |     PML     |
                     //  <--------------->
                     d1 = d2 = shared_from_this();
-                    if (bt == BoundaryType::HORIZONTAL) {
+                    if (bt == CalcDirection::X) {
                         matrix1 = extended_zeros(0, 1);
                         matrix2 = extended_zeros(0, 1);
                     } else {
@@ -143,7 +143,7 @@ namespace Kernel {
 
                 if (ct == CalculationType::PRESSURE) {
                     matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.p0);
-                } else if (bt == BoundaryType::HORIZONTAL) {
+                } else if (bt == CalcDirection::X) {
                     matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.u0);
                 } else {
                     matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.w0);
@@ -154,7 +154,7 @@ namespace Kernel {
                     if (ct == CalculationType::PRESSURE) {
                         matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.p0);
                     } else {
-                        if (bt == BoundaryType::HORIZONTAL) {
+                        if (bt == CalcDirection::X) {
                             matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.u0);
                         } else {
                             matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.w0);
@@ -165,7 +165,7 @@ namespace Kernel {
                     if (ct == CalculationType::PRESSURE) {
                         matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.p0);
                     } else {
-                        if (bt == BoundaryType::HORIZONTAL) {
+                        if (bt == CalcDirection::X) {
                             matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.u0);
                         } else {
                             matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.w0);
@@ -178,7 +178,7 @@ namespace Kernel {
                 if (ct == CalculationType::VELOCITY) {
                     var_index = 1;
                 }
-                if (bt == BoundaryType::HORIZONTAL) {
+                if (bt == CalcDirection::X) {
                     direction = 1;
                 }
 
@@ -217,7 +217,7 @@ namespace Kernel {
                     rmat = this->rho_arrays[rmat_id].velocity;
                 }
 
-                //TODO: set matrix
+                //TODO: set matrix to result of spatderp3
             }
         }
     }
@@ -226,7 +226,7 @@ namespace Kernel {
      * Near-alias to calc(BoundaryType bt, CalculationType ct, std::vector<float> dest), but with
      * a default empty vector as dest.
      */
-    void Domain::calc(BoundaryType bt, CalculationType ct) {
+    void Domain::calc(CalcDirection bt, CalculationType ct) {
         std::shared_ptr<Eigen::ArrayXcf> dest;
         Domain::calc(bt, ct, dest);
     }
@@ -251,9 +251,9 @@ namespace Kernel {
         return false; //Todo
     }
 
-    std::vector<int> Domain::get_range(BoundaryType bt) {
+    std::vector<int> Domain::get_range(CalcDirection bt) {
         int a_l, b_l;
-        if (bt == BoundaryType::HORIZONTAL) {
+        if (bt == CalcDirection::X) {
             a_l = this->top_left->x;
             b_l = this->bottom_right->x;
         } else {
@@ -271,13 +271,13 @@ namespace Kernel {
         switch (direction) {
             case Direction::LEFT:
             case Direction::RIGHT:
-                own_range = this->get_range(BoundaryType::VERTICAL);
-                other_range = other_domain->get_range(BoundaryType::VERTICAL);
+                own_range = this->get_range(CalcDirection::X);
+                other_range = other_domain->get_range(CalcDirection::X);
                 break;
             case Direction::TOP:
             case Direction::BOTTOM:
-                own_range = this->get_range(BoundaryType::HORIZONTAL);
-                other_range = other_domain->get_range(BoundaryType::HORIZONTAL);
+                own_range = this->get_range(CalcDirection::Y);
+                other_range = other_domain->get_range(CalcDirection::Y);
                 break;
         }
         std::vector<int> range_intersection = own_range;
@@ -430,11 +430,11 @@ namespace Kernel {
         switch (direction) {
             case Direction::LEFT:
             case Direction::RIGHT:
-                range = this->get_range(BoundaryType::HORIZONTAL); //todo: Refactored...
+                range = this->get_range(CalcDirection::X);
                 break;
             case Direction::TOP:
             case Direction::BOTTOM:
-                range = this->get_range(BoundaryType::HORIZONTAL); //todo: Refactored...
+                range = this->get_range(CalcDirection::Y);
                 break;
         }
         for (int i = 0; i < range.size(); i++) {

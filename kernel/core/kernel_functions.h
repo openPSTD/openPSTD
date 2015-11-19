@@ -57,8 +57,8 @@ namespace Kernel {
     /**
      * Helper enums - used to distinguish horizontal boundaries from vertical boundaries
      */
-    enum class BoundaryType {
-        HORIZONTAL = 0, VERTICAL = 1
+    enum class CalcDirection {
+        X = 0, Y = 1
     };
 
     /**
