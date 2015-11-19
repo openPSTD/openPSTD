@@ -33,7 +33,7 @@ namespace Kernel {
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    std::shared_ptr<WaveNumberDiscretizer> wnd,
-                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr) ) {
+                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
         //Todo (Louis): Implementeer dit verder
         this->settings = settings;
         this->top_left = top_left;
@@ -353,14 +353,17 @@ namespace Kernel {
         //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
         struct index_strings {
             std::string id(std::shared_ptr<Domain> d1, Domain *dm, std::shared_ptr<Domain> d2) {
-                return std::to_string(d1->id)+std::to_string(dm->id)+std::to_string(d2->id);
+                return std::to_string(d1->id) + std::to_string(dm->id) + std::to_string(d2->id);
             }
+
             std::string id(std::shared_ptr<Domain> d1, Domain *dm) {
-                return std::to_string(d1->id)+std::to_string(dm->id);
+                return std::to_string(d1->id) + std::to_string(dm->id);
             }
+
             std::string id(Domain *dm, std::shared_ptr<Domain> d2) {
-                return std::to_string(dm->id)+std::to_string(d2->id);
+                return std::to_string(dm->id) + std::to_string(d2->id);
             }
+
             std::string id(Domain *dm) {
                 return std::to_string(dm->id);
             }
@@ -375,23 +378,23 @@ namespace Kernel {
 
         // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
         // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
-        if(left_domains.size()){
+        if (left_domains.size()) {
             for (std::shared_ptr<Domain> d1 : left_domains) {
-                if(right_domains.size()){
+                if (right_domains.size()) {
                     for (std::shared_ptr<Domain> d2 : right_domains) {
                         std::vector<float> rhos = {d1->rho, d2->rho};
-                        this->rho_arrays[x.id(d1,this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                        this->rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                     }
                 } else {
                     std::vector<float> rhos = {d1->rho, max_float};
-                    this->rho_arrays[x.id(d1,this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    this->rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             }
         } else {
-            if(right_domains.size()){
+            if (right_domains.size()) {
                 for (std::shared_ptr<Domain> d2 : right_domains) {
                     std::vector<float> rhos = {max_float, d2->rho};
-                    this->rho_arrays[x.id(this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    this->rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             } else {
                 std::vector<float> rhos = {max_float, max_float};
@@ -399,23 +402,23 @@ namespace Kernel {
             }
         }
 
-        if(bottom_domains.size()){
+        if (bottom_domains.size()) {
             for (std::shared_ptr<Domain> d1 : bottom_domains) {
-                if(top_domains.size()){
+                if (top_domains.size()) {
                     for (std::shared_ptr<Domain> d2 : top_domains) {
                         std::vector<float> rhos = {d1->rho, d2->rho};
-                        this->rho_arrays[x.id(d1,this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                        this->rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                     }
                 } else {
                     std::vector<float> rhos = {d1->rho, max_float};
-                    this->rho_arrays[x.id(d1,this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    this->rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             }
         } else {
-            if(top_domains.size()){
+            if (top_domains.size()) {
                 for (std::shared_ptr<Domain> d2 : top_domains) {
                     std::vector<float> rhos = {max_float, d2->rho};
-                    this->rho_arrays[x.id(this,d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    this->rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             } else {
                 std::vector<float> rhos = {max_float, max_float};
@@ -425,19 +428,43 @@ namespace Kernel {
     }
 
     Eigen::ArrayXXi Domain::get_vacant_range(Direction direction) {
-        std::vector<int> range;
+        std::vector<std::shared_ptr<Domain>> neighbour_list;
+        CalcDirection calc_dir = direction_to_calc_direction(direction);
+        std::vector<int> range = this->get_range(calc_dir);
+        std::set<int> range_set(range.begin(), range.end());
         switch (direction) {
             case Direction::LEFT:
+                neighbour_list = this->left;
+                break;
             case Direction::RIGHT:
-                range = this->get_range(CalcDirection::X);
+                neighbour_list = this->right;
                 break;
             case Direction::TOP:
+                neighbour_list = this->top;
+                break;
             case Direction::BOTTOM:
-                range = this->get_range(CalcDirection::Y);
+                neighbour_list = this->bottom;
                 break;
         }
-        for (int i = 0; i < range.size(); i++) {
-            //Todo: Set intersection of this with boundary ranges.
+        for (std::shared_ptr<Domain> domain: neighbour_list) {
+            std::vector<int> neighbour_range = domain->get_range(calc_dir);
+            std::set<int> neighbour_range_set(neighbour_range.begin(), neighbour_range.end());
+            std::set_difference(range_set.begin(), range_set.end(), neighbour_range_set.begin(),
+                                neighbour_range_set.end(), range_set.begin());
         }
+        Eigen::ArrayXXi vacant_range(range_set.size(), 2);
+        range.assign(range_set.begin(), range_set.end());
+        int iterator = 0;
+        for (unsigned long i = 0; i < range.size(); i++) {
+            if (i == 0 || range.at(i - 1) + 1 < range.at(i)) {
+                vacant_range(0, 0) = range.at(i);
+                vacant_range(0, 1) = range.at(i);
+                iterator++;
+            }
+            if (i == range.size() - 1 || range.at(i + 1) - 1 > range.at(i)) {
+                vacant_range(iterator - 1, 1) = range.at(i) + 1;
+            }
+        }
+        return vacant_range.topRows(iterator);
     }
 }

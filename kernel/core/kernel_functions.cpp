@@ -88,6 +88,26 @@ namespace Kernel {
         }
     }
 
+    CalcDirection get_orthogonal(CalcDirection direction) {
+        switch (direction) {
+            case CalcDirection::X:
+                return CalcDirection::Y;
+            case CalcDirection::Y:
+                return CalcDirection::X;
+        }
+    }
+
+    CalcDirection direction_to_calc_direction(Direction direction) {
+        switch (direction) {
+            case Direction::LEFT:
+            case Direction::RIGHT:
+                return CalcDirection::X;
+            case Direction::TOP:
+            case Direction::BOTTOM:
+                return CalcDirection::Y;
+        }
+    }
+
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
                               Eigen::Matrix<float, 4, 2> Rmatrix, std::vector<float> window,

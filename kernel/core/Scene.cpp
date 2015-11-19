@@ -46,31 +46,31 @@ namespace Kernel {
             if (domain->is_pml) {
                 continue;
             }
-            for (int i = 0; i < directions.size(); i++) {
+            for (unsigned long i = 0; i < directions.size(); i++) {
                 Direction direction = directions.at(i);
                 Eigen::ArrayXXi vacant_range = domain->get_vacant_range(direction);
-                for (int i = 0; i < vacant_range.rows(); i++) {
+                for (unsigned long j = 0; j < vacant_range.rows(); j++) {
                     std::ostringstream pml_ss;
                     pml_ss << domain->id << dir_strings.at(i);
                     if (vacant_range.rows() > 1) {
-                        pml_ss << "_" << i;
+                        pml_ss << "_" << j;
                     }
                     int x, y, z;
                     switch (direction) {
                         case Direction::LEFT:
                             x = -number_of_cells;
-                            y = vacant_range(i, 0) - domain->top_left->y;
+                            y = vacant_range(j, 0) - domain->top_left->y;
                             break;
                         case Direction::RIGHT:
                             x = domain->size->x;
-                            y = vacant_range(i, 0) - domain->top_left->y;
+                            y = vacant_range(j, 0) - domain->top_left->y;
                             break;
                         case Direction::TOP:
-                            x = vacant_range(i, 0) - domain->top_left->x;
+                            x = vacant_range(j, 0) - domain->top_left->x;
                             y = domain->size->y;
                             break;
                         case Direction::BOTTOM:
-                            x = vacant_range(i, 0) - domain->top_left->x;
+                            x = vacant_range(j, 0) - domain->top_left->x;
                             y = -number_of_cells;
                             break;
                     }
@@ -82,7 +82,7 @@ namespace Kernel {
     }
 
     void Scene::add_domain(std::shared_ptr<Domain> domain) {
-        for (int i = 0; i < this->domain_list.size(); i++) {
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
             std::shared_ptr<Domain> other_domain = domain_list.at(i);
             if (domain->is_sec_pml && other_domain->is_sec_pml) {
                 // Cannot interact, since no secondary PML domains are adjacent
@@ -156,14 +156,14 @@ namespace Kernel {
     void Scene::add_receiver(const float x, const float y, const float z) {
         std::vector<float> grid_like_location = {x, y, z};
         std::shared_ptr<Domain> container(nullptr);
-        for (int i = 0; i < this->domain_list.size(); i++) {
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
             std::shared_ptr<Domain> domain = this->domain_list.at(i);
             if (domain->is_pml && domain->contains_location(grid_like_location)) {
                 container = domain;
             }
         }
         assert(container != nullptr);
-        int id = receiver_list.size() + 1;
+        int id = (int) (receiver_list.size() + 1);
         std::shared_ptr<Receiver> receiver(new Receiver(grid_like_location, this->settings, id, container));
         this->receiver_list.push_back(receiver);
     }
@@ -172,14 +172,14 @@ namespace Kernel {
         // Do not really need to be on the heap. Doing it now for consistency with Receiver.
         std::vector<float> grid_like_location = {x, y, z};
         std::shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
-        for (int i = 0; i < this->domain_list.size(); i++) {
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
             speaker->addDomainContribution(this->domain_list.at(i));
         }
         this->speaker_list.push_back(speaker);
     }
 
     void Scene::compute_rho_matrices() {
-        for (int i = 0; i < this->domain_list.size(); i++) {
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
             this->domain_list.at(i)->calc_rho_matrices();
         }
     }

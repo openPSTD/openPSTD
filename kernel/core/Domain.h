@@ -36,7 +36,10 @@
 #include <eigen/Eigen/Dense>
 #include <map>
 #include <string>
+#include <set>
 #include <numeric>
+#include <algorithm>
+#include <iterator>
 #include "kernel_functions.h"
 #include "Geometry.h"
 #include "PSTDFile.h"
