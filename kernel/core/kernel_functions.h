@@ -79,6 +79,10 @@ namespace Kernel {
      */
     Direction get_opposite(Direction direction);
 
+    CalcDirection get_orthogonal(CalcDirection direction);
+
+    CalcDirection direction_to_calc_direction(Direction direction);
+
     struct RhoArray {
         Eigen::Array<float, 4, 2> pressure;
         Eigen::Array<float, 4, 2> velocity;

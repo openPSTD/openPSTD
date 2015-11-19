@@ -85,10 +85,31 @@ namespace Kernel {
             case Direction::RIGHT:
                 return Direction::LEFT;
         }
-
     }
 
-//    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
+    CalcDirection get_orthogonal(CalcDirection direction) {
+        switch (direction) {
+            case CalcDirection::X:
+                return CalcDirection::Y;
+            case CalcDirection::Y:
+                return CalcDirection::X;
+        }
+    }
+
+    CalcDirection direction_to_calc_direction(Direction direction) {
+        switch (direction) {
+            case Direction::LEFT:
+            case Direction::RIGHT:
+                return CalcDirection::X;
+            case Direction::TOP:
+            case Direction::BOTTOM:
+                return CalcDirection::Y;
+        }
+    }
+
+
+
+    //    std::tuple<std::vector<float>, std::vector<float>> PML(PSTDFileSettings cnf) {
 //        std::vector<float> cell_list_p = arange<float>(0.5, cnf.GetPMLCells() + 0.5f, 1);
 //        for (int i = 0; i < cell_list_p.size(); i++) {
 //            cell_list_p[i] = (float) (cnf.GetAttenuationOfPMLCells() * pow(cell_list_p[i] / cnf.GetPMLCells(), 4));
@@ -100,6 +121,8 @@ namespace Kernel {
 //        }
 //        return make_tuple(cell_list_p, cell_list_u);
 //    }
+
+
 
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
