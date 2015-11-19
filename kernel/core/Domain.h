@@ -103,6 +103,18 @@ namespace Kernel {
          */
         void calc_rho_matrices();
 
+        void push_values();
+
+        void clear_matrices();
+
+        void calc_pml_matrices();
+
+        bool should_update(std::shared_ptr<Domain> domain);
+
+        bool is_rigid();
+
+        int number_of_neighbours(bool count_pml);
+
         /**
          * Checks if a certain point is contained in this domain
          */
