@@ -57,7 +57,7 @@ namespace Kernel {
         const float y;
         const float z;
         int id;
-        enum InterpolationType {
+        enum class InterpolationType {
             NearestNeighbour, SpectralInterpolation
         };
         std::vector<float> location;
