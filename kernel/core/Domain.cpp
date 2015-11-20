@@ -30,7 +30,7 @@
 
 namespace Kernel {
 
-    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
+    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    std::shared_ptr<WaveNumberDiscretizer> wnd,
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
@@ -77,7 +77,7 @@ namespace Kernel {
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
             for (int j = 0; i != domains2.size() + 1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
-                std::vector<int> rho_matrix_key;
+                std::vector<std::string> rho_matrix_key;
                 rho_matrix_key.push_back(d1->id);
                 rho_matrix_key.push_back(d2->id);
 
@@ -198,15 +198,15 @@ namespace Kernel {
                 std::string rmat_id;
                 if (d1 != nullptr) {
                     if (d2 != nullptr) {
-                        rmat_id = std::to_string(d1->id) + std::to_string(this->id) + std::to_string(d2->id);
+                        rmat_id = d1->id + this->id + d2->id;
                     } else {
-                        rmat_id = std::to_string(d1->id) + std::to_string(this->id);
+                        rmat_id = d1->id + this->id;
                     }
                 } else {
                     if (d2 != nullptr) {
-                        rmat_id = std::to_string(this->id) + std::to_string(d2->id);
+                        rmat_id = this->id + d2->id;
                     } else {
-                        rmat_id = std::to_string(this->id);
+                        rmat_id = this->id;
                     }
                 }
                 Eigen::Array<float, 4, 2> rmat;
@@ -353,19 +353,19 @@ namespace Kernel {
         //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
         struct index_strings {
             std::string id(std::shared_ptr<Domain> d1, Domain *dm, std::shared_ptr<Domain> d2) {
-                return std::to_string(d1->id) + std::to_string(dm->id) + std::to_string(d2->id);
+                return d1->id + dm->id + d2->id;
             }
 
             std::string id(std::shared_ptr<Domain> d1, Domain *dm) {
-                return std::to_string(d1->id) + std::to_string(dm->id);
+                return d1->id + dm->id;
             }
 
             std::string id(Domain *dm, std::shared_ptr<Domain> d2) {
-                return std::to_string(dm->id) + std::to_string(d2->id);
+                return dm->id + d2->id;
             }
 
             std::string id(Domain *dm) {
-                return std::to_string(dm->id);
+                return dm->id;
             }
         };
         index_strings x;

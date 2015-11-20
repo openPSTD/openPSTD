@@ -54,6 +54,8 @@ namespace Kernel {
         return list;
     }
 
+    const float EPSILON = 1E-5; // Depends on float/double
+
     /**
      * Helper enums - used to distinguish horizontal boundaries from vertical boundaries
      */

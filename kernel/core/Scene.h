@@ -100,6 +100,13 @@ namespace Kernel {
         void add_pml_domains();
 
         void apply_pml_matrices();
+
+    private:
+        std::vector<int> get_corner_points(std::shared_ptr<Domain> domain);
+
+        bool should_merge_domains(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
+
+        std::shared_ptr<Domain> get_singular_parent_domain(std::shared_ptr<Domain> domain);
     };
 }
 

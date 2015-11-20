@@ -57,21 +57,28 @@ namespace Kernel {
         Eigen::ArrayXXf pz0;
     };
 
+    struct edge_parameters {
+        bool locally_reacting;
+        float alpha; //Better name
+    };
+
     /**
      * A representation of one domain, as seen by the kernel.
      */
     class Domain : std::enable_shared_from_this<Domain>{
     public:
         std::shared_ptr<PSTDFileSettings> settings;
-        int id;
+        std::string id;
         float alpha;
         float impedance;
         float rho;
+        std::map<Direction, edge_parameters> edge_param_map;
         std::map<std::string, RhoArray> rho_arrays;
         std::shared_ptr<Point> top_left;
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
+        bool local;
         field_values current_values;
         field_values previous_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
@@ -94,7 +101,7 @@ namespace Kernel {
          * @param is_pml true if domain is pml domain
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
+        Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                std::shared_ptr<WaveNumberDiscretizer> wnd,
                const std::shared_ptr<Domain> pml_for_domain);
