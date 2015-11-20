@@ -3,44 +3,44 @@ sudo: required
 dist: trusty
 
 os:
-  - linux
-  - osx
+- linux
+- osx
 
 before_install:
- - sudo chmod -R +x build
- - export PATH=./build/:$PATH
- - export PATH=/opt/qt55/bin/:$PATH
- - install_add_repo.sh
+- sudo chmod -R +x build
+- export PATH=./build/:$PATH
+- export PATH=/opt/qt55/bin/:$PATH
+- install_add_repo.sh
 
 install:
- - install_boost.sh
- - install_xsltproc.sh
- - install_unqlite.sh
- - install_Qt55.sh
- - install_rapidjson.sh
- - install_eigen.sh
+- install_boost.sh
+- install_xsltproc.sh
+- install_unqlite.sh
+- install_Qt55.sh
+- install_rapidjson.sh
+- install_eigen.sh
 
 before_script:
- - uname -r
- - gcc -v
- - cmake --version
- - cmake --help
- - cpack --version
- - cpack --help
+- uname -r
+- gcc -v
+- cmake --version
+- cmake --help
+- cpack --version
+- cpack --help
 
 script:
- - compile.sh
- - test.sh
+- compile.sh
+- test.sh
 
 deploy:
   provider: releases
   skip_cleanup: true
   api_key:
-    secure: TM2rvktT9Tl5TA+EL22ZpasLKbthYIORoTXaq9Hb8T37ego04Le+1UhfMr3M3j6FXF1rJfiGv3tdxe+oxudTMotVk7AXUUb5m6gO82CqHdHMW1fAb1yhr8p03iG6bBT275zaq78bELCgkBzM/KFyJpCmMbbzVRv0SlWT0m/BQjJpdTY+gYt/Al5BoLpVMPW0+91t83/wCZYWH2WLnKaptK1t1/2HmezTS88otItpEEQ24FDrIKY6rQ3l+64YZgFJ3xzYekzpfvwVyIoAYZmPuSqnR7r2NMu/hJf0NR1STNO6IN10AG6jXgBRkcxQW6cHHZ22y258MeSdcbcLYhIsujdOiwSnSMvlcv67m7xIO+ICz2D8sF3/GFbab+nzXg3jaNnYzVltxxkwar1NmmVhrUuqCpODfpeMKtXWfGtWS4ChG5IlyMRyjvg5c1YdgPnWAeFrVFrFFqRO54caAUkRW4jv1hJlyt7EbNYUfcVB7vBfzkPDLKTEtrRMwBaoGjgxveb1lZg076avlgT/7HeVAitLCYV+l44ur73NfaQCPebVXUIPQiBSry/ya2tU2iWlGNMvgWM5myMm3S3l+GLcNMLcrjytJTFnz5cEeE4ur2qnPu9AqX160BFrDaUeEBrryHbul1wSIQL6bquSb81+6EBQx+E1K1y6GLngXJ3YECk=
+    secure: XQCFGjE5qQoDoP53yncsFNdBLL2wcVFnoaNV+4IbdOJdHcQL1om9WrHDW6pGS67FjER758uFbXm8kRCL/0Q/+Aw/YzoWmaltzQudtwzm1/yAjqdGD83HhSrChHFM5LCvrdwX3REoV4nW3UsK9NBmWzl7NDKwZRDAMcR6RlgUdOW+uvzRaiq90vQ4ZzjtlrQYdMvB/vdu0FEOZee2ffS/vWdrHTvCttpNCyhLZtlx5CeSskYS+h5Hb3E1/FrnvuJMqaB429a2GhSM6cDmUUyIGZ6A4WdFVRGXn9yI6O6NOicDfpUBXeJcy5QLOquuIuYPar6T0yd4sLp6khT9JGilg7jdhtGfLvTOwMUQIyZhUf4eJg8/PKRRzvnb+ZM1dODbyisBXXKSqLEf+Vozm97fu7nbt9KKreVVYBDqdWJYF1BlzTEFxRedq1+Xu+q98Keu7710rNjtIjLRnJD1hZVnIElpqfWrjC9fdQD8gRXWAOigtlrAjrYitn6h6iU4O4sNhEA+mL8sDa/lfxvzcMcLXmJrFo0oBxDyp64QIiL3GYd4saya4i3bzYKuUirYkhLdScwfZx8fLSnXFZhZKNwJj2bXmFIusUpLKnxhhxAhheJYxtGVbHDUyYDOmsz/8P+uTq96MCOBSyT6u8jDLTSWPYCs8v4yVqnraapDE5ENQEQ=
   file:
-   - "OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Darwin.dmg"
-   - "OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Linux.sh"
-   - "OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Linux.tar.gz"
+  - OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Darwin.dmg
+  - OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Linux.sh
+  - OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-Linux.tar.gz
   on:
     repo: micfort/openPSTD
     tags: true
