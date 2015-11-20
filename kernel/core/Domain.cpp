@@ -449,8 +449,10 @@ namespace Kernel {
         for (std::shared_ptr<Domain> domain: neighbour_list) {
             std::vector<int> neighbour_range = domain->get_range(calc_dir);
             std::set<int> neighbour_range_set(neighbour_range.begin(), neighbour_range.end());
+            std::set<int> set_diff;
             std::set_difference(range_set.begin(), range_set.end(), neighbour_range_set.begin(),
-                                neighbour_range_set.end(), range_set.begin()); //TODO (Omar): fix compilation error
+                                neighbour_range_set.end(), std::inserter(set_diff, set_diff.end()));
+            range_set.swap(set_diff);
         }
         Eigen::ArrayXXi vacant_range(range_set.size(), 2);
         range.assign(range_set.begin(), range_set.end());
