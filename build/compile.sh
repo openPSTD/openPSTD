@@ -6,7 +6,7 @@ if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     PACKAGE=STGZ\;TGZ
 else
     QT5DIR=/usr/local/opt/qt5
-    PACKAGE=Bundle
+    PACKAGE=Bundle\;STGZ\;TGZ
 fi
 
 cmake \
