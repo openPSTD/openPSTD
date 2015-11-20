@@ -10,10 +10,6 @@ env:
   global:
    - OPENPSTD_MAJOR_VERSION=2
    - OPENPSTD_MINOR_VERSION=0
-  osx:
-   - DEPLOY_EXTENSION=dmg
-  linux:
-   - DEPLOY_EXTENSION=tar.gz
 
 before_install:
 - sudo chmod -R +x build
@@ -46,7 +42,8 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: XQCFGjE5qQoDoP53yncsFNdBLL2wcVFnoaNV+4IbdOJdHcQL1om9WrHDW6pGS67FjER758uFbXm8kRCL/0Q/+Aw/YzoWmaltzQudtwzm1/yAjqdGD83HhSrChHFM5LCvrdwX3REoV4nW3UsK9NBmWzl7NDKwZRDAMcR6RlgUdOW+uvzRaiq90vQ4ZzjtlrQYdMvB/vdu0FEOZee2ffS/vWdrHTvCttpNCyhLZtlx5CeSskYS+h5Hb3E1/FrnvuJMqaB429a2GhSM6cDmUUyIGZ6A4WdFVRGXn9yI6O6NOicDfpUBXeJcy5QLOquuIuYPar6T0yd4sLp6khT9JGilg7jdhtGfLvTOwMUQIyZhUf4eJg8/PKRRzvnb+ZM1dODbyisBXXKSqLEf+Vozm97fu7nbt9KKreVVYBDqdWJYF1BlzTEFxRedq1+Xu+q98Keu7710rNjtIjLRnJD1hZVnIElpqfWrjC9fdQD8gRXWAOigtlrAjrYitn6h6iU4O4sNhEA+mL8sDa/lfxvzcMcLXmJrFo0oBxDyp64QIiL3GYd4saya4i3bzYKuUirYkhLdScwfZx8fLSnXFZhZKNwJj2bXmFIusUpLKnxhhxAhheJYxtGVbHDUyYDOmsz/8P+uTq96MCOBSyT6u8jDLTSWPYCs8v4yVqnraapDE5ENQEQ=
-  file: OpenPSTD-${OPENPSTD_MAJOR_VERSION}.${OPENPSTD_MINOR_VERSION}.${TRAVIS_BUILD_NUMBER}-${TRAVIS_OS_NAME}.${DEPLOY_EXTENSION}
+  file: OpenPSTD-${OPENPSTD_MAJOR_VERSION}.${OPENPSTD_MINOR_VERSION}.${TRAVIS_BUILD_NUMBER}-${TRAVIS_OS_NAME}.*
+  file_glob: true
   on:
     repo: micfort/openPSTD
     tags: true
