@@ -173,7 +173,6 @@ set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
         kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h PSTDFile.cpp
         kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h InvalidationData.cpp)
 add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
-#install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
 
 #------------------------------------
 # UI
@@ -194,7 +193,6 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Resources.qrc)
 # Remaining
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp Edges.cpp Edges.h)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
-install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
 
 #------------------------------------
 # Test
@@ -218,6 +216,13 @@ target_link_libraries(OpenPSTD-test ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
+
+#------------------------------------
+# INSTALL
+install(TARGETS OpenPSTD-gui DESTINATION .)
+#install(TARGETS OpenPSTD-cli DESTINATION .)
+install(TARGETS Boost_LIBRARIES DESTINATION .)
+install(TARGETS Qt5_LIBRARIES DESTINATION .)
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
 set(CPACK_BUNDLE_ICON OpenPSTD.icns)
