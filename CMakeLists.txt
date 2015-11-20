@@ -31,8 +31,6 @@ project(OpenPSTD)
 
 #------------------------------------
 # configuration options in the cache
-set(PYTHON_LIBRARY "" CACHE PATH "The library of python 3.4, empty then it does autodetect")
-set(PYTHON_INCLUDE_DIR "" CACHE PATH "The include dir of python 3.4, empty then it does autodetect")
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
@@ -99,6 +97,8 @@ macro(loadQtPackage QtModule)
         set(Qt5_FOUND 0)
     endif ()
     set(Qt5_LIBRARIES "${Qt5_LIBRARIES}${${QtModule}_LIBRARIES};")
+    #get_target_property(Qt5_location ${Qt5_LIBRARIES}${${QtModule}_LIBRARIES} LOCATION)
+    #set(Qt5_LIBRARIES_LOCATIONS ${Qt5_location};${Qt5_LIBRARIES_LOCATIONS})
     set(Qt5_INCLUDE_DIRS "${Qt5_INCLUDE_DIRS}${${QtModule}_INCLUDE_DIRS};")
     set(Qt5_VERSION_STRING "${${QtModule}_VERSION_STRING}")
     if (Qt5_POSITION_INDEPENDENT_CODE)
@@ -110,8 +110,12 @@ loadQtPackage(Qt5Widgets)
 loadQtPackage(Qt5Core)
 loadQtPackage(Qt5OpenGL)
 
+#get_target_property(Qt5_location Qt5::OpenGL LOCATION)
+#message(STATUS "Qt5 opengl location: ${LOCATION}")
+
 message(STATUS "Qt5 found: ${Qt5_FOUND}")
-message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES}")
+message(STATUS "Qt5 libs: ${Qt5_LIBRARIES}")
+message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES_LOCATIONS}")
 message(STATUS "Qt5 include path: ${Qt5_INCLUDE_DIRS}")
 message(STATUS "Qt5 version: ${Qt5_VERSION_STRING}")
 
@@ -219,10 +223,12 @@ target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
 
 #------------------------------------
 # INSTALL
-install(TARGETS OpenPSTD-gui DESTINATION .)
-#install(TARGETS OpenPSTD-cli DESTINATION .)
-install(FILES ${Boost_LIBRARIES} DESTINATION .)
-install(FILES ${Qt5_LIBRARIES} DESTINATION .)
+install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
+#install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
+install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
+#install(FILES ${QtCore_location} DESTINATION OpenPSTD)
+#install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
+#install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
 set(CPACK_BUNDLE_ICON OpenPSTD.icns)
