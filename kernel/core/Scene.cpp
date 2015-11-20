@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: Omar
+// Authors: Omar Richardson
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +166,18 @@ namespace Kernel {
             this->add_domain(domain);
         }
 
-        //Todo: Finish
+        // Corner points of second pml domains should be unique.
+        // Checking with asserts. If true, we change the algorithm.
+
+        for (std::shared_ptr<Domain> sec_pml_domain1: second_order_pmls) {
+            for (std::shared_ptr<Domain> sec_pml_domain2:second_order_pmls) {
+                if (sec_pml_domain1 != sec_pml_domain2) {
+                    auto corners1 = get_corner_points(sec_pml_domain1);
+                    auto corners2 = get_corner_points(sec_pml_domain2);
+                    assert(corners1 != corners2);
+                }
+            }
+        }
 
 
     }

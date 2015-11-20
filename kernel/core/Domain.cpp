@@ -18,11 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      17-9-2015
+// Date: 17-9-2015
 //
 // Authors:
-//      Louis van Harten
+//      Louis van Harten, Omar Richardson
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -330,6 +329,7 @@ namespace Kernel {
                 }
                 break;
         }
+        return correct_domain;
     }
 
     void Domain::add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction) {

@@ -68,11 +68,11 @@ namespace Kernel {
             throw std::invalid_argument("Wavelength (speed/frequency) is too small");
         }
         for (int i = 0; i < dxv.size(); i++) {
-            if (dxv[i] >= waveLength) {
-                return i - 1;
+            if (dxv(i) >= waveLength) {
+                return dxv(i - 1);
             }
         }
-        return dxv.size() - 1;
+        return dxv(dxv.size() - 1);
     }
 
     Direction get_opposite(Direction direction) {
