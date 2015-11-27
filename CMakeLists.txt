@@ -83,23 +83,37 @@ set(Qt5_CMAKE "lib/cmake")
 set(Qt5_FIRST 1)
 set(Qt5_FOUND 0)
 macro(loadQtPackage QtModule)
+    # set the correct path
     set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
+    # message about location
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
+    # load package
     find_package(${QtModule})
+
+    #checks if it's found
     if (Qt5_FIRST)
         set(Qt5_FIRST 0)
         set(Qt5_FOUND 1)
     endif ()
-
     if (Qt5_FOUND AND ${${QtModule}_FOUND})
         set(Qt5_FOUND 1)
     else()
         set(Qt5_FOUND 0)
     endif ()
+
+    # sets the target
     set(Qt5_LIBRARIES "${Qt5_LIBRARIES}${${QtModule}_LIBRARIES};")
-    #get_target_property(Qt5_location ${Qt5_LIBRARIES}${${QtModule}_LIBRARIES} LOCATION)
-    #set(Qt5_LIBRARIES_LOCATIONS ${Qt5_location};${Qt5_LIBRARIES_LOCATIONS})
+
+    # gets the location of the binary
+    get_target_property(Qt5_${QtModule}_location ${${QtModule}_LIBRARIES} LOCATION)
+    # messages about the target
+    message(STATUS "Qt5 ${QtModule} location: ${Qt5_${QtModule}_location}")
+    set(Qt5_LIBRARIES_LOCATIONS "${Qt5_LIBRARIES_LOCATIONS}${Qt5_${QtModule}_location};")
+
+    # gets the include path
     set(Qt5_INCLUDE_DIRS "${Qt5_INCLUDE_DIRS}${${QtModule}_INCLUDE_DIRS};")
+
+    # gets the version and checks if Qt5 is PIC
     set(Qt5_VERSION_STRING "${${QtModule}_VERSION_STRING}")
     if (Qt5_POSITION_INDEPENDENT_CODE)
         SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -110,20 +124,14 @@ loadQtPackage(Qt5Widgets)
 loadQtPackage(Qt5Core)
 loadQtPackage(Qt5OpenGL)
 
-#get_target_property(Qt5_location Qt5::OpenGL LOCATION)
-#message(STATUS "Qt5 opengl location: ${LOCATION}")
-
 message(STATUS "Qt5 found: ${Qt5_FOUND}")
 message(STATUS "Qt5 libs: ${Qt5_LIBRARIES}")
 message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES_LOCATIONS}")
 message(STATUS "Qt5 include path: ${Qt5_INCLUDE_DIRS}")
 message(STATUS "Qt5 version: ${Qt5_VERSION_STRING}")
+message(STATUS "Qt5 locations: ${Qt5_LIBRARIES_LOCATIONS}")
 
-if (Qt5_POSITION_INDEPENDENT_CODE)
-    SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
-
-if(NOT Qt5Widgets_FOUND)
+if(NOT Qt5_FOUND)
   message( FATAL_ERROR "Missing Qt5 Libs." )
 endif()
 
@@ -226,9 +234,7 @@ target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
 install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
 #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
 install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
-#install(FILES ${QtCore_location} DESTINATION OpenPSTD)
-#install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
-#install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
+install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
 set(CPACK_BUNDLE_ICON OpenPSTD.icns)
