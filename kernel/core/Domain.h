@@ -33,7 +33,7 @@
 #ifndef OPENPSTD_KERNELDOMAIN_H
 #define OPENPSTD_KERNELDOMAIN_H
 
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
 #include <map>
 #include <string>
 #include <set>

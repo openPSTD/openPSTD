@@ -258,11 +258,10 @@ namespace Kernel {
                 if ((domain->is_sec_pml && pml_for_other_domain) || (other_domain->is_sec_pml && pml_for_domain)) {
                     // Important case: Domain is pml for second domain. Pass
                 } else if (other_domain->pml_for_domain_list.size() != 1 || domain->pml_for_domain_list.size() != 1) {
-                    // One is PML for multiple domains. Continue? Todo: check
+                    // One is PML for multiple domains. Continue? Todo: check Algoritm
                     continue;
                 } else if (!other_domain->pml_for_domain_list.at(0)->is_neighbour_of(
                         domain->pml_for_domain_list.at(0))) {
-                    //Todo: Why just check the first one?
                     continue;
                 }
                 else if (!domain->pml_for_domain_list.at(0)->is_neighbour_of(other_domain->pml_for_domain_list.at(0))) {

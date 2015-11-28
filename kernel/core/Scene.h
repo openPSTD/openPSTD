@@ -32,7 +32,7 @@
 #ifndef OPENPSTD_KERNELSCENE_H
 #define OPENPSTD_KERNELSCENE_H
 
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
 #include <map>
 #include <string>
 #include <sstream>

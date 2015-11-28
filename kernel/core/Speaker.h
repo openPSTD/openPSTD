@@ -36,7 +36,7 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
 
 namespace Kernel {
     class Speaker {

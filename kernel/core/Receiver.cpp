@@ -106,7 +106,7 @@ namespace Kernel {
         float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
 
-        Eigen::Matrix<float, 4, 2> rho; //TODO: Needs the rho matrix
+        Eigen::Array<float, 4, 2> rho; //TODO: Needs the rho matrix of the bottom and top domains
 
         Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice, z_fact,
                                             rho,config->GetWindow(), config->GetWindowSize(),
