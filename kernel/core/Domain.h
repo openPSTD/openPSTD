@@ -57,6 +57,14 @@ namespace Kernel {
         Eigen::ArrayXXf pz0;
     };
 
+    struct field_L_values { // Todo (0mar): What are these for?
+        std::shared_ptr<Eigen::ArrayXXf> Lpx;
+        std::shared_ptr<Eigen::ArrayXXf> Lpy;
+        std::shared_ptr<Eigen::ArrayXXf> Lvx;
+        std::shared_ptr<Eigen::ArrayXXf> Lvy;
+
+    };
+
     struct edge_parameters {
         bool locally_reacting;
         float alpha; //Better name
@@ -74,13 +82,16 @@ namespace Kernel {
         float rho;
         std::map<Direction, edge_parameters> edge_param_map;
         std::map<std::string, RhoArray> rho_arrays;
+        std::map<CalcDirection, bool> should_update;
         std::shared_ptr<Point> top_left;
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
+        bool is_horizontal; // Todo: Implement
         bool local;
         field_values current_values;
         field_values previous_values;
+        field_L_values l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_sec_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
@@ -90,6 +101,8 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> right;
         std::vector<std::shared_ptr<Domain>> top;
         std::vector<std::shared_ptr<Domain>> bottom;
+        int number_of_domains; // including pml_domains;
+        int number_of_pml_domains;
     public:
         /**
          * Default constructor
@@ -109,7 +122,7 @@ namespace Kernel {
         /**
          * Calculates the rho matrices for all edges touching another domain
          * "rho matrices" is the term used in the python code. In this implementation
-         * they are referred to as "rho arrays, consistent with their use".
+         * they are referred to as "rho arrays", consistent with their use.
          */
         void compute_rho_arrays();
 
@@ -120,8 +133,6 @@ namespace Kernel {
         void compute_pml_matrices();
 
         void apply_pml_matrices();
-
-        bool should_update(std::shared_ptr<Domain> domain);
 
         int number_of_neighbours(bool count_pml);
 
@@ -193,11 +204,19 @@ namespace Kernel {
         void calc(CalcDirection bt, CalculationType ct);
 
         /**
+         * Get range of boundary grid points along a specified direction
+         * @param direction: Domain side under consideration
+         * @return: 1D array with boundary point values of relevant dimension
+         */
+        Eigen::ArrayXi get_range(Direction direction);
+
+/**
          * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
          * @param direction: Domain side under consideration
          * @return: 2D array each row a range start and end variable
          */
         Eigen::ArrayXXi get_vacant_range(Direction direction);
+
         /**
          * Method that gives the current domain initialized with zeroes, extended by the input
          * arguments in respective directions
@@ -207,6 +226,10 @@ namespace Kernel {
          */
         std::shared_ptr<Eigen::ArrayXXf> extended_zeros(int x, int y, int z = 0);
 
+    private:
+        void find_update_directions();
+
+        void compute_number_of_neighbours();
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

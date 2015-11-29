@@ -59,6 +59,7 @@ namespace Kernel {
      */
     const float EPSILON = 1E-5; // Depends on float/double
 
+
     /**
      * Helper enums - used to distinguish horizontal boundaries from vertical boundaries
      */
@@ -80,6 +81,8 @@ namespace Kernel {
         LEFT, RIGHT, TOP, BOTTOM
     };
 
+    const std::vector<Direction> all_directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP,
+                                                   Direction::BOTTOM};
     /**
      * Return the opposite direction of the provided direction
      * @param direction: Direction enum
