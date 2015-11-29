@@ -349,7 +349,7 @@ namespace Kernel {
         }
     }
 
-    void Domain::calc_rho_matrices() {
+    void Domain::compute_rho_arrays() {
         //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
         struct index_strings {
             std::string id(std::shared_ptr<Domain> d1, Domain *dm, std::shared_ptr<Domain> d2) {
@@ -468,5 +468,21 @@ namespace Kernel {
             }
         }
         return vacant_range.topRows(iterator);
+    }
+
+    void Domain::clear_matrices() {
+
+    }
+
+    void Domain::push_values() {
+
+    }
+
+    void Domain::apply_pml_matrices() {
+
+    }
+
+    void Domain::compute_pml_matrices() {
+
     }
 }

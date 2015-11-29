@@ -108,16 +108,18 @@ namespace Kernel {
 
         /**
          * Calculates the rho matrices for all edges touching another domain
-         * "rho matrices" is the term used in the python code. In some parts of the C++ code,
-         * they are referred to as "rho arrays". TODO (optional) rename this for internal consistency
+         * "rho matrices" is the term used in the python code. In this implementation
+         * they are referred to as "rho arrays, consistent with their use".
          */
-        void calc_rho_matrices();
+        void compute_rho_arrays();
 
         void push_values();
 
         void clear_matrices();
 
-        void calc_pml_matrices();
+        void compute_pml_matrices();
+
+        void apply_pml_matrices();
 
         bool should_update(std::shared_ptr<Domain> domain);
 

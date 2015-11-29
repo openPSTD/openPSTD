@@ -31,13 +31,15 @@ namespace Kernel {
     Scene::Scene(std::shared_ptr<PSTDFileConfiguration> config) {
         this->config = config;
         this->settings = std::make_shared<PSTDFileSettings>(config->Settings);
+        this->top_left = std::make_shared<Point>(Point(0, 0));
+        this->bottom_right = std::make_shared<Point>(Point(0, 0));
+        this->size = std::make_shared<Point>(Point(0, 0));
     }
 
     void Scene::add_pml_domains() {
         int number_of_cells = this->settings->GetPMLCells();
         std::vector<Direction> directions{Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
         std::vector<std::string> dir_strings{"left", "top", "right", "bottom"};
-
 
         std::vector<std::shared_ptr<Domain>> first_order_pmls;
         std::map<std::shared_ptr<Domain>, Direction> second_order_pml_map;
@@ -276,14 +278,37 @@ namespace Kernel {
         this->speaker_list.push_back(speaker);
     }
 
-    void Scene::compute_rho_matrices() {
-        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
-            this->domain_list.at(i)->calc_rho_matrices();
+    void Scene::compute_rho_arrays() {
+        for (auto domain:this->domain_list) {
+            domain->compute_rho_arrays();
         }
     }
 
+    void Scene::compute_pml_matrices() {
+        for (auto domain:this->domain_list) {
+            if (domain->is_pml) {
+                domain->compute_pml_matrices();
+            }
+        }
+    }
+
+    void Scene::apply_pml_matrices() {
+        for (auto domain:this->domain_list) {
+            if (domain->is_pml) {
+                domain->apply_pml_matrices();
+            }
+        }
+    }
 
     void Scene::add_domain(std::shared_ptr<Domain> domain) {
+        Point new_top_left(std::min(this->top_left->x, domain->top_left->x),
+                           std::min(this->top_left->y, domain->top_left->y));
+        this->top_left = std::make_shared<Point>(new_top_left); // Todo: Allowed? Is the old Point deleted now?
+        Point new_bottom_right(std::min(this->bottom_right->x, domain->bottom_right->x),
+                               std::min(this->bottom_right->y, domain->bottom_right->y));
+        this->bottom_right = std::make_shared<Point>(new_bottom_right);
+        Point new_size(this->bottom_right->x - this->top_left->x, this->bottom_right->y, domain->bottom_right->y);
+        this->size = std::make_shared<Point>(new_size);
         for (unsigned long i = 0; i < this->domain_list.size(); i++) {
             std::shared_ptr<Domain> other_domain = this->domain_list.at(i);
             if (domain->is_sec_pml && other_domain->is_sec_pml) {
@@ -302,7 +327,7 @@ namespace Kernel {
                 if ((domain->is_sec_pml && pml_for_other_domain) || (other_domain->is_sec_pml && pml_for_domain)) {
                     // Important case: Domain is pml for second domain. Pass
                 } else if (other_domain->pml_for_domain_list.size() != 1 || domain->pml_for_domain_list.size() != 1) {
-                    // One is PML for multiple domains. Continue? Todo: check Algoritm
+                    // One is PML for multiple domains. Continue? Todo: check algorithm
                     continue;
                 } else if (!other_domain->pml_for_domain_list.at(0)->is_neighbour_of(
                         domain->pml_for_domain_list.at(0))) {
@@ -353,4 +378,34 @@ namespace Kernel {
         this->domain_list.push_back(domain);
     }
 
+    Eigen::ArrayXXf Scene::get_pressure_field() {
+        return get_field('p');
+    }
+
+    Eigen::ArrayXXf Scene::get_field(char field_type) {
+        Eigen::ArrayXXf field(this->size->x, this->size->y);
+        for (auto domain:this->domain_list) {
+            Point offset = *domain->top_left - *this->top_left;
+            switch (field_type) {
+                case 'p':
+                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += domain->current_values.p0;
+                    break;
+                default:
+                    //No other fields are required (yet). However, leaving open for extension.
+                    break;
+            }
+        }
+        return field;
+    }
+
+    std::shared_ptr<Domain> Scene::get_domain(std::string id) {
+        std::shared_ptr<Domain> correct_domain;
+        for (auto domain:this->domain_list) {
+            if (domain->id == id) {
+                assert(correct_domain == nullptr);
+                correct_domain = domain;
+            }
+        }
+        return correct_domain;
+    }
 }
