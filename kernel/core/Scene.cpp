@@ -40,7 +40,7 @@ namespace Kernel {
 
 
         std::vector<std::shared_ptr<Domain>> first_order_pmls;
-        std::vector<std::shared_ptr<Domain>> second_order_pmls;
+        std::map<std::shared_ptr<Domain>, Direction> second_order_pml_map;
 
         for (std::shared_ptr<Domain> domain:this->domain_list) {
             if (domain->is_pml) {
@@ -130,7 +130,7 @@ namespace Kernel {
                              */
                             float second_pml_alpha = std::min(std::max(EPSILON, other_pml_alpha),
                                                               std::max(EPSILON, pml_alpha));
-                            //Todo: This really seems equivalent to std::min(std::max(other_pml_alpha,pml_alpha))
+                            //Todo: This expression can be shortened.
                             int sec_x_offset, sec_y_offset, sec_z_offset;
 
                             switch (second_dir) {
@@ -154,7 +154,9 @@ namespace Kernel {
 
                             Point sec_pml_offset(sec_x_offset, sec_y_offset);
                             Point sec_pml_size(number_of_cells, number_of_cells);
+                            std::shared_ptr<Domain> sec_pml_domain;
                             //Domain *sec_pml_domain = new Domain(this->settings,second_pml_id,second_pml_alpha,pml_top_left,pml_size_pointer,true,domain->wnd,pml_domain);
+                            second_order_pml_map[sec_pml_domain] = second_dir;
                             // Todo: Fix points (see up) and fix pointers.
                         }
                     }
@@ -166,21 +168,62 @@ namespace Kernel {
             this->add_domain(domain);
         }
 
-        // Corner points of second pml domains should be unique.
-        // Checking with asserts. If true, we change the algorithm.
+        //Collect the domains with the same top and size.
+        std::map<std::vector<int>, std::vector<std::shared_ptr<Domain>>> domains_by_cornerpoints;
 
-        for (std::shared_ptr<Domain> sec_pml_domain1: second_order_pmls) {
-            for (std::shared_ptr<Domain> sec_pml_domain2:second_order_pmls) {
-                if (sec_pml_domain1 != sec_pml_domain2) {
-                    auto corners1 = get_corner_points(sec_pml_domain1);
-                    auto corners2 = get_corner_points(sec_pml_domain2);
-                    assert(corners1 != corners2);
+        for (auto &entry: second_order_pml_map) {
+            std::shared_ptr<Domain> parent_domain = entry.first->pml_for_domain_list.at(0);
+            Direction second_dir = entry.second;
+            if (parent_domain->get_neighbours_at(second_dir).empty()) {
+                continue;
+            }
+            auto corner_points = get_corner_points(entry.first);
+            domains_by_cornerpoints[corner_points].push_back(entry.first);
+
+        }
+        std::vector<std::shared_ptr<Domain>> second_order_pml_list;
+        for (auto &entry: domains_by_cornerpoints) {
+            if (entry.second.size() == 1) {
+                for (auto sec_pml_domain:entry.second) {
+                    second_order_pml_list.push_back(sec_pml_domain);
+                }
+                continue;
+            }
+            std::vector<unsigned long> processed_domain_indices;
+            for (unsigned long i = 0; i < entry.second.size(); i++) {
+                for (unsigned long j = i + 1; j < entry.second.size(); j++) {
+                    std::shared_ptr<Domain> domain_i = entry.second.at(i);
+                    std::shared_ptr<Domain> domain_j = entry.second.at(j);
+                    bool processed_i =
+                            std::find(entry.second.begin(), entry.second.end(), domain_i) != entry.second.end();
+                    bool processed_j =
+                            std::find(entry.second.begin(), entry.second.end(), domain_j) != entry.second.end();
+                    if (processed_i or processed_j) {
+                        continue;
+                    }
+                    if (should_merge_domains(domain_i, domain_j)) {
+                        processed_domain_indices.push_back(i);
+                        processed_domain_indices.push_back(j);
+                        domain_i->id = domain_i->id + domain_j->id; // Todo: Find better naming algorithm.
+                        for (auto pml_for_domain: domain_j->pml_for_domain_list) {
+                            domain_i->pml_for_domain_list.push_back(pml_for_domain);
+                        }
+                        second_order_pml_list.push_back(domain_i);
+                    }
+                }
+            }
+            for (unsigned long i = 0; i < entry.second.size(); i++) {
+                if (std::find(processed_domain_indices.begin(), processed_domain_indices.end(), i) !=
+                    processed_domain_indices.end()) {
+                    second_order_pml_list.push_back(entry.second.at(i));
                 }
             }
         }
-
-
+        for (auto sec_order_pml_domain: second_order_pml_list) {
+            this->domain_list.push_back(sec_order_pml_domain);
+        }
     }
+
 
     std::vector<int> Scene::get_corner_points(std::shared_ptr<Domain> domain) {
         std::vector<int> corner_points;
@@ -190,6 +233,7 @@ namespace Kernel {
         corner_points.push_back(domain->bottom_right->y);
         return corner_points;
     }
+
 
     bool Scene::should_merge_domains(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2) {
         std::shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(domain1);
@@ -308,4 +352,5 @@ namespace Kernel {
         }
         this->domain_list.push_back(domain);
     }
+
 }
