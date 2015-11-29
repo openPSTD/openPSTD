@@ -62,7 +62,7 @@ namespace Kernel {
         };
         std::vector<float> location;
         std::shared_ptr<PSTDFileSettings> config;
-        std::shared_ptr<Point> grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
+        std::shared_ptr<Point> grid_location; //Todo (0mar): Now its rounded down. Check with algorithm
         std::vector<float> grid_offset;
         std::shared_ptr<Domain> container_domain;
         std::vector<float> received_values;

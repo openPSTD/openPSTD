@@ -54,6 +54,9 @@ namespace Kernel {
         return list;
     }
 
+    /**
+     * Small positive number to facilitate division and other numerical computations
+     */
     const float EPSILON = 1E-5; // Depends on float/double
 
     /**
@@ -70,6 +73,9 @@ namespace Kernel {
         PRESSURE, VELOCITY
     };
 
+    /**
+     * Enum representing directions among domains.
+     */
     enum class Direction {
         LEFT, RIGHT, TOP, BOTTOM
     };
@@ -81,10 +87,24 @@ namespace Kernel {
      */
     Direction get_opposite(Direction direction);
 
+    /**
+     * Get the direction orthogonal to the provided calculation direction.
+     * @param direction: Calculation direction enum
+     * @return: Axis orthogonal to calculation direction
+     */
     CalcDirection get_orthogonal(CalcDirection direction);
 
+    /**
+     * Obtain corresponding Calculation Direction Axis from direction
+     * @param direction: Direction Enum
+     * @return Calculation direction with axis corresponding to direction
+     */
     CalcDirection direction_to_calc_direction(Direction direction);
 
+    /**
+     * Struct with arrays containing the reflection and transmission
+     * coefficients of the pressure and the velocity
+     */
     struct RhoArray {
         Eigen::Array<float, 4, 2> pressure;
         Eigen::Array<float, 4, 2> velocity;
@@ -131,7 +151,7 @@ namespace Kernel {
      * @param cnf config object containing the properties of the geometry
      * @return float corresponding to the grid size
     */
-    float getGridSpacing(PSTDFileSettings cnf);
+    float get_grid_spacing(PSTDFileSettings cnf);
 
     /**
      * Computes the smallest power of 2 larger or equal to n

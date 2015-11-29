@@ -57,8 +57,6 @@ namespace Kernel {
          */
         Speaker(std::vector<float> location);
 
-        // ~Speaker();
-
         /*
          * Adds the initial sound pressure to the domain values.
          * @param domain: domain to compute sound pressure contribution for

@@ -60,7 +60,7 @@ namespace Kernel {
         return (int) pow(2, ceil(log2(n)));
     }
 
-    float getGridSpacing(PSTDFileSettings cnf) {
+    float get_grid_spacing(PSTDFileSettings cnf) {
         Eigen::Array<float, 9, 1> dxv;
         dxv << 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //TODO: is there a good reason to disallow other vals?
         float waveLength = cnf.GetSoundSpeed() / cnf.GetMaxFrequency() / 2;

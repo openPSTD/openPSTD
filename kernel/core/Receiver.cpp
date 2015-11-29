@@ -33,7 +33,7 @@ namespace Kernel {
         this->config = config;
         this->location = location;
         this->container_domain = container;
-        this->grid_location = std::make_shared<Point>(Point(this->x, this->y, this->z));
+        this->grid_location = std::make_shared<Point>(Point((int) this->x, (int) this->y, (int) this->z));
         for (int i = 0; i < this->location.size(); i++) {
             this->grid_offset.push_back(this->location.at(i) = this->grid_location->array.at(i));
         }
@@ -63,7 +63,7 @@ namespace Kernel {
         //Pressure grid is staggered, hence + 1
         WaveNumberDiscretizer::Discretization discr = this->container_domain->wnd->get_discretization(dx,
                                                                                                       wave_length_number);
-        float offset = this->grid_offset.at(static_cast<int>(bt));
+        float offset = this->grid_offset.at(static_cast<unsigned long>(bt));
         Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
         for (int i = 0; i < discr.wave_numbers->rows(); i++) {
             std::complex<float> wave_number = (*discr.wave_numbers)(i);

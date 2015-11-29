@@ -36,11 +36,21 @@
 #include "Domain.h"
 
 namespace Kernel {
+    /**
+     * Models a boundary between two domains.
+     */
     class Boundary {
     public:
         std::shared_ptr<Domain> domain1, domain2;
         CalcDirection type;
 
+        /**
+         * Creates a boundary of given type between the given domains
+         * @param domain1: Pointer to first domain
+         * @param domain2: Pointer to second domain
+         * @param Enum of boundaryType (horizontal or vertical)
+         * @return: new Boundary object
+         */
         Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, CalcDirection type);
 
     };
