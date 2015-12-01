@@ -22,7 +22,7 @@
 //      2-11-15
 //
 // Authors:
-//      Louis van Harten
+//      Louis van Harten, Omar Richardson
 //
 // Purpose:
 //      The openPSTD solver. Subclasses should implement the various
@@ -41,11 +41,9 @@ namespace Kernel {
     class Solver {
     private:
         std::shared_ptr<PSTDFileConfiguration> config;
+        std::shared_ptr<PSTDFileSettings> settings;
 
-        void initDomains();
-        void addSpeakers();
-        void addReceivers();
-        void initRhoMatrices();
+
     public:
         Solver(std::shared_ptr<Scene> scene);
     };

@@ -23,28 +23,59 @@
 //
 // Authors:
 //      Michiel Fortuijn
+//      Omar  Richardson
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "KernelFacade.h"
-#include "kernel/core/Scene.h"
+#include "PSTDKernel.h"
+
 
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
-void KernelFacade::Configure(KernelConfiguration configuration)
-{
-    this->configuration = configuration;
+PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
+    this->config = config;
+    this->settings = std::make_shared<PSTDFileSettings>(config->Settings);
+    Kernel::Scene scene(this->config);
+    this->scene = std::make_shared<Kernel::Scene>(scene);
+    this->initialize_scene();
 }
 
-void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback)
+
+void PSTDKernel::initialize_scene() {
+    float dx = this->settings->GetGridSpacing();
+    float dy = dx;
+    for (auto domain: this->config->Domains) {
+        // This is not a reference to the data. Where is the screen description?
+        //Todo: Implement
+        //std::shared_ptr<Kernel::Domain> domain_ptr = std::make_shared<Kernel::Domain>(domain);
+        //scene.add_domain(domain_ptr); Inaccessible base?
+    }
+    scene->add_pml_domains();
+    this->add_speakers();
+    this->add_receivers();
+    scene->compute_rho_arrays();
+    scene->compute_pml_matrices();
+}
+
+void PSTDKernel::add_speakers() {
+    //Implement. Focus on (1) grid coordinates vs world coordinates and (2) roundoff
+}
+
+void PSTDKernel::add_receivers() {
+    //Implement. Focus on (1) grid coordinates vs world coordinates and (2) roundoff
+}
+
+void PSTDKernel::run(KernelCallback *callback)
 {
     // TODO: discuss how to handle the callback
 
     std::shared_ptr<Kernel::Scene> cur_scene;
-    cur_scene = std::make_shared<Kernel::Scene>(Kernel::Scene(config));
+    if (this->config == nullptr) {
+        assert(false); //Kernel not initialized yet. Maybe config in constructor?
+    }
 
-    int solver_num = config->Settings.GetGPUAccel() + config->Settings.GetMultiThread() << 1;
+    int solver_num = this->config->Settings.GetGPUAccel() + this->config->Settings.GetMultiThread() << 1;
     Kernel::Solver *solver;
     switch(solver_num) {
         case 0:
@@ -62,4 +93,5 @@ void KernelFacade::Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFaca
         default:
             break;
     }
+
 }

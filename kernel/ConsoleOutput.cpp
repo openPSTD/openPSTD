@@ -44,7 +44,7 @@ void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int fra
     {
         std::cout << message << std::endl;
     }
-    else if(status == CALLBACKSTATUS_SUCCES)
+    else if (status == CALLBACKSTATUS_SUCCESS)
     {
         std::cout << message << std::endl;
     }

@@ -87,14 +87,14 @@ namespace Kernel {
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
-        bool is_secondary_pml;
-        bool is_horizontal; // Todo: Implement
+        bool is_horizontal; // Private? Todo: Implement
+        bool is_2d;         // Private? Todo: Implement
         bool local;
         std::shared_ptr<field_values> current_values;
         std::shared_ptr<field_values> previous_values;
         std::shared_ptr<field_L_values> l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
-        bool is_sec_pml;
+        bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
 
     private:

@@ -22,7 +22,7 @@
 //      2-11-15
 //
 // Authors:
-//      Louis van Harten
+//      Louis van Harten, Omar Richardson
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +31,7 @@
 namespace Kernel {
     Solver::Solver(std::shared_ptr<Scene> scene) {
         this->config = scene->config;
+        this->settings = scene->settings;
     }
 
     SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {

@@ -312,20 +312,21 @@ namespace Kernel {
         this->size = std::make_shared<Point>(new_size);
         for (unsigned long i = 0; i < this->domain_list.size(); i++) {
             std::shared_ptr<Domain> other_domain = this->domain_list.at(i);
-            if (domain->is_sec_pml && other_domain->is_sec_pml) {
+            if (domain->is_secondary_pml && other_domain->is_secondary_pml) {
                 // Cannot interact, since no secondary PML domains are adjacent
                 continue;
-            } else if (domain->is_sec_pml && !other_domain->is_pml) {
+            } else if (domain->is_secondary_pml && !other_domain->is_pml) {
                 // Cannot interact, since a regular domain does not touch a secondary PML domain
                 continue;
-            } else if (other_domain->is_sec_pml && !domain->is_pml) {
+            } else if (other_domain->is_secondary_pml && !domain->is_pml) {
                 // Cannot interact, since a regular domain does not touch a secondary PML domain
                 continue;
             }
             if (domain->is_pml && other_domain->is_pml) {
                 bool pml_for_domain = other_domain->is_pml_for(domain);
                 bool pml_for_other_domain = domain->is_pml_for(other_domain);
-                if ((domain->is_sec_pml && pml_for_other_domain) || (other_domain->is_sec_pml && pml_for_domain)) {
+                if ((domain->is_secondary_pml && pml_for_other_domain) ||
+                    (other_domain->is_secondary_pml && pml_for_domain)) {
                     // Important case: Domain is pml for second domain. Pass
                 } else if (other_domain->pml_for_domain_list.size() != 1 || domain->pml_for_domain_list.size() != 1) {
                     // One is PML for multiple domains. Continue? Todo: check algorithm
@@ -338,7 +339,7 @@ namespace Kernel {
                     //Same
                     continue;
                 }
-                if (domain->is_sec_pml != other_domain->is_sec_pml) {
+                if (domain->is_secondary_pml != other_domain->is_secondary_pml) {
                     //
                     continue;
                 }

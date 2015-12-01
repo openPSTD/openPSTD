@@ -558,14 +558,19 @@ namespace Kernel {
         this->previous_values = nullptr;
     }
 
-
-    void Domain::apply_pml_matrices() {
-
-    }
-
     void Domain::compute_pml_matrices() {
 
     }
+
+    void Domain::apply_pml_matrices() {
+        assert(this->number_of_neighbours(false) == 1 and this->is_pml or this->number_of_neighbours(true) <= 2 and
+               this->is_secondary_pml);
+        // The pressure and velocity matrices are multiplied by the PML values.
+        if (this->is_secondary_pml and this->is_2d) {
+            //Really need to do compute_pml_matrices first...
+        }
+    }
+
 
     void Domain::push_values() {
         this->previous_values = this->current_values;
