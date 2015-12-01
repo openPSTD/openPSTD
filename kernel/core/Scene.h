@@ -57,6 +57,9 @@ namespace Kernel {
         std::vector<std::shared_ptr<Boundary>> boundary_list;
         std::vector<std::shared_ptr<Receiver>> receiver_list;
         std::vector<std::shared_ptr<Speaker>> speaker_list;
+    private:
+        std::map<Direction, edge_parameters> default_edge_parameters; // Uninitialized
+    public:
 
         /**
          * Constructor of Scene object

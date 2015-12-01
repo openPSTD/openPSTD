@@ -34,6 +34,7 @@ namespace Kernel {
         this->top_left = std::make_shared<Point>(Point(0, 0));
         this->bottom_right = std::make_shared<Point>(Point(0, 0));
         this->size = std::make_shared<Point>(Point(0, 0));
+
     }
 
     void Scene::add_pml_domains() {
@@ -107,7 +108,7 @@ namespace Kernel {
                             break;
                     }
                     Domain *pml_domain = new Domain(this->settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer,
-                                                    true, domain->wnd, domain);
+                                                    true, domain->wnd, this->default_edge_parameters, domain);
                     //std::shared_ptr<Domain> pml_domain_ptr(pml_domain); // Todo: Inaccessible base ...?
                     //first_order_pmls.push_back(pml_domain_ptr);
                     if (!full_overlap) {
@@ -388,7 +389,7 @@ namespace Kernel {
             Point offset = *domain->top_left - *this->top_left;
             switch (field_type) {
                 case 'p':
-                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += domain->current_values.p0;
+                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += domain->current_values->p0;
                     break;
                 default:
                     //No other fields are required (yet). However, leaving open for extension.

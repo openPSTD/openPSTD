@@ -87,11 +87,12 @@ namespace Kernel {
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
+        bool is_secondary_pml;
         bool is_horizontal; // Todo: Implement
         bool local;
-        field_values current_values;
-        field_values previous_values;
-        field_L_values l_values;
+        std::shared_ptr<field_values> current_values;
+        std::shared_ptr<field_values> previous_values;
+        std::shared_ptr<field_L_values> l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_sec_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
@@ -116,7 +117,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -229,6 +230,7 @@ namespace Kernel {
     private:
         void find_update_directions();
 
+        void clear_fields();
         void compute_number_of_neighbours();
     };
 }
