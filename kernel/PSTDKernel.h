@@ -73,9 +73,20 @@ private:
 
     void initialize_scene();
 
+    void add_domains();
+
+    /*
+     * Computes the location of the speakers and creates new objects for them.
+     * Expects real world coordinates from the scene descriptor file
+     */
     void add_speakers();
 
+    /*
+     * Computes the location of the receivers and creates new objects for them.
+     * Expects real world coordinates from the scene descriptor file
+     */
     void add_receivers();
+
 
 public:
     /**

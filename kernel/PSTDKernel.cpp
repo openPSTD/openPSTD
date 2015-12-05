@@ -45,12 +45,7 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
 void PSTDKernel::initialize_scene() {
     float dx = this->settings->GetGridSpacing();
     float dy = dx;
-    for (auto domain: this->config->Domains) {
-        // This is not a reference to the data. Where is the screen description?
-        //Todo: Implement
-        //std::shared_ptr<Kernel::Domain> domain_ptr = std::make_shared<Kernel::Domain>(domain);
-        //scene.add_domain(domain_ptr); Inaccessible base?
-    }
+    this->add_domains();
     scene->add_pml_domains();
     this->add_speakers();
     this->add_receivers();
@@ -58,12 +53,33 @@ void PSTDKernel::initialize_scene() {
     scene->compute_pml_matrices();
 }
 
+
+void PSTDKernel::add_domains() {
+    for (auto domain: this->config->Domains) {
+        // This is not a reference to the data. Where is the screen description?
+        //Todo: Implement
+        //std::shared_ptr<Kernel::Domain> domain_ptr = std::make_shared<Kernel::Domain>(domain);
+        //scene.add_domain(domain_ptr); Inaccessible base?
+    }
+}
+
+
 void PSTDKernel::add_speakers() {
-    //Implement. Focus on (1) grid coordinates vs world coordinates and (2) roundoff
+    for (auto speaker: this->config->Speakers) {
+        //see domain.
+        std::vector<float> location; //= speaker.location ofzo
+        //Kernel::Speaker speaker = Speaker(location)
+        //std::shared_ptr<Kernel::Speaker> speaker_ptr = std::make_shared<Kernel::Speaker>(speaker)
+    }
 }
 
 void PSTDKernel::add_receivers() {
-    //Implement. Focus on (1) grid coordinates vs world coordinates and (2) roundoff
+    for (auto receiver: this->config->Receivers) {
+        //see domain.
+        std::vector<float> location; //= receiver.location ofzo
+        //Kernel::Receivers receiver = Receivers(location)
+        //std::shared_ptr<Kernel::Receivers> receiver_ptr = std::make_shared<Kernel::Receivers>(speaker)
+    }
 }
 
 void PSTDKernel::run(KernelCallback *callback)
@@ -71,9 +87,6 @@ void PSTDKernel::run(KernelCallback *callback)
     // TODO: discuss how to handle the callback
 
     std::shared_ptr<Kernel::Scene> cur_scene;
-    if (this->config == nullptr) {
-        assert(false); //Kernel not initialized yet. Maybe config in constructor?
-    }
 
     int solver_num = this->config->Settings.GetGPUAccel() + this->config->Settings.GetMultiThread() << 1;
     Kernel::Solver *solver;

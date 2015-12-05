@@ -62,11 +62,11 @@ namespace Kernel {
         };
         std::vector<float> location;
         std::shared_ptr<PSTDFileSettings> config;
-        std::shared_ptr<Point> grid_location; //Todo (0mar): Now its rounded down. Check with algorithm
+        std::shared_ptr<Point> grid_location; //Corresponding to the center of the cell.
         std::vector<float> grid_offset;
         std::shared_ptr<Domain> container_domain;
         std::vector<float> received_values;
-
+        //Todo: Feature: If location sufficiently close to cell center, always compute with nn
         /**
          * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
          * @param location float coordinates in 3D grid space. For 2D, leave z=0

@@ -7,6 +7,7 @@
 namespace Kernel {
     Speaker::Speaker(std::vector<float> location) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
         this->location = location;
+        //Round off coordinates so we store the cell centers as well as the offset.
     }
 
     void Speaker::addDomainContribution(std::shared_ptr<Domain> domain) {
