@@ -17,6 +17,6 @@
 	<key>CFBundleExecutable</key>
 	<string>OpenPSTD-gui</string>
 	<key>CFBundleIconFile</key>
-    <string>Inkscape.icns</string>
+    <string>OpenPSTD.icns</string>
 </dict>
 </plist>
