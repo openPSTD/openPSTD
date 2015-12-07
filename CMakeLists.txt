@@ -43,6 +43,8 @@ SET(OPENPSTD_VERSION_MINOR 0 CACHE STRING "Minor version number")
 SET(OPENPSTD_VERSION_PATCH 0 CACHE STRING "Patch version number")
 SET(OPENPSTD_SYSTEM_NAME "linux" CACHE STRING "platform in the packaged filename")
 
+set(OPENPSTD_DEPENDENCIES_SEARCH_PATH "" CHACHE STRING "(ADVANCED) List of paths (delimiter ;) where the prerequisites can be found")
+
 #------------------------------------
 # Version numbering
 message(STATUS "Building version: ${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}")
@@ -67,6 +69,8 @@ message(STATUS "Boost libs: ${Boost_LIBRARIES}")
 message(STATUS "Boost program_options lib: ${Boost_PROGRAM_OPTIONS_LIBRARY}")
 message(STATUS "Boost test lib: ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
 
+SET(OPENPSTD_DEPENDENCIES_SEARCH_PATH "${OPENPSTD_DEPENDENCIES_SEARCH_PATH};${Boost_LIBRARY_DIRS}")
+
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "Missing Boost Libs.")
 endif ()
@@ -79,7 +83,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #function for easy loading Qt modules
-set(Qt5_CMAKE "lib/cmake")
+set(Qt5_LIBS "lib")
+set(Qt5_CMAKE "${Qt5_LIBS}/cmake")
 set(Qt5_FIRST 1)
 set(Qt5_FOUND 0)
 macro(loadQtPackage QtModule)
@@ -124,6 +129,8 @@ loadQtPackage(Qt5Widgets)
 loadQtPackage(Qt5Core)
 loadQtPackage(Qt5OpenGL)
 
+SET(OPENPSTD_DEPENDENCIES_SEARCH_PATH "${OPENPSTD_DEPENDENCIES_SEARCH_PATH};${Qt5_DIR}/${Qt5_LIBS}")
+
 message(STATUS "Qt5 found: ${Qt5_FOUND}")
 message(STATUS "Qt5 libs: ${Qt5_LIBRARIES}")
 message(STATUS "Qt5 lib path: ${Qt5_LIBRARIES_LOCATIONS}")
@@ -143,8 +150,13 @@ message(STATUS "Rapidjson include path: ${RAPIDJSON_INCLUDE}")
 
 #------------------------------------
 # Unqlite
+get_filename_component(UNQLITE_LIB_DIR ${UNQLITE_LIB} DIRECTORY)
+
 message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
+message(STATUS "Unqlite lib directory: ${UNQLITE_LIB_DIR}")
 message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
+
+SET(OPENPSTD_DEPENDENCIES_SEARCH_PATH "${OPENPSTD_DEPENDENCIES_SEARCH_PATH};${UNQLITE_LIB_DIR}")
 
 #------------------------------------
 # Eigen
@@ -233,8 +245,16 @@ target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
 # INSTALL
 install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
 #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
-install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
-install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
+
+if(APPLE)
+    # paths to executables
+    set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-Darwin/OpenPSTD.app/Contents/Resources/OpenPSTD-gui")
+
+    INSTALL(CODE "
+	   include(BundleUtilities)
+	   fixup_bundle(\"${APPS}\"   \"\"   \"${OPENPSTD_DEPENDENCIES_SEARCH_PATH}\")
+	   " COMPONENT Runtime)
+endif()
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
 set(CPACK_BUNDLE_ICON OpenPSTD.icns)
