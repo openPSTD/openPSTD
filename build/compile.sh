@@ -3,7 +3,7 @@ set -e
 
 if [ ${TRAVIS_OS_NAME} = "linux" ]; then
     QT5DIR=/opt/qt55
-    PACKAGE=STGZ\;TGZ
+    PACKAGE=TGZ
 else
     QT5DIR=/usr/local/opt/qt5
     PACKAGE=Bundle
@@ -24,5 +24,6 @@ cmake \
 
 make OpenPSTD-gui
 make OpenPSTD-test
-make package
+#make package
+cpack -V -G ${PACKAGE}
 ls -al
