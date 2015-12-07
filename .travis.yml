@@ -32,6 +32,10 @@ before_script:
 - cmake --help
 - cpack --version
 - cpack --help
+- ls -al /usr/local/lib
+- ls -al /usr/local/opt/qt5/lib
+- ls -al /Users/travis/build/micfort/openPSTD/unqlite
+- ls -al /usr/local/opt/boost/lib
 
 script:
 - compile.sh
