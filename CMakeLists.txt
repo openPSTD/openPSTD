@@ -43,7 +43,7 @@ SET(OPENPSTD_VERSION_MINOR 0 CACHE STRING "Minor version number")
 SET(OPENPSTD_VERSION_PATCH 0 CACHE STRING "Patch version number")
 SET(OPENPSTD_SYSTEM_NAME "linux" CACHE STRING "platform in the packaged filename")
 
-set(OPENPSTD_DEPENDENCIES_SEARCH_PATH "" CHACHE STRING "(ADVANCED) List of paths (delimiter ;) where the prerequisites can be found")
+set(OPENPSTD_DEPENDENCIES_SEARCH_PATH "" CACHE STRING "(ADVANCED) List of paths (delimiter ;) where the prerequisites can be found")
 
 #------------------------------------
 # Version numbering
@@ -248,7 +248,7 @@ install(TARGETS OpenPSTD-gui DESTINATION .)
 
 if(APPLE)
     # paths to executables
-    set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}-Darwin/OpenPSTD.app/Contents/Resources/OpenPSTD-gui")
+    set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}-${OPENPSTD_SYSTEM_NAME}/OpenPSTD.app/Contents/Resources/OpenPSTD-gui")
 
     INSTALL(CODE "
 	   include(BundleUtilities)
