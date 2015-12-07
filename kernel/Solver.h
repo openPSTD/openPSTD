@@ -42,7 +42,14 @@ namespace Kernel {
     private:
         std::shared_ptr<PSTDFileConfiguration> config;
         std::shared_ptr<PSTDFileSettings> settings;
+        std::shared_ptr<Scene> scene;
+    protected:
 
+        int number_of_time_steps;
+
+        void compute_propagation();
+
+        void update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step);
 
     public:
         Solver(std::shared_ptr<Scene> scene);

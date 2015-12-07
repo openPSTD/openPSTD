@@ -84,24 +84,23 @@ void PSTDKernel::add_receivers() {
 
 void PSTDKernel::run(KernelCallback *callback)
 {
-    // TODO: discuss how to handle the callback
+    // TODO: discuss how to handle the callback. It probably should be passed to the solver.
 
-    std::shared_ptr<Kernel::Scene> cur_scene;
 
     int solver_num = this->config->Settings.GetGPUAccel() + this->config->Settings.GetMultiThread() << 1;
     Kernel::Solver *solver;
     switch(solver_num) {
         case 0:
-            solver = new Kernel::SingleThreadSolver(cur_scene);
+            solver = new Kernel::SingleThreadSolver(this->scene);
             break;
         case 1:
-            solver = new Kernel::GPUSingleThreadSolver(cur_scene);
+            solver = new Kernel::GPUSingleThreadSolver(this->scene);
             break;
         case 2:
-            solver = new Kernel::MultiThreadSolver(cur_scene);
+            solver = new Kernel::MultiThreadSolver(this->scene);
             break;
         case 3:
-            solver = new Kernel::GPUMultiThreadSolver(cur_scene);
+            solver = new Kernel::GPUMultiThreadSolver(this->scene);
             break;
         default:
             break;

@@ -35,7 +35,7 @@ namespace Kernel {
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
         this->settings = settings;
         this->top_left = top_left;
-        this->size = size; //Todo (Omar): Change to just accept vectors. All conversion to grid coordinates should happen here.
+        this->size = size;
         this->bottom_right = std::make_shared<Point>(*top_left + *size);
         this->wnd = wnd;
         this->id = id;

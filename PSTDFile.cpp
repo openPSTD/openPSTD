@@ -31,10 +31,12 @@
 //
 
 #include "PSTDFile.h"
-extern "C" 
+
+extern "C"
 {
 #include <unqlite.h>
 }
+
 #include <iostream>
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -42,7 +44,7 @@ extern "C"
 
 using namespace std;
 
-const char* PSTDEmptyScene = "{\n"
+const char *PSTDEmptyScene = "{\n"
         "    \"domains\": [\n"
         "        {\n"
         "            \"topleft\": [\n"
@@ -100,25 +102,23 @@ const char* PSTDEmptyScene = "{\n"
 #define PSTD_FILE_PREFIX_FRAMEDATA 5
 
 
-std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename)
-{
+std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename) {
     std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
     result->changed = false;
-    unqlite* backend;
+    unqlite *backend;
     unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
-    result->backend = std::unique_ptr<unqlite, int(*)(unqlite*)>(backend, unqlite_close);
+    result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
     result->initilize();
     return result;
 }
 
-std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
-{
+std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename) {
     {
         std::unique_ptr<PSTDFile> result(new PSTDFile());
 
         unqlite *backend;
         unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
-        result->backend = std::unique_ptr<unqlite, int(*)(unqlite*)>(backend, unqlite_close);
+        result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
 
         std::shared_ptr<rapidjson::Document> SceneConf(new rapidjson::Document());
         SceneConf->Parse(PSTDEmptyScene);
@@ -135,32 +135,27 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
     return PSTDFile::Open(filename);
 }
 
-PSTDFile::PSTDFile(): backend(nullptr, unqlite_close)
-{
+PSTDFile::PSTDFile() : backend(nullptr, unqlite_close) {
 
 }
 
-std::shared_ptr<rapidjson::Document> PSTDFile::GetSceneConf()
-{
+std::shared_ptr<rapidjson::Document> PSTDFile::GetSceneConf() {
     return this->sceneConf;
 }
 
-void PSTDFile::SetSceneConf(std::shared_ptr<rapidjson::Document> scene)
-{
+void PSTDFile::SetSceneConf(std::shared_ptr<rapidjson::Document> scene) {
     this->sceneConf = scene;
     this->changed = true;
 }
 
-std::shared_ptr<rapidjson::Document> PSTDFile::GetPSTDConf()
-{
+std::shared_ptr<rapidjson::Document> PSTDFile::GetPSTDConf() {
     std::unique_ptr<std::string> json = this->GetStringValue(CreateKey(PSTD_FILE_PREFIX_PSTD, {}));
     std::shared_ptr<rapidjson::Document> document(new rapidjson::Document());
     document->Parse(json->c_str());
     return document;
 }
 
-void PSTDFile::SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD)
-{
+void PSTDFile::SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD) {
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     PSTD->Accept(writer);
@@ -168,49 +163,40 @@ void PSTDFile::SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD)
     this->SetStringValue(CreateKey(PSTD_FILE_PREFIX_PSTD, {}), json);
 }
 
-int PSTDFile::GetDomainCount()
-{
+int PSTDFile::GetDomainCount() {
     return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}));
 }
 
-int PSTDFile::GetFrameCount(unsigned int domain)
-{
+int PSTDFile::GetFrameCount(unsigned int domain) {
     return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {domain}));
 }
 
-PSTD_FRAME PSTDFile::GetFrame(unsigned int frame, unsigned int domain)
-{
+PSTD_FRAME PSTDFile::GetFrame(unsigned int frame, unsigned int domain) {
     unqlite_int64 size;
-    char* result = this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
+    char *result = this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
 
-    return shared_ptr<vector<char>>(new vector<char>(result, result+size));
+    return shared_ptr<vector<char>>(new vector<char>(result, result + size));
 }
 
-void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME frameData)
-{
+void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME frameData) {
     unsigned int frame = IncrementFrameCount(domain);
     this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), frameData->size(), frameData->data());
 }
 
-void PSTDFile::InitilizeSimulationResults(int domains)
-{
+void PSTDFile::InitilizeSimulationResults(int domains) {
     SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), domains);
-    for(unsigned int i = 0; i < domains; i++)
-    {
+    for (unsigned int i = 0; i < domains; i++) {
         SetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {i}), 0);
     }
 }
 
-void PSTDFile::DeleteSimulationResults()
-{
+void PSTDFile::DeleteSimulationResults() {
     int rc;
 
     int domainCount = this->GetDomainCount();
-    for(unsigned int d = 0; d < domainCount; d++)
-    {
+    for (unsigned int d = 0; d < domainCount; d++) {
         int frameCount = this->GetFrameCount(d);
-        for(unsigned int f = 0; f < frameCount; f++)
-        {
+        for (unsigned int f = 0; f < frameCount; f++) {
             this->DeleteValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {d, f}));
         }
         this->DeleteValue(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {d}));
@@ -218,10 +204,8 @@ void PSTDFile::DeleteSimulationResults()
     SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
 }
 
-void PSTDFile::Commit()
-{
-    if(this->changed)
-    {
+void PSTDFile::Commit() {
+    if (this->changed) {
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         this->sceneConf->Accept(writer);
@@ -231,8 +215,7 @@ void PSTDFile::Commit()
     this->changed = false;
 }
 
-std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key)
-{
+std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key) {
     unqlite_int64 nBytes;  //Data length
     char *zBuf;     //Dynamically allocated buffer
 
@@ -245,14 +228,12 @@ std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key)
     return result;
 }
 
-char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64* nBytes)
-{
+char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64 *nBytes) {
     int rc;
     char *zBuf;     //Dynamically allocated buffer
 
     rc = unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), NULL, nBytes);
-    if( rc != UNQLITE_OK )
-    {
+    if (rc != UNQLITE_OK) {
         std::cout << "Error: " << rc;
         std::cout << " for key: " << this->KeyToString(key) << std::endl;
         //todo throw error exception
@@ -265,8 +246,7 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64* nBytes)
     return zBuf;
 }
 
-void PSTDFile::initilize()
-{
+void PSTDFile::initilize() {
     std::unique_ptr<std::string> json(this->GetStringValue(CreateKey(PSTD_FILE_PREFIX_SCENE, {})));
     std::shared_ptr<rapidjson::Document> result(new rapidjson::Document());
     result->Parse(json->c_str());
@@ -275,41 +255,36 @@ void PSTDFile::initilize()
     changed = false;
 }
 
-PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list)
-{
+PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list) {
     //the length of the list times int
-    int length = sizeof(int)*(list.size()+1);
-    char* data = new char[length];
+    int length = sizeof(int) * (list.size() + 1);
+    char *data = new char[length];
 
     //cast to integer for easy access
-    int* key = (int*)data;
+    int *key = (int *) data;
 
     //fill the key
     key[0] = prefix;
 
     int i = 0;
-    for( auto elem : list )
-    {
-        key[i+1] = elem;
+    for (auto elem : list) {
+        key[i + 1] = elem;
         i++;
     }
 
-    PSTDFile_Key_t result = shared_ptr<std::vector<char> >(new vector<char>(data, data+length));
+    PSTDFile_Key_t result = shared_ptr<std::vector<char> >(new vector<char>(data, data + length));
     delete[] data;
 
     return result;
 }
 
-std::string PSTDFile::KeyToString(PSTDFile_Key_t key)
-{
-    unsigned int * values = (unsigned int*)key->data();
+std::string PSTDFile::KeyToString(PSTDFile_Key_t key) {
+    unsigned int *values = (unsigned int *) key->data();
 
     std::string result("{" + boost::lexical_cast<std::string>(values[0]) + ",[");
-    for(int i = 1; i < key->size()/4; i++)
-    {
+    for (int i = 1; i < key->size() / 4; i++) {
         result = result + boost::lexical_cast<std::string>(values[i]);
-        if(i < key->size()/4-1)
-        {
+        if (i < key->size() / 4 - 1) {
             result = result + ",";
         }
     }
@@ -318,57 +293,53 @@ std::string PSTDFile::KeyToString(PSTDFile_Key_t key)
     return result;
 }
 
-void PSTDFile::SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> value)
-{
+void PSTDFile::SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> value) {
     //add the 1 for the null terminator :)
-    SetRawValue(key, value->length()+1, value->c_str());
+    SetRawValue(key, value->length() + 1, value->c_str());
 }
 
-void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const char *value)
-{
+void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const char *value) {
     int rc;
 
     rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), value, nBytes);
 
-    if( rc != UNQLITE_OK )
-    {
+    if (rc != UNQLITE_OK) {
         //todo throw error exception
     }
 }
 
-unsigned int PSTDFile::IncrementFrameCount(unsigned int domain)
-{
+unsigned int PSTDFile::IncrementFrameCount(unsigned int domain) {
     auto key = CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {domain});
     int frame = GetValue<int>(key);
-    SetValue<int>(key, frame+1);
+    SetValue<int>(key, frame + 1);
     return frame;
 }
 
-void PSTDFile::DeleteValue(PSTDFile_Key_t key)
-{
+void PSTDFile::DeleteValue(PSTDFile_Key_t key) {
     int rc;
 
     rc = unqlite_kv_delete(this->backend.get(), key->data(), key->size());
 
-    if( rc != UNQLITE_OK )
-    {
+    if (rc != UNQLITE_OK) {
         //todo throw error exception
     }
 }
 
 
-std::string DomainSideToString(PSTD_DOMAIN_SIDE side)
-{
-    switch(side) {
-        case PSTD_DOMAIN_SIDE_TOP   : return "t";
-        case PSTD_DOMAIN_SIDE_BOTTOM : return "b";
-        case PSTD_DOMAIN_SIDE_LEFT  : return "l";
-        case PSTD_DOMAIN_SIDE_RIGHT  : return "r";
+std::string DomainSideToString(PSTD_DOMAIN_SIDE side) {
+    switch (side) {
+        case PSTD_DOMAIN_SIDE_TOP   :
+            return "t";
+        case PSTD_DOMAIN_SIDE_BOTTOM :
+            return "b";
+        case PSTD_DOMAIN_SIDE_LEFT  :
+            return "l";
+        case PSTD_DOMAIN_SIDE_RIGHT  :
+            return "r";
     }
 }
 
-PSTDFileSettings PSTDFile::GetSettings()
-{
+PSTDFileSettings PSTDFile::GetSettings() {
     using namespace rapidjson;
 
     std::shared_ptr<Document> conf = this->GetSceneConf();
@@ -386,8 +357,8 @@ PSTDFileSettings PSTDFile::GetSettings()
 
     return settings;
 }
-void PSTDFile::SetSettings(PSTDFileSettings settings)
-{
+
+void PSTDFile::SetSettings(PSTDFileSettings settings) {
     using namespace rapidjson;
 
     std::shared_ptr<Document> conf = this->GetSceneConf();
@@ -405,89 +376,88 @@ void PSTDFile::SetSettings(PSTDFileSettings settings)
     this->SetSceneConf(conf);
 }
 
-float PSTDFileSettings::GetGridSpacing()
-{
+float PSTDFileSettings::GetGridSpacing() {
     return this->gridSpacing;
 }
-void PSTDFileSettings::SetGridSpacing(float value)
-{
+
+void PSTDFileSettings::SetGridSpacing(float value) {
     this->gridSpacing = value;
     //TODO edit max frequency here as well
 }
-float PSTDFileSettings::GetPatchError()
-{
+
+float PSTDFileSettings::GetPatchError() {
     return this->patcherror;
 }
-void PSTDFileSettings::SetPatchError(float value)
-{
+
+void PSTDFileSettings::SetPatchError(float value) {
     this->patcherror = value;
 }
-float PSTDFileSettings::GetRenderTime()
-{
+
+float PSTDFileSettings::GetRenderTime() {
     return this->calctime;
 }
-void PSTDFileSettings::SetRenderTime(float value)
-{
+
+void PSTDFileSettings::SetRenderTime(float value) {
     this->calctime = value;
 }
-int PSTDFileSettings::GetPMLCells()
-{
+
+int PSTDFileSettings::GetPMLCells() {
     return this->PMLCells;
 }
-void PSTDFileSettings::SetPMLCells(int value)
-{
+
+void PSTDFileSettings::SetPMLCells(int value) {
     this->PMLCells = value;
 }
-float PSTDFileSettings::GetAttenuationOfPMLCells()
-{
+
+float PSTDFileSettings::GetAttenuationOfPMLCells() {
     return this->ampMax;
 }
-void PSTDFileSettings::SetAttenuationOfPMLCells(float value)
-{
+
+void PSTDFileSettings::SetAttenuationOfPMLCells(float value) {
     this->ampMax = value;
 }
-float PSTDFileSettings::GetDensityOfAir()
-{
+
+float PSTDFileSettings::GetDensityOfAir() {
     return this->rho;
 }
-void PSTDFileSettings::SetDensityOfAir(float value)
-{
+
+void PSTDFileSettings::SetDensityOfAir(float value) {
     this->rho = value;
 }
+
 /**
  * TODO: add dynamic behavior to setters of freqMax and grid spacing
  */
-float PSTDFileSettings::GetMaxFrequency()
-{
+float PSTDFileSettings::GetMaxFrequency() {
     return this->freqMax;
 }
-void PSTDFileSettings::SetMaxFrequency(float value)
-{
+
+void PSTDFileSettings::SetMaxFrequency(float value) {
     this->freqMax = value;
     //TODO edit grid spacing as well
 }
-float PSTDFileSettings::GetSoundSpeed()
-{
+
+float PSTDFileSettings::GetSoundSpeed() {
     return this->c1;
 }
-void PSTDFileSettings::SetSoundSpeed(float value)
-{
+
+void PSTDFileSettings::SetSoundSpeed(float value) {
     this->c1 = value;
 }
-float PSTDFileSettings::GetFactRK()
-{
+
+float PSTDFileSettings::GetFactRK() {
     return this->tfactRK;
 }
-void PSTDFileSettings::SetFactRK(float value)
-{
+
+void PSTDFileSettings::SetFactRK(float value) {
     this->tfactRK = value;
 }
-int PSTDFileSettings::GetSaveNth()
-{
+
+int PSTDFileSettings::GetSaveNth() {
     return this->SaveNth;
 }
-void PSTDFileSettings::SetSaveNth(int value)
-{
+
+void PSTDFileSettings::SetSaveNth(int value) {
     this->SaveNth = value;
 }
 
@@ -539,9 +509,22 @@ std::vector<float> PSTDFileSettings::GetWindow() {
     return this->window;
 }
 
+float PSTDFileSettings::GetTimeStep() {
+    return this->tfactRK * this->gridSpacing / this->c1;
+}
+
 int PSTDFileSettings::GetWindowSize() {
     //directly translated from original Python implementation
-    int tmp = std::round((this->patcherror*0.7-17)/2.);
-    tmp = std::round(tmp*2);
+    int tmp = std::round((this->patcherror * 0.7 - 17) / 2.);
+    tmp = std::round(tmp * 2);
     return tmp;
+}
+
+std::vector<float> PSTDFileSettings::GetRKCoefficients() {
+    return this->rk_coefficients;
+}
+
+void PSTDFileSettings::setRKCoefficients(std::vector<float> coef) {
+    this->rk_coefficients = coef; //Todo: Set somewhere.
+
 }
