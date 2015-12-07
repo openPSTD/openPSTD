@@ -243,12 +243,12 @@ target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
 
 #------------------------------------
 # INSTALL
-install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
-#install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
+install(TARGETS OpenPSTD-gui DESTINATION .)
+#install(TARGETS OpenPSTD-cli DESTINATION .)
 
 if(APPLE)
     # paths to executables
-    set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-Darwin/OpenPSTD.app/Contents/Resources/OpenPSTD-gui")
+    set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}-Darwin/OpenPSTD.app/Contents/Resources/OpenPSTD-gui")
 
     INSTALL(CODE "
 	   include(BundleUtilities)
