@@ -31,21 +31,49 @@ namespace Kernel {
 
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-                   std::shared_ptr<WaveNumberDiscretizer> wnd,
+                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
-        //Todo (Louis): Implementeer dit verder
         this->settings = settings;
         this->top_left = top_left;
         this->size = size;
         this->bottom_right = std::make_shared<Point>(*top_left + *size);
         this->wnd = wnd;
         this->id = id;
+        this->edge_param_map = edge_param_map;
+        //Todo: (TK): Probably wrong, especially with two neighbouring PML domains
         this->impedance = -((std::sqrt(1 - alpha) + 1) / (std::sqrt(1 - alpha) - 1));
         if (is_pml) {
             this->pml_for_domain_list.push_back(pml_for_domain);
         }
+        if (this->is_rigid()) {
+            this->rho = 1E200;
+        } else {
+            this->rho = this->settings->GetDensityOfAir();
+        }
+        this->is_pml = is_pml;
+        this->pml_for_domain_list.push_back(pml_for_domain);
+        this->is_secondary_pml = false;
+        for (auto domain:this->pml_for_domain_list) {
+            if (domain->is_pml) {
+                is_secondary_pml = true;
+                // TK: Assert there is only one primary pml domain.
+            }
+        }
+
         this->find_update_directions();
         this->compute_number_of_neighbours();
+        this->clear_fields();
+        this->clear_matrices();
+        this->local = false;
+    };
+
+    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+                   std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
+                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
+        std::shared_ptr<Point> top_left;
+        std::shared_ptr<Point> size; //Todo: Initialize points. Is this allowed?
+        Domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     };
 
     // version of calc that would have a return value.
@@ -143,33 +171,33 @@ namespace Kernel {
                 }
 
                 if (ct == CalculationType::PRESSURE) {
-                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.p0);
+                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values->p0);
                 } else if (bt == CalcDirection::X) {
-                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.u0);
+                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values->u0);
                 } else {
-                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values.w0);
+                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values->w0);
                 }
 
                 // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
                 if (matrix1 == nullptr) {
                     if (ct == CalculationType::PRESSURE) {
-                        matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.p0);
+                        matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values->p0);
                     } else {
                         if (bt == CalcDirection::X) {
-                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.u0);
+                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values->u0);
                         } else {
-                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values.w0);
+                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values->w0);
                         }
                     }
                 }
                 if (matrix2 == nullptr) {
                     if (ct == CalculationType::PRESSURE) {
-                        matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.p0);
+                        matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values->p0);
                     } else {
                         if (bt == CalcDirection::X) {
-                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.u0);
+                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values->u0);
                         } else {
-                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values.w0);
+                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values->w0);
                         }
                     }
                 }
@@ -263,7 +291,7 @@ namespace Kernel {
     }
 
     bool Domain::is_rigid() {
-        return this->impedance > 1000; //Little random?
+        return this->impedance > 1000; //Why this exact value?
     }
 
     std::vector<int> Domain::get_range(CalcDirection bt) {
@@ -497,7 +525,7 @@ namespace Kernel {
         std::vector<CalcDirection> calc_directions = {CalcDirection::X, CalcDirection::Y};
         std::vector<Direction> directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
         for (CalcDirection calc_dir: calc_directions) {
-            bool should_update;
+            bool should_update = false;
             if (this->number_of_neighbours(false) == 1 and this->is_pml) {
                 if (this->is_horizontal and calc_dir == CalcDirection::X) {
                     // Todo: make sure we calculate in direction orthogonal to boundary
@@ -518,27 +546,42 @@ namespace Kernel {
                     }
                 }
             }
-            this->should_update[calc_dir] = should_update; // Should have been initialized
+            this->should_update[calc_dir] = should_update;
         }
     }
 
     void Domain::clear_matrices() {
-        this->l_values.Lpx = extended_zeros(0, 1);
-        this->l_values.Lpy = extended_zeros(1, 0);
-        this->l_values.Lvx = extended_zeros(0, 0);
-        this->l_values.Lvy = extended_zeros(0, 0);
+        this->l_values->Lpx = extended_zeros(0, 1);
+        this->l_values->Lpy = extended_zeros(1, 0);
+        this->l_values->Lvx = extended_zeros(0, 0);
+        this->l_values->Lvy = extended_zeros(0, 0);
     }
 
-    void Domain::push_values() {
-        //Todo: can be optimized, prev values and current values can turn into pointers.
-        this->previous_values = this->current_values;
-    }
+    void Domain::clear_fields() {
+        this->current_values->p0 = *this->extended_zeros(0, 0);
+        this->current_values->px0 = *this->extended_zeros(0, 0);
+        this->current_values->pz0 = *this->extended_zeros(0, 0);
+        this->current_values->u0 = *this->extended_zeros(0, 1);
+        this->current_values->w0 = *this->extended_zeros(1, 0);
 
-    void Domain::apply_pml_matrices() {
-
+        this->previous_values = nullptr;
     }
 
     void Domain::compute_pml_matrices() {
 
+    }
+
+    void Domain::apply_pml_matrices() {
+        assert(this->number_of_neighbours(false) == 1 and this->is_pml or this->number_of_neighbours(true) <= 2 and
+               this->is_secondary_pml);
+        // The pressure and velocity matrices are multiplied by the PML values.
+        if (this->is_secondary_pml and this->is_2d) {
+            //Really need to do compute_pml_matrices first...
+        }
+    }
+
+
+    void Domain::push_values() {
+        this->previous_values = this->current_values;
     }
 }

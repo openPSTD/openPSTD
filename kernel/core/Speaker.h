@@ -37,6 +37,7 @@
 #include <memory>
 #include <vector>
 #include <Eigen/Dense>
+#include <math.h>
 
 namespace Kernel {
     class Speaker {
@@ -50,10 +51,11 @@ namespace Kernel {
         const float y;
         const float z;
         std::vector<float> location;
+        //Add a grid location and an offset, just to be consistent.
 
         /*
-         * Speaker initialization with (unrounded) grid coordinates
-         * @param location: vector of grid world coordinates
+         * Speaker initialization with coordinates from scene.
+         * @param location: vector of world coordinates
          */
         Speaker(std::vector<float> location);
 

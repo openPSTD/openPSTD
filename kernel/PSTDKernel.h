@@ -24,9 +24,10 @@
 // Authors:
 //      Michiel Fortuijn
 //      Louis van Harten
+//      Omar  Richardson
 //
 // Purpose:
-//      The KernelFacade is the interface between the front- and backend
+//      The PSTDKernel is the interface between the front- and backend
 //      of the program.
 //
 //////////////////////////////////////////////////////////////////////////
@@ -37,16 +38,7 @@
 #include <string>
 #include "PSTDFile.h"
 #include "Solver.h"
-
-/**
- * The configuration of the kernel.
- */
-struct KernelConfiguration {
-    bool multiThreaded;
-    bool gpuAccelerated;
-    bool writePlot;
-    bool writeArray;
-};
+#include "core/Scene.h"
 
 /**
  * The status of the kernel when the callback is called.
@@ -56,10 +48,10 @@ enum CALLBACKSTATUS
     CALLBACKSTATUS_ERROR,
     CALLBACKSTATUS_STARTING,
     CALLBACKSTATUS_RUNNING,
-    CALLBACKSTATUS_SUCCES,
+    CALLBACKSTATUS_SUCCESS,
 };
 
-class KernelFacadeCallback
+class KernelCallback
 {
 public:
     /**
@@ -70,24 +62,43 @@ public:
 };
 
 /**
- * A facade before the kernel. This is a simlpe C++ api that can be used for calling the kernel.
+ * The kernel API. Contains one method for initialization and one for running the simulation.
  */
-class KernelFacade
+class PSTDKernel
 {
 private:
-    KernelConfiguration configuration;
+    std::shared_ptr<PSTDFileConfiguration> config;
+    std::shared_ptr<PSTDFileSettings> settings;
+    std::shared_ptr<Kernel::Scene> scene;
+
+    void initialize_scene();
+
+    void add_domains();
+
+    /*
+     * Computes the location of the speakers and creates new objects for them.
+     * Expects real world coordinates from the scene descriptor file
+     */
+    void add_speakers();
+
+    /*
+     * Computes the location of the receivers and creates new objects for them.
+     * Expects real world coordinates from the scene descriptor file
+     */
+    void add_receivers();
+
 
 public:
     /**
-     * Configures the kernel
+     * Initializes the kernel and the scene, constructs the domains and sets the parameters.
      */
-    void Configure(KernelConfiguration configuration);
+    PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config);
 
     /**
-     * Runs the kernel with a certain scene file. The callback has a single function that informs the rest of the
+     * Runs the kernel. The callback has a single function that informs the rest of the
      * application of the progress of the kernel.
      */
-    void Run(std::shared_ptr<PSTDFileConfiguration> config, KernelFacadeCallback* callback);
+    void run(KernelCallback *callback);
 };
 
 

@@ -156,7 +156,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 #------------------------------------
 # Kernel
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/PSTDKernel.cpp kernel/PSTDKernel.h
         kernel/core/kernel_functions.cpp kernel/core/Domain.cpp kernel/core/Domain.h
         kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/Scene.cpp kernel/core/Scene.h
         kernel/core/Receiver.cpp kernel/core/Receiver.h kernel/core/Boundary.cpp kernel/core/Boundary.h

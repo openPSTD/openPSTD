@@ -36,9 +36,9 @@
 #ifndef OPENPSTD_CONSOLEOUTPUT_H
 #define OPENPSTD_CONSOLEOUTPUT_H
 
-#include "KernelFacade.h"
+#include "PSTDKernel.h"
 
-class ConsoleOutput: public KernelFacadeCallback
+class ConsoleOutput : public KernelCallback
 {
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;
 };

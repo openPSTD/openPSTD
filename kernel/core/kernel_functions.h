@@ -83,6 +83,9 @@ namespace Kernel {
 
     const std::vector<Direction> all_directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP,
                                                    Direction::BOTTOM};
+
+    const std::vector<CalcDirection> all_calc_directions = {CalcDirection::X, CalcDirection::Y};
+    const std::vector<CalculationType> all_calculation_types = {CalculationType::PRESSURE, CalculationType::VELOCITY};
     /**
      * Return the opposite direction of the provided direction
      * @param direction: Direction enum
