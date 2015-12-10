@@ -129,7 +129,11 @@ namespace Kernel {
         //slicing and the values pulled from the Rmatrix is slightly different for the two branches
         if (ct == CalculationType::PRESSURE) {
             //set G1 = the product of the last $window_length values in p1 by the first $window_length values in the window
-            
+            //TODO optimize into one operation
+            std::vector<float> wind_left(window.end() - wlen, window.end());
+            Eigen::Map<Eigen::ArrayXf> window_left (wind_left.data());
+            //TODO check if wlen > [p1.len] || wlen > [p3.len] and give user feedback
+            //Eigen::ArrayXXf G1 = window_left;
 
             //set G2 = the product of the first $window_length values in p3 by the last $window_length values in the window
 
