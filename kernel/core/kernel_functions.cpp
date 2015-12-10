@@ -109,7 +109,7 @@ namespace Kernel {
 
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Array<float, 4, 2> rho_array, std::vector<float> window,
+                              Eigen::Array<float, 4, 2> rho_array, Eigen::ArrayXf window,
                               int wlen, CalculationType ct, CalcDirection direct) {
 
         //in the Python code: N1 = fft_batch and N2 = fft_length
@@ -130,8 +130,7 @@ namespace Kernel {
         if (ct == CalculationType::PRESSURE) {
             //set G1 = the product of the last $window_length values in p1 by the first $window_length values in the window
             //TODO optimize into one operation
-            std::vector<float> wind_left(window.end() - wlen, window.end());
-            Eigen::Map<Eigen::ArrayXf> window_left (wind_left.data());
+            Eigen::ArrayXf wind_left = window.head(wlen);
             //TODO check if wlen > [p1.len] || wlen > [p3.len] and give user feedback
             //Eigen::ArrayXXf G1 = window_left;
 

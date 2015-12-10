@@ -19,24 +19,24 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Date:
-//
+//      18-7-2015
 //
 // Authors:
-//
+//      Michiel Fortuin
+//      Omar Richardson
+//      Louis van Harten
 //
 // Purpose:
-//
+//      Contains the settings and parameters needed to perform the
+//      complete openPSTD calculation.
 //
 //////////////////////////////////////////////////////////////////////////
-
-//
-// Created by michiel on 18-7-2015.
-//
 
 #ifndef OPENPSTD_PSTDFILE_H
 #define OPENPSTD_PSTDFILE_H
 
 #include <string>
+#include <Eigen/Dense>
 
 extern "C"
 {
@@ -71,7 +71,7 @@ private:
     int SaveNth;
     bool gpu;
     bool multithread;
-    std::vector<float> window;
+    Eigen::ArrayXf window;
 public:
     float GetGridSpacing();
 
@@ -141,9 +141,9 @@ public:
 
     void setRKCoefficients(std::vector<float> coef);
 
-    std::vector<float> GetWindow();
+    Eigen::ArrayXf GetWindow();
 
-    void SetWindow(std::vector<float> A);
+    void SetWindow(Eigen::ArrayXf A);
 };
 
 class DomainEdge {

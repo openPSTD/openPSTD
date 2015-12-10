@@ -137,7 +137,7 @@ namespace Kernel {
      */
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Array<float, 4, 2> rho_array, std::vector<float> window,
+                              Eigen::Array<float, 4, 2> rho_array, Eigen::ArrayXf window,
                               int wlen, CalculationType ct, CalcDirection direct);
 
     /**
