@@ -210,7 +210,7 @@ namespace Kernel {
          */
         Eigen::ArrayXi get_range(Direction direction);
 
-/**
+        /**
          * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
          * @param direction: Domain side under consideration
          * @return: 2D array each row a range start and end variable

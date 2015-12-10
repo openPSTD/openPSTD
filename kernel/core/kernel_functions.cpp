@@ -28,7 +28,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "kernel_functions.h"
-#include <stdexcept>
 
 namespace Kernel {
     RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2) {
@@ -116,10 +115,8 @@ namespace Kernel {
         //in the Python code: N1 = fft_batch and N2 = fft_length
         int fft_batch, fft_length;
 
-
         fft_batch = (int) p2->rows();
         fft_length = next2Power((int) p2->cols() + wlen*2);
-
 
         //if direct == 0, transpose p1, p2 and p3
         if(direct == CalcDirection::Y) {
@@ -128,10 +125,8 @@ namespace Kernel {
             p3->transposeInPlace();
         }
 
-        //branch into velocity and pressure calculation.
         //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
         //slicing and the values pulled from the Rmatrix is slightly different for the two branches
-        //check and double check the Python code before, during and after implementing this part
         if (ct == CalculationType::PRESSURE) {
             //set G1 = the product of the last $window_length values in p1 by the first $window_length values in the window
             
