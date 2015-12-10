@@ -108,8 +108,8 @@ namespace Kernel {
 
         Eigen::Array<float, 4, 2> rho; //TODO: Needs the rho matrix of the bottom and top domains
 
-        Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice, z_fact,
-                                            rho,config->GetWindow(), config->GetWindowSize(),
+        Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice, Point(-1,-1), //TODO: give the correct point p2_dimensions here
+                                            z_fact, rho,config->GetWindow(), config->GetWindowSize(),
                                             CalculationType::PRESSURE , CalcDirection::Y);
 
         int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;

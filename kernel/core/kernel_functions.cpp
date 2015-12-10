@@ -108,15 +108,15 @@ namespace Kernel {
     }
 
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Array<float, 4, 2> rho_array, Eigen::ArrayXf window,
-                              int wlen, CalculationType ct, CalcDirection direct) {
+                              std::shared_ptr<Eigen::ArrayXXf> p3, Point p2_dimensions,
+                              std::shared_ptr<Eigen::ArrayXcf> derfact, Eigen::Array<float, 4, 2> rho_array,
+                              Eigen::ArrayXf window, int wlen, CalculationType ct, CalcDirection direct) {
 
         //in the Python code: N1 = fft_batch and N2 = fft_length
         int fft_batch, fft_length;
 
-        fft_batch = (int) p2->rows();
-        fft_length = next2Power((int) p2->cols() + wlen*2);
+        fft_batch = (int) p2_dimensions.y;
+        fft_length = next2Power((int)p2_dimensions.x +wlen*2);
 
         //if direct == 0, transpose p1, p2 and p3
         if(direct == CalcDirection::Y) {
@@ -132,11 +132,9 @@ namespace Kernel {
             Eigen::ArrayXf window_left = window.head(wlen);
             Eigen::ArrayXf window_right = window.tail(wlen);
 
-            if (wlen > p1->cols() || wlen > p3->cols()) {
-                //TODO error if this happens and give user feedbackq
-            }
-            Eigen::ArrayXXf G(p1->rows(), p2->cols()+2*wlen);
-            G << p1->rightCols(wlen).rowwise()*window_left, *p2, p3->leftCols(wlen).rowwise()*window_right;
+            //TODO error if wlen>p1.x || wlen>p3.x and give user feedback. Note cols() and rows() don't work on dynamic arrays
+            Eigen::ArrayXXf G(fft_batch, fft_length+2*wlen);
+            //G << p1->rightCols(wlen).rowwise()*window_left, *p2, p3->leftCols(wlen).rowwise()*window_right;
 
 
             //set catemp_fft = fft(catemp) with fft length $fft_length. fft one dimensional, applied to every row of catemp.
