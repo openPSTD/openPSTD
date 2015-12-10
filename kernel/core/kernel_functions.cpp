@@ -128,16 +128,15 @@ namespace Kernel {
         //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
         //slicing and the values pulled from the Rmatrix is slightly different for the two branches
         if (ct == CalculationType::PRESSURE) {
-            //set G1 = the product of the last $window_length values in p1 by the first $window_length values in the window
-            //TODO optimize into one operation
-            Eigen::ArrayXf wind_left = window.head(wlen);
-            //TODO check if wlen > [p1.len] || wlen > [p3.len] and give user feedback
-            //Eigen::ArrayXXf G1 = window_left;
+            //window the outer domains and concatenate them all
+            Eigen::ArrayXf window_left = window.head(wlen);
+            Eigen::ArrayXf window_right = window.tail(wlen);
 
-            //set G2 = the product of the first $window_length values in p3 by the last $window_length values in the window
-
-
-            //set catemp = concatenate (G1, p2, G3)
+            if (wlen > p1->cols() || wlen > p3->cols()) {
+                //TODO error if this happens and give user feedbackq
+            }
+            Eigen::ArrayXXf G(p1->rows(), p2->cols()+2*wlen);
+            G << p1->rightCols(wlen).rowwise()*window_left, *p2, p3->leftCols(wlen).rowwise()*window_right;
 
 
             //set catemp_fft = fft(catemp) with fft length $fft_length. fft one dimensional, applied to every row of catemp.
