@@ -43,16 +43,14 @@
 /**
  * The status of the kernel when the callback is called.
  */
-enum CALLBACKSTATUS
-{
+enum CALLBACKSTATUS {
     CALLBACKSTATUS_ERROR,
     CALLBACKSTATUS_STARTING,
     CALLBACKSTATUS_RUNNING,
     CALLBACKSTATUS_SUCCESS,
 };
 
-class KernelCallback
-{
+class KernelCallback {
 public:
     /**
      * This callback will be called with information how far the kernel is progressed.
@@ -64,14 +62,15 @@ public:
 /**
  * The kernel API. Contains one method for initialization and one for running the simulation.
  */
-class PSTDKernel
-{
+class PSTDKernel {
 private:
     std::shared_ptr<PSTDFileConfiguration> config;
     std::shared_ptr<PSTDFileSettings> settings;
     std::shared_ptr<Kernel::Scene> scene;
-
+    const float default_alpha = 1.f;
     void initialize_scene();
+
+    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd; // Todo: Implement
 
     void add_domains();
 
@@ -87,6 +86,9 @@ private:
      */
     void add_receivers();
 
+    std::vector<int> world_to_grid_coordinates(QVector2D world_vector);
+
+    std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
 
 public:
     /**
