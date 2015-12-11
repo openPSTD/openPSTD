@@ -49,3 +49,7 @@ void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int fra
         std::cout << message << std::endl;
     }
 }
+
+void ConsoleOutput::WriteFrame(int frame, std::string domain, PSTD_FRAME data) {
+
+}
