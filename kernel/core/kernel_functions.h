@@ -40,6 +40,7 @@
 #include <map>
 #include <math.h>
 #include "PSTDFile.h"
+#include "Geometry.h"
 
 namespace Kernel {
 
@@ -129,6 +130,7 @@ namespace Kernel {
      * @param p1 variable matrix subdomain 1
      * @param p2 variable matrix subdomain 2
      * @param p3 variable matrix subdomain 3
+     * @param fft_length
      * @param derfact factor to compute derivative in wavenumber domain
      * @param Rmatrix matrix of reflection coefficients
      * @param var_index variable index: 0 for pressure, 1,2,3, for respectively x, z and y (in 3rd dimension) velocity
@@ -137,8 +139,8 @@ namespace Kernel {
      */
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Array<float, 4, 2> rho_array, std::vector<float> window,
-                              int wlen, CalculationType ct, CalcDirection direct);
+                              Eigen::Array<float, 4, 2> rho_array, Eigen::ArrayXf window, int wlen,
+                              CalculationType ct, CalcDirection direct);
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity

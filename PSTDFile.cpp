@@ -501,11 +501,11 @@ void PSTDFileSettings::SetMultiThread(bool value) {
     this->multithread = value;
 }
 
-void PSTDFileSettings::SetWindow(std::vector<float> A) {
+void PSTDFileSettings::SetWindow(Eigen::ArrayXf A) {
     this->window = A;
 }
 
-std::vector<float> PSTDFileSettings::GetWindow() {
+Eigen::ArrayXf PSTDFileSettings::GetWindow() {
     return this->window;
 }
 
