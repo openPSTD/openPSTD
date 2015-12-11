@@ -109,7 +109,7 @@ namespace Kernel {
 
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
                               std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
-                              Eigen::Array<float, 4, 2> rho_array, Eigen::ArrayXf window, int wlen,
+                              RhoArray rho_array, Eigen::ArrayXf window, int wlen,
                               CalculationType ct, CalcDirection direct) {
 
         //in the Python code: N1 = fft_batch and N2 = fft_length

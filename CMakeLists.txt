@@ -197,6 +197,8 @@ add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 # link libraries
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
+
 
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})

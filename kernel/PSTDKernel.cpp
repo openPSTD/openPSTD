@@ -56,10 +56,10 @@ void PSTDKernel::initialize_scene() {
 void PSTDKernel::add_domains() {
     int domain_id_int = 0;
     for (auto domain: this->config->Domains) {
-        std::shared_ptr<Kernel::Point> grid_top_left = std::make_shared<Kernel::Point>(
-                world_to_grid_coordinates(domain.TopLeft));
-        std::shared_ptr<Kernel::Point> grid_size = std::make_shared<Kernel::Point>(
-                world_to_grid_coordinates(domain.Size));
+        std::vector<float> tl = world_to_grid_coordinates(domain.TopLeft);
+        std::vector<float> s = world_to_grid_coordinates(domain.Size);
+        std::shared_ptr<Kernel::Point> grid_top_left = std::make_shared<Kernel::Point>((int) tl.at(0), (int) tl.at(1));
+        std::shared_ptr<Kernel::Point> grid_size = std::make_shared<Kernel::Point>((int) s.at(0), (int) s.at(1));
         std::map<Kernel::Direction, Kernel::edge_parameters> edge_param_map = translate_edge_parameters(domain);
         std::string domain_id = "Domain" + std::to_string(domain_id_int);
         std::shared_ptr<Kernel::Domain> domain_ptr(
@@ -73,8 +73,7 @@ void PSTDKernel::add_domains() {
 
 void PSTDKernel::add_speakers() {
     for (auto speaker: this->config->Speakers) {
-        //see domain.
-        std::vector<float> location; //= speaker.location ofzo
+        std::vector<float> location = world_to_grid_coordinates(speaker);
         //Kernel::Speaker speaker = Speaker(location)
         //std::shared_ptr<Kernel::Speaker> speaker_ptr = std::make_shared<Kernel::Speaker>(speaker)
     }
@@ -90,7 +89,6 @@ void PSTDKernel::add_receivers() {
 }
 
 void PSTDKernel::run(KernelCallback *callback) {
-    // TODO: discuss how to handle the callback. It probably should be passed to the solver.
 
 
     int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
@@ -115,11 +113,16 @@ void PSTDKernel::run(KernelCallback *callback) {
 }
 
 
-std::vector<int> PSTDKernel::world_to_grid_coordinates(QVector2D world_vector) {
+std::vector<float> PSTDKernel::world_to_grid_coordinates(QVector2D world_vector) {
     QVector2D scaled_vector = world_vector / this->settings->GetGridSpacing();
-    return std::vector<int>{(int) scaled_vector[0], (int) scaled_vector[1]};
+    return std::vector<float>{scaled_vector[0], scaled_vector[1]};
 }
 
+std::vector<float> PSTDKernel::world_to_grid_coordinates(QVector3D world_vector) {
+    //Not yet adapted to 3D.
+    QVector3D scaled_vector = world_vector / this->settings->GetGridSpacing();
+    return std::vector<float>{scaled_vector[0], scaled_vector[1]};
+}
 std::map<Kernel::Direction, Kernel::edge_parameters> PSTDKernel::translate_edge_parameters(Domain domain) {
     std::map<Kernel::Direction, Kernel::edge_parameters> edge_parameters;
     edge_parameters[Kernel::Direction::LEFT] = {domain.L.LR, domain.L.Absorption};

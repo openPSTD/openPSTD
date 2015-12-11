@@ -57,6 +57,8 @@ public:
      * Frame is only used with status == CALLBACKSTATUS_RUNNING, else it's -1.
      */
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
+
+    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) = 0;
 };
 
 /**
@@ -86,7 +88,10 @@ private:
      */
     void add_receivers();
 
-    std::vector<int> world_to_grid_coordinates(QVector2D world_vector);
+    std::vector<float> world_to_grid_coordinates(QVector2D world_vector);
+
+    std::vector<float> world_to_grid_coordinates(QVector3D world_vector);
+
 
     std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
 

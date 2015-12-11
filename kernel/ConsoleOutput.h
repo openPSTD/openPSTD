@@ -41,6 +41,8 @@
 class ConsoleOutput : public KernelCallback
 {
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;
+
+    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) override;
 };
 
 #endif //OPENPSTD_CONSOLEOUTPUT_H

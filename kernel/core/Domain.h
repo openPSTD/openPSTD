@@ -73,7 +73,7 @@ namespace Kernel {
     /**
      * A representation of one domain, as seen by the kernel.
      */
-    class Domain : std::enable_shared_from_this<Domain>{
+    class Domain : public std::enable_shared_from_this<Domain> {
     public:
         std::shared_ptr<PSTDFileSettings> settings;
         std::string id;
@@ -105,6 +105,13 @@ namespace Kernel {
         int number_of_domains; // including pml_domains;
         int number_of_pml_domains;
     public:
+
+        /**
+         *
+         *
+         */
+
+        Domain() { };
         /**
          * Default constructor
          * @param settings: PSTD settings pointer
