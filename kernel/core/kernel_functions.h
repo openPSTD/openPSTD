@@ -138,9 +138,9 @@ namespace Kernel {
      * @return a 2d array containing the derivative of p2
      */
     Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, Point p2_dimensions,
-                              std::shared_ptr<Eigen::ArrayXcf> derfact, Eigen::Array<float, 4, 2> rho_array,
-                              Eigen::ArrayXf window, int wlen, CalculationType ct, CalcDirection direct);
+                              std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
+                              Eigen::Array<float, 4, 2> rho_array, Eigen::ArrayXf window, int wlen,
+                              CalculationType ct, CalcDirection direct);
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
