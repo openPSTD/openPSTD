@@ -57,6 +57,8 @@ public:
      * Frame is only used with status == CALLBACKSTATUS_RUNNING, else it's -1.
      */
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
+
+    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) = 0;
 };
 
 /**

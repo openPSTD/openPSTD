@@ -89,7 +89,6 @@ void PSTDKernel::add_receivers() {
 }
 
 void PSTDKernel::run(KernelCallback *callback) {
-    // TODO: discuss how to handle the callback. It probably should be passed to the solver.
 
 
     int solver_num = this->config->Settings.GetGPUAccel() + this->config->Settings.GetMultiThread() << 1;
