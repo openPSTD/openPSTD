@@ -128,6 +128,7 @@ namespace Kernel {
         //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
         //slicing and the values pulled from the Rmatrix is slightly different for the two branches
         if (ct == CalculationType::PRESSURE) {
+
             //window the outer domains and concatenate them all
             Eigen::ArrayXf window_left = window.head(wlen);
             Eigen::ArrayXf window_right = window.tail(wlen);
@@ -135,13 +136,12 @@ namespace Kernel {
             if (wlen > p1->cols() || wlen > p3->cols()) {
                 //TODO error if this happens and give user feedback.
             }
-            Eigen::ArrayXXf G1(fft_batch, wlen);
-            Eigen::ArrayXXf G2 = *p2;
-            Eigen::ArrayXXf G3(fft_batch, wlen);
+            Eigen::ArrayXXf dom1(fft_batch, wlen);
+            Eigen::ArrayXXf dom3(fft_batch, wlen);
             Eigen::ArrayXXf G(fft_batch, fft_length);
-            G1 = p1->rightCols(wlen).rowwise()*window_left.transpose();
-            G3 = p3->leftCols(wlen).rowwise()*window_right.transpose();
-            G<< G1,G2,G3;
+            dom1 = p1->rightCols(wlen).rowwise()*window_left.transpose();
+            dom3 = p3->leftCols(wlen).rowwise()*window_right.transpose();
+            G<< dom1,*p2, dom3;
 
 
             //set catemp_fft = fft(catemp) with fft length $fft_length. fft one dimensional, applied to every row of catemp.
@@ -156,8 +156,22 @@ namespace Kernel {
             //set Ltemp = real(ifft(catemp_fft_der))
 
         } else {
-            //repeat for velocity calculation
+            //repeat for velocity calculation with different slicing
+            Eigen::ArrayXf window_left = window.head(wlen);
+            Eigen::ArrayXf window_right = window.tail(wlen);
 
+            if (wlen > p1->cols() || wlen > p3->cols()) {
+                //TODO error if this happens and give user feedback.
+            }
+            Eigen::ArrayXXf G1(fft_batch, wlen);
+            Eigen::ArrayXXf G2 = *p2;
+            Eigen::ArrayXXf G3(fft_batch, wlen);
+            Eigen::ArrayXXf G(fft_batch, fft_length);
+            G1 = p1->rightCols(wlen).rowwise()*window_left.transpose();
+            G3 = p3->leftCols(wlen).rowwise()*window_right.transpose();
+            G<< G1,G2,G3;
+
+            //TODO--
         }
         //slice the result properly, transpose it if direct == 0
 
