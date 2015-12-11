@@ -25,5 +25,5 @@ cmake \
 make OpenPSTD-gui
 make OpenPSTD-test
 #make package
-cpack -V -G ${PACKAGE}
+sudo cpack -V -G ${PACKAGE}
 ls -al
