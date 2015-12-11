@@ -139,9 +139,9 @@ namespace Kernel {
             Eigen::ArrayXXf G2 = *p2;
             Eigen::ArrayXXf G3(fft_batch, wlen);
             Eigen::ArrayXXf G(fft_batch, fft_length);
-            G1 = p1->rightCols(wlen).rowwise()*window_left.transpose();
-            G3 = p3->leftCols(wlen).rowwise()*window_right.transpose();
-            G<< G1,G2,G3;
+            G1 = p1->rightCols(wlen).rowwise() * window_left.transpose();
+            G3 = p3->leftCols(wlen).rowwise() * window_right.transpose();
+            G << G1, G2, G3;
 
 
             //set catemp_fft = fft(catemp) with fft length $fft_length. fft one dimensional, applied to every row of catemp.
