@@ -60,7 +60,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 
 message(STATUS "Boost root hint: ${BOOST_ROOT}")
-find_package(Boost 1.54.0 REQUIRED program_options unit_test_framework)
+find_package(Boost 1.54.0 REQUIRED program_options unit_test_framework chrono system timer)
 message(STATUS "Boost found: ${Boost_FOUND}")
 message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
@@ -253,8 +253,6 @@ install(TARGETS OpenPSTD-gui DESTINATION .)
 if(APPLE)
     # paths to executables
     #set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}-${OPENPSTD_SYSTEM_NAME}/OpenPSTD.app/Contents/Resources/OpenPSTD-gui")
-    #set(APPS "OpenPSTD-gui")
-    set(APPS "${CMAKE_SOURCE_DIR}/_CPack_Packages/${OPENPSTD_SYSTEM_NAME}/Bundle/OpenPSTD-${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_MINOR}.${OPENPSTD_VERSION_PATCH}-${OPENPSTD_SYSTEM_NAME}/OpenPSTD.app")
     #set(LIBS "/usr/local/lib/libboost_system-mt.dylib;/usr/local/lib/libboost_timer-mt.dylib;/usr/local/lib/libboost_chrono-mt.dylib")
     set(LIBS "")
 
