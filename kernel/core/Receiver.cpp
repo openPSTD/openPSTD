@@ -106,10 +106,10 @@ namespace Kernel {
         float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
 
-        Eigen::Array<float, 4, 2> rho; //TODO: Needs the rho matrix of the bottom and top domains
+        RhoArray rho_array = this->container_domain->rho_arrays[top_domain->id + bottom_domain->id];
 
         Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
-                                            z_fact, rho, config->GetWindow(), config->GetWindowSize(),
+                                            z_fact, rho_array, config->GetWindow(), config->GetWindowSize(),
                                             CalculationType::PRESSURE , CalcDirection::Y);
 
         int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;
