@@ -86,7 +86,10 @@ private:
      */
     void add_receivers();
 
-    std::vector<int> world_to_grid_coordinates(QVector2D world_vector);
+    std::vector<float> world_to_grid_coordinates(QVector2D world_vector);
+
+    std::vector<float> world_to_grid_coordinates(QVector3D world_vector);
+
 
     std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
 
