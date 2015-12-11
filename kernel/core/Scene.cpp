@@ -107,12 +107,13 @@ namespace Kernel {
                                             vacant_range(j, 1) == domain->bottom_right->x);
                             break;
                     }
-                    Domain *pml_domain = new Domain(this->settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer,
-                                                    true, domain->wnd, this->default_edge_parameters, domain);
-                    //std::shared_ptr<Domain> pml_domain_ptr(pml_domain); // Todo: Inaccessible base ...?
-                    //first_order_pmls.push_back(pml_domain_ptr);
+
+                    std::shared_ptr<Domain> pml_domain_ptr(
+                            new Domain(this->settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer, true,
+                                       domain->wnd, this->default_edge_parameters, domain));
+                    first_order_pmls.push_back(pml_domain_ptr);
                     if (!full_overlap) {
-                        pml_domain->local = true;
+                        pml_domain_ptr->local = true;
                     }
                     if (alpha > 0 and full_overlap) {
                         std::vector<unsigned long> second_dir_its;
@@ -142,7 +143,7 @@ namespace Kernel {
                                     sec_y_offset = 0;
                                     break;
                                 case Direction::RIGHT:
-                                    sec_x_offset = pml_domain->size->x;
+                                    sec_x_offset = pml_domain_ptr->size->x;
                                     sec_y_offset = 0;
                                     break;
                                 case Direction::TOP:
@@ -151,16 +152,17 @@ namespace Kernel {
                                     break;
                                 case Direction::BOTTOM:
                                     sec_x_offset = 0;
-                                    sec_y_offset = pml_domain->size->y;
+                                    sec_y_offset = pml_domain_ptr->size->y;
                                     break;
                             }
 
-                            Point sec_pml_offset(sec_x_offset, sec_y_offset);
-                            Point sec_pml_size(number_of_cells, number_of_cells);
-                            std::shared_ptr<Domain> sec_pml_domain;
-                            //Domain *sec_pml_domain = new Domain(this->settings,second_pml_id,second_pml_alpha,pml_top_left,pml_size_pointer,true,domain->wnd,pml_domain);
+                            std::shared_ptr<Point> sec_pml_offset(new Point(sec_x_offset, sec_y_offset));
+                            std::shared_ptr<Point> sec_pml_size(new Point(number_of_cells, number_of_cells));
+                            std::shared_ptr<Domain> sec_pml_domain(
+                                    new Domain(this->settings, second_pml_id, second_pml_alpha, sec_pml_offset,
+                                               sec_pml_size, true, domain->wnd, this->default_edge_parameters,
+                                               pml_domain_ptr));
                             second_order_pml_map[sec_pml_domain] = second_dir;
-                            // Todo: Fix points (see up) and fix pointers.
                         }
                     }
                 }

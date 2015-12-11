@@ -33,6 +33,24 @@ namespace Kernel {
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                    std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
+
+        this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
+    }
+
+    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+                   std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
+                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
+        std::shared_ptr<Point> top_left(new Point(top_left_vector.at(0), top_left_vector.at(1)));
+        std::shared_ptr<Point> size;
+        this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
+    };
+
+    void Domain::initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+                                   std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+                                   std::shared_ptr<WaveNumberDiscretizer> wnd,
+                                   std::map<Direction, edge_parameters> edge_param_map,
+                                   const std::shared_ptr<Domain> pml_for_domain) {
         this->settings = settings;
         this->top_left = top_left;
         this->size = size;
@@ -65,16 +83,7 @@ namespace Kernel {
         this->clear_fields();
         this->clear_matrices();
         this->local = false;
-    };
-
-    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
-                   std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
-                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
-        std::shared_ptr<Point> top_left;
-        std::shared_ptr<Point> size; //Todo: Initialize points. Is this allowed?
-        Domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
-    };
+    }
 
     // version of calc that would have a return value.
     Eigen::ArrayXXf Domain::calc(CalcDirection bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest) {

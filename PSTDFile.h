@@ -147,6 +147,7 @@ public:
 };
 
 class DomainEdge {
+public:
     float Absorption;
     bool LR;
 };

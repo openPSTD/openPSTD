@@ -214,14 +214,7 @@ namespace Kernel {
          */
         void calc(CalcDirection bt, CalculationType ct);
 
-        /**
-         * Get range of boundary grid points along a specified direction
-         * @param direction: Domain side under consideration
-         * @return: 1D array with boundary point values of relevant dimension
-         */
-        Eigen::ArrayXi get_range(Direction direction);
-
-        /**
+/**
          * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
          * @param direction: Domain side under consideration
          * @return: 2D array each row a range start and end variable
@@ -238,9 +231,14 @@ namespace Kernel {
         std::shared_ptr<Eigen::ArrayXXf> extended_zeros(int x, int y, int z = 0);
 
     private:
-        void find_update_directions();
-
+        void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+                               std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+                               std::shared_ptr<WaveNumberDiscretizer> wnd,
+                               std::map<Direction, edge_parameters> edge_param_map,
+                               const std::shared_ptr<Domain> pml_for_domain);
         void clear_fields();
+
+        void find_update_directions();
         void compute_number_of_neighbours();
     };
 }

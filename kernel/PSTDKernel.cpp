@@ -44,7 +44,6 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
 
 void PSTDKernel::initialize_scene() {
     float dx = this->settings->GetGridSpacing();
-    float dy = dx;
     this->add_domains();
     scene->add_pml_domains();
     this->add_speakers();
@@ -55,11 +54,19 @@ void PSTDKernel::initialize_scene() {
 
 
 void PSTDKernel::add_domains() {
+    int domain_id_int = 0;
     for (auto domain: this->config->Domains) {
-        // This is not a reference to the data. Where is the screen description?
-        //Todo: Implement
-        //std::shared_ptr<Kernel::Domain> domain_ptr = std::make_shared<Kernel::Domain>(domain);
-        //scene.add_domain(domain_ptr); Inaccessible base?
+        std::shared_ptr<Kernel::Point> grid_top_left = std::make_shared<Kernel::Point>(
+                world_to_grid_coordinates(domain.TopLeft));
+        std::shared_ptr<Kernel::Point> grid_size = std::make_shared<Kernel::Point>(
+                world_to_grid_coordinates(domain.Size));
+        std::map<Kernel::Direction, Kernel::edge_parameters> edge_param_map = translate_edge_parameters(domain);
+        std::string domain_id = "Domain" + std::to_string(domain_id_int);
+        std::shared_ptr<Kernel::Domain> domain_ptr(
+                new Kernel::Domain(this->settings, domain_id, default_alpha, grid_top_left,
+                                   grid_size, false, this->wnd, edge_param_map, nullptr));
+        this->scene->add_domain(domain_ptr);
+        domain_id_int++;
     }
 }
 
@@ -82,14 +89,13 @@ void PSTDKernel::add_receivers() {
     }
 }
 
-void PSTDKernel::run(KernelCallback *callback)
-{
+void PSTDKernel::run(KernelCallback *callback) {
     // TODO: discuss how to handle the callback. It probably should be passed to the solver.
 
 
     int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
     Kernel::Solver *solver;
-    switch(solver_num) {
+    switch (solver_num) {
         case 0:
             solver = new Kernel::SingleThreadSolver(this->scene);
             break;
@@ -106,4 +112,19 @@ void PSTDKernel::run(KernelCallback *callback)
             break;
     }
 
+}
+
+
+std::vector<int> PSTDKernel::world_to_grid_coordinates(QVector2D world_vector) {
+    QVector2D scaled_vector = world_vector / this->settings->GetGridSpacing();
+    return std::vector<int>{(int) scaled_vector[0], (int) scaled_vector[1]};
+}
+
+std::map<Kernel::Direction, Kernel::edge_parameters> PSTDKernel::translate_edge_parameters(Domain domain) {
+    std::map<Kernel::Direction, Kernel::edge_parameters> edge_parameters;
+    edge_parameters[Kernel::Direction::LEFT] = {domain.L.LR, domain.L.Absorption};
+    edge_parameters[Kernel::Direction::RIGHT] = {domain.R.LR, domain.R.Absorption};
+    edge_parameters[Kernel::Direction::BOTTOM] = {domain.B.LR, domain.B.Absorption};
+    edge_parameters[Kernel::Direction::TOP] = {domain.T.LR, domain.T.Absorption};
+    return edge_parameters;
 }
