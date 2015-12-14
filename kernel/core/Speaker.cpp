@@ -11,6 +11,13 @@ namespace Kernel {
     }
 
     void Speaker::addDomainContribution(std::shared_ptr<Domain> domain) {
+        /*
+         * Todo:
+         * Method has been ported as is, however i think it has 2 bugs:
+         * 1. It used np.angle where it was supposed to use np.atan2. angle only works for complex arguments
+         * 2. It multiplies the horizontal and vertical component with cos^2 and sin^2. Squares are wrong.
+         * This is reflected in the solver
+         */
         int domain_width = domain->top_left->x;
         int domain_height = domain->top_left->y;
         int domain_depth = domain->top_left->z;
@@ -27,7 +34,7 @@ namespace Kernel {
                 float distance = (float) sqrt(pow(rel_x - i * dx, 2) + pow(rel_y - j * dx, 2));
                 float pressure = (float) exp(-domain->settings->getBandWidth() * pow(distance, 2));
                 float horizontal_component = pressure;
-                float vertical_component = 0; // Todo: why is the vertical component zero?
+                float vertical_component = 0;
                 values->p0(i,j) += pressure;
                 values->px0(i, j) += horizontal_component;
             }
