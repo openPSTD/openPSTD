@@ -33,8 +33,9 @@ script:
 deploy:
   provider: releases
   skip_cleanup: true
-  api_key: ca93619c47fc48319e4a9211c920cd8ddbe2a14b
-  file: OpenPSTD-*-*.*
+  api_key:
+    secure: pjfMnM/5UoTHR4iVRsvaCnarRrIvkuhl6snOw1nQbxiuiJG0T4dGdMQ/p3IwbLprXL1pqDAxKU01Rz/aqU55IBl1oaebcxIUlYxUZ4ZasaQiyd4k30iGg+fzwl33blNG5dwozqyppzM+uJKHBa8a48CRmKgOFelQ659Ev0pnDHFqMghadAtBKb315Shp2QTjAm2ZgTsKvunZ6Rge/FzutoHOl5VeTT8+8qL2MZQic1gQGlNd2B+3X53zOMz4IU+nt6Y3DzZDXU/9Nb0KumkwHLyZHOfNBVTHQ9rxaUmEeNWtG9Qdqg/Fe8EC/3PIKdM2PjNFzv/FUnL1Dx8X5nt2mNbEiYN7yoTzMbxV2dT2wFvZuMeZa9rh9nJoFiflvMu4LepQmrJ56xJG585N0kW1Hm8a3NXNnkN360nBFRql1Oyl1aZFxVERCr+z9BReYkVlhmjI5mqpytGUvXiwZyyFec26X2p8jT1ugtv8PmPXRBwElT7C5PAKsf2CcH9RmMCFrVSyXwynOlxP60YMs7nca5DejmPlZu1ybrceM9N+MmveuxkPcxXqRPwXbjYwRWWMA1Mn6dw4tdUiYalL32Y6lGen7sDHHyZPR5q50Fby5zmQeHWKxtCQ1pHqsJxqclWj46GWoV1wdroFcH7zY8PDRv3m3B4QPYo4F5QyvPcFVIg=
+  file: OpenPSTD-*-*.*\
   file_glob: true
   on:
     repo: micfort/openPSTD
