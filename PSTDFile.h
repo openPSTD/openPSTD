@@ -192,7 +192,7 @@ private:
 
     void DeleteValue(PSTDFile_Key_t key);
 
-    void initilize();
+    void initialize();
 
     unsigned int IncrementFrameCount(unsigned int domain);
 
@@ -255,7 +255,7 @@ public:
 
     void SaveNextFrame(unsigned int domain, PSTD_FRAME frame);
 
-    void InitilizeSimulationResults(int domains);
+    void InitializeSimulationResults(int domains);
 
     void DeleteSimulationResults();
 };

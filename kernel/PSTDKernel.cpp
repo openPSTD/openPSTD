@@ -43,7 +43,6 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
 
 
 void PSTDKernel::initialize_scene() {
-    float dx = this->settings->GetGridSpacing();
     this->add_domains();
     scene->add_pml_domains();
     this->add_speakers();
@@ -94,16 +93,16 @@ void PSTDKernel::run(KernelCallback *callback) {
     Kernel::Solver *solver;
     switch (solver_num) {
         case 0:
-            solver = new Kernel::SingleThreadSolver(this->scene);
+            solver = new Kernel::SingleThreadSolver(this->scene, callback);
             break;
         case 1:
-            solver = new Kernel::GPUSingleThreadSolver(this->scene);
+            solver = new Kernel::GPUSingleThreadSolver(this->scene, callback);
             break;
         case 2:
-            solver = new Kernel::MultiThreadSolver(this->scene);
+            solver = new Kernel::MultiThreadSolver(this->scene, callback);
             break;
         case 3:
-            solver = new Kernel::GPUMultiThreadSolver(this->scene);
+            solver = new Kernel::GPUMultiThreadSolver(this->scene, callback);
             break;
         default:
             break;

@@ -34,7 +34,6 @@ namespace Kernel {
         this->top_left = std::make_shared<Point>(Point(0, 0));
         this->bottom_right = std::make_shared<Point>(Point(0, 0));
         this->size = std::make_shared<Point>(Point(0, 0));
-
     }
 
     void Scene::add_pml_domains() {
@@ -187,7 +186,7 @@ namespace Kernel {
 
         }
         std::vector<std::shared_ptr<Domain>> second_order_pml_list;
-        for (auto &entry: domains_by_cornerpoints) {
+        for (auto &entry: domains_by_cornerpoints) { //Todo: When & and when not?
             if (entry.second.size() == 1) {
                 for (auto sec_pml_domain:entry.second) {
                     second_order_pml_list.push_back(sec_pml_domain);

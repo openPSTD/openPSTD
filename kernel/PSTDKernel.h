@@ -43,18 +43,18 @@
 /**
  * The status of the kernel when the callback is called.
  */
-enum CALLBACKSTATUS {
-    CALLBACKSTATUS_ERROR,
-    CALLBACKSTATUS_STARTING,
-    CALLBACKSTATUS_RUNNING,
-    CALLBACKSTATUS_SUCCESS,
+enum class CALLBACKSTATUS {
+    ERROR,
+    STARTING,
+    RUNNING,
+    FINISHED,
 };
 
 class KernelCallback {
 public:
     /**
      * This callback will be called with information how far the kernel is progressed.
-     * Frame is only used with status == CALLBACKSTATUS_RUNNING, else it's -1.
+     * Frame is only used with status == RUNNING, else it's -1.
      */
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
 

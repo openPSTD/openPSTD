@@ -29,31 +29,37 @@
 #include "Solver.h"
 
 namespace Kernel {
-    Solver::Solver(std::shared_ptr<Scene> scene) {
+    Solver::Solver(std::shared_ptr<Scene> scene, KernelCallback *callback) {
         this->scene = scene;
         this->config = scene->config;
         this->settings = scene->settings;
+        this->callback = callback;
         this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
     }
 
-    SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+    SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
+            scene, callback) {
         this->compute_propagation();
     }
 
-    GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+    GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
+            : Solver::Solver(scene, callback) {
         //TODO implement solver
     }
 
-    MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+    MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(scene,
+                                                                                                                  callback) {
         //TODO implement solver
     }
 
-    GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene) : Solver::Solver(scene) {
+    GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
+            scene, callback) {
         //TODO implement solver
     }
 
 
     void Solver::compute_propagation() {
+        this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", 0);
         for (int frame = 0; frame < this->number_of_time_steps; frame++) {
             for (auto domain:this->scene->domain_list) {
                 domain->push_values();
@@ -77,13 +83,16 @@ namespace Kernel {
                 }
                 for (auto domain:this->scene->domain_list) {
                     domain->current_values->p0 = domain->current_values->px0 + domain->current_values->pz0;
+                    // I think this is bugged. @see Speaker::add_domain_contribution().
+                    if (frame % this->settings->GetSaveNth() == 0) {
+                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
+                    }
                 }
             }
-            if (frame % this->settings->GetSaveNth() == 0) {
-                //Do something with the callback
-            }
+            this->callback->Callback(CALLBACKSTATUS::RUNNING, "", frame);
         }
-
+        this->callback->Callback(CALLBACKSTATUS::FINISHED, "Succesfully finished simulation",
+                                 this->number_of_time_steps);
     }
 
     void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step) {
@@ -103,4 +112,18 @@ namespace Kernel {
 
     }
 
+    PSTD_FRAME Solver::get_pressure_vector() {
+        //Make this a pointer.
+        auto aligned_pressure = std::vector<float>();
+        aligned_pressure.reserve((unsigned long) this->scene->size->x * this->scene->size->y);
+        auto field = this->scene->get_pressure_field();
+        unsigned long row_length = (unsigned long) this->scene->size->x;
+        for (unsigned long row = 0; row < field.cols(); row++) {
+            aligned_pressure.insert(aligned_pressure.end(),
+                                    field.data() + row * row_length,
+                                    field.data() + (row + 1) * row_length);
+        }
+        //return aligned_pressure;
+        return nullptr;
+    }
 }

@@ -108,7 +108,7 @@ std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename) {
     unqlite *backend;
     unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
     result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
-    result->initilize();
+    result->initialize();
     return result;
 }
 
@@ -174,7 +174,7 @@ int PSTDFile::GetFrameCount(unsigned int domain) {
 PSTD_FRAME PSTDFile::GetFrame(unsigned int frame, unsigned int domain) {
     unqlite_int64 size;
     char *result = this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
-
+    //Todo: convert
     return shared_ptr<vector<char>>(new vector<char>(result, result + size));
 }
 
@@ -183,7 +183,7 @@ void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME frameData) {
     this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), frameData->size(), frameData->data());
 }
 
-void PSTDFile::InitilizeSimulationResults(int domains) {
+void PSTDFile::InitializeSimulationResults(int domains) {
     SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), domains);
     for (unsigned int i = 0; i < domains; i++) {
         SetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {i}), 0);
@@ -246,7 +246,7 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64 *nBytes) {
     return zBuf;
 }
 
-void PSTDFile::initilize() {
+void PSTDFile::initialize() {
     std::unique_ptr<std::string> json(this->GetStringValue(CreateKey(PSTD_FILE_PREFIX_SCENE, {})));
     std::shared_ptr<rapidjson::Document> result(new rapidjson::Document());
     result->Parse(json->c_str());
