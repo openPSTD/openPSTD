@@ -1,22 +1,18 @@
 language: cpp
 sudo: required
 dist: trusty
-
 os:
 - linux
 - osx
-
 env:
   global:
   - OPENPSTD_MAJOR_VERSION=2
   - OPENPSTD_MINOR_VERSION=0
-
 before_install:
 - sudo chmod -R +x build
 - export PATH=./build/:$PATH
 - export PATH=/opt/qt55/bin/:$PATH
 - install_add_repo.sh
-
 install:
 - install_boost.sh
 - install_xsltproc.sh
@@ -24,7 +20,6 @@ install:
 - install_Qt55.sh
 - install_rapidjson.sh
 - install_eigen.sh
-
 before_script:
 - uname -r
 - gcc -v
@@ -32,18 +27,14 @@ before_script:
 - cmake --help
 - cpack --version
 - cpack --help
-
 script:
 - compile.sh
 - test.sh
-
 deploy:
   provider: releases
   skip_cleanup: true
-  api_key:
-    secure: NU1F57r33IQkiyze+ROqS262m1u6NN/gRdBODeuq6qBtk1+sHpu2DxWxXj+8q/USaOzK0Lm+CJVZiCraz71UjsufMgudBQBb9/DZvDrn/J79y80WQnL0VqWSrlSrWDs3G9K+vsr+W8cWKmJjizeMj3HnI9R8w0YX+lbv0Bhn0rKiWyXTwW/fPXtKuREIxEbfpuL5z4k52Mjm8uBH0K4OKoZFoZBrSEiLoxwIIKQzm6GVOlu9vHcSI+NstwChdVj5UAiqUBMDOrj4fFwZnBC8jHL/c1vyw/3bJt3WXO55qK/nDQdL3hH8Xiudz8sswaBGINiM63as2RhHqhK6nJpvCfFv+2pua407h+Sg7eWQAIzC+j/4Tnvt82/CiybbFsMRR5uNj0IO0yOgi5erjZFGNIlKDdQZy1WJfVL2oJJ220gnuE9Wj7RFPe5dWIKS97P4P355o2fan9rKpBmfR7+fjpX9hSTPRBjJirpjjJlAxvijQ6vl6vZJc8QU28OpP6Pc2EEDvwZlGVnWqV3ROcVVj6g3Z0nfnauRYmfX3dMi3DZUmqbaSq90h7AInq/5Nfn1A+gMBWp2Bh0sUXN6wtTTx3YkvB+fR1i/X5hfjkShdvWBagnMechjB39DbUy13IkMkeaEfSJbJsKNNpNU1aX+uz0V/sDhYk9T0z0MrYBD5vk=
-  file: OpenPSTD-${OPENPSTD_MAJOR_VERSION}.${OPENPSTD_MINOR_VERSION}.${TRAVIS_BUILD_NUMBER}-${TRAVIS_OS_NAME}.*
-  file_glob: true
+  api_key: ca93619c47fc48319e4a9211c920cd8ddbe2a14b
+  file: OpenPSTD-2.0.94-osx.dmg
   on:
     repo: micfort/openPSTD
     tags: true
