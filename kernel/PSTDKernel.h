@@ -79,7 +79,7 @@ private:
     const float default_alpha = 1.f;
     void initialize_scene();
 
-    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd; // Todo: Implement
+    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd;
 
     /**
      * Read the scene description from application or file and converts the coordinates to domains.

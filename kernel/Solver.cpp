@@ -89,6 +89,11 @@ namespace Kernel {
                     }
                 }
             }
+            this->scene->apply_pml_matrices();
+            for (auto receiver:this->scene->receiver_list) {
+                receiver->compute_local_pressure();
+                //Todo: Write this to a file or process in callback.
+            }
             this->callback->Callback(CALLBACKSTATUS::RUNNING, "", frame);
         }
         this->callback->Callback(CALLBACKSTATUS::FINISHED, "Succesfully finished simulation",
@@ -113,10 +118,11 @@ namespace Kernel {
     }
 
     PSTD_FRAME Solver::get_pressure_vector() {
-        //Make this a pointer.
+
         auto aligned_pressure = std::vector<float>();
         aligned_pressure.reserve((unsigned long) this->scene->size->x * this->scene->size->y);
         auto field = this->scene->get_pressure_field();
+        //Make this a pointer.
         unsigned long row_length = (unsigned long) this->scene->size->x;
         for (unsigned long row = 0; row < field.cols(); row++) {
             aligned_pressure.insert(aligned_pressure.end(),

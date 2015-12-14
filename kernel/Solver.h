@@ -59,13 +59,6 @@ namespace Kernel {
         int number_of_time_steps;
 
         /**
-         * Start the simulation solver.
-         * Runs until the simulation is finished, but meanwhile makes calls to the callback.
-         * A more badass name is welcome
-         */
-        void compute_propagation();
-
-        /**
          * Updates the pressure and velocity fields of the domains to the new values computed in the RK scheme
          * @param domain: Domain under consideration
          * @param rk_step: sub-step of RK6 method
@@ -86,6 +79,13 @@ namespace Kernel {
          * @return: New solver object.
          */
         Solver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+
+        /**
+         * Start the simulation solver.
+         * Runs until the simulation is finished, but meanwhile makes calls to the callback.
+         * A more badass name is welcome
+         */
+        void compute_propagation();
     };
 
     class SingleThreadSolver : public Solver {

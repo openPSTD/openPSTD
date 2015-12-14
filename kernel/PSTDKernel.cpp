@@ -27,6 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include <signal.h>
 #include "PSTDKernel.h"
 
 
@@ -39,6 +40,8 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
     Kernel::Scene scene(this->config);
     this->scene = std::make_shared<Kernel::Scene>(scene);
     this->initialize_scene();
+    auto wnd = Kernel::WaveNumberDiscretizer();
+    this->wnd = std::make_shared<Kernel::WaveNumberDiscretizer>(wnd);
 }
 
 
@@ -87,8 +90,6 @@ void PSTDKernel::add_receivers() {
 }
 
 void PSTDKernel::run(KernelCallback *callback) {
-
-
     int solver_num = this->config->Settings.GetGPUAccel() + this->config->Settings.GetMultiThread() << 1;
     Kernel::Solver *solver;
     switch (solver_num) {
@@ -105,10 +106,10 @@ void PSTDKernel::run(KernelCallback *callback) {
             solver = new Kernel::GPUMultiThreadSolver(this->scene, callback);
             break;
         default:
+            //Raise Error
             break;
     }
-    //Todo: Finish
-
+    solver->compute_propagation();
 }
 
 
