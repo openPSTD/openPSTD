@@ -34,7 +34,8 @@ deploy:
   provider: releases
   skip_cleanup: true
   api_key: ca93619c47fc48319e4a9211c920cd8ddbe2a14b
-  file: OpenPSTD-2.0.94-osx.dmg
+  file: OpenPSTD-*-*.*
+  file_glob: true
   on:
     repo: micfort/openPSTD
     tags: true
