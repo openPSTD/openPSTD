@@ -54,10 +54,17 @@ class KernelCallback {
 public:
     /**
      * This callback will be called with information how far the kernel is progressed.
-     * Frame is only used with status == RUNNING, else it's -1.
+     * @param status: CALLBACKSTATUS enum, either one of starting/running/finishing/error.
+     * @param message: Message to pass to callback handler
+     * @param frame: either positive integer corresponding to time step of data or -1 when kernel is not running.
      */
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
 
+    /**
+     * Return pressure data of scene to callback handler.
+     * @param frame: Positive integer corresponding to time step of data.
+     * @param data: 1D row-major vector of pressure data.
+     */
     virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) = 0;
 };
 
@@ -97,13 +104,28 @@ private:
      */
     void add_receivers();
 
-
+    /**
+     * Convert format and scale of GUI vectors to simulation vectors
+     * @param world_vector: QVector from GUI side.
+     * @return: 2 element std::vector with coefficients scaled to the grid size
+     */
     std::vector<float> scale_to_grid(QVector2D world_vector);
 
+    /**
+     * Convert 3D GUI vectors to simulation vectors.
+     * Automatically converts to 2D as long as 3D is not implemented.
+     * @see scale_to_grid(QVector2D world_vector)
+     */
     std::vector<float> scale_to_grid(QVector3D world_vector);
 
+    /**
+     * Round off vectors in the grid to their grid point coordinates.
+     */
     std::vector<int> round_off(std::vector<float>);
 
+    /**
+     * Translate edge parameters from the GUI to the simulation format.
+     */
     std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
 
 public:

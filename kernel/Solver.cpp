@@ -59,7 +59,7 @@ namespace Kernel {
 
 
     void Solver::compute_propagation() {
-        this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", 0);
+        this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", -1);
         for (int frame = 0; frame < this->number_of_time_steps; frame++) {
             for (auto domain:this->scene->domain_list) {
                 domain->push_values();

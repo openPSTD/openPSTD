@@ -53,15 +53,38 @@ namespace Kernel {
 
     protected:
         KernelCallback *callback;
+        /**
+         * The final number of computed frames
+         */
         int number_of_time_steps;
 
+        /**
+         * Start the simulation solver.
+         * Runs until the simulation is finished, but meanwhile makes calls to the callback.
+         * A more badass name is welcome
+         */
         void compute_propagation();
 
+        /**
+         * Updates the pressure and velocity fields of the domains to the new values computed in the RK scheme
+         * @param domain: Domain under consideration
+         * @param rk_step: sub-step of RK6 method
+         */
         void update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step);
 
+        /**
+         * The GUI format for pressure fields
+         * @return PSTD_FRAME (shared pointer to float vector)
+         */
         PSTD_FRAME get_pressure_vector();
 
     public:
+        /**
+         * Solver constructor (abstract). Initialized parameters for running the openPSTD algorithm
+         * @param scene: Pointer to scene object.
+         * @param callback: Pointer to callback function
+         * @return: New solver object.
+         */
         Solver(std::shared_ptr<Scene> scene, KernelCallback *callback);
     };
 
@@ -69,7 +92,7 @@ namespace Kernel {
     public:
         /**
          * Default constructor. Blocking call: will not return before the solver is done.
-         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         * @see Solver
          */
         SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
     };
@@ -77,8 +100,8 @@ namespace Kernel {
     class MultiThreadSolver : public Solver {
     public:
         /**
-         * Default constructor. Blocking call: will not return before the solver is done.
-         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         * Multithreaded solver. This instance employs multiple CPU's
+         * @see Solver
          */
         MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
     };
@@ -86,8 +109,8 @@ namespace Kernel {
     class GPUSingleThreadSolver : public Solver {
     public:
         /**
-         * Default constructor. Blocking call: will not return before the solver is done.
-         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         * GPU solver. This instance runs the PSTD computations on the graphics card
+         * @see Solver
          */
         GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
     };
@@ -95,8 +118,8 @@ namespace Kernel {
     class GPUMultiThreadSolver : public Solver {
     public:
         /**
-         * Default constructor. Blocking call: will not return before the solver is done.
-         * @param scene The scene this solver is supposed to solve. All needed parameters are contained in the scene.
+         * Multithreaded GPU solver. This instance employs both multiple CPU's as well as the graphics card.
+         * @see Solver
          */
         GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
     };
