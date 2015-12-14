@@ -34,7 +34,7 @@ namespace Kernel {
         this->location = location;
         this->container_domain = container;
         this->grid_location = std::make_shared<Point>(Point((int) this->x, (int) this->y, (int) this->z));
-        for (int i = 0; i < this->location.size(); i++) {
+        for (unsigned long i = 0; i < this->location.size(); i++) {
             this->grid_offset.push_back(this->location.at(i) = this->grid_location->array.at(i));
         }
         this->id = id;

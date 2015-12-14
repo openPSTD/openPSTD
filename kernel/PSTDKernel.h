@@ -74,24 +74,35 @@ private:
 
     std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd; // Todo: Implement
 
+    /**
+     * Read the scene description from application or file and converts the coordinates to domains.
+     * Note that indexing in the file happens on grid points.
+     * When interpreting domain coordinates to cells, note that this means the top_left is part of the domain,
+     * and the bottom right is not.
+     */
     void add_domains();
 
     /*
      * Computes the location of the speakers and creates new objects for them.
      * Expects real world coordinates from the scene descriptor file
+     * Note that speakers are not bound to grid coordinates.
+     * We find the corresponding grid by flooring the location divided by the grid size.
      */
     void add_speakers();
 
     /*
      * Computes the location of the receivers and creates new objects for them.
      * Expects real world coordinates from the scene descriptor file
+     * @see add_speakers();
      */
     void add_receivers();
 
-    std::vector<float> world_to_grid_coordinates(QVector2D world_vector);
 
-    std::vector<float> world_to_grid_coordinates(QVector3D world_vector);
+    std::vector<float> scale_to_grid(QVector2D world_vector);
 
+    std::vector<float> scale_to_grid(QVector3D world_vector);
+
+    std::vector<int> round_off(std::vector<float>);
 
     std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
 

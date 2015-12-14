@@ -56,8 +56,8 @@ void PSTDKernel::initialize_scene() {
 void PSTDKernel::add_domains() {
     int domain_id_int = 0;
     for (auto domain: this->config->Domains) {
-        std::vector<float> tl = world_to_grid_coordinates(domain.TopLeft);
-        std::vector<float> s = world_to_grid_coordinates(domain.Size);
+        std::vector<float> tl = scale_to_grid(domain.TopLeft);
+        std::vector<float> s = scale_to_grid(domain.Size);
         std::shared_ptr<Kernel::Point> grid_top_left = std::make_shared<Kernel::Point>((int) tl.at(0), (int) tl.at(1));
         std::shared_ptr<Kernel::Point> grid_size = std::make_shared<Kernel::Point>((int) s.at(0), (int) s.at(1));
         std::map<Kernel::Direction, Kernel::edge_parameters> edge_param_map = translate_edge_parameters(domain);
@@ -72,19 +72,18 @@ void PSTDKernel::add_domains() {
 
 
 void PSTDKernel::add_speakers() {
+    //Inconsistent: We created domains in this class, and speakers in the scene class
     for (auto speaker: this->config->Speakers) {
-        std::vector<float> location = world_to_grid_coordinates(speaker);
-        //Kernel::Speaker speaker = Speaker(location)
-        //std::shared_ptr<Kernel::Speaker> speaker_ptr = std::make_shared<Kernel::Speaker>(speaker)
+        std::vector<float> location = scale_to_grid(speaker);
+        this->scene->add_speaker(location.at(0), location.at(1), 0); // Z-coordinate is 0
     }
 }
 
 void PSTDKernel::add_receivers() {
+    //Inconsistent: We created domains in this class, and receivers in the scene class
     for (auto receiver: this->config->Receivers) {
-        //see domain.
-        std::vector<float> location; //= receiver.location ofzo
-        //Kernel::Receivers receiver = Receivers(location)
-        //std::shared_ptr<Kernel::Receivers> receiver_ptr = std::make_shared<Kernel::Receivers>(speaker)
+        std::vector<float> location = scale_to_grid(receiver);
+        this->scene->add_receiver(location.at(0), location.at(1), 0);
     }
 }
 
@@ -113,12 +112,12 @@ void PSTDKernel::run(KernelCallback *callback) {
 }
 
 
-std::vector<float> PSTDKernel::world_to_grid_coordinates(QVector2D world_vector) {
+std::vector<float> PSTDKernel::scale_to_grid(QVector2D world_vector) {
     QVector2D scaled_vector = world_vector / this->settings->GetGridSpacing();
     return std::vector<float>{scaled_vector[0], scaled_vector[1]};
 }
 
-std::vector<float> PSTDKernel::world_to_grid_coordinates(QVector3D world_vector) {
+std::vector<float> PSTDKernel::scale_to_grid(QVector3D world_vector) {
     //Not yet adapted to 3D.
     QVector3D scaled_vector = world_vector / this->settings->GetGridSpacing();
     return std::vector<float>{scaled_vector[0], scaled_vector[1]};
@@ -130,4 +129,9 @@ std::map<Kernel::Direction, Kernel::edge_parameters> PSTDKernel::translate_edge_
     edge_parameters[Kernel::Direction::BOTTOM] = {domain.B.LR, domain.B.Absorption};
     edge_parameters[Kernel::Direction::TOP] = {domain.T.LR, domain.T.Absorption};
     return edge_parameters;
+}
+
+std::vector<int> PSTDKernel::round_off(std::vector<float> vector) {
+    assert(vector.size() == 2); // We don't need to be very general here.
+    return std::vector<int>{(int) vector.at(0), (int) vector.at(1)};
 }
