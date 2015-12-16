@@ -36,7 +36,7 @@
 #include <math.h>
 #include <complex>
 #include <memory>
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
 
 namespace Kernel {
     class WaveNumberDiscretizer {

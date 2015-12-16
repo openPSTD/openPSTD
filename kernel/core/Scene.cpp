@@ -21,7 +21,7 @@
 // Date: 17-9-15
 //
 //
-// Authors: Omar
+// Authors: Omar Richardson
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -31,64 +31,336 @@ namespace Kernel {
     Scene::Scene(std::shared_ptr<PSTDFileConfiguration> config) {
         this->config = config;
         this->settings = std::make_shared<PSTDFileSettings>(config->Settings);
+        this->top_left = std::make_shared<Point>(Point(0, 0));
+        this->bottom_right = std::make_shared<Point>(Point(0, 0));
+        this->size = std::make_shared<Point>(Point(0, 0));
     }
 
     void Scene::add_pml_domains() {
+        int number_of_cells = this->settings->GetPMLCells();
+        std::vector<Direction> directions{Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
+        std::vector<std::string> dir_strings{"left", "top", "right", "bottom"};
 
+        std::vector<std::shared_ptr<Domain>> first_order_pmls;
+        std::map<std::shared_ptr<Domain>, Direction> second_order_pml_map;
+
+        for (std::shared_ptr<Domain> domain:this->domain_list) {
+            if (domain->is_pml) {
+                continue;
+            }
+            for (unsigned long i = 0; i < directions.size(); i++) {
+                Direction direction = directions.at(i);
+                Eigen::ArrayXXi vacant_range = domain->get_vacant_range(direction);
+                for (unsigned long j = 0; j < vacant_range.rows(); j++) {
+                    std::ostringstream pml_ss;
+                    pml_ss << domain->id << dir_strings.at(i);
+                    if (vacant_range.rows() > 1) {
+                        pml_ss << "_" << j;
+                    }
+                    std::string pml_id = pml_ss.str();
+                    float alpha = domain->edge_param_map[direction].alpha;
+                    float pml_alpha = std::max(alpha, EPSILON);
+                    int x_offset, y_offset, z_offset;
+                    int x_size, y_size, z_size;
+                    switch (direction) {
+                        case Direction::LEFT:
+                            x_offset = -number_of_cells;
+                            y_offset = vacant_range(j, 0) - domain->top_left->y;
+                            x_size = number_of_cells;
+                            y_size = vacant_range(j, 1) - vacant_range(j, 0);
+                            break;
+                        case Direction::RIGHT:
+                            x_offset = domain->size->x;
+                            y_offset = vacant_range(j, 0) - domain->top_left->y;
+                            x_size = number_of_cells;
+                            y_size = vacant_range(j, 1) - vacant_range(j, 0);
+                            break;
+                        case Direction::TOP:
+                            x_offset = vacant_range(j, 0) - domain->top_left->x;
+                            y_offset = domain->size->y;
+                            x_size = vacant_range(j, 1) - vacant_range(j, 0);
+                            y_size = number_of_cells;
+                            break;
+                        case Direction::BOTTOM:
+                            x_offset = vacant_range(j, 0) - domain->top_left->x;
+                            y_offset = -number_of_cells;
+                            x_size = vacant_range(j, 1) - vacant_range(j, 0);
+                            y_size = number_of_cells;
+                            break;
+                    }
+                    Point pml_offset(x_offset, y_offset);
+                    std::shared_ptr<Point> pml_top_left = std::make_shared<Point>(pml_offset + *domain->top_left);
+                    Point pml_size(x_size, y_size);
+                    std::shared_ptr<Point> pml_size_pointer = std::make_shared<Point>(pml_size);
+                    //We only add secondary PML domains for primary PML domains that fully cover their air domain.
+                    //If primary PML domain does not, it's set to locally reacting.
+                    CalcDirection calcDirection = direction_to_calc_direction(direction);
+                    bool full_overlap = false;
+                    switch (calcDirection) {
+                        case CalcDirection::X:
+                            full_overlap = (vacant_range(j, 0) == domain->top_left->y &&
+                                            vacant_range(j, 1) == domain->bottom_right->y);
+                            break;
+                        case CalcDirection::Y:
+                            full_overlap = (vacant_range(j, 0) == domain->top_left->x &&
+                                            vacant_range(j, 1) == domain->bottom_right->x);
+                            break;
+                    }
+
+                    std::shared_ptr<Domain> pml_domain_ptr(
+                            new Domain(this->settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer, true,
+                                       domain->wnd, this->default_edge_parameters, domain));
+                    first_order_pmls.push_back(pml_domain_ptr);
+                    if (!full_overlap) {
+                        pml_domain_ptr->local = true;
+                    }
+                    if (alpha > 0 and full_overlap) {
+                        std::vector<unsigned long> second_dir_its;
+                        unsigned long dir_1 = ((i) + 1) % 4;
+                        unsigned long dir_2 = ((i) + 3) % 4;
+                        second_dir_its.push_back(dir_1);
+                        second_dir_its.push_back(dir_2);
+                        for (unsigned long second_dir_it: second_dir_its) {
+                            Direction second_dir = directions.at(second_dir_it);
+                            std::stringstream second_pml_id_ss;
+                            second_pml_id_ss << domain->id << "_" << dir_strings.at(second_dir_it);
+                            std::string second_pml_id = second_pml_id_ss.str();
+                            float other_pml_alpha = domain->edge_param_map[second_dir].alpha;
+                            /* TK: An attempt to prevent refraction on the secondary PML corner.
+                             * This is especially effective in the case of a fully absorbent domain
+                             * connecting to a fully reflective edge.
+                             * For arbitrary combinations, this is an approximation
+                             */
+                            float second_pml_alpha = std::min(std::max(EPSILON, other_pml_alpha),
+                                                              std::max(EPSILON, pml_alpha));
+                            //Todo: This expression can be shortened.
+                            int sec_x_offset, sec_y_offset, sec_z_offset;
+
+                            switch (second_dir) {
+                                case Direction::LEFT:
+                                    sec_x_offset = -number_of_cells;
+                                    sec_y_offset = 0;
+                                    break;
+                                case Direction::RIGHT:
+                                    sec_x_offset = pml_domain_ptr->size->x;
+                                    sec_y_offset = 0;
+                                    break;
+                                case Direction::TOP:
+                                    sec_x_offset = 0;
+                                    sec_y_offset = -number_of_cells;
+                                    break;
+                                case Direction::BOTTOM:
+                                    sec_x_offset = 0;
+                                    sec_y_offset = pml_domain_ptr->size->y;
+                                    break;
+                            }
+
+                            std::shared_ptr<Point> sec_pml_offset(new Point(sec_x_offset, sec_y_offset));
+                            std::shared_ptr<Point> sec_pml_size(new Point(number_of_cells, number_of_cells));
+                            std::shared_ptr<Domain> sec_pml_domain(
+                                    new Domain(this->settings, second_pml_id, second_pml_alpha, sec_pml_offset,
+                                               sec_pml_size, true, domain->wnd, this->default_edge_parameters,
+                                               pml_domain_ptr));
+                            second_order_pml_map[sec_pml_domain] = second_dir;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (std::shared_ptr<Domain> domain:first_order_pmls) {
+            this->add_domain(domain);
+        }
+
+        //Collect the domains with the same top and size.
+        std::map<std::vector<int>, std::vector<std::shared_ptr<Domain>>> domains_by_cornerpoints;
+
+        for (auto &entry: second_order_pml_map) {
+            std::shared_ptr<Domain> parent_domain = entry.first->pml_for_domain_list.at(0);
+            Direction second_dir = entry.second;
+            if (parent_domain->get_neighbours_at(second_dir).empty()) {
+                continue;
+            }
+            auto corner_points = get_corner_points(entry.first);
+            domains_by_cornerpoints[corner_points].push_back(entry.first);
+
+        }
+        std::vector<std::shared_ptr<Domain>> second_order_pml_list;
+        for (auto &entry: domains_by_cornerpoints) { //Todo: When & and when not?
+            if (entry.second.size() == 1) {
+                for (auto sec_pml_domain:entry.second) {
+                    second_order_pml_list.push_back(sec_pml_domain);
+                }
+                continue;
+            }
+            std::vector<unsigned long> processed_domain_indices;
+            for (unsigned long i = 0; i < entry.second.size(); i++) {
+                for (unsigned long j = i + 1; j < entry.second.size(); j++) {
+                    std::shared_ptr<Domain> domain_i = entry.second.at(i);
+                    std::shared_ptr<Domain> domain_j = entry.second.at(j);
+                    bool processed_i =
+                            std::find(entry.second.begin(), entry.second.end(), domain_i) != entry.second.end();
+                    bool processed_j =
+                            std::find(entry.second.begin(), entry.second.end(), domain_j) != entry.second.end();
+                    if (processed_i or processed_j) {
+                        continue;
+                    }
+                    if (should_merge_domains(domain_i, domain_j)) {
+                        processed_domain_indices.push_back(i);
+                        processed_domain_indices.push_back(j);
+                        domain_i->id = domain_i->id + domain_j->id; // Todo: Find better naming algorithm.
+                        for (auto pml_for_domain: domain_j->pml_for_domain_list) {
+                            domain_i->pml_for_domain_list.push_back(pml_for_domain);
+                        }
+                        second_order_pml_list.push_back(domain_i);
+                    }
+                }
+            }
+            for (unsigned long i = 0; i < entry.second.size(); i++) {
+                if (std::find(processed_domain_indices.begin(), processed_domain_indices.end(), i) !=
+                    processed_domain_indices.end()) {
+                    second_order_pml_list.push_back(entry.second.at(i));
+                }
+            }
+        }
+        for (auto sec_order_pml_domain: second_order_pml_list) {
+            this->domain_list.push_back(sec_order_pml_domain);
+        }
+    }
+
+
+    std::vector<int> Scene::get_corner_points(std::shared_ptr<Domain> domain) {
+        std::vector<int> corner_points;
+        corner_points.push_back(domain->top_left->x);
+        corner_points.push_back(domain->top_left->y);
+        corner_points.push_back(domain->bottom_right->x);
+        corner_points.push_back(domain->bottom_right->y);
+        return corner_points;
+    }
+
+
+    bool Scene::should_merge_domains(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2) {
+        std::shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(domain1);
+        std::shared_ptr<Domain> parent_domain2 = get_singular_parent_domain(domain2);
+        return (domain1 != nullptr && domain1->id == domain2->id);
+    }
+
+    std::shared_ptr<Domain> Scene::get_singular_parent_domain(std::shared_ptr<Domain> domain) {
+        if (domain != nullptr) {
+            if (domain->is_pml && domain->pml_for_domain_list.size() == 1) {
+                return domain->pml_for_domain_list.at(0);
+            }
+        }
+        return nullptr;
+    }
+
+
+    void Scene::add_receiver(const float x, const float y, const float z) {
+        std::vector<float> grid_like_location = {x, y, z};
+        std::shared_ptr<Domain> container(nullptr);
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
+            std::shared_ptr<Domain> domain = this->domain_list.at(i);
+            if (domain->is_pml && domain->contains_location(grid_like_location)) {
+                container = domain;
+            }
+        }
+        assert(container != nullptr);
+        int id = (int) (receiver_list.size() + 1);
+        std::shared_ptr<Receiver> receiver(new Receiver(grid_like_location, this->settings, id, container));
+        this->receiver_list.push_back(receiver);
+    }
+
+    void Scene::add_speaker(const float x, const float y, const float z) {
+        // Do not really need to be on the heap. Doing it now for consistency with Receiver.
+        std::vector<float> grid_like_location = {x, y, z};
+        std::shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
+            speaker->addDomainContribution(this->domain_list.at(i));
+        }
+        this->speaker_list.push_back(speaker);
+    }
+
+    void Scene::compute_rho_arrays() {
+        for (auto domain:this->domain_list) {
+            domain->compute_rho_arrays();
+        }
+    }
+
+    void Scene::compute_pml_matrices() {
+        for (auto domain:this->domain_list) {
+            if (domain->is_pml) {
+                domain->compute_pml_matrices();
+            }
+        }
+    }
+
+    void Scene::apply_pml_matrices() {
+        for (auto domain:this->domain_list) {
+            if (domain->is_pml) {
+                domain->apply_pml_matrices();
+            }
+        }
     }
 
     void Scene::add_domain(std::shared_ptr<Domain> domain) {
-        for (int i = 0; i < this->domain_list.size(); i++) {
-            std::shared_ptr<Domain> other_domain = domain_list.at(
-                    i); // Todo: Gives parameter type mismatch error; important?
-            if (domain->is_sec_pml && other_domain->is_sec_pml) {
+        Point new_top_left(std::min(this->top_left->x, domain->top_left->x),
+                           std::min(this->top_left->y, domain->top_left->y));
+        this->top_left = std::make_shared<Point>(new_top_left); // Todo: Allowed? Is the old Point deleted now?
+        Point new_bottom_right(std::min(this->bottom_right->x, domain->bottom_right->x),
+                               std::min(this->bottom_right->y, domain->bottom_right->y));
+        this->bottom_right = std::make_shared<Point>(new_bottom_right);
+        Point new_size(this->bottom_right->x - this->top_left->x, this->bottom_right->y, domain->bottom_right->y);
+        this->size = std::make_shared<Point>(new_size);
+        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
+            std::shared_ptr<Domain> other_domain = this->domain_list.at(i);
+            if (domain->is_secondary_pml && other_domain->is_secondary_pml) {
                 // Cannot interact, since no secondary PML domains are adjacent
                 continue;
-            } else if (domain->is_sec_pml && !other_domain->is_pml) {
+            } else if (domain->is_secondary_pml && !other_domain->is_pml) {
                 // Cannot interact, since a regular domain does not touch a secondary PML domain
                 continue;
-            } else if (other_domain->is_sec_pml && !domain->is_pml) {
+            } else if (other_domain->is_secondary_pml && !domain->is_pml) {
                 // Cannot interact, since a regular domain does not touch a secondary PML domain
                 continue;
             }
             if (domain->is_pml && other_domain->is_pml) {
                 bool pml_for_domain = other_domain->is_pml_for(domain);
                 bool pml_for_other_domain = domain->is_pml_for(other_domain);
-                if ((domain->is_sec_pml && pml_for_other_domain) || (other_domain->is_sec_pml && pml_for_domain)) {
+                if ((domain->is_secondary_pml && pml_for_other_domain) ||
+                    (other_domain->is_secondary_pml && pml_for_domain)) {
                     // Important case: Domain is pml for second domain. Pass
                 } else if (other_domain->pml_for_domain_list.size() != 1 || domain->pml_for_domain_list.size() != 1) {
-                    // One is PML for multiple domains. Continue? Todo...
+                    // One is PML for multiple domains. Continue? Todo: check algorithm
                     continue;
                 } else if (!other_domain->pml_for_domain_list.at(0)->is_neighbour_of(
                         domain->pml_for_domain_list.at(0))) {
-                    //Todo: Why just check the first one?
                     continue;
                 }
                 else if (!domain->pml_for_domain_list.at(0)->is_neighbour_of(other_domain->pml_for_domain_list.at(0))) {
                     //Same
                     continue;
                 }
-                if (domain->is_sec_pml != other_domain->is_sec_pml) {
+                if (domain->is_secondary_pml != other_domain->is_secondary_pml) {
                     //
                     continue;
                 }
             }
-            BoundaryType bt;
+            CalcDirection bt;
             Direction orientation;
             std::vector<int> intersection;
             bool is_neighbour = true;
             if (domain->bottom_right->x == other_domain->top_left->x) {
                 orientation = Direction::RIGHT;
-                bt = BoundaryType::VERTICAL;
+                bt = CalcDirection::Y;
             } else if (domain->top_left->x == other_domain->bottom_right->x) {
                 orientation = Direction::LEFT;
-                bt = BoundaryType::VERTICAL;
+                bt = CalcDirection::Y;
             } else if (domain->bottom_right->y == other_domain->top_left->y) {
                 orientation = Direction::BOTTOM;
-                bt = BoundaryType::HORIZONTAL;
+                bt = CalcDirection::X;
             } else if (domain->top_left->y == other_domain->bottom_right->y) {
                 orientation = Direction::TOP;
-                bt = BoundaryType::HORIZONTAL;
+                bt = CalcDirection::X;
             } else {
                 is_neighbour = false;
             }
@@ -109,37 +381,34 @@ namespace Kernel {
         this->domain_list.push_back(domain);
     }
 
+    Eigen::ArrayXXf Scene::get_pressure_field() {
+        return get_field('p');
+    }
 
-    void Scene::add_receiver(const float x, const float y, const float z) {
-        std::vector<float> grid_like_location = {x, y, z};
-        std::shared_ptr<Domain> container(nullptr);
-        for (int i = 0; i < this->domain_list.size(); i++) {
-            std::shared_ptr<Domain> domain = this->domain_list.at(i);
-            if (domain->is_pml && domain->contains_location(grid_like_location)) {
-                container = domain;
+    Eigen::ArrayXXf Scene::get_field(char field_type) {
+        Eigen::ArrayXXf field(this->size->x, this->size->y);
+        for (auto domain:this->domain_list) {
+            Point offset = *domain->top_left - *this->top_left;
+            switch (field_type) {
+                case 'p':
+                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += domain->current_values->p0;
+                    break;
+                default:
+                    //No other fields are required (yet). However, leaving open for extension.
+                    break;
             }
         }
-        assert(container != nullptr);
-        int id = receiver_list.size() + 1;
-        std::shared_ptr<Receiver> receiver(new Receiver(grid_like_location, this->settings, id, container));
-        this->receiver_list.push_back(receiver);
+        return field;
     }
 
-    void Scene::add_speaker(const float x, const float y, const float z) {
-        // Do not really need to be on the heap. Doing it now for consistency with Receiver.
-        std::vector<float> grid_like_location = {x, y, z};
-        std::shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
-        for (int i = 0; i < this->domain_list.size(); i++) {
-            speaker->addDomainContribution(this->domain_list.at(i));
+    std::shared_ptr<Domain> Scene::get_domain(std::string id) {
+        std::shared_ptr<Domain> correct_domain;
+        for (auto domain:this->domain_list) {
+            if (domain->id == id) {
+                assert(correct_domain == nullptr);
+                correct_domain = domain;
+            }
         }
-        this->speaker_list.push_back(speaker);
+        return correct_domain;
     }
-
-    void Scene::compute_rho_matrices() {
-        for (int i = 0; i < this->domain_list.size(); i++) {
-            this->domain_list.at(i)->calc_rho_matrices();
-        }
-    }
-
-
 }

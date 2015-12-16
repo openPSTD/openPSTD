@@ -30,7 +30,7 @@
 using namespace Kernel;
 
 WaveNumberDiscretizer::WaveNumberDiscretizer() {
-
+    //I believe this does not need any init
 }
 
 WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(float dx, int N) {
@@ -47,13 +47,13 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(
 
 
 WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(float dx, int N) {
-    float max_wave_number = M_PI / dx;
-    int two_power = pow(2, N - 1);
+    float max_wave_number = (float) M_PI / dx;
+    int two_power = (int) pow(2, N - 1); // Maybe shifting bytes is faster?
     float dka = max_wave_number / two_power;
     Discretization discr;
     float wave = 0;
-    int wave_number_amount1 = ceil(max_wave_number / dka);
-    int wave_number_amount2 = ceil((max_wave_number - dka) / dka);
+    int wave_number_amount1 = (int) ceil(max_wave_number / dka);
+    int wave_number_amount2 = (int) ceil((max_wave_number - dka) / dka);
     Eigen::ArrayXcf wave_number_array(wave_number_amount1 + wave_number_amount2);
     while (wave < max_wave_number + dka) {
         wave_number_array << wave;

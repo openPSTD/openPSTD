@@ -31,21 +31,25 @@
 
 void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int frame)
 {
-    if(status == CALLBACKSTATUS_ERROR)
+    if (status == CALLBACKSTATUS::ERROR)
     {
         std::cerr << "Error encountered while running OpenPSTD:" << std::endl;
         std::cerr << message << std::endl;
     }
-    else if(status == CALLBACKSTATUS_STARTING)
+    else if (status == CALLBACKSTATUS::STARTING)
     {
         std::cout << message << std::endl;
     }
-    else if(status == CALLBACKSTATUS_RUNNING)
+    else if (status == CALLBACKSTATUS::RUNNING)
     {
         std::cout << message << std::endl;
     }
-    else if(status == CALLBACKSTATUS_SUCCES)
+    else if (status == CALLBACKSTATUS::FINISHED)
     {
         std::cout << message << std::endl;
     }
+}
+
+void ConsoleOutput::WriteFrame(int frame, std::string domain, PSTD_FRAME data) {
+
 }

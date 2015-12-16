@@ -32,9 +32,10 @@
 #ifndef OPENPSTD_KERNELSCENE_H
 #define OPENPSTD_KERNELSCENE_H
 
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
 #include <map>
 #include <string>
+#include <sstream>
 #include "kernel_functions.h"
 #include "Domain.h"
 #include "Geometry.h"
@@ -49,14 +50,20 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> domain_list;
         std::shared_ptr<PSTDFileConfiguration> config;
         std::shared_ptr<PSTDFileSettings> settings; // Derived from config
+        std::shared_ptr<Point> top_left;
+        std::shared_ptr<Point> bottom_right;
+        std::shared_ptr<Point> size;
 
         std::vector<std::shared_ptr<Boundary>> boundary_list;
         std::vector<std::shared_ptr<Receiver>> receiver_list;
         std::vector<std::shared_ptr<Speaker>> speaker_list;
+    private:
+        std::map<Direction, edge_parameters> default_edge_parameters; // Uninitialized
+    public:
 
         /**
          * Constructor of Scene object
-         * @param cnf class containing configuration files
+         * @param config: pointer to configuration settings
          */
         Scene(std::shared_ptr<PSTDFileConfiguration> config);
 
@@ -84,21 +91,70 @@ namespace Kernel {
 
         /**
          * Add domain to the scene. Checks for every other domain
-         * whether they share a boundary or whether more PML domains have to be added(?).
-         * @param domain: unprocessed domain object.
+         * whether they share a boundary and processes pml domains correctly
+         * @param domain: pointer to domain object to be added.
          */
         void add_domain(std::shared_ptr<Domain> domain);
 
-        void compute_rho_matrices();
+        /**
+         * Computes the reflection and transmission coordinates for each domain in the scene.
+         */
+        void compute_rho_arrays();
 
+        /**
+         * Computes the perfectly matched layer matrix coefficients for each domain in the scene.
+         */
         void compute_pml_matrices();
 
         /**
-         * Add the necessary perfectly matched layer domain to the current scene.
+         * Add the necessary perfectly matched layer domain to the current scene,
+         * checks which layers belong to which domains, and checks which layers can be merged.
          */
         void add_pml_domains();
 
+        /**
+         * Applies the layer coefficients for each domain in the scene.
+         */
         void apply_pml_matrices();
+
+        /**
+         * Obtains the global pressure field by summing the pressure in each domain.
+         * @return: Array with pressure values
+         */
+        Eigen::ArrayXXf get_pressure_field();
+
+        /**
+         * Fetch a domain with specified ID, if existing.
+         * @param id: string ID of domain.
+         * @return: domain pointer if domain with id exists, else nullptr.
+         */
+        std::shared_ptr<Domain> get_domain(std::string id);
+
+    private:
+
+        /**
+         * General field obtainer function, extensible if necessary
+         */
+        Eigen::ArrayXXf get_field(char field_type);
+
+        /**
+         * Helper function for add_pml_domains.
+         * Collects the topleft and bottom right points of a domain.
+         */
+        std::vector<int> get_corner_points(std::shared_ptr<Domain> domain);
+
+        /**
+         * Helper function for add_pml_domains
+         * Checks if two pml domains can (and should) be merged.
+         */
+
+        bool should_merge_domains(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
+
+        /**
+         * Helper function for add_pml_domains
+         * Finds the common parent of two pml domains.
+         */
+        std::shared_ptr<Domain> get_singular_parent_domain(std::shared_ptr<Domain> domain);
     };
 }
 

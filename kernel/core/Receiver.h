@@ -57,16 +57,26 @@ namespace Kernel {
         const float y;
         const float z;
         int id;
-        enum InterpolationType {
-            NearestNeighbour, SpectralInterpolation
-        };
+        /**
+         * Unrounded (grid) location
+         */
         std::vector<float> location;
-        std::shared_ptr<PSTDFileSettings> config;
-        std::shared_ptr<Point> grid_location; //Todo (0mar): Should this be rounded down or rather rounded off?
+
+        /**
+         * Integer grid location. <=> Cell containing the receiver.
+         */
+        std::shared_ptr<Point> grid_location;
+
+        /**
+         * Distance from the receiver to the top left of the cell
+         */
         std::vector<float> grid_offset;
+
+        std::shared_ptr<PSTDFileSettings> config;
+
         std::shared_ptr<Domain> container_domain;
         std::vector<float> received_values;
-
+        //Todo: Feature: If location sufficiently close to cell center, always compute with nn
         /**
          * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
          * @param location float coordinates in 3D grid space. For 2D, leave z=0
@@ -90,7 +100,7 @@ namespace Kernel {
         /**
          * Computes the fft_factors along the provided boundary
          */
-        std::shared_ptr<Eigen::ArrayXcf> get_fft_factors(Point size, BoundaryType bt);
+        std::shared_ptr<Eigen::ArrayXcf> get_fft_factors(Point size, CalcDirection bt);
 
         /**
          * Computes the pressure from the nearest neighbour
@@ -104,7 +114,10 @@ namespace Kernel {
          */
         float compute_with_si();
 
-        std::shared_ptr<Eigen::ArrayXXf> calc_domain_fields(std::shared_ptr<Domain> container, BoundaryType bt);
+        /**
+         * Compute the pressure for the receiver.
+         */
+        std::shared_ptr<Eigen::ArrayXXf> calc_domain_fields(std::shared_ptr<Domain> container, CalcDirection bt);
 
     };
 
