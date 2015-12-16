@@ -31,7 +31,7 @@ namespace Kernel {
 
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
 
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
@@ -39,7 +39,7 @@ namespace Kernel {
 
     Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                    std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
         std::shared_ptr<Point> top_left(new Point(top_left_vector.at(0), top_left_vector.at(1)));
         std::shared_ptr<Point> size;
@@ -49,11 +49,11 @@ namespace Kernel {
     void Domain::initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                                    std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                                    std::shared_ptr<WaveNumberDiscretizer> wnd,
-                                   std::map<Direction, edge_parameters> edge_param_map,
+                                   std::map<Direction, EdgeParameters> edge_param_map,
                                    const std::shared_ptr<Domain> pml_for_domain) {
         this->settings = settings;
         this->top_left = top_left;
-        this->size = size;
+        this->size = size; // Remember PML domains have a fixed size.
         this->bottom_right = std::make_shared<Point>(*top_left + *size);
         this->wnd = wnd;
         this->id = id;
@@ -569,7 +569,7 @@ namespace Kernel {
     void Domain::clear_fields() {
         this->current_values->p0 = *this->extended_zeros(0, 0);
         this->current_values->px0 = *this->extended_zeros(0, 0);
-        this->current_values->pz0 = *this->extended_zeros(0, 0);
+        this->current_values->py0 = *this->extended_zeros(0, 0);
         this->current_values->u0 = *this->extended_zeros(0, 1);
         this->current_values->w0 = *this->extended_zeros(1, 0);
 
@@ -617,7 +617,34 @@ namespace Kernel {
             this->has_vertical_attenuation = all_air_left or all_air_right;
             this->needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
             if (this->is_secondary_pml and this->is_corner_domain) {
-                //todo: Finish. Probably make pmls in same structure as field values.
+                // TK: PML is the product of horizontal and vertical attenuation.
+                create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
+                                         *this->pml_arrays.px, *this->pml_arrays.u);
+                create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
+                                         *this->pml_arrays.py, *this->pml_arrays.u);
+            } else {
+                CalcDirection calc_dir = CalcDirection::Y;
+                if (has_vertical_attenuation) {
+                    calc_dir = CalcDirection::X;
+                }
+                Eigen::ArrayXXf no_attenuation = Eigen::ArrayXXf::Ones(this->pml_arrays.px->rows(),
+                                                                       this->pml_arrays.px->cols()); //could be nicer
+                switch (calc_dir) {
+                    case CalcDirection::X:
+                        create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),
+                                                 *this->pml_arrays.px, *this->pml_arrays.u);
+
+                        this->pml_arrays.py = std::make_shared<Eigen::ArrayXXf>(no_attenuation);//Change if unique
+                        this->pml_arrays.v = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
+                        break;
+                    case CalcDirection::Y:
+                        create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),
+                                                 *this->pml_arrays.py, *this->pml_arrays.v);
+                        this->pml_arrays.px = std::make_shared<Eigen::ArrayXXf>(no_attenuation);//Change if unique
+                        this->pml_arrays.u = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
+                        break;
+                }
+                create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),);
             }
         }
     }
@@ -665,15 +692,16 @@ namespace Kernel {
         auto alpha_pml_velocity =
                 settings->GetDensityOfAir() * settings->GetAttenuationOfPMLCells() * velocity_range.pow(4);
         //Todo: This looks wrong to me. I think the multiplication with rho is a bug.
-        Eigen::VectorXf pressure_pml_factors = (-alpha_pml_pressure / settings->GetDensityOfAir() *
-                                                settings->GetTimeStep()).exp();
-        Eigen::VectorXf velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
+        auto pressure_pml_factors = (-alpha_pml_pressure / settings->GetDensityOfAir() *
+                                     settings->GetTimeStep()).exp();
+        auto velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
         if (!ascending) {
+            //Reverse if the attenuation takes place in the other direction
             pressure_pml_factors.reverseInPlace();
             velocity_pml_factors.reverseInPlace();
         }
-        Eigen::ArrayXXf attenuation;
         switch (calc_dir) {
+            //Replicate matrices to size of domain
             case CalcDirection::X:
                 pml_pressure = pressure_pml_factors.transpose().replicate(1, this->size->x);
                 pml_velocity = velocity_pml_factors.transpose().replicate(1, this->size->x);

@@ -126,7 +126,7 @@ private:
     /**
      * Translate edge parameters from the GUI to the simulation format.
      */
-    std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
+    std::map<Kernel::Direction, Kernel::EdgeParameters> translate_edge_parameters(Domain domain);
 
 public:
     /**

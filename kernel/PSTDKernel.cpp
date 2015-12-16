@@ -62,7 +62,7 @@ void PSTDKernel::add_domains() {
         std::vector<float> s = scale_to_grid(domain.Size);
         std::shared_ptr<Kernel::Point> grid_top_left = std::make_shared<Kernel::Point>((int) tl.at(0), (int) tl.at(1));
         std::shared_ptr<Kernel::Point> grid_size = std::make_shared<Kernel::Point>((int) s.at(0), (int) s.at(1));
-        std::map<Kernel::Direction, Kernel::edge_parameters> edge_param_map = translate_edge_parameters(domain);
+        std::map<Kernel::Direction, Kernel::EdgeParameters> edge_param_map = translate_edge_parameters(domain);
         std::string domain_id = "Domain" + std::to_string(domain_id_int);
         std::shared_ptr<Kernel::Domain> domain_ptr(
                 new Kernel::Domain(this->settings, domain_id, default_alpha, grid_top_left,
@@ -123,8 +123,9 @@ std::vector<float> PSTDKernel::scale_to_grid(QVector3D world_vector) {
     QVector3D scaled_vector = world_vector / this->settings->GetGridSpacing();
     return std::vector<float>{scaled_vector[0], scaled_vector[1]};
 }
-std::map<Kernel::Direction, Kernel::edge_parameters> PSTDKernel::translate_edge_parameters(Domain domain) {
-    std::map<Kernel::Direction, Kernel::edge_parameters> edge_parameters;
+
+std::map<Kernel::Direction, Kernel::EdgeParameters> PSTDKernel::translate_edge_parameters(Domain domain) {
+    std::map<Kernel::Direction, Kernel::EdgeParameters> edge_parameters;
     edge_parameters[Kernel::Direction::LEFT] = {domain.L.LR, domain.L.Absorption};
     edge_parameters[Kernel::Direction::RIGHT] = {domain.R.LR, domain.R.Absorption};
     edge_parameters[Kernel::Direction::BOTTOM] = {domain.B.LR, domain.B.Absorption};

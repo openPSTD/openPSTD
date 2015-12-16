@@ -29,7 +29,7 @@ namespace Kernel {
         float rel_x = this->x - domain_width;
         float rel_y = this->y - domain_height;
         float rel_z = this->z - domain_depth;
-        std::shared_ptr<field_values> values = domain->current_values;
+        std::shared_ptr<FieldValues> values = domain->current_values;
         assert(values->p0.rows() == domain_width);
         assert(values->p0.cols() == domain_height);
         for (int i = 0; i < domain_width; i++) {

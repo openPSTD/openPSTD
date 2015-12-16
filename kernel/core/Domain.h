@@ -49,15 +49,15 @@
 namespace Kernel {
 
 
-    struct field_values {
-        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a float class
+    struct FieldValues {
+        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a double class
         Eigen::ArrayXXf w0;
         Eigen::ArrayXXf p0;
         Eigen::ArrayXXf px0;
-        Eigen::ArrayXXf pz0;
+        Eigen::ArrayXXf py0;
     };
 
-    struct field_L_values { // Todo (0mar): What are these for?
+    struct FieldLValues { // Todo (0mar): What are these for?
         std::shared_ptr<Eigen::ArrayXXf> Lpx;
         std::shared_ptr<Eigen::ArrayXXf> Lpy;
         std::shared_ptr<Eigen::ArrayXXf> Lvx;
@@ -65,7 +65,14 @@ namespace Kernel {
 
     };
 
-    struct edge_parameters {
+    struct PMLArrays { // Todo: Change to unique pointers.
+        std::shared_ptr<Eigen::ArrayXXf> px;
+        std::shared_ptr<Eigen::ArrayXXf> py;
+        std::shared_ptr<Eigen::ArrayXXf> u;
+        std::shared_ptr<Eigen::ArrayXXf> v;
+    };
+
+    struct EdgeParameters {
         bool locally_reacting;
         float alpha; //Better name
     };
@@ -80,7 +87,7 @@ namespace Kernel {
         float alpha;
         float impedance;
         float rho;
-        std::map<Direction, edge_parameters> edge_param_map;
+        std::map<Direction, EdgeParameters> edge_param_map;
         std::map<std::string, RhoArray> rho_arrays;
         std::map<CalcDirection, bool> should_update;
         std::shared_ptr<Point> top_left;
@@ -88,9 +95,9 @@ namespace Kernel {
         std::shared_ptr<Point> size;
         bool is_pml;
         bool local;
-        std::shared_ptr<field_values> current_values;
-        std::shared_ptr<field_values> previous_values;
-        std::shared_ptr<field_L_values> l_values;
+        std::shared_ptr<FieldValues> current_values;
+        std::shared_ptr<FieldValues> previous_values;
+        std::shared_ptr<FieldLValues> l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
@@ -104,6 +111,7 @@ namespace Kernel {
         int num_pml_neighbour_domains;
         bool has_vertical_attenuation, is_corner_domain;
         std::vector<bool> needs_reversed_attenuation;
+        PMLArrays pml_arrays;
     public:
 
         /**
@@ -125,7 +133,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -134,7 +142,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -275,7 +283,7 @@ namespace Kernel {
         void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                                std::shared_ptr<WaveNumberDiscretizer> wnd,
-                               std::map<Direction, edge_parameters> edge_param_map,
+                               std::map<Direction, EdgeParameters> edge_param_map,
                                const std::shared_ptr<Domain> pml_for_domain);
         void clear_fields();
 

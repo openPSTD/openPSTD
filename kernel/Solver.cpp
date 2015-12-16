@@ -82,7 +82,7 @@ namespace Kernel {
                     }
                 }
                 for (auto domain:this->scene->domain_list) {
-                    domain->current_values->p0 = domain->current_values->px0 + domain->current_values->pz0;
+                    domain->current_values->p0 = domain->current_values->px0 + domain->current_values->py0;
                     // I think this is bugged. @see Speaker::add_domain_contribution().
                     if (frame % this->settings->GetSaveNth() == 0) {
                         this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
@@ -111,7 +111,7 @@ namespace Kernel {
         domain->current_values->px0 = domain->previous_values->px0 -
                                       dt * coefs.at(rk_step) *
                                       (*domain->l_values->Lvx * domain->rho * c1_square).real();
-        domain->current_values->pz0 = domain->previous_values->pz0 -
+        domain->current_values->py0 = domain->previous_values->py0 -
                                       dt * coefs.at(rk_step) *
                                       (*domain->l_values->Lvy * domain->rho * c1_square).real();
 
