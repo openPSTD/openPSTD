@@ -610,7 +610,15 @@ namespace Kernel {
              * and this neighbour is not a PML domain,
              * a PML matrix is obtained for horizontal (OR: Vertical?) attenuation.
              */
-            this->has_vertical_attenuation = (!left.empty()); // Todo: Finish
+            bool all_air_left = !left.empty() and get_num_pmls_in_direction(Direction::LEFT) == 0;
+            bool all_air_right = !right.empty() and get_num_pmls_in_direction(Direction::RIGHT) == 0;
+            bool all_air_bottom = !bottom.empty() and get_num_pmls_in_direction(Direction::BOTTOM) == 0;
+
+            this->has_vertical_attenuation = all_air_left or all_air_right;
+            this->needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
+            if (this->is_secondary_pml and this->is_corner_domain) {
+                //todo: Finish. Probably make pmls in same structure as field values.
+            }
         }
     }
 
@@ -639,9 +647,41 @@ namespace Kernel {
         return num_pml_doms;
     }
 
-    Eigen::ArrayXXf Domain::create_attenuation_array(CalcDirection calc_dir, bool ascending) {
-        Eigen::ArrayXXf attenuation(this->size->x, this->size->y);
-
-        return attenuation;
+    void Domain::create_attenuation_array(CalcDirection calc_dir, bool ascending, Eigen::ArrayXXf &pml_pressure,
+                                          Eigen::ArrayXXf &pml_velocity) {
+        /*
+         * 0mar: Most of this method only needs to be computed once for all domains.
+         * However, the computations are not that big and only executed in the initialization phase.
+         */
+        //Pressure defined in cell centers
+        auto pressure_range =
+                Eigen::VectorXf::LinSpaced(settings->GetPMLCells(), 0.5, float(settings->GetPMLCells() - 0.5)).array() /
+                settings->GetPMLCells();
+        //Velocity defined in cell edges
+        auto velocity_range =
+                Eigen::VectorXf::LinSpaced(settings->GetPMLCells() + 1, 0, float(settings->GetPMLCells())).array() /
+                settings->GetPMLCells();
+        auto alpha_pml_pressure = settings->GetAttenuationOfPMLCells() * pressure_range.pow(4);
+        auto alpha_pml_velocity =
+                settings->GetDensityOfAir() * settings->GetAttenuationOfPMLCells() * velocity_range.pow(4);
+        //Todo: This looks wrong to me. I think the multiplication with rho is a bug.
+        Eigen::VectorXf pressure_pml_factors = (-alpha_pml_pressure / settings->GetDensityOfAir() *
+                                                settings->GetTimeStep()).exp();
+        Eigen::VectorXf velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
+        if (!ascending) {
+            pressure_pml_factors.reverseInPlace();
+            velocity_pml_factors.reverseInPlace();
+        }
+        Eigen::ArrayXXf attenuation;
+        switch (calc_dir) {
+            case CalcDirection::X:
+                pml_pressure = pressure_pml_factors.transpose().replicate(1, this->size->x);
+                pml_velocity = velocity_pml_factors.transpose().replicate(1, this->size->x);
+                break;
+            case CalcDirection::Y:
+                pml_pressure = pressure_pml_factors.replicate(this->size->y, 1);
+                pml_velocity = velocity_pml_factors.replicate(this->size->y, 1);
+                break;
+        }
     }
 }

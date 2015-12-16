@@ -68,7 +68,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     Eigen::ArrayXcf complex_factor_array(2 * two_power);
     std::complex<float> i(0, 1);
     for (int j = 0; j < two_power + 1; j++) {
-        complex_factor_array.real() << 1;
+        complex_factor_array.real() << 1; // Todo: IDE complains about this
     }
     for (int j = 0; j < two_power - 1; j++) {
         complex_factor_array.imag() << -1;
@@ -78,6 +78,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     Eigen::ArrayXcf pderfact_array(complex_factor_array.rows());
     Eigen::ArrayXcf vderfact_array(complex_factor_array.rows());
     for (int j = 0; j < complex_factor_array.rows(); j++) {
+        //Todo: Eigen has a vectorized exponential operator
         pderfact_array << exp(-complex_factor_array(j) * wave_number_array(j) * dx / (float) 2.)
                           * complex_factor_array(j) * wave_number_array(j);
         vderfact_array << exp(complex_factor_array(j) * wave_number_array(j) * dx / (float) 2.)
@@ -92,3 +93,5 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
 int WaveNumberDiscretizer::match_number(int n) {
     return (int) (ceil(log2(n)));
 }
+
+

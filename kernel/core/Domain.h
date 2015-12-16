@@ -284,7 +284,8 @@ namespace Kernel {
 
         int get_num_pmls_in_direction(Direction direction);
 
-        Eigen::ArrayXXf create_attenuation_array(CalcDirection calc_dir, bool ascending);
+        void create_attenuation_array(CalcDirection calc_dir, bool ascending, Eigen::ArrayXXf &pml_pressure,
+                                      Eigen::ArrayXXf &pml_velocity);
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H
