@@ -36,7 +36,8 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
+#include <math.h>
 
 namespace Kernel {
     class Speaker {
@@ -50,14 +51,14 @@ namespace Kernel {
         const float y;
         const float z;
         std::vector<float> location;
+        Point grid_point = Point((int) x, (int) y, (int) z); // Todo: Allowed? Other init seems difficult.
+        std::vector<float> grid_offset;
 
         /*
-         * Speaker initialization with (unrounded) grid coordinates
-         * @param location: vector of grid world coordinates
+         * Speaker initialization with coordinates from scene.
+         * @param location: vector of world coordinates
          */
         Speaker(std::vector<float> location);
-
-        // ~Speaker();
 
         /*
          * Adds the initial sound pressure to the domain values.

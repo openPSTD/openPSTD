@@ -193,7 +193,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 #------------------------------------
 # Kernel
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/KernelFacade.cpp
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/PSTDKernel.cpp kernel/PSTDKernel.h
         kernel/core/kernel_functions.cpp kernel/core/Domain.cpp kernel/core/Domain.h
         kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/Scene.cpp kernel/core/Scene.h
         kernel/core/Receiver.cpp kernel/core/Receiver.h kernel/core/Boundary.cpp kernel/core/Boundary.h
@@ -234,6 +234,8 @@ add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 # link libraries
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
+
 
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})

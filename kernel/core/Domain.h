@@ -33,10 +33,13 @@
 #ifndef OPENPSTD_KERNELDOMAIN_H
 #define OPENPSTD_KERNELDOMAIN_H
 
-#include <eigen/Eigen/Dense>
+#include <Eigen/Dense>
 #include <map>
 #include <string>
+#include <set>
 #include <numeric>
+#include <algorithm>
+#include <iterator>
 #include "kernel_functions.h"
 #include "Geometry.h"
 #include "PSTDFile.h"
@@ -54,25 +57,44 @@ namespace Kernel {
         Eigen::ArrayXXf pz0;
     };
 
+    struct field_L_values { // Todo (0mar): What are these for?
+        std::shared_ptr<Eigen::ArrayXXf> Lpx;
+        std::shared_ptr<Eigen::ArrayXXf> Lpy;
+        std::shared_ptr<Eigen::ArrayXXf> Lvx;
+        std::shared_ptr<Eigen::ArrayXXf> Lvy;
+
+    };
+
+    struct edge_parameters {
+        bool locally_reacting;
+        float alpha; //Better name
+    };
+
     /**
      * A representation of one domain, as seen by the kernel.
      */
-    class Domain : std::enable_shared_from_this<Domain>{
+    class Domain : public std::enable_shared_from_this<Domain> {
     public:
         std::shared_ptr<PSTDFileSettings> settings;
-        int id;
+        std::string id;
         float alpha;
         float impedance;
         float rho;
+        std::map<Direction, edge_parameters> edge_param_map;
         std::map<std::string, RhoArray> rho_arrays;
+        std::map<CalcDirection, bool> should_update;
         std::shared_ptr<Point> top_left;
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
-        field_values current_values;
-        field_values previous_values;
+        bool is_horizontal; // Private? Todo: Implement
+        bool is_2d;         // Private? Todo: Implement
+        bool local;
+        std::shared_ptr<field_values> current_values;
+        std::shared_ptr<field_values> previous_values;
+        std::shared_ptr<field_L_values> l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
-        bool is_sec_pml;
+        bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
 
     private:
@@ -80,7 +102,16 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> right;
         std::vector<std::shared_ptr<Domain>> top;
         std::vector<std::shared_ptr<Domain>> bottom;
+        int number_of_domains; // including pml_domains;
+        int number_of_pml_domains;
     public:
+
+        /**
+         *
+         *
+         */
+
+        Domain() { };
         /**
          * Default constructor
          * @param settings: PSTD settings pointer
@@ -90,16 +121,38 @@ namespace Kernel {
          * @param size lengths of the domain edges (x,y,(z))
          * @param is_pml true if domain is pml domain
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
+         * @return: Domain object
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, const int id, const float alpha,
+        Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+               const std::shared_ptr<Domain> pml_for_domain);
+
+        /**
+         * Constructor that accepts vectors of real word coordinates instead of points.
+         * @see Domain(***)
+         */
+        Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+               std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
          * Calculates the rho matrices for all edges touching another domain
+         * "rho matrices" is the term used in the python code. In this implementation
+         * they are referred to as "rho arrays", consistent with their use.
          */
-        void calc_rho_matrices();
+        void compute_rho_arrays();
+
+        void push_values();
+
+        void clear_matrices();
+
+        void compute_pml_matrices();
+
+        void apply_pml_matrices();
+
+        int number_of_neighbours(bool count_pml);
 
         /**
          * Checks if a certain point is contained in this domain
@@ -141,7 +194,7 @@ namespace Kernel {
          * coordinates in direction bt. This exists to facilitate porting the legacy code.
          * @param bt Direction in which the range is requested
          */
-        std::vector<int> get_range(BoundaryType bt);
+        std::vector<int> get_range(CalcDirection bt);
 
         /**
          * Computes the grid points in a given direction the domain has in common with another domain.
@@ -158,7 +211,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(BoundaryType bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
+        Eigen::ArrayXXf calc(CalcDirection bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
 
         /**
          * Calculate one timestep of propagation in this domain
@@ -166,7 +219,14 @@ namespace Kernel {
          * @param ct Calculation type (pressure/velocity)
          * @see spatderp3
          */
-        void calc(BoundaryType bt, CalculationType ct);
+        void calc(CalcDirection bt, CalculationType ct);
+
+/**
+         * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
+         * @param direction: Domain side under consideration
+         * @return: 2D array each row a range start and end variable
+         */
+        Eigen::ArrayXXi get_vacant_range(Direction direction);
 
         /**
          * Method that gives the current domain initialized with zeroes, extended by the input
@@ -177,6 +237,16 @@ namespace Kernel {
          */
         std::shared_ptr<Eigen::ArrayXXf> extended_zeros(int x, int y, int z = 0);
 
+    private:
+        void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+                               std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+                               std::shared_ptr<WaveNumberDiscretizer> wnd,
+                               std::map<Direction, edge_parameters> edge_param_map,
+                               const std::shared_ptr<Domain> pml_for_domain);
+        void clear_fields();
+
+        void find_update_directions();
+        void compute_number_of_neighbours();
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

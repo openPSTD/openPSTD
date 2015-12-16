@@ -1,6 +1,29 @@
+//////////////////////////////////////////////////////////////////////////
+// This file is part of openPSTD.                                       //
+//                                                                      //
+// openPSTD is free software: you can redistribute it and/or modify     //
+// it under the terms of the GNU General Public License as published by //
+// the Free Software Foundation, either version 3 of the License, or    //
+// (at your option) any later version.                                  //
+//                                                                      //
+// openPSTD is distributed in the hope that it will be useful,          //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of       //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        //
+// GNU General Public License for more details.                         //
+//                                                                      //
+// You should have received a copy of the GNU General Public License    //
+// along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
 //
-// Created by omar on 17-9-15.
+// Date: 17-9-15
 //
+//
+// Authors: Omar Richardson
+//
+//////////////////////////////////////////////////////////////////////////
 
 #include "Receiver.h"
 
@@ -10,8 +33,8 @@ namespace Kernel {
         this->config = config;
         this->location = location;
         this->container_domain = container;
-        this->grid_location = std::make_shared<Point>(Point(this->x, this->y, this->z));
-        for (int i = 0; i < this->location.size(); i++) {
+        this->grid_location = std::make_shared<Point>(Point((int) this->x, (int) this->y, (int) this->z));
+        for (unsigned long i = 0; i < this->location.size(); i++) {
             this->grid_offset.push_back(this->location.at(i) = this->grid_location->array.at(i));
         }
         this->id = id;
@@ -28,9 +51,9 @@ namespace Kernel {
         return pressure;
     }
 
-    std::shared_ptr<Eigen::ArrayXcf> Receiver::get_fft_factors(Point size, BoundaryType bt) {
+    std::shared_ptr<Eigen::ArrayXcf> Receiver::get_fft_factors(Point size, CalcDirection bt) {
         int primary_dimension = 0;
-        if (bt == BoundaryType::HORIZONTAL) {
+        if (bt == CalcDirection::X) {
             primary_dimension = size.x;
         } else {
             primary_dimension = size.y;
@@ -40,11 +63,11 @@ namespace Kernel {
         //Pressure grid is staggered, hence + 1
         WaveNumberDiscretizer::Discretization discr = this->container_domain->wnd->get_discretization(dx,
                                                                                                       wave_length_number);
-        float offset = this->grid_offset.at(static_cast<int>(bt));
+        float offset = this->grid_offset.at(static_cast<unsigned long>(bt));
         Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
         for (int i = 0; i < discr.wave_numbers->rows(); i++) {
-            std::complex<float> wave_number = (*discr.wave_numbers.get())(i);
-            std::complex<float> complex_factor = (*discr.complex_factors.get())(i);
+            std::complex<float> wave_number = (*discr.wave_numbers)(i);
+            std::complex<float> complex_factor = (*discr.complex_factors)(i);
             fft_factors(i) = exp(offset * dx * wave_number * complex_factor);
         }
         return std::make_shared<Eigen::ArrayXcf>(fft_factors);
@@ -53,7 +76,7 @@ namespace Kernel {
     float Receiver::compute_with_nn() {
         Point rel_location =
                 *(this->grid_location) - *(this->container_domain->top_left);
-        float nn_value = this->container_domain->current_values.p0(rel_location.x, rel_location.y);
+        float nn_value = this->container_domain->current_values->p0(rel_location.x, rel_location.y);
         return nn_value;
     }
 
@@ -62,39 +85,40 @@ namespace Kernel {
         std::shared_ptr<Domain> bottom_domain = this->container_domain->get_neighbour_at(Direction::BOTTOM,
                                                                                          this->location);
         std::shared_ptr<Eigen::ArrayXXf> p0dx = this->calc_domain_fields(this->container_domain,
-                                                                             BoundaryType::HORIZONTAL);
+                                                                             CalcDirection::X);
         int rel_x_point = this->grid_location->x - this->container_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx->middleCols(rel_x_point, 1));
 
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->calc_domain_fields(top_domain, BoundaryType::HORIZONTAL);
+        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->calc_domain_fields(top_domain, CalcDirection::X);
         int top_rel_x_point = this->grid_location->x - top_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_top_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx_top->middleCols(top_rel_x_point, 1));
 
         std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom = this->calc_domain_fields(bottom_domain,
-                                                                                    BoundaryType::HORIZONTAL);
+                                                                                    CalcDirection::X);
         int bottom_rel_x_point = this->grid_location->x - bottom_domain->top_left->x;
         std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom_slice = std::make_shared<Eigen::ArrayXXf>(
                 p0dx_bottom->middleCols(bottom_rel_x_point, 1));
 
         std::shared_ptr<Eigen::ArrayXcf> z_fact = this->get_fft_factors(Point(1, this->container_domain->size->y),
-                                                       BoundaryType::VERTICAL);
+                                                       CalcDirection::Y);
         float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
         int opt_wave_number = next2Power(wave_number);
 
-        Eigen::Matrix<float, 1, 4> rho; //TODO: Needs the rho matrix
+        RhoArray rho_array = this->container_domain->rho_arrays[top_domain->id + bottom_domain->id];
 
-        Eigen::ArrayXXf p0shift = spatderp3(p0dx_slice, z_fact, this->config->GetWaveLength(),
-                                            1, opt_wave_number, rho, p0dx_bottom_slice,
-                                            p0dx_top_slice, 0, 0);
+        Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
+                                            z_fact, rho_array, config->GetWindow(), config->GetWindowSize(),
+                                            CalculationType::PRESSURE , CalcDirection::Y);
+
         int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;
         float si_value = p0shift(rel_y_point, 0);
         return si_value;
     }
 
     // Todo: Different name;
-    std::shared_ptr<Eigen::ArrayXXf> Receiver::calc_domain_fields(std::shared_ptr<Domain> domain, BoundaryType bt) {
+    std::shared_ptr<Eigen::ArrayXXf> Receiver::calc_domain_fields(std::shared_ptr<Domain> domain, CalcDirection bt) {
         Eigen::ArrayXXf domain_result = domain->calc(bt, CalculationType::PRESSURE,
                                                      this->get_fft_factors(*(domain->size), bt));
         return std::make_shared<Eigen::ArrayXXf>(domain_result);

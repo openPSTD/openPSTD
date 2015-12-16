@@ -31,7 +31,7 @@
 #include <string>
 #include <fstream>
 #include "kernel/ConsoleOutput.h"
-#include "kernel/KernelFacade.h"
+#include "kernel/PSTDKernel.h"
 
 
 namespace po = boost::program_options;
@@ -94,18 +94,13 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    KernelFacadeCallback* output = new ConsoleOutput();
-    KernelFacade* kernel = new KernelFacade();
+    KernelCallback *output = new ConsoleOutput();
+    PSTDFileConfiguration configuration = PSTDFileConfiguration();
+    PSTDKernel *kernel = new PSTDKernel(std::make_shared<PSTDFileConfiguration>(configuration));
+    std::shared_ptr<PSTDFileConfiguration> ptr = std::make_shared<PSTDFileConfiguration>(configuration);
 
-    KernelConfiguration configuration;
-    configuration.multiThreaded = vm.count("multithreaded")>0;
-    configuration.gpuAccelerated = vm.count("gpu-accelerated")>0;
-    configuration.writePlot = vm.count("write-plot")>0;
-    configuration.writeArray = vm.count("write-array")>0;
-    kernel->Configure(configuration);
 
     //kernel->Run(vm["scene-file"].as<std::string>().c_str(), output);
-    //TODO Louis: feed a normal PSTDConfig to run
 
     delete output;
     delete kernel;
