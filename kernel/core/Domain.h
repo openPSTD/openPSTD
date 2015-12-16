@@ -87,8 +87,6 @@ namespace Kernel {
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
-        bool is_horizontal; // Private? Todo: Implement
-        bool is_2d;         // Private? Todo: Implement
         bool local;
         std::shared_ptr<field_values> current_values;
         std::shared_ptr<field_values> previous_values;
@@ -102,8 +100,10 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> right;
         std::vector<std::shared_ptr<Domain>> top;
         std::vector<std::shared_ptr<Domain>> bottom;
-        int number_of_domains; // including pml_domains;
-        int number_of_pml_domains;
+        int num_neighbour_domains; // including pml_domains;
+        int num_pml_neighbour_domains;
+        bool has_vertical_attenuation, is_corner_domain;
+        std::vector<bool> needs_reversed_attenuation;
     public:
 
         /**
@@ -144,21 +144,45 @@ namespace Kernel {
          */
         void compute_rho_arrays();
 
+        /**
+         * Overrides the old values with the new values.
+         */
         void push_values();
 
+        /**
+         * Clears the matrices used in computing the field values
+         */
         void clear_matrices();
 
+        /**
+         * Computes the matrices used in attenuating the field values in the PML domains
+         */
         void compute_pml_matrices();
 
+        /**
+         * Applies the PML attenuation to the field values
+         */
         void apply_pml_matrices();
 
+        /**
+         * Returns the number of neighbours
+         * @param count_pml: Whether or not to also include PML domains in the count
+         * @return number of neighbours.
+         */
         int number_of_neighbours(bool count_pml);
 
         /**
          * Checks if a certain point is contained in this domain
+         * @param point: Grid point object
+         * @return: True if center of grid point is located in the domain, false otherwise
          */
         bool contains_point(Point point);
 
+        /**
+         * Checks if a certain (unrounded) location is contained in this domain.
+         * @param location: Coordinates on grid.
+         * @return: True if location falls within top_left and bottom_right, false otherwise.
+         */
         bool contains_location(std::vector<float> location);
 
         /**
@@ -176,14 +200,24 @@ namespace Kernel {
         std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<float> location);
 
 
+        /**
+         * Add a a neigbour to the set of neighbour domains.
+         * @param domain: Pointer to fully initialized neighbour domain
+         * @param direction: Direction in which the domain is neighboured.
+         */
         void add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction);
+
         /**
          * Method that checks if this domain is touching the input domain
          * @param d Domain to check against this domain
          */
         bool is_neighbour_of(std::shared_ptr<Domain> domain);
 
+        /**
+         * True if domain functions as a PML domain for the provided domain, false otherwise.
+         */
         bool is_pml_for(std::shared_ptr<Domain> domain);
+
         /**
          * Returns true if the domain is rigid
          */
@@ -247,6 +281,10 @@ namespace Kernel {
 
         void find_update_directions();
         void compute_number_of_neighbours();
+
+        int get_num_pmls_in_direction(Direction direction);
+
+        Eigen::ArrayXXf create_attenuation_array(CalcDirection calc_dir, bool ascending);
     };
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

@@ -371,13 +371,13 @@ namespace Kernel {
 
 
     void Domain::compute_number_of_neighbours() {
-        this->number_of_domains = 0;
-        this->number_of_pml_domains = 0;
+        this->num_neighbour_domains = 0;
+        this->num_pml_neighbour_domains = 0;
         for (Direction direction: all_directions) {
             for (auto domain: this->get_neighbours_at(direction)) {
-                this->number_of_domains++;
+                this->num_neighbour_domains++;
                 if (domain->is_pml) {
-                    this->number_of_pml_domains++;
+                    this->num_pml_neighbour_domains++;
                 }
             }
         }
@@ -385,9 +385,9 @@ namespace Kernel {
 
     int Domain::number_of_neighbours(bool count_pml) {
         if (count_pml) {
-            return number_of_domains;
+            return num_neighbour_domains;
         } else {
-            return number_of_domains - number_of_pml_domains;
+            return num_neighbour_domains - num_pml_neighbour_domains;
         }
     }
 
@@ -536,10 +536,10 @@ namespace Kernel {
         for (CalcDirection calc_dir: calc_directions) {
             bool should_update = false;
             if (this->number_of_neighbours(false) == 1 and this->is_pml) {
-                if (this->is_horizontal and calc_dir == CalcDirection::X) {
+                if (this->has_vertical_attenuation and calc_dir == CalcDirection::X) {
                     // Todo: make sure we calculate in direction orthogonal to boundary
                     should_update = true;
-                } else if (!this->is_horizontal and calc_dir == CalcDirection::Y) {
+                } else if (!this->has_vertical_attenuation and calc_dir == CalcDirection::Y) {
                     should_update = true;
                 } else if (this->local) {
                     should_update = false;
@@ -577,14 +577,48 @@ namespace Kernel {
     }
 
     void Domain::compute_pml_matrices() {
-
+        //Todo (0mar): Refactor this method? It's asymmetric and spaghetty
+        /*
+         * TK: Only calculate PML matrices for PML domains with a single non-pml neighbour
+         * or for secondary PML domains with a single PML neighbour.
+         */
+        int number_normal_neighbour_domains = num_neighbour_domains - num_pml_neighbour_domains;
+        if (this->is_secondary_pml) {
+            this->is_corner_domain = num_neighbour_domains == 2;
+            /*
+             * TK: If this domain has its neighbour to the left or to the right,
+             * a PML matrix is obtained for horizontal attenuation.
+             */
+            this->has_vertical_attenuation = !this->left.empty() or !this->right.empty();
+            if (this->is_corner_domain) {
+                /**
+                 * TK: Corner PML domains should have a horizontal as well as a vertical component.
+                 * In particular: not to neighbours in the same direction.
+                 */
+                assert(this->has_vertical_attenuation and (!this->top.empty() or !this->bottom.empty()));
+                this->needs_reversed_attenuation = std::vector<bool>(); // Init necessary?
+                this->needs_reversed_attenuation.push_back(!this->left.empty());
+                this->needs_reversed_attenuation.push_back(!this->bottom.empty());
+            } else {
+                //TK: If this neighbour is located to the left or bottom, the attenuation is reversed.
+                this->needs_reversed_attenuation.push_back(!this->left.empty() or !this->bottom.empty());
+            }
+        } else {
+            this->is_corner_domain = false;
+            /*
+             * TK: If this domain has a neighbour to the left or right
+             * and this neighbour is not a PML domain,
+             * a PML matrix is obtained for horizontal (OR: Vertical?) attenuation.
+             */
+            this->has_vertical_attenuation = (!left.empty()); // Todo: Finish
+        }
     }
 
     void Domain::apply_pml_matrices() {
         assert(this->number_of_neighbours(false) == 1 and this->is_pml or this->number_of_neighbours(true) <= 2 and
                this->is_secondary_pml);
         // The pressure and velocity matrices are multiplied by the PML values.
-        if (this->is_secondary_pml and this->is_2d) {
+        if (this->is_secondary_pml and this->is_corner_domain) {
             //Really need to do compute_pml_matrices first...
         }
     }
@@ -592,5 +626,22 @@ namespace Kernel {
 
     void Domain::push_values() {
         this->previous_values = this->current_values;
+    }
+
+
+    int Domain::get_num_pmls_in_direction(Direction direction) {
+        int num_pml_doms = 0;
+        for (auto domain: this->get_neighbours_at(direction)) {
+            if (domain->is_pml) {
+                num_pml_doms++;
+            }
+        }
+        return num_pml_doms;
+    }
+
+    Eigen::ArrayXXf Domain::create_attenuation_array(CalcDirection calc_dir, bool ascending) {
+        Eigen::ArrayXXf attenuation(this->size->x, this->size->y);
+
+        return attenuation;
     }
 }
