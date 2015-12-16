@@ -209,7 +209,7 @@ def subsample(a, n):
 
 # Check if Cuda/OpenCL is available 
 use_cuda = use_opencl = use_32bit = False
-if scene_desc['GPU']:
+if 'GPU' in scene_desc:
     if sys.version_info > (2, 8):
         exit_with_error("To use GPU acceleration, you have to set a python 2.7 path. See the openPSTD wiki for details.")
     try:
