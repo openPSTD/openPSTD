@@ -69,7 +69,7 @@ namespace Kernel {
         std::shared_ptr<Eigen::ArrayXXf> px;
         std::shared_ptr<Eigen::ArrayXXf> py;
         std::shared_ptr<Eigen::ArrayXXf> u;
-        std::shared_ptr<Eigen::ArrayXXf> v;
+        std::shared_ptr<Eigen::ArrayXXf> w;
     };
 
     struct EdgeParameters {

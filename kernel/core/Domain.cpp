@@ -635,16 +635,15 @@ namespace Kernel {
                                                  *this->pml_arrays.px, *this->pml_arrays.u);
 
                         this->pml_arrays.py = std::make_shared<Eigen::ArrayXXf>(no_attenuation);//Change if unique
-                        this->pml_arrays.v = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
+                        this->pml_arrays.w = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
                         break;
                     case CalcDirection::Y:
                         create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),
-                                                 *this->pml_arrays.py, *this->pml_arrays.v);
+                                                 *this->pml_arrays.py, *this->pml_arrays.w);
                         this->pml_arrays.px = std::make_shared<Eigen::ArrayXXf>(no_attenuation);//Change if unique
                         this->pml_arrays.u = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
                         break;
                 }
-                create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),);
             }
         }
     }
@@ -653,9 +652,10 @@ namespace Kernel {
         assert(this->number_of_neighbours(false) == 1 and this->is_pml or this->number_of_neighbours(true) <= 2 and
                this->is_secondary_pml);
         // The pressure and velocity matrices are multiplied by the PML values.
-        if (this->is_secondary_pml and this->is_corner_domain) {
-            //Really need to do compute_pml_matrices first...
-        }
+        this->current_values->px0 *= *this->pml_arrays.px;
+        this->current_values->py0 *= *this->pml_arrays.py;
+        this->current_values->u0 *= *this->pml_arrays.u;
+        this->current_values->w0 *= *this->pml_arrays.w;
     }
 
 
@@ -688,13 +688,13 @@ namespace Kernel {
         auto velocity_range =
                 Eigen::VectorXf::LinSpaced(settings->GetPMLCells() + 1, 0, float(settings->GetPMLCells())).array() /
                 settings->GetPMLCells();
-        auto alpha_pml_pressure = settings->GetAttenuationOfPMLCells() * pressure_range.pow(4);
-        auto alpha_pml_velocity =
+        Eigen::ArrayXXf alpha_pml_pressure = settings->GetAttenuationOfPMLCells() * pressure_range.pow(4);
+        Eigen::ArrayXXf alpha_pml_velocity =
                 settings->GetDensityOfAir() * settings->GetAttenuationOfPMLCells() * velocity_range.pow(4);
         //Todo: This looks wrong to me. I think the multiplication with rho is a bug.
-        auto pressure_pml_factors = (-alpha_pml_pressure / settings->GetDensityOfAir() *
-                                     settings->GetTimeStep()).exp();
-        auto velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
+        Eigen::ArrayXXf pressure_pml_factors = (-alpha_pml_pressure * settings->GetTimeStep() /
+                                                settings->GetDensityOfAir()).exp();
+        Eigen::ArrayXXf velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
         if (!ascending) {
             //Reverse if the attenuation takes place in the other direction
             pressure_pml_factors.reverseInPlace();
