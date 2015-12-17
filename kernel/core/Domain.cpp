@@ -712,4 +712,13 @@ namespace Kernel {
                 break;
         }
     }
+
+    std::ostream &operator<<(std::ostream &str, Domain const &v) {
+        std::string sort = v.id;
+        if (v.is_pml) {
+            sort += " (pml)";
+        }
+        str << sort << ", top left " << *v.top_left << ", bottom right" << *v.bottom_right;
+
+    }
 }
