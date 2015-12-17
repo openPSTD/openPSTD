@@ -118,18 +118,15 @@ namespace Kernel {
     }
 
     PSTD_FRAME_PTR Solver::get_pressure_vector() {
-
         auto aligned_pressure = std::vector<float>();
         aligned_pressure.reserve((unsigned long) this->scene->size->x * this->scene->size->y);
         auto field = this->scene->get_pressure_field();
-        //Make this a pointer.
         unsigned long row_length = (unsigned long) this->scene->size->x;
         for (unsigned long row = 0; row < field.cols(); row++) {
             aligned_pressure.insert(aligned_pressure.end(),
                                     field.data() + row * row_length,
                                     field.data() + (row + 1) * row_length);
         }
-        //return aligned_pressure;
-        return nullptr;
+        return std::make_shared<PSTD_FRAME>(aligned_pressure);
     }
 }
