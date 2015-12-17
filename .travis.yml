@@ -1,18 +1,22 @@
 language: cpp
 sudo: required
 dist: trusty
+
 os:
 - linux
 - osx
+
 env:
   global:
   - OPENPSTD_MAJOR_VERSION=2
   - OPENPSTD_MINOR_VERSION=0
+
 before_install:
 - sudo chmod -R +x build
 - export PATH=./build/:$PATH
 - export PATH=/opt/qt55/bin/:$PATH
 - install_add_repo.sh
+
 install:
 - install_boost.sh
 - install_xsltproc.sh
@@ -20,6 +24,7 @@ install:
 - install_Qt55.sh
 - install_rapidjson.sh
 - install_eigen.sh
+
 before_script:
 - uname -r
 - gcc -v
@@ -27,14 +32,10 @@ before_script:
 - cmake --help
 - cpack --version
 - cpack --help
+
 script:
 - compile.sh
 - test.sh
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: mfNKXIC0+SX94hPtbSKhqO904JJbt4UrIyjn37ai6ExHmnOJJ3T72mdoBENx+qjywBn/3qbhm3hR+AvKsp8k5QkILJLSJiNC9nQJTCZaAzfD1HeVLIH0fTDcr2SY6uLUHqSRj1i+LMJHxoQW3uWiar/yRY6DhU/3S1YpYP0Sir8K/nFMoNnwxyz8NFk+hmbIo3EWVcU5MxW5yuOx+Q4edTI+ZhR6+3karWpdEdl/AzjDAC7cPCg0fsZaDi5Rul7i6fnwqIbv2x3Ia5+48RQ7twveL0ho6vbzjSJDW6itTg8XyHs6ECG3lm/5cdOSzNh2+OMj27DDSqO+wwPpllUWYXJd1uQXWscDK44mJ4j2KO7sB/YmV4+v0D/veaI68ljfZCnAf/WOx/hlRZMdl6gmxEPKDONcLTJwY9/8vjz8l76Rm1vAFU5KqcgS3+uXbkPIJa3pA135WMWkxxNGa1s9M1B0NwibFvtD5efvUp8wKZOGtkfwEU37b6iQKh7eWSSYESR6BPr33pzcSoEiD/TvOawsq86lS4CNZtTEKyBiUs5fprKECFkVK/Z+LP4+31zhdQo1pjYgOywYngD2VOHzlIdt6fLcAmEfnj/0XPkqo1VLZG4MsH5hpMiIQVLWFxRzGGt7kl+EMHwOgp3CS3ZP1Rog8tYi3zyxzuTCrGnGvhI=
-  file: OpenPSTD-2.0.${TRAVIS_BUILD_NUMBER}-osx.dmg
-  on:
-    repo: micfort/openPSTD
+
+after_success:
+- upload_webdav.sh
