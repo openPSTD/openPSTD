@@ -35,6 +35,7 @@
 #define OPENPSTD_KERNEL_FUNCTIONS_H
 
 #include <Eigen/Dense>
+#include <complex>
 #include <fftw3.h>
 #include <iostream>
 #include <vector>
