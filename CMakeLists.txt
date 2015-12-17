@@ -34,8 +34,6 @@ project(OpenPSTD)
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
-set(UNQLITE_INCLUDE "" CACHE PATH "The include directory of unqlite")
-set(UNQLITE_LIB "" CACHE PATH "The lib of unqlite")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")
@@ -82,9 +80,6 @@ endif ()
 #------------------------------------
 # QT5
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
 #function for easy loading Qt modules
 set(Qt5_LIBS "lib")
@@ -153,16 +148,6 @@ set(RAPIDJSON_INCLUDE "${RAPIDJSON_ROOT}/include")
 message(STATUS "Rapidjson include path: ${RAPIDJSON_INCLUDE}")
 
 #------------------------------------
-# Unqlite
-get_filename_component(UNQLITE_LIB_DIR ${UNQLITE_LIB} DIRECTORY)
-
-message(STATUS "Unqlite include path: ${UNQLITE_INCLUDE}")
-message(STATUS "Unqlite lib directory: ${UNQLITE_LIB_DIR}")
-message(STATUS "Unqlite lib path: ${UNQLITE_LIB}")
-
-SET(OPENPSTD_DEPENDENCIES_SEARCH_PATH "${OPENPSTD_DEPENDENCIES_SEARCH_PATH};${UNQLITE_LIB_DIR}")
-
-#------------------------------------
 # Eigen
 message(STATUS "Eigen include path: ${EIGEN_INCLUDE}")
 
@@ -180,7 +165,7 @@ message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(${RAPIDJSON_INCLUDE})
-include_directories(${UNQLITE_INCLUDE})
+include_directories(unqlite)
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE})
 
@@ -192,24 +177,39 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 #------------------------------------
-# Kernel
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp kernel/PSTDKernel.cpp kernel/PSTDKernel.h
-        kernel/core/kernel_functions.cpp kernel/core/Domain.cpp kernel/core/Domain.h
-        kernel/core/Speaker.cpp kernel/core/Speaker.h kernel/core/Scene.cpp kernel/core/Scene.h
-        kernel/core/Receiver.cpp kernel/core/Receiver.h kernel/core/Boundary.cpp kernel/core/Boundary.h
-        kernel/Solver.cpp kernel/Solver.h
-        kernel/core/Geometry.cpp kernel/core/Geometry.h PSTDFile.h PSTDFile.cpp
-        kernel/core/wave_numbers.cpp kernel/core/wave_numbers.h InvalidationData.cpp)
-add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
+# Unqlite library
+add_library(unqlite SHARED unqlite/unqlite.c)
 
 #------------------------------------
-# UI
-# CLI source files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_CLI})
+# Kernel library
+SET(SOURCE_FILES_LIB kernel/PSTDKernel.cpp
+        kernel/core/kernel_functions.cpp kernel/core/Domain.cpp
+        kernel/core/Speaker.cpp kernel/core/Scene.cpp
+        kernel/core/Receiver.cpp kernel/core/Boundary.cpp
+        kernel/Solver.cpp
+        kernel/core/Geometry.cpp PSTDFile.cpp
+        kernel/core/wave_numbers.cpp InvalidationData.cpp)
+add_library(OpenPSTD SHARED ${SOURCE_FILES_LIB})
+
+target_link_libraries(OpenPSTD ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD unqlite)
+target_link_libraries(OpenPSTD ${Qt5_LIBRARIES})
+
+#------------------------------------
+# UI CLI
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp)
+add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
+
+target_link_libraries(OpenPSTD-cli OpenPSTD)
+target_link_libraries(OpenPSTD-cli unqlite)
+
+#------------------------------------
+# UI Graphical
 # Operations
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp operations/EditOperations.cpp)
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/ViewOperations.cpp operations/InitializationOperation.cpp)
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/MouseOperations.cpp operations/SelectionOperations.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp
+        operations/EditOperations.cpp operations/ViewOperations.cpp
+        operations/InitializationOperation.cpp operations/MouseOperations.cpp
+        operations/SelectionOperations.cpp)
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
 # OpenGL viewer
@@ -222,6 +222,18 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Resources.qrc)
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp Edges.cpp Edges.h)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
 
+# create extra Qt5 code
+set_target_properties(OpenPSTD-gui
+        PROPERTIES AUTOMOC ON
+        AUTOUIC ON
+        AUTORCC ON)
+
+target_link_libraries(OpenPSTD-gui OpenPSTD)
+target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-gui unqlite)
+target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
+
 #------------------------------------
 # Test
 # GUI source files
@@ -230,27 +242,20 @@ set(SOURCE_FILES_TEST ${SOURCE_FILES_GUI})
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} Edges-test.cpp)
 add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 
-#------------------------------------
-# link libraries
-target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
-target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
+# create extra Qt5 code
+set_target_properties(OpenPSTD-test
+        PROPERTIES AUTOMOC ON
+        AUTOUIC ON
+        AUTORCC ON)
 
-
-target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
-target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
-target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
-target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
-
+target_link_libraries(OpenPSTD-test OpenPSTD)
 target_link_libraries(OpenPSTD-test ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
-target_link_libraries(OpenPSTD-test ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-test unqlite)
 target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
 
 #------------------------------------
 # INSTALL
-
-
 if(APPLE)
     install(TARGETS OpenPSTD-gui DESTINATION .)
     #install(TARGETS OpenPSTD-cli DESTINATION .)
@@ -266,8 +271,10 @@ if(APPLE)
 	   fixup_bundle(\"${APPS}\"   \"\"   \"${OPENPSTD_DEPENDENCIES_SEARCH_PATH}\")
 	   " COMPONENT Runtime)
 elseif(WIN32)
+    install(TARGETS OpenPSTD DESTINATION OpenPSTD)
     install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
     #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
+    install(TARGETS unqlite DESTINATION OpenPSTD)
 
     install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
     install(FILES ${QtCore_location} DESTINATION OpenPSTD)
@@ -276,8 +283,10 @@ elseif(WIN32)
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
 
 elseif(UNIX)
+    install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
     #install(TARGETS OpenPSTD-cli DESTINATION bin)
+    install(TARGETS unqlite DESTINATION lib)
 
     install(FILES ${Boost_LIBRARIES} DESTINATION lib)
     install(FILES ${QtCore_location} DESTINATION lib)
