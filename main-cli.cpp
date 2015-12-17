@@ -98,7 +98,7 @@ int main(int argc, const char *argv[])
     PSTDFileConfiguration configuration = PSTDFileConfiguration();
     PSTDKernel *kernel = new PSTDKernel(std::make_shared<PSTDFileConfiguration>(configuration));
     std::shared_ptr<PSTDFileConfiguration> ptr = std::make_shared<PSTDFileConfiguration>(configuration);
-
+    kernel->run(output);
 
     //kernel->Run(vm["scene-file"].as<std::string>().c_str(), output);
 
