@@ -536,10 +536,10 @@ namespace Kernel {
         for (CalcDirection calc_dir: calc_directions) {
             bool should_update = false;
             if (this->number_of_neighbours(false) == 1 and this->is_pml) {
-                if (this->has_vertical_attenuation and calc_dir == CalcDirection::X) {
+                if (this->has_horizontal_attenuation and calc_dir == CalcDirection::X) {
                     // Todo: make sure we calculate in direction orthogonal to boundary
                     should_update = true;
-                } else if (!this->has_vertical_attenuation and calc_dir == CalcDirection::Y) {
+                } else if (!this->has_horizontal_attenuation and calc_dir == CalcDirection::Y) {
                     should_update = true;
                 } else if (this->local) {
                     should_update = false;
@@ -589,13 +589,13 @@ namespace Kernel {
              * TK: If this domain has its neighbour to the left or to the right,
              * a PML matrix is obtained for horizontal attenuation.
              */
-            this->has_vertical_attenuation = !this->left.empty() or !this->right.empty();
+            this->has_horizontal_attenuation = !this->left.empty() or !this->right.empty();
             if (this->is_corner_domain) {
                 /**
                  * TK: Corner PML domains should have a horizontal as well as a vertical component.
                  * In particular: not to neighbours in the same direction.
                  */
-                assert(this->has_vertical_attenuation and (!this->top.empty() or !this->bottom.empty()));
+                assert(this->has_horizontal_attenuation and (!this->top.empty() or !this->bottom.empty()));
                 this->needs_reversed_attenuation = std::vector<bool>(); // Init necessary?
                 this->needs_reversed_attenuation.push_back(!this->left.empty());
                 this->needs_reversed_attenuation.push_back(!this->bottom.empty());
@@ -614,7 +614,7 @@ namespace Kernel {
             bool all_air_right = !right.empty() and get_num_pmls_in_direction(Direction::RIGHT) == 0;
             bool all_air_bottom = !bottom.empty() and get_num_pmls_in_direction(Direction::BOTTOM) == 0;
 
-            this->has_vertical_attenuation = all_air_left or all_air_right;
+            this->has_horizontal_attenuation = all_air_left or all_air_right;
             this->needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
             if (this->is_secondary_pml and this->is_corner_domain) {
                 // TK: PML is the product of horizontal and vertical attenuation.
@@ -624,7 +624,7 @@ namespace Kernel {
                                          *this->pml_arrays.py, *this->pml_arrays.u);
             } else {
                 CalcDirection calc_dir = CalcDirection::Y;
-                if (has_vertical_attenuation) {
+                if (has_horizontal_attenuation) {
                     calc_dir = CalcDirection::X;
                 }
                 Eigen::ArrayXXf no_attenuation = Eigen::ArrayXXf::Ones(this->pml_arrays.px->rows(),

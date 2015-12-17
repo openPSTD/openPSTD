@@ -186,7 +186,7 @@ namespace Kernel {
 
         }
         std::vector<std::shared_ptr<Domain>> second_order_pml_list;
-        for (auto &entry: domains_by_cornerpoints) { //Todo: When & and when not?
+        for (auto &entry: domains_by_cornerpoints) {
             if (entry.second.size() == 1) {
                 for (auto sec_pml_domain:entry.second) {
                     second_order_pml_list.push_back(sec_pml_domain);

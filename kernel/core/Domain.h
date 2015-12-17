@@ -57,7 +57,7 @@ namespace Kernel {
         Eigen::ArrayXXf py0;
     };
 
-    struct FieldLValues { // Todo (0mar): What are these for?
+    struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
         std::shared_ptr<Eigen::ArrayXXf> Lpx;
         std::shared_ptr<Eigen::ArrayXXf> Lpy;
         std::shared_ptr<Eigen::ArrayXXf> Lvx;
@@ -109,7 +109,7 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> bottom;
         int num_neighbour_domains; // including pml_domains;
         int num_pml_neighbour_domains;
-        bool has_vertical_attenuation, is_corner_domain;
+        bool has_horizontal_attenuation, is_corner_domain;
         std::vector<bool> needs_reversed_attenuation;
         PMLArrays pml_arrays;
     public:
