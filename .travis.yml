@@ -37,13 +37,5 @@ script:
 - compile.sh
 - test.sh
 
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: TM2rvktT9Tl5TA+EL22ZpasLKbthYIORoTXaq9Hb8T37ego04Le+1UhfMr3M3j6FXF1rJfiGv3tdxe+oxudTMotVk7AXUUb5m6gO82CqHdHMW1fAb1yhr8p03iG6bBT275zaq78bELCgkBzM/KFyJpCmMbbzVRv0SlWT0m/BQjJpdTY+gYt/Al5BoLpVMPW0+91t83/wCZYWH2WLnKaptK1t1/2HmezTS88otItpEEQ24FDrIKY6rQ3l+64YZgFJ3xzYekzpfvwVyIoAYZmPuSqnR7r2NMu/hJf0NR1STNO6IN10AG6jXgBRkcxQW6cHHZ22y258MeSdcbcLYhIsujdOiwSnSMvlcv67m7xIO+ICz2D8sF3/GFbab+nzXg3jaNnYzVltxxkwar1NmmVhrUuqCpODfpeMKtXWfGtWS4ChG5IlyMRyjvg5c1YdgPnWAeFrVFrFFqRO54caAUkRW4jv1hJlyt7EbNYUfcVB7vBfzkPDLKTEtrRMwBaoGjgxveb1lZg076avlgT/7HeVAitLCYV+l44ur73NfaQCPebVXUIPQiBSry/ya2tU2iWlGNMvgWM5myMm3S3l+GLcNMLcrjytJTFnz5cEeE4ur2qnPu9AqX160BFrDaUeEBrryHbul1wSIQL6bquSb81+6EBQx+E1K1y6GLngXJ3YECk=
-  file: OpenPSTD-${OPENPSTD_MAJOR_VERSION}.${OPENPSTD_MINOR_VERSION}.${TRAVIS_BUILD_NUMBER}-${TRAVIS_OS_NAME}.*
-  file_glob: true
-  on:
-    repo: openPSTD/openPSTD
-    tags: true
+after_success:
+- upload_webdav.sh
