@@ -115,10 +115,19 @@ if(NOT Qt5Widgets_FOUND)
 endif()
 
 #------------------------------------
-# FFTW3 TODO: Michiel, does this look right?
+# FFTW3
 find_library(FFTW_LIBRARY
         NAMES fftw3 fftw)
+find_library(FFTWF_LIBRARY
+        NAMES fftw3f fftwf)
 set(FFTW_LIBRARIES "${FFTW_LIBRARY}")
+set(FFTWF_LIBRARIES "${FFTWF_LIBRARY}")
+
+include (FindPackageHandleStandardArgs)
+find_package_handle_standard_args (FFTWF DEFAULT_MSG FFTWF_LIBRARIES FFTWF_INCLUDES)
+
+mark_as_advanced (FFTWF_LIBRARIES FFTWF_INCLUDES)
+
 if(UNIX AND NOT WIN32)
     find_library(FFTW_libm_LIBRARY
             NAMES m)
@@ -158,6 +167,7 @@ include_directories(${RAPIDJSON_INCLUDE})
 include_directories(${UNQLITE_INCLUDE})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE})
+include_directories(${FFTW3F_INCLUDE})
 include_directories(${FFTW3F_INCLUDE})
 
 #------------------------------------
@@ -212,6 +222,7 @@ target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${FFTW_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${FFTWF_LIBRARIES})
 
 
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})

@@ -138,12 +138,25 @@ namespace Kernel {
             }
             Eigen::ArrayXXf dom1(fft_batch, wlen);
             Eigen::ArrayXXf dom3(fft_batch, wlen);
-            Eigen::ArrayXXf G(fft_batch, fft_length);
+            Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
             dom1 = p1->rightCols(wlen).rowwise()*window_left.transpose();
             dom3 = p3->leftCols(wlen).rowwise()*window_right.transpose();
-            G<< dom1,*p2, dom3;
+            windowed_data << dom1,*p2, dom3;
 
+            int shape[] = {fft_length,1};
+            float *in_buffer;
+            in_buffer = (float*) fftwf_malloc(sizeof(float)*fft_length*fft_batch);
+            fftwf_complex *out_buffer;
+            out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex)*fft_length*fft_batch);
+            int istride = fft_batch;
+            int ostride = fft_batch;
+            int idist = 1;
+            int odist = 1;
+            //TODO think of how these can be stored in the solver without creating serious spaghetti
+            fftwf_plan plan = fftwf_plan_many_dft_r2c(fft_length, shape, fft_batch, in_buffer, NULL, istride, idist,
+                                                        out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
 
+            
             //set catemp_fft = fft(catemp) with fft length $fft_length. fft one dimensional, applied to every row of catemp.
             //the fft should use the same scaling as numpy.fft (that is, no scaling in the fft and 1/n scaling in the ifft,
             //with the fft defined as $A_k=sum_{m=0}^{n-1} e^{2*\pi i*f*m*\delta*t} * e^{-2*\pi i*m*k/n}, k=0,...,n-1$ and
