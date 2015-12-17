@@ -171,16 +171,16 @@ int PSTDFile::GetFrameCount(unsigned int domain) {
     return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {domain}));
 }
 
-PSTD_FRAME PSTDFile::GetFrame(unsigned int frame, unsigned int domain) {
+PSTD_FRAME_PTR PSTDFile::GetFrame(unsigned int frame, unsigned int domain) {
     unqlite_int64 size;
     char *result = this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
     //Todo: convert
-    return shared_ptr<vector<char>>(new vector<char>(result, result + size));
+    return shared_ptr<PSTD_FRAME>(new PSTD_FRAME(result, result + size));
 }
 
-void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME frameData) {
+void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME_PTR frameData) {
     unsigned int frame = IncrementFrameCount(domain);
-    this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), frameData->size(), frameData->data());
+    this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), frameData->size()*sizeof(PSTD_FRAME_UNIT), frameData->data());
 }
 
 void PSTDFile::InitializeSimulationResults(int domains) {
@@ -298,7 +298,7 @@ void PSTDFile::SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> v
     SetRawValue(key, value->length() + 1, value->c_str());
 }
 
-void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const char *value) {
+void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value) {
     int rc;
 
     rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), value, nBytes);

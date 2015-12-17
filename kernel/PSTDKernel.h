@@ -65,7 +65,7 @@ public:
      * @param frame: Positive integer corresponding to time step of data.
      * @param data: 1D row-major vector of pressure data.
      */
-    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) = 0;
+    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) = 0;
 };
 
 /**

@@ -50,6 +50,6 @@ void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int fra
     }
 }
 
-void ConsoleOutput::WriteFrame(int frame, std::string domain, PSTD_FRAME data) {
+void ConsoleOutput::WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) {
 
 }

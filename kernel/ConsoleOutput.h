@@ -49,7 +49,7 @@ class ConsoleOutput : public KernelCallback {
      * Write frame data or plots to console application
      * @see KernelCallback.WriteFrame()
      */
-    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) override;
+    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) override;
 };
 
 #endif //OPENPSTD_CONSOLEOUTPUT_H

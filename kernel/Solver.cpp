@@ -117,7 +117,7 @@ namespace Kernel {
 
     }
 
-    PSTD_FRAME Solver::get_pressure_vector() {
+    PSTD_FRAME_PTR Solver::get_pressure_vector() {
 
         auto aligned_pressure = std::vector<float>();
         aligned_pressure.reserve((unsigned long) this->scene->size->x * this->scene->size->y);
