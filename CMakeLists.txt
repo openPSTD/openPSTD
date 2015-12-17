@@ -115,6 +115,18 @@ if(NOT Qt5Widgets_FOUND)
 endif()
 
 #------------------------------------
+# FFTW3 TODO: Michiel, does this look right?
+find_library(FFTW_LIBRARY
+        NAMES fftw3 fftw)
+set(FFTW_LIBRARIES "${FFTW_LIBRARY}")
+if(UNIX AND NOT WIN32)
+    find_library(FFTW_libm_LIBRARY
+            NAMES m)
+    list(APPEND FFTW_LIBRARIES "${FFTW_libm_LIBRARY}")
+endif()
+
+
+#------------------------------------
 # Rapidjson
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 set(RAPIDJSON_INCLUDE "${RAPIDJSON_ROOT}/include")
@@ -146,6 +158,7 @@ include_directories(${RAPIDJSON_INCLUDE})
 include_directories(${UNQLITE_INCLUDE})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE})
+include_directories(${FFTW3F_INCLUDE})
 
 #------------------------------------
 # Compiling flags
@@ -198,6 +211,7 @@ add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${FFTW_LIBRARIES})
 
 
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
