@@ -83,6 +83,7 @@ namespace Kernel {
         this->clear_fields();
         this->clear_matrices();
         this->local = false;
+        std::cout << "Initialized " << *this << std::endl;
     }
 
     // version of calc that would have a return value.
