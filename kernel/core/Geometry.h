@@ -31,6 +31,7 @@
 #ifndef OPENPSTD_GEOMETRY_H
 #define OPENPSTD_GEOMETRY_H
 
+#include <ostream>
 #include <vector>
 namespace Kernel {
     class Point {
@@ -47,5 +48,7 @@ namespace Kernel {
 
         friend Point operator-(Point a, Point b);
     };
+
+    std::ostream &operator<<(std::ostream &str, Point const &v);
 }
 #endif //OPENPSTD_GEOMETRY_H

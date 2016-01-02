@@ -295,5 +295,7 @@ namespace Kernel {
         void create_attenuation_array(CalcDirection calc_dir, bool ascending, Eigen::ArrayXXf &pml_pressure,
                                       Eigen::ArrayXXf &pml_velocity);
     };
+
+    std::ostream &operator<<(std::ostream &str, Domain const &v);
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

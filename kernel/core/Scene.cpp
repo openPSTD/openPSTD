@@ -411,4 +411,10 @@ namespace Kernel {
         }
         return correct_domain;
     }
+
+    std::ostream &operator<<(std::ostream &str, Scene const &v) {
+        return str << "Scene: " << v.domain_list.size() << " domains, " << v.speaker_list.size() << " speakers, " <<
+               v.receiver_list.size() << " receivers";
+
+    }
 }

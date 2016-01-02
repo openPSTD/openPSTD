@@ -95,3 +95,10 @@ int WaveNumberDiscretizer::match_number(int n) {
 }
 
 
+std::ostream &::Kernel::operator<<(std::ostream &str, WaveNumberDiscretizer const &v) {
+    std::string number_repr;
+    for (auto iterator = v.computed_discretization.begin(); iterator != v.computed_discretization.end(); iterator++) {
+        number_repr += std::to_string(iterator->first) + " ";
+    }
+    return str << "Wavenumberdiscretizations: " << number_repr;
+}

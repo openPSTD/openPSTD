@@ -156,6 +156,8 @@ namespace Kernel {
          */
         std::shared_ptr<Domain> get_singular_parent_domain(std::shared_ptr<Domain> domain);
     };
+
+    std::ostream &operator<<(std::ostream &str, Scene const &v);
 }
 
 #endif //OPENPSTD_KERNELSCENE_H

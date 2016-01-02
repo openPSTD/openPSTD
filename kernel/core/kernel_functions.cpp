@@ -120,7 +120,7 @@ namespace Kernel {
         fft_length = next_2_power((int) p2->cols() + wlen * 2);
 
         //if direct == 0, transpose p1, p2 and p3
-        if(direct == CalcDirection::Y) {
+        if (direct == CalcDirection::Y) {
             p1->transposeInPlace();
             p2->transposeInPlace();
             p3->transposeInPlace();
@@ -164,4 +164,12 @@ namespace Kernel {
 
 
     }
+
+
+    void debug(std::string msg) {
+#if 1
+        std::cout << msg << std::endl;
+#endif
+    }
 }
+

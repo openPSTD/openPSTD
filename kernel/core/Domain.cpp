@@ -83,6 +83,7 @@ namespace Kernel {
         this->clear_fields();
         this->clear_matrices();
         this->local = false;
+        std::cout << "Initialized " << *this << std::endl;
     }
 
     // version of calc that would have a return value.
@@ -711,5 +712,14 @@ namespace Kernel {
                 pml_velocity = velocity_pml_factors.replicate(this->size->y, 1);
                 break;
         }
+    }
+
+    std::ostream &operator<<(std::ostream &str, Domain const &v) {
+        std::string sort = v.id;
+        if (v.is_pml) {
+            sort += " (pml)";
+        }
+        str << sort << ", top left " << *v.top_left << ", bottom right" << *v.bottom_right;
+
     }
 }
