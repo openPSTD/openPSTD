@@ -35,12 +35,11 @@
 #endif
 
 #include <boost/test/unit_test.hpp>
-#include "../core/kernel_functions.h"
+#include "../core/Geometry.h"
 #include <cmath>
 
 using namespace Kernel;
 using namespace std;
-using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(geometry)
 
     BOOST_AUTO_TEST_CASE(point_addition) {
@@ -49,6 +48,14 @@ BOOST_AUTO_TEST_SUITE(geometry)
         Point resultpoint(7, 5);
         BOOST_CHECK_EQUAL((point1 + point2).x, resultpoint.x);
         BOOST_CHECK_EQUAL((point1 + point2).y, resultpoint.y);
+    }
+
+    BOOST_AUTO_TEST_CASE(point_substraction) {
+        Point point1 = Point(2, 3);
+        Point point2(5, 2);
+        Point resultpoint(-3, 1);
+        BOOST_CHECK_EQUAL((point1 - point2).x, resultpoint.x);
+        BOOST_CHECK_EQUAL((point1 - point2).y, resultpoint.y);
     }
 
 

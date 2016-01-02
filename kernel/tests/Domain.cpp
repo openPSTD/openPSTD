@@ -35,7 +35,7 @@
 #endif
 
 #include <boost/test/unit_test.hpp>
-#include "../core/kernel_functions.h"
+#include "../core/Domain.h"
 #include <cmath>
 
 using namespace Kernel;

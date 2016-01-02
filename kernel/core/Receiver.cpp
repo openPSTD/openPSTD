@@ -66,7 +66,7 @@ namespace Kernel {
         float offset = this->grid_offset.at(static_cast<unsigned long>(bt));
         Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
         for (int i = 0; i < discr.wave_numbers->rows(); i++) {
-            std::complex<float> wave_number = (*discr.wave_numbers)(i);
+            float wave_number = (*discr.wave_numbers)(i);
             std::complex<float> complex_factor = (*discr.complex_factors)(i);
             fft_factors(i) = exp(offset * dx * wave_number * complex_factor);
         }

@@ -28,6 +28,7 @@
 #include "wave_numbers.h"
 
 using namespace Kernel;
+using namespace std;
 
 WaveNumberDiscretizer::WaveNumberDiscretizer() {
     //I believe this does not need any init
@@ -39,7 +40,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(
     if (search != this->computed_discretization.end()) {
         return search->second;
     } else {
-        Discretization new_wave_discretizer = get_discretization(dx, matched_int);
+        Discretization new_wave_discretizer = discretize_wave_numbers(dx, matched_int);
         computed_discretization[matched_int] = new_wave_discretizer;
         return new_wave_discretizer;
     }
@@ -48,44 +49,28 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(
 
 WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(float dx, int N) {
     float max_wave_number = (float) M_PI / dx;
-    int two_power = (int) pow(2, N - 1); // Maybe shifting bytes is faster?
+    int two_power = (int) pow(2, N - 1);
+
     float dka = max_wave_number / two_power;
     Discretization discr;
     float wave = 0;
-    int wave_number_amount1 = (int) ceil(max_wave_number / dka);
-    int wave_number_amount2 = (int) ceil((max_wave_number - dka) / dka);
-    Eigen::ArrayXcf wave_number_array(wave_number_amount1 + wave_number_amount2);
-    while (wave < max_wave_number + dka) {
-        wave_number_array << wave;
-        wave += dka;
-    }
-    wave = max_wave_number - dka;
-    while (wave < 0) {
-        wave_number_array << wave;
-        wave -= dka;
-    }
-    discr.wave_numbers = std::make_shared<Eigen::ArrayXcf>(wave_number_array);
-    Eigen::ArrayXcf complex_factor_array(2 * two_power);
-    std::complex<float> i(0, 1);
-    for (int j = 0; j < two_power + 1; j++) {
-        complex_factor_array.real() << 1; // Todo: IDE complains about this
-    }
-    for (int j = 0; j < two_power - 1; j++) {
-        complex_factor_array.imag() << -1;
-    }
+    Eigen::ArrayXf wave_number_array(2 * two_power);
+    unsigned long index = 0;
 
+    wave_number_array.head(two_power + 1) = Eigen::ArrayXf::LinSpaced(two_power + 1, 0, max_wave_number);
+    wave_number_array.tail(two_power - 1) = Eigen::ArrayXf::LinSpaced(two_power - 1, max_wave_number - dka, dka);
+    discr.wave_numbers = std::make_shared<Eigen::ArrayXf>(wave_number_array);
+    Eigen::ArrayXcf complex_factor_array(2 * two_power);
+    Eigen::ArrayXf partial_ones = Eigen::ArrayXf::Ones(2 * two_power);
+    partial_ones.tail(two_power - 1) = -1;
+    complex_factor_array.imag() = partial_ones;
+    complex_factor_array.real() = Eigen::ArrayXf::Zero(2 * two_power);
     discr.complex_factors = std::make_shared<Eigen::ArrayXcf>(complex_factor_array);
-    Eigen::ArrayXcf pderfact_array(complex_factor_array.rows());
-    Eigen::ArrayXcf vderfact_array(complex_factor_array.rows());
-    for (int j = 0; j < complex_factor_array.rows(); j++) {
-        //Todo: Eigen has a vectorized exponential operator
-        pderfact_array << exp(-complex_factor_array(j) * wave_number_array(j) * dx / (float) 2.)
-                          * complex_factor_array(j) * wave_number_array(j);
-        vderfact_array << exp(complex_factor_array(j) * wave_number_array(j) * dx / (float) 2.)
-                          * complex_factor_array(j) * wave_number_array(j);
-    }
-    discr.pressure_deriv_factors = std::make_shared<Eigen::ArrayXcf>(pderfact_array);
-    discr.velocity_deriv_factors = std::make_shared<Eigen::ArrayXcf>(vderfact_array);
+    Eigen::ArrayXcf complex_wave_numbers = complex_factor_array * wave_number_array;
+    Eigen::ArrayXcf pderfact_array = (-complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
+    Eigen::ArrayXcf vderfact_array = (complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
+    discr.pressure_deriv_factors = make_shared<Eigen::ArrayXcf>(pderfact_array);
+    discr.velocity_deriv_factors = make_shared<Eigen::ArrayXcf>(vderfact_array);
 
     return discr;
 }
@@ -95,10 +80,10 @@ int WaveNumberDiscretizer::match_number(int n) {
 }
 
 
-std::ostream &::Kernel::operator<<(std::ostream &str, WaveNumberDiscretizer const &v) {
-    std::string number_repr;
+ostream &::Kernel::operator<<(ostream &str, WaveNumberDiscretizer const &v) {
+    string number_repr;
     for (auto iterator = v.computed_discretization.begin(); iterator != v.computed_discretization.end(); iterator++) {
-        number_repr += std::to_string(iterator->first) + " ";
+        number_repr += "n = 2^" + to_string(iterator->first) + " ";
     }
     return str << "Wavenumberdiscretizations: " << number_repr;
 }
