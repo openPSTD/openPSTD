@@ -39,6 +39,7 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <algorithm>
 #include "PSTDFile.h"
 #include "Geometry.h"
 
@@ -144,7 +145,7 @@ namespace Kernel {
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
-     * based on density of a domain and 2 opposite neighbours(?)
+     * based on density of a domain and 2 opposite neighbours in any direction
      * @param rho1 density of first neighbour
      * @param rho2 density of domain
      * @param rho density of opposite neighbour
@@ -162,7 +163,7 @@ namespace Kernel {
     float get_grid_spacing(PSTDFileSettings cnf);
 
     /**
-     * Computes the smallest power of 2 larger or equal to n
+     * Computes the smallest power of 2 larger or equal to n if n positive, and 1 otherwise
      * @param n
      * return 2^k >= n
      */

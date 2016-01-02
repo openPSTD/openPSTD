@@ -433,7 +433,7 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> top_domains = this->top;
         std::vector<std::shared_ptr<Domain>> bottom_domains = this->bottom;
 
-        float max_float = std::numeric_limits<float>::max();
+        float max_rho = 1E10; // Large value, well within float range. hange for double.
 
         // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
         // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
@@ -445,18 +445,18 @@ namespace Kernel {
                         this->rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                     }
                 } else {
-                    std::vector<float> rhos = {d1->rho, max_float};
+                    std::vector<float> rhos = {d1->rho, max_rho};
                     this->rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             }
         } else {
             if (right_domains.size()) {
                 for (std::shared_ptr<Domain> d2 : right_domains) {
-                    std::vector<float> rhos = {max_float, d2->rho};
+                    std::vector<float> rhos = {max_rho, d2->rho};
                     this->rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             } else {
-                std::vector<float> rhos = {max_float, max_float};
+                std::vector<float> rhos = {max_rho, max_rho};
                 this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
             }
         }
@@ -469,18 +469,18 @@ namespace Kernel {
                         this->rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                     }
                 } else {
-                    std::vector<float> rhos = {d1->rho, max_float};
+                    std::vector<float> rhos = {d1->rho, max_rho};
                     this->rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             }
         } else {
             if (top_domains.size()) {
                 for (std::shared_ptr<Domain> d2 : top_domains) {
-                    std::vector<float> rhos = {max_float, d2->rho};
+                    std::vector<float> rhos = {max_rho, d2->rho};
                     this->rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
                 }
             } else {
-                std::vector<float> rhos = {max_float, max_float};
+                std::vector<float> rhos = {max_rho, max_rho};
                 this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
             }
         }

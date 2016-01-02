@@ -53,11 +53,11 @@ namespace Kernel {
     }
 
     int next_2_power(float n) {
-        return (int) pow(2, ceil(log2(n)));
+        return std::max((int) pow(2, ceil(log2(n))), 1);
     }
 
     int next_2_power(int n) {
-        return (int) pow(2, ceil(log2(n)));
+        return std::max((int) pow(2, ceil(log2(n))), 1);
     }
 
     float get_grid_spacing(PSTDFileSettings cnf) {
