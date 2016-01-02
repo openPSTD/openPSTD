@@ -241,7 +241,8 @@ set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI} ${SOURCE_FILES_LI
 # GUI test files
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} Edges-test.cpp)
 # Kernel test files
-set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} kernel/tests/kernel_functions.cpp)
+set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} kernel/tests/kernel_functions.cpp
+        kernel/tests/Speaker.cpp kernel/tests/Geometry.cpp kernel/tests/Domain.cpp)
 add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 
 # create extra Qt5 code
