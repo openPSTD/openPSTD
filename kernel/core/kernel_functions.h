@@ -166,7 +166,7 @@ namespace Kernel {
      * @param n
      * return 2^k >= n
      */
-    int next2Power(float n);
+    int next_2_power(float n);
 
 }
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H

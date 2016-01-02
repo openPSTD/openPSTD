@@ -236,10 +236,12 @@ target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
 
 #------------------------------------
 # Test
-# GUI source files
-set(SOURCE_FILES_TEST ${SOURCE_FILES_GUI})
-# Remaining
+# Source files
+set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI} ${SOURCE_FILES_LIB})
+# GUI test files
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} Edges-test.cpp)
+# Kernel test files
+set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} kernel/tests/kernel_functions.cpp)
 add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} main-test.cpp)
 
 # create extra Qt5 code

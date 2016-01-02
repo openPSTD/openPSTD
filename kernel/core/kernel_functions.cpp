@@ -52,10 +52,11 @@ namespace Kernel {
         return result;
     }
 
-    int next2Power(float n) {
+    int next_2_power(float n) {
         return (int) pow(2, ceil(log2(n)));
     }
-    int next2Power(int n) {
+
+    int next_2_power(int n) {
         return (int) pow(2, ceil(log2(n)));
     }
 
@@ -116,7 +117,7 @@ namespace Kernel {
         int fft_batch, fft_length;
 
         fft_batch = p2->rows();
-        fft_length = next2Power((int) p2->cols() + wlen*2);
+        fft_length = next_2_power((int) p2->cols() + wlen * 2);
 
         //if direct == 0, transpose p1, p2 and p3
         if(direct == CalcDirection::Y) {
