@@ -149,32 +149,36 @@ namespace Kernel {
             windowed_data << dom1,*p2, dom3;
 
             //TODO rewrite the C interfacing to acceptable C++
-            int shape[] = {fft_length,1};
+            int shape[] = {fft_length};
             fftwf_complex *out_buffer;
             out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex)*fft_length*fft_batch);
-            int istride = fft_batch;
-            int ostride = fft_batch;
-            int idist = 1;
-            int odist = 1;
+            int istride = 1; //distance between two elements in one fft-able array
+            int ostride = istride;
+            int idist = fft_length; //distance between first element of different arrays
+            int odist = idist;
             //TODO think of how these can be stored in the solver without creating serious spaghetti
-            fftwf_plan plan = fftwf_plan_many_dft_r2c(fft_length, shape, fft_batch, in_buffer, NULL, istride, idist,
+            fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
                                                       out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
-            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(fft_length, shape, fft_batch, out_buffer, NULL, ostride, odist,
+            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
                                                       in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
             memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
+            //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
             spectrum_data.resize(fft_batch*fft_length);
             std::copy(out_buffer, out_buffer+fft_batch*fft_length*sizeof(fftwf_complex), spectrum_data.begin());
-
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
-            //Eigen::Map<Eigen::ArrayXXcf> spectrum_array(spectrum_data);
 
+            //apply the spectral derivative
             spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
 
             fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
+
+
+
+
 
             //TODO slice the result properly and put it back into an eigen array
 
