@@ -165,10 +165,11 @@ namespace Kernel {
             memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
-            std::vector<std::complex<float>> spectrum_data;
+            std::complex<float> *spectrum_data;
             memcpy(spectrum_data, out_buffer, fft_batch*fft_length*sizeof(fftwf_complex));
 
-            Eigen::Map<Eigen::ArrayXXcf> spectrum_array(spectrum_data);
+            Eigen::Map<Eigen::ArrayXXcf> spectrum_array(spectrum_data, fft_batch, fft_length);
+            //Eigen::Map<Eigen::ArrayXXcf> spectrum_array(spectrum_data);
 
             spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
 
