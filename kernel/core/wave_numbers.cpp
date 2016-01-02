@@ -62,7 +62,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     discr.wave_numbers = std::make_shared<Eigen::ArrayXf>(wave_number_array);
     Eigen::ArrayXcf complex_factor_array(2 * two_power);
     Eigen::ArrayXf partial_ones = Eigen::ArrayXf::Ones(2 * two_power);
-    partial_ones.tail(two_power - 1) = -1;
+    partial_ones.tail(two_power - 1) = Eigen::ArrayXf::Ones(two_power - 1);
     complex_factor_array.imag() = partial_ones;
     complex_factor_array.real() = Eigen::ArrayXf::Zero(2 * two_power);
     discr.complex_factors = std::make_shared<Eigen::ArrayXcf>(complex_factor_array);
