@@ -165,13 +165,11 @@ namespace Kernel {
             memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
-            std::complex<float> spectrum_data;
+            std::vector<std::complex<float>> spectrum_data;
+            memcpy(spectrum_data, out_buffer, fft_batch*fft_length*sizeof(fftwf_complex));
 
-            // this should be byte-compatible according to http://www.fftw.org/doc/Complex-numbers.html#Complex-numbers,
-            // but it doesn't compile for some reason. (TODO)
-            Eigen::Map<Eigen::ArrayXXcf> spectrum_array((std::complex<float>) out_buffer);
+            Eigen::Map<Eigen::ArrayXXcf> spectrum_array(spectrum_data);
 
-            //should still be on the same memory addresses, no need for any copying
             spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
 
             fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
@@ -196,35 +194,8 @@ namespace Kernel {
                    p2->rightCols(wlen+1).leftCols(wlen).rowwise().reverse()*rho_array.pressure(1,0);
             windowed_data << dom1,*p2, dom3;
 
-            //TODO rewrite the C interfacing to acceptable C++
-            int shape[] = {fft_length,1};
-            float *in_buffer;
-            in_buffer = (float*) fftwf_malloc(sizeof(float)*fft_length*fft_batch);
-            fftwf_complex *out_buffer;
-            out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex)*fft_length*fft_batch);
-            int istride = fft_batch;
-            int ostride = fft_batch;
-            int idist = 1;
-            int odist = 1;
-            //TODO think of how these can be stored in the solver without creating serious spaghetti
-            fftwf_plan plan = fftwf_plan_many_dft_r2c(fft_length, shape, fft_batch, in_buffer, NULL, istride, idist,
-                                                      out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
-            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(fft_length, shape, fft_batch, out_buffer, NULL, ostride, odist,
-                                                          in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
-            memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
-            fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
-
-            std::complex<float> spectrum_data;
-
-            // this should be byte-compatible according to http://www.fftw.org/doc/Complex-numbers.html#Complex-numbers,
-            // but it doesn't compile for some reason. (TODO)
-            Eigen::Map<Eigen::ArrayXXcf> spectrum_array((std::complex<float>) out_buffer);
-
-            //should still be on the same memory addresses, no need for any copying
-            spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
-
-            fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
+            //TODO implement spectral part (copied from pressure calculation)
         }
         //TODO slice the result properly, transpose it if direct == 0
 
