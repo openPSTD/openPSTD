@@ -165,7 +165,8 @@ namespace Kernel {
 
             idist = (fft_length/2)+1;
             odist = idist;
-            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
+            int ishape[] = {fft_length/2+1};
+            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
                                                       in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
             //perform the fft
@@ -173,9 +174,6 @@ namespace Kernel {
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
             //map the results back into an eigen array
-
-            //std::vector<std::complex<float>> spectrum_data(reinterpret_cast<std::complex<float>>(&out_buffer[0][0]), reinterpret_cast<std::complex<float>>(&out_buffer[0][0])+fft_batch*(fft_length/2+1)*sizeof(fftwf_complex));
-
             std::vector<std::complex<float>> spectrum_data;
             spectrum_data.resize(fft_batch, (fft_length/2)+1);
             std::copy(out_buffer, out_buffer+fft_batch*(fft_length/2+1)*sizeof(fftwf_complex), spectrum_data.begin());
