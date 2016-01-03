@@ -23,6 +23,7 @@ install:
 - install_Qt55.sh
 - install_rapidjson.sh
 - install_eigen.sh
+- install_fftw.sh
 
 before_script:
 - uname -r
