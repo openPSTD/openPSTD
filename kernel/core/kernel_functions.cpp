@@ -122,6 +122,9 @@ namespace Kernel {
         float *in_buffer;
         in_buffer = (float*) fftwf_malloc(sizeof(float)*fft_length*fft_batch);
 
+        fftwf_complex *out_buffer;
+        out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float)*2*(fft_length/2+1)*fft_batch);
+
         //if direct == 0, transpose p1, p2 and p3
         if(direct == CalcDirection::Y) {
             p1->transposeInPlace();
@@ -139,7 +142,7 @@ namespace Kernel {
             Eigen::ArrayXf window_right = window.tail(wlen);
 
             if (wlen > p1->cols() || wlen > p3->cols()) {
-                //TODO error if this happens and give user feedback.
+                //TODO error (or just warn) if this happens and give user feedback.
             }
             Eigen::ArrayXXf dom1(fft_batch, wlen);
             Eigen::ArrayXXf dom3(fft_batch, wlen);
@@ -152,8 +155,6 @@ namespace Kernel {
 
             //TODO rewrite the C interfacing to acceptable C++
             int shape[] = {fft_length};
-            fftwf_complex *out_buffer;
-            out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float)*2*fft_length*fft_batch);
             int istride = 1; //distance between two elements in one fft-able array
             int ostride = istride;
             int idist = fft_length; //distance between first element of different arrays
@@ -167,10 +168,14 @@ namespace Kernel {
             fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
                                                       in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
+            //perform the fft
             memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
             //map the results back into an eigen array
+
+            //std::vector<std::complex<float>> spectrum_data(reinterpret_cast<std::complex<float>>(&out_buffer[0][0]), reinterpret_cast<std::complex<float>>(&out_buffer[0][0])+fft_batch*(fft_length/2+1)*sizeof(fftwf_complex));
+
             std::vector<std::complex<float>> spectrum_data;
             spectrum_data.resize(fft_batch, (fft_length/2)+1);
             std::copy(out_buffer, out_buffer+fft_batch*(fft_length/2+1)*sizeof(fftwf_complex), spectrum_data.begin());
@@ -178,8 +183,9 @@ namespace Kernel {
 
             //apply the spectral derivative
             spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
-
-            fftwf_execute_dft_c2r(plan, spectrum_array.data(), in_buffer);
+            std::complex<float> *spectrum_prep;
+            Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length/2+1) = spectrum_array;
+            fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex*>(&spectrum_prep[0]), in_buffer);
 
             //ifft result contains the outer domains, so slice
             std::vector<std::complex<float>> derived_data;
@@ -201,7 +207,7 @@ namespace Kernel {
             Eigen::ArrayXf window_right = window.tail(wlen);
 
             if (wlen > p1->cols() || wlen > p3->cols()) {
-                //TODO error if this happens and give user feedback.
+                //TODO error (or just warn) if this happens and give user feedback.
             }
             Eigen::ArrayXXf dom1(fft_batch, wlen);
             Eigen::ArrayXXf dom3(fft_batch, wlen);
