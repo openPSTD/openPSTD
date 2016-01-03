@@ -288,12 +288,18 @@ target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
 target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${FFTW_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${FFTWF_LIBRARIES})
+
 
 target_link_libraries(OpenPSTD-test OpenPSTD)
 target_link_libraries(OpenPSTD-test ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-test unqlite)
 target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
+target_link_libraries(OpenPSTD-test ${FFTW_LIBRARIES})
+target_link_libraries(OpenPSTD-test ${FFTWF_LIBRARIES})
+
 
 #------------------------------------
 # INSTALL
