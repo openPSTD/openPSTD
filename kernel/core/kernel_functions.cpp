@@ -172,7 +172,7 @@ namespace Kernel {
 
             //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
-            spectrum_data.resize(fft_batch, (fft_length/2)+1;
+            spectrum_data.resize(fft_batch, (fft_length/2)+1);
             std::copy(out_buffer, out_buffer+fft_batch*(fft_length/2+1)*sizeof(fftwf_complex), spectrum_data.begin());
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
 
@@ -211,7 +211,7 @@ namespace Kernel {
             dom3 = p3->leftCols(wlen+1).rightCols(wlen).rowwise()*window_right.transpose()*rho_array.pressure(3,1) +
                    p2->rightCols(wlen+1).leftCols(wlen).rowwise().reverse()*rho_array.pressure(1,0);
             windowed_data << dom1,*p2, dom3;
-            
+
 
         }
         //TODO transpose it if direct == 0
