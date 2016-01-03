@@ -52,11 +52,12 @@ namespace Kernel {
         return result;
     }
 
-    int next2Power(float n) {
-        return (int) pow(2, ceil(log2(n)));
+    int next_2_power(float n) {
+        return std::max((int) pow(2, ceil(log2(n))), 1);
     }
-    int next2Power(int n) {
-        return (int) pow(2, ceil(log2(n)));
+
+    int next_2_power(int n) {
+        return std::max((int) pow(2, ceil(log2(n))), 1);
     }
 
     float get_grid_spacing(PSTDFileSettings cnf) {
@@ -117,7 +118,7 @@ namespace Kernel {
         Eigen::ArrayXXf result(1,1); //also called Lp in some places in documentation
 
         fft_batch = p2->rows();
-        fft_length = next2Power((int) p2->cols() + wlen*2);
+        fft_length = next_2_power((int) p2->cols() + wlen * 2);
 
         float *in_buffer;
         in_buffer = (float*) fftwf_malloc(sizeof(float)*fft_length*fft_batch);
@@ -126,7 +127,7 @@ namespace Kernel {
         out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float)*2*(fft_length/2+1)*fft_batch);
 
         //if direct == 0, transpose p1, p2 and p3
-        if(direct == CalcDirection::Y) {
+        if (direct == CalcDirection::Y) {
             p1->transposeInPlace();
             p2->transposeInPlace();
             p3->transposeInPlace();
@@ -259,4 +260,12 @@ namespace Kernel {
         }
         return result;
     }
+
+
+    void debug(std::string msg) {
+#if 1
+        std::cout << msg << std::endl;
+#endif
+    }
 }
+

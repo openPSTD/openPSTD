@@ -57,13 +57,23 @@ namespace Kernel {
         const float y;
         const float z;
         int id;
-        enum class InterpolationType {
-            NearestNeighbour, SpectralInterpolation
-        };
+        /**
+         * Unrounded (grid) location
+         */
         std::vector<float> location;
-        std::shared_ptr<PSTDFileSettings> config;
-        std::shared_ptr<Point> grid_location; //Corresponding to the center of the cell.
+
+        /**
+         * Integer grid location. <=> Cell containing the receiver.
+         */
+        std::shared_ptr<Point> grid_location;
+
+        /**
+         * Distance from the receiver to the top left of the cell
+         */
         std::vector<float> grid_offset;
+
+        std::shared_ptr<PSTDFileSettings> config;
+
         std::shared_ptr<Domain> container_domain;
         std::vector<float> received_values;
         //Todo: Feature: If location sufficiently close to cell center, always compute with nn
@@ -104,6 +114,9 @@ namespace Kernel {
          */
         float compute_with_si();
 
+        /**
+         * Compute the pressure for the receiver.
+         */
         std::shared_ptr<Eigen::ArrayXXf> calc_domain_fields(std::shared_ptr<Domain> container, CalcDirection bt);
 
     };

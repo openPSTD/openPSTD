@@ -188,11 +188,11 @@ private:
 
     void SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> value);
 
-    void SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const char *value);
+    void SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value);
 
     void DeleteValue(PSTDFile_Key_t key);
 
-    void initilize();
+    void initialize();
 
     unsigned int IncrementFrameCount(unsigned int domain);
 
@@ -251,11 +251,11 @@ public:
 
     int GetFrameCount(unsigned int domain);
 
-    PSTD_FRAME GetFrame(unsigned int frame, unsigned int domain);
+    PSTD_FRAME_PTR GetFrame(unsigned int frame, unsigned int domain);
 
-    void SaveNextFrame(unsigned int domain, PSTD_FRAME frame);
+    void SaveNextFrame(unsigned int domain, PSTD_FRAME_PTR frame);
 
-    void InitilizeSimulationResults(int domains);
+    void InitializeSimulationResults(int domains);
 
     void DeleteSimulationResults();
 };

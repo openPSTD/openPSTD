@@ -41,6 +41,7 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <algorithm>
 #include "PSTDFile.h"
 #include "Geometry.h"
 
@@ -89,6 +90,7 @@ namespace Kernel {
 
     const std::vector<CalcDirection> all_calc_directions = {CalcDirection::X, CalcDirection::Y};
     const std::vector<CalculationType> all_calculation_types = {CalculationType::PRESSURE, CalculationType::VELOCITY};
+
     /**
      * Return the opposite direction of the provided direction
      * @param direction: Direction enum
@@ -146,7 +148,7 @@ namespace Kernel {
 
     /**
      * Computes and return reflection and transmission matrices for pressure and velocity
-     * based on density of a domain and 2 opposite neighbours(?)
+     * based on density of a domain and 2 opposite neighbours in any direction
      * @param rho1 density of first neighbour
      * @param rho2 density of domain
      * @param rho density of opposite neighbour
@@ -164,11 +166,13 @@ namespace Kernel {
     float get_grid_spacing(PSTDFileSettings cnf);
 
     /**
-     * Computes the smallest power of 2 larger or equal to n
+     * Computes the smallest power of 2 larger or equal to n if n positive, and 1 otherwise
      * @param n
      * return 2^k >= n
      */
-    int next2Power(float n);
+    int next_2_power(float n);
+
+    void debug(std::string msg);
 
 }
 #endif //OPENPSTD_KERNEL_FUNCTIONS_H

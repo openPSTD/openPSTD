@@ -43,22 +43,29 @@
 /**
  * The status of the kernel when the callback is called.
  */
-enum CALLBACKSTATUS {
-    CALLBACKSTATUS_ERROR,
-    CALLBACKSTATUS_STARTING,
-    CALLBACKSTATUS_RUNNING,
-    CALLBACKSTATUS_SUCCESS,
+enum class CALLBACKSTATUS {
+    ERROR,
+    STARTING,
+    RUNNING,
+    FINISHED,
 };
 
 class KernelCallback {
 public:
     /**
      * This callback will be called with information how far the kernel is progressed.
-     * Frame is only used with status == CALLBACKSTATUS_RUNNING, else it's -1.
+     * @param status: CALLBACKSTATUS enum, either one of starting/running/finishing/error.
+     * @param message: Message to pass to callback handler
+     * @param frame: either positive integer corresponding to time step of data or -1 when kernel is not running.
      */
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
 
-    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME data) = 0;
+    /**
+     * Return pressure data of scene to callback handler.
+     * @param frame: Positive integer corresponding to time step of data.
+     * @param data: 1D row-major vector of pressure data.
+     */
+    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) = 0;
 };
 
 /**
@@ -72,28 +79,54 @@ private:
     const float default_alpha = 1.f;
     void initialize_scene();
 
-    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd; // Todo: Implement
+    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd;
 
+    /**
+     * Read the scene description from application or file and converts the coordinates to domains.
+     * Note that indexing in the file happens on grid points.
+     * When interpreting domain coordinates to cells, note that this means the top_left is part of the domain,
+     * and the bottom right is not.
+     */
     void add_domains();
 
     /*
      * Computes the location of the speakers and creates new objects for them.
      * Expects real world coordinates from the scene descriptor file
+     * Note that speakers are not bound to grid coordinates.
+     * We find the corresponding grid by flooring the location divided by the grid size.
      */
     void add_speakers();
 
     /*
      * Computes the location of the receivers and creates new objects for them.
      * Expects real world coordinates from the scene descriptor file
+     * @see add_speakers();
      */
     void add_receivers();
 
-    std::vector<float> world_to_grid_coordinates(QVector2D world_vector);
+    /**
+     * Convert format and scale of GUI vectors to simulation vectors
+     * @param world_vector: QVector from GUI side.
+     * @return: 2 element std::vector with coefficients scaled to the grid size
+     */
+    std::vector<float> scale_to_grid(QVector2D world_vector);
 
-    std::vector<float> world_to_grid_coordinates(QVector3D world_vector);
+    /**
+     * Convert 3D GUI vectors to simulation vectors.
+     * Automatically converts to 2D as long as 3D is not implemented.
+     * @see scale_to_grid(QVector2D world_vector)
+     */
+    std::vector<float> scale_to_grid(QVector3D world_vector);
 
+    /**
+     * Round off vectors in the grid to their grid point coordinates.
+     */
+    std::vector<int> round_off(std::vector<float>);
 
-    std::map<Kernel::Direction, Kernel::edge_parameters> translate_edge_parameters(Domain domain);
+    /**
+     * Translate edge parameters from the GUI to the simulation format.
+     */
+    std::map<Kernel::Direction, Kernel::EdgeParameters> translate_edge_parameters(Domain domain);
 
 public:
     /**

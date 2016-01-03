@@ -36,13 +36,14 @@
 #include <math.h>
 #include <complex>
 #include <memory>
+#include <iostream>
 #include <Eigen/Dense>
 
 namespace Kernel {
     class WaveNumberDiscretizer {
     public:
         struct Discretization {
-            std::shared_ptr<Eigen::ArrayXcf> wave_numbers;
+            std::shared_ptr<Eigen::ArrayXf> wave_numbers;
             std::shared_ptr<Eigen::ArrayXcf> complex_factors;
             std::shared_ptr<Eigen::ArrayXcf> pressure_deriv_factors;
             std::shared_ptr<Eigen::ArrayXcf> velocity_deriv_factors;
@@ -62,6 +63,8 @@ namespace Kernel {
          */
         WaveNumberDiscretizer();
 
+        std::map<int, Discretization> computed_discretization; // Should be private! public for debugging purposes
+
     private:
 
         /**
@@ -75,13 +78,14 @@ namespace Kernel {
         /**
          * Internal storage of wave number discretizations.
          */
-        std::map<int, Discretization> computed_discretization;
 
         /**
-         * Compute the 2log of the number of grid cells.
+         * Compute the rounded up 2log of the number of grid cells.
          */
         int match_number(int n);
     };
+
+    std::ostream &operator<<(std::ostream &str, WaveNumberDiscretizer const &v);
 }
 
 #endif //OPENPSTD_WAVE_NUMBERS_H

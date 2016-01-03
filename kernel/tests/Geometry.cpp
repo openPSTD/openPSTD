@@ -18,38 +18,45 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      12-7-2015
+// Date: 2-1-2016
 //
-// Authors:
-//      Michiel Fortuijn
+//
+// Authors: Omar Richardson
+//
+//
+// Purpose: Test suite for kernel functions
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "ConsoleOutput.h"
-#include <iostream>
 
-void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int frame)
-{
-    if (status == CALLBACKSTATUS::ERROR)
-    {
-        std::cerr << "Error encountered while running OpenPSTD:" << std::endl;
-        std::cerr << message << std::endl;
-    }
-    else if (status == CALLBACKSTATUS::STARTING)
-    {
-        std::cout << message << std::endl;
-    }
-    else if (status == CALLBACKSTATUS::RUNNING)
-    {
-        std::cout << message << std::endl;
-    }
-    else if (status == CALLBACKSTATUS::FINISHED)
-    {
-        std::cout << message << std::endl;
-    }
-}
+#ifdef STAND_ALONE
+#   define BOOST_TEST_MODULE Main
+#endif
 
-void ConsoleOutput::WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) {
+#include <boost/test/unit_test.hpp>
+#include "../core/Geometry.h"
+#include <cmath>
 
-}
+using namespace Kernel;
+using namespace std;
+BOOST_AUTO_TEST_SUITE(geometry)
+
+    BOOST_AUTO_TEST_CASE(point_addition) {
+        Point point1 = Point(2, 3);
+        Point point2(5, 2);
+        Point resultpoint(7, 5);
+        BOOST_CHECK_EQUAL((point1 + point2).x, resultpoint.x);
+        BOOST_CHECK_EQUAL((point1 + point2).y, resultpoint.y);
+    }
+
+    BOOST_AUTO_TEST_CASE(point_substraction) {
+        Point point1 = Point(2, 3);
+        Point point2(5, 2);
+        Point resultpoint(-3, 1);
+        BOOST_CHECK_EQUAL((point1 - point2).x, resultpoint.x);
+        BOOST_CHECK_EQUAL((point1 - point2).y, resultpoint.y);
+    }
+
+
+BOOST_AUTO_TEST_SUITE_END()

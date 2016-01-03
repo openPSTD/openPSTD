@@ -34,7 +34,6 @@ namespace Kernel {
         this->top_left = std::make_shared<Point>(Point(0, 0));
         this->bottom_right = std::make_shared<Point>(Point(0, 0));
         this->size = std::make_shared<Point>(Point(0, 0));
-
     }
 
     void Scene::add_pml_domains() {
@@ -411,5 +410,11 @@ namespace Kernel {
             }
         }
         return correct_domain;
+    }
+
+    std::ostream &operator<<(std::ostream &str, Scene const &v) {
+        return str << "Scene: " << v.domain_list.size() << " domains, " << v.speaker_list.size() << " speakers, " <<
+               v.receiver_list.size() << " receivers";
+
     }
 }

@@ -51,7 +51,8 @@ namespace Kernel {
         const float y;
         const float z;
         std::vector<float> location;
-        //Add a grid location and an offset, just to be consistent.
+        Point grid_point = Point((int) x, (int) y, (int) z); // Todo: Allowed? Other init seems difficult.
+        std::vector<float> grid_offset;
 
         /*
          * Speaker initialization with coordinates from scene.

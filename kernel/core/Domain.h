@@ -49,15 +49,15 @@
 namespace Kernel {
 
 
-    struct field_values {
-        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a float class
+    struct FieldValues {
+        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a double class
         Eigen::ArrayXXf w0;
         Eigen::ArrayXXf p0;
         Eigen::ArrayXXf px0;
-        Eigen::ArrayXXf pz0;
+        Eigen::ArrayXXf py0;
     };
 
-    struct field_L_values { // Todo (0mar): What are these for?
+    struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
         std::shared_ptr<Eigen::ArrayXXf> Lpx;
         std::shared_ptr<Eigen::ArrayXXf> Lpy;
         std::shared_ptr<Eigen::ArrayXXf> Lvx;
@@ -65,7 +65,14 @@ namespace Kernel {
 
     };
 
-    struct edge_parameters {
+    struct PMLArrays { // Todo: Change to unique pointers.
+        std::shared_ptr<Eigen::ArrayXXf> px;
+        std::shared_ptr<Eigen::ArrayXXf> py;
+        std::shared_ptr<Eigen::ArrayXXf> u;
+        std::shared_ptr<Eigen::ArrayXXf> w;
+    };
+
+    struct EdgeParameters {
         bool locally_reacting;
         float alpha; //Better name
     };
@@ -80,19 +87,17 @@ namespace Kernel {
         float alpha;
         float impedance;
         float rho;
-        std::map<Direction, edge_parameters> edge_param_map;
+        std::map<Direction, EdgeParameters> edge_param_map;
         std::map<std::string, RhoArray> rho_arrays;
         std::map<CalcDirection, bool> should_update;
         std::shared_ptr<Point> top_left;
         std::shared_ptr<Point> bottom_right;
         std::shared_ptr<Point> size;
         bool is_pml;
-        bool is_horizontal; // Private? Todo: Implement
-        bool is_2d;         // Private? Todo: Implement
         bool local;
-        std::shared_ptr<field_values> current_values;
-        std::shared_ptr<field_values> previous_values;
-        std::shared_ptr<field_L_values> l_values;
+        std::shared_ptr<FieldValues> current_values;
+        std::shared_ptr<FieldValues> previous_values;
+        std::shared_ptr<FieldLValues> l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
@@ -102,8 +107,11 @@ namespace Kernel {
         std::vector<std::shared_ptr<Domain>> right;
         std::vector<std::shared_ptr<Domain>> top;
         std::vector<std::shared_ptr<Domain>> bottom;
-        int number_of_domains; // including pml_domains;
-        int number_of_pml_domains;
+        int num_neighbour_domains; // including pml_domains;
+        int num_pml_neighbour_domains;
+        bool has_horizontal_attenuation, is_corner_domain;
+        std::vector<bool> needs_reversed_attenuation;
+        PMLArrays pml_arrays;
     public:
 
         /**
@@ -125,7 +133,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -134,7 +142,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, edge_parameters> edge_param_map,
+               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -144,21 +152,45 @@ namespace Kernel {
          */
         void compute_rho_arrays();
 
+        /**
+         * Overrides the old values with the new values.
+         */
         void push_values();
 
+        /**
+         * Clears the matrices used in computing the field values
+         */
         void clear_matrices();
 
+        /**
+         * Computes the matrices used in attenuating the field values in the PML domains
+         */
         void compute_pml_matrices();
 
+        /**
+         * Applies the PML attenuation to the field values
+         */
         void apply_pml_matrices();
 
+        /**
+         * Returns the number of neighbours
+         * @param count_pml: Whether or not to also include PML domains in the count
+         * @return number of neighbours.
+         */
         int number_of_neighbours(bool count_pml);
 
         /**
          * Checks if a certain point is contained in this domain
+         * @param point: Grid point object
+         * @return: True if center of grid point is located in the domain, false otherwise
          */
         bool contains_point(Point point);
 
+        /**
+         * Checks if a certain (unrounded) location is contained in this domain.
+         * @param location: Coordinates on grid.
+         * @return: True if location falls within top_left and bottom_right, false otherwise.
+         */
         bool contains_location(std::vector<float> location);
 
         /**
@@ -176,14 +208,24 @@ namespace Kernel {
         std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<float> location);
 
 
+        /**
+         * Add a a neigbour to the set of neighbour domains.
+         * @param domain: Pointer to fully initialized neighbour domain
+         * @param direction: Direction in which the domain is neighboured.
+         */
         void add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction);
+
         /**
          * Method that checks if this domain is touching the input domain
          * @param d Domain to check against this domain
          */
         bool is_neighbour_of(std::shared_ptr<Domain> domain);
 
+        /**
+         * True if domain functions as a PML domain for the provided domain, false otherwise.
+         */
         bool is_pml_for(std::shared_ptr<Domain> domain);
+
         /**
          * Returns true if the domain is rigid
          */
@@ -241,12 +283,19 @@ namespace Kernel {
         void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
                                std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
                                std::shared_ptr<WaveNumberDiscretizer> wnd,
-                               std::map<Direction, edge_parameters> edge_param_map,
+                               std::map<Direction, EdgeParameters> edge_param_map,
                                const std::shared_ptr<Domain> pml_for_domain);
         void clear_fields();
 
         void find_update_directions();
         void compute_number_of_neighbours();
+
+        int get_num_pmls_in_direction(Direction direction);
+
+        void create_attenuation_array(CalcDirection calc_dir, bool ascending, Eigen::ArrayXXf &pml_pressure,
+                                      Eigen::ArrayXXf &pml_velocity);
     };
+
+    std::ostream &operator<<(std::ostream &str, Domain const &v);
 }
 #endif //OPENPSTD_KERNELDOMAIN_H

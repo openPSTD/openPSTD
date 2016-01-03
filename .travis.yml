@@ -3,38 +3,38 @@ sudo: required
 dist: trusty
 
 os:
-  - linux
-  - osx
+- linux
+- osx
+
+env:
+  global:
+  - OPENPSTD_MAJOR_VERSION=2
+  - OPENPSTD_MINOR_VERSION=0
 
 before_install:
- - sudo chmod -R +x build
- - export PATH=./build/:$PATH
- - export PATH=/opt/qt55/bin/:$PATH
- - install_add_repo.sh
+- sudo chmod -R +x build
+- export PATH=./build/:$PATH
+- export PATH=/opt/qt55/bin/:$PATH
+- install_add_repo.sh
 
 install:
- - install_boost.sh
- - install_xsltproc.sh
- - install_unqlite.sh
- - install_Qt55.sh
- - install_rapidjson.sh
- - install_eigen.sh
+- install_boost.sh
+- install_xsltproc.sh
+- install_Qt55.sh
+- install_rapidjson.sh
+- install_eigen.sh
 
 before_script:
- - uname -r
- - gcc -v
- - cmake --version
+- uname -r
+- gcc -v
+- cmake --version
+- cmake --help
+- cpack --version
+- cpack --help
 
 script:
- - compile.sh
- - test.sh
+- compile.sh
+- test.sh
 
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: TM2rvktT9Tl5TA+EL22ZpasLKbthYIORoTXaq9Hb8T37ego04Le+1UhfMr3M3j6FXF1rJfiGv3tdxe+oxudTMotVk7AXUUb5m6gO82CqHdHMW1fAb1yhr8p03iG6bBT275zaq78bELCgkBzM/KFyJpCmMbbzVRv0SlWT0m/BQjJpdTY+gYt/Al5BoLpVMPW0+91t83/wCZYWH2WLnKaptK1t1/2HmezTS88otItpEEQ24FDrIKY6rQ3l+64YZgFJ3xzYekzpfvwVyIoAYZmPuSqnR7r2NMu/hJf0NR1STNO6IN10AG6jXgBRkcxQW6cHHZ22y258MeSdcbcLYhIsujdOiwSnSMvlcv67m7xIO+ICz2D8sF3/GFbab+nzXg3jaNnYzVltxxkwar1NmmVhrUuqCpODfpeMKtXWfGtWS4ChG5IlyMRyjvg5c1YdgPnWAeFrVFrFFqRO54caAUkRW4jv1hJlyt7EbNYUfcVB7vBfzkPDLKTEtrRMwBaoGjgxveb1lZg076avlgT/7HeVAitLCYV+l44ur73NfaQCPebVXUIPQiBSry/ya2tU2iWlGNMvgWM5myMm3S3l+GLcNMLcrjytJTFnz5cEeE4ur2qnPu9AqX160BFrDaUeEBrryHbul1wSIQL6bquSb81+6EBQx+E1K1y6GLngXJ3YECk=
-  file: OpenPSTD-gui
-  on:
-    repo: openPSTD/openPSTD
-    tags: true
+after_success:
+- upload_webdav.sh

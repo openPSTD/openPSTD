@@ -58,7 +58,7 @@ namespace Kernel {
         std::vector<std::shared_ptr<Receiver>> receiver_list;
         std::vector<std::shared_ptr<Speaker>> speaker_list;
     private:
-        std::map<Direction, edge_parameters> default_edge_parameters; // Uninitialized
+        std::map<Direction, EdgeParameters> default_edge_parameters; // Uninitialized
     public:
 
         /**
@@ -156,6 +156,8 @@ namespace Kernel {
          */
         std::shared_ptr<Domain> get_singular_parent_domain(std::shared_ptr<Domain> domain);
     };
+
+    std::ostream &operator<<(std::ostream &str, Scene const &v);
 }
 
 #endif //OPENPSTD_KERNELSCENE_H
