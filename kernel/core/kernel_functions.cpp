@@ -114,6 +114,7 @@ namespace Kernel {
 
         //in the Python code: N1 = fft_batch and N2 = fft_length
         int fft_batch, fft_length;
+        Eigen::ArrayXXf result(1,1); //also called Lp in some places in documentation
 
         fft_batch = p2->rows();
         fft_length = next2Power((int) p2->cols() + wlen*2);
@@ -131,6 +132,7 @@ namespace Kernel {
         //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
         //slicing and the values pulled from the Rmatrix is slightly different for the two branches
         if (ct == CalculationType::PRESSURE) {
+            result.resize(fft_batch,fft_length+1);
 
             //window the outer domains, add a portion of the middle one to the sides and concatenate them all
             Eigen::ArrayXf window_left = window.head(wlen);
@@ -151,7 +153,7 @@ namespace Kernel {
             //TODO rewrite the C interfacing to acceptable C++
             int shape[] = {fft_length};
             fftwf_complex *out_buffer;
-            out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex)*fft_length*fft_batch);
+            out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float)*2*fft_length*fft_batch);
             int istride = 1; //distance between two elements in one fft-able array
             int ostride = istride;
             int idist = fft_length; //distance between first element of different arrays
@@ -159,6 +161,9 @@ namespace Kernel {
             //TODO think of how these can be stored in the solver without creating serious spaghetti
             fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
                                                       out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
+
+            idist = (fft_length/2)+1;
+            odist = idist;
             fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
                                                       in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
@@ -167,16 +172,20 @@ namespace Kernel {
 
             //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
-            spectrum_data.resize(fft_batch*fft_length);
-            std::copy(out_buffer, out_buffer+fft_batch*fft_length*sizeof(fftwf_complex), spectrum_data.begin());
+            spectrum_data.resize(fft_batch, (fft_length/2)+1;
+            std::copy(out_buffer, out_buffer+fft_batch*(fft_length/2+1)*sizeof(fftwf_complex), spectrum_data.begin());
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
 
             //apply the spectral derivative
             spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
 
-            fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
+            fftwf_execute_dft_c2r(plan, spectrum_array.data(), in_buffer);
 
-
+            //ifft result contains the outer domains, so slice
+            std::vector<std::complex<float>> derived_data;
+            derived_data.resize(fft_batch,fft_length);
+            std::copy(out_buffer, out_buffer+fft_batch*fft_length*sizeof(fftwf_complex), derived_data.begin());
+            Eigen::Map<Eigen::ArrayXXcf> derived_array(&derived_data[0], fft_batch, fft_length);
 
 
 
@@ -184,6 +193,9 @@ namespace Kernel {
 
         } else {
             //repeat for velocity calculation with different slicing
+
+            result.resize(fft_batch,fft_length-1);
+
             //window the outer domains, add a portion of the middle one to the sides and concatenate them all
             Eigen::ArrayXf window_left = window.head(wlen);
             Eigen::ArrayXf window_right = window.tail(wlen);
@@ -200,10 +212,41 @@ namespace Kernel {
                    p2->rightCols(wlen+1).leftCols(wlen).rowwise().reverse()*rho_array.pressure(1,0);
             windowed_data << dom1,*p2, dom3;
 
+            //TODO rewrite the C interfacing to acceptable C++
+            int shape[] = {fft_length};
+            fftwf_complex *out_buffer;
+            out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex)*fft_length*fft_batch);
+            int istride = 1; //distance between two elements in one fft-able array
+            int ostride = istride;
+            int idist = fft_length; //distance between first element of different arrays
+            int odist = idist;
+            //TODO think of how these can be stored in the solver without creating serious spaghetti
+            fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
+                                                      out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
+            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
+                                                          in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
-            //TODO implement spectral part (copied from pressure calculation)
+            memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
+            fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
+
+            //map the results back into an eigen array
+            std::vector<std::complex<float>> spectrum_data;
+            spectrum_data.resize(fft_batch*fft_length);
+            std::copy(out_buffer, out_buffer+fft_batch*fft_length*sizeof(fftwf_complex), spectrum_data.begin());
+            Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
+
+            //apply the spectral derivative
+            spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
+
+            fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
+
+            //ifft result contains the outer domains, so slice
+
         }
-        //TODO slice the result properly, transpose it if direct == 0
-
+        //TODO transpose it if direct == 0
+        if(direct == CalcDirection::Y) {
+            result.transposeInPlace();
+        }
+        return result;
     }
 }
