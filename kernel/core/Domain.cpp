@@ -58,9 +58,10 @@ namespace Kernel {
         this->wnd = wnd;
         this->id = id;
         this->edge_param_map = edge_param_map;
+        this->alpha = alpha; // Todo: Usually 1, and barely used. Push to settings when PML domain becomes subclass
         //Todo: (TK): Probably wrong, especially with two neighbouring PML domains
         this->impedance = -((std::sqrt(1 - alpha) + 1) / (std::sqrt(1 - alpha) - 1));
-        if (is_pml) {
+        if (is_pml) { // Ugly... Fix when possible
             this->pml_for_domain_list.push_back(pml_for_domain);
         }
         if (this->is_rigid()) {
@@ -69,7 +70,6 @@ namespace Kernel {
             this->rho = this->settings->GetDensityOfAir();
         }
         this->is_pml = is_pml;
-        this->pml_for_domain_list.push_back(pml_for_domain);
         this->is_secondary_pml = false;
         for (auto domain:this->pml_for_domain_list) {
             if (domain->is_pml) {
