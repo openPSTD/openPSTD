@@ -150,16 +150,34 @@ find_library(FFTWF_LIBRARY
 set(FFTW_LIBRARIES "${FFTW_LIBRARY}")
 set(FFTWF_LIBRARIES "${FFTWF_LIBRARY}")
 
+IF(FFTWF_INCLUDE_DIRS)
+    FIND_PATH(FFTWF_INCLUDE_DIR fftw3.h ${FFTWF_INCLUDE_DIRS})
+    FIND_LIBRARY(FFTWF_LIBRARY fftw3f ${FFTWF_LIBRARY_DIRS})
+    FIND_LIBRARY(FFTWF_THREADS_LIBRARY fftw3f_threads ${FFTWF_LIBRARY_DIRS})
+ELSE(FFTWF_INCLUDE_DIRS)
+    SET(TRIAL_PATHS
+        $ENV{FFTWF_HOME}/include
+        /usr/include
+        /usr/local/include
+        /opt/include
+        /usr/apps/include
+    )
+
+    SET(TRIAL_LIBRARY_PATHS
+        $ENV{FFTWF_HOME}/lib
+        /usr/lib
+        /usr/local/lib
+        /opt/lib
+        /sw/lib
+    )
+
+    FIND_PATH(FFTWF_INCLUDE_DIR fftw3.h ${TRIAL_PATHS})
+    FIND_LIBRARY(FFTWF_LIBRARIES fftw3f ${TRIAL_LIBRARY_PATHS})
+    FIND_LIBRARY(FFTWF_THREADS_LIBRARIES fftw3f_threads ${TRIAL_LIBRARY_PATHS})
+ENDIF(FFTWF_INCLUDE_DIRS)
+
 include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args (FFTWF DEFAULT_MSG FFTWF_LIBRARIES FFTWF_INCLUDES)
-
-mark_as_advanced (FFTWF_LIBRARIES FFTWF_INCLUDES)
-
-if(UNIX AND NOT WIN32)
-    find_library(FFTW_libm_LIBRARY
-            NAMES m)
-    list(APPEND FFTW_LIBRARIES "${FFTW_libm_LIBRARY}")
-endif()
 
 
 #------------------------------------
