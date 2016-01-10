@@ -7,6 +7,7 @@ if [ ${TRAVIS_OS_NAME} = "linux" ]; then
 else
     QT5DIR=/usr/local/opt/qt5
     PACKAGE=Bundle
+    echo `brew --prefix`/bin #check if this is in a weird place on travis
 fi
 
 cmake \
