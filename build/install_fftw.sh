@@ -13,12 +13,12 @@ else
     wget http://www.fftw.org/fftw-3.3.4.tar.gz
     tar -xzf fftw-3.3.4.tar.gz
     cd fftw-3.3.4
-    ./configure --enable-float --enable-sse
+    ./configure --enable-float --enable-sse --prefix=/usr
     make
     sudo make install
     echo clean up to install double version as well
     make distclean
-    ./configure --enable-sse2
+    ./configure --enable-sse2 --prefix=/usr
     make
     sudo make install
     cd ..

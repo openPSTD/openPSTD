@@ -177,7 +177,7 @@ ELSE(FFTWF_INCLUDE_DIRS)
 ENDIF(FFTWF_INCLUDE_DIRS)
 
 include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (FFTWF DEFAULT_MSG FFTWF_LIBRARIES FFTWF_INCLUDES)
+find_package_handle_standard_args (FFTWF DEFAULT_MSG FFTWF_LIBRARIES FFTWF_INCLUDE_DIR)
 
 
 #------------------------------------
