@@ -97,7 +97,7 @@ void PSTDKernel::add_receivers() {
 }
 
 void PSTDKernel::run(KernelCallback *callback) {
-    int solver_num = this->config->Settings.GetGPUAccel() + this->config->Settings.GetMultiThread() << 1;
+    int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
     Kernel::Solver *solver;
     switch (solver_num) {
         case 0:
