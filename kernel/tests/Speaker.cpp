@@ -43,10 +43,30 @@ using namespace std;
 using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(speaker)
 
-    BOOST_AUTO_TEST_CASE(test_next_2_power) {
+    BOOST_AUTO_TEST_CASE(test_speaker_contribution_in_bounds) {
+        shared_ptr<Point> top_left(new Point(0, 0));
+        shared_ptr<Point> size(new Point(100, 150));
+        shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
+        EdgeParameters standard = {};
+        standard.locally_reacting = true;
+        standard.alpha = 1;
+        map<Direction, EdgeParameters> edge_param_map = {{Direction::LEFT,   standard},
+                                                         {Direction::RIGHT,  standard},
+                                                         {Direction::TOP,    standard},
+                                                         {Direction::BOTTOM, standard}};
+        shared_ptr<Kernel::Domain> test_domain(new Kernel::Domain(nullptr, "test_domain", 1, top_left, size, false, wnd,
+                                                                  edge_param_map, nullptr));
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(test_values_case1) {
         //Implement when domains can be initialized
         BOOST_CHECK(true);
     }
 
+    BOOST_AUTO_TEST_CASE(test_values_case2) {
+        //Implement when domains can be initialized
+        BOOST_CHECK(true);
+    }
 
 BOOST_AUTO_TEST_SUITE_END()
