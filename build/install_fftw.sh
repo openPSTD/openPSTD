@@ -14,10 +14,12 @@ else
     tar -xzf fftw-3.3.4.tar.gz
     cd fftw-3.3.4
     ./configure --enable-float
+    make
     sudo make install
     echo clean up to install double version as well
     make distclean
     ./configure
+    make
     sudo make install
     cd ..
 fi
