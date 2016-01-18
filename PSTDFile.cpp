@@ -100,7 +100,49 @@ const char *PSTDEmptyScene = "{\n"
 #define PSTD_FILE_PREFIX_DOMAIN_COUNT 3
 #define PSTD_FILE_PREFIX_FRAME_COUNT 4
 #define PSTD_FILE_PREFIX_FRAMEDATA 5
+#define PSTD_FILE_PREFIX_SCENE_SETTINGS 6
+#define PSTD_FILE_PREFIX_SCENE_SPEAKERS 7
+#define PSTD_FILE_PREFIX_SCENE_RECEIVERS 8
+#define PSTD_FILE_PREFIX_SCENE_DOMAINS 9
+#define PSTD_FILE_PREFIX_VERSION 10000
+#define PSTD_FILE_VERSION 1
 
+std::string PSTDFileKeyToString(PSTDFile_Key_t key) {
+    unsigned int *values = (unsigned int *) key->data();
+
+    std::string result("{" + boost::lexical_cast<std::string>(values[0]) + ",[");
+    for (int i = 1; i < key->size() / 4; i++) {
+        result = result + boost::lexical_cast<std::string>(values[i]);
+        if (i < key->size() / 4 - 1) {
+            result = result + ",";
+        }
+    }
+    result = result + "]}";
+
+    return result;
+}
+
+PSTDFileVersionException::PSTDFileVersionException(int fileVersion)
+{
+    this->FileVersion = fileVersion;
+}
+
+const char* PSTDFileVersionException::what() const noexcept
+{
+    return ("Wrong version: " + boost::lexical_cast<std::string>(FileVersion) + "(expected: " + boost::lexical_cast<std::string>(PSTD_FILE_VERSION) + ")").c_str();
+}
+
+PSTDFileIOException::PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action)
+{
+    _unqlite_error = unqlite_error;
+    _key = key;
+    _action = action;
+}
+
+const char* PSTDFileIOException::what() const noexcept
+{
+    return ("Error with '" + _action + "': error code: " + boost::lexical_cast<std::string>(_unqlite_error) + " with key " + PSTDFileKeyToString(_key) + ")").c_str();
+}
 
 std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename) {
     std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
@@ -108,6 +150,11 @@ std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename) {
     unqlite *backend;
     unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
     result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
+    int version = result->GetValue<int>(PSTDFile::CreateKey(PSTD_FILE_PREFIX_VERSION, {}));
+    if(version != PSTD_FILE_VERSION)
+    {
+        throw PSTDFileVersionException(version);
+    }
     result->initialize();
     return result;
 }
@@ -116,19 +163,24 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename) {
     {
         std::unique_ptr<PSTDFile> result(new PSTDFile());
 
+        //create db
         unqlite *backend;
         unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
         result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
 
-        std::shared_ptr<rapidjson::Document> SceneConf(new rapidjson::Document());
-        SceneConf->Parse(PSTDEmptyScene);
-        result->SetSceneConf(SceneConf);
-        result->Commit();
+        //add version
+        result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_VERSION, {}), PSTD_FILE_VERSION);
 
+        //create basic geometry with default options
+        std::shared_ptr<PSTDFileConfiguration> SceneConf = PSTDFile::CreateDefaultConf();
+        result->SetSceneConf2(SceneConf);
+
+        //create PSTD conf
         std::shared_ptr<rapidjson::Document> PSTDConf(new rapidjson::Document());
         PSTDConf->Parse("{}");
         result->SetPSTDConf(PSTDConf);
 
+        //zero frames are saves
         result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
     }
 
@@ -146,6 +198,37 @@ std::shared_ptr<rapidjson::Document> PSTDFile::GetSceneConf() {
 void PSTDFile::SetSceneConf(std::shared_ptr<rapidjson::Document> scene) {
     this->sceneConf = scene;
     this->changed = true;
+}
+
+shared_ptr<PSTDFileConfiguration> PSTDFile::GetSceneConf2()
+{
+    shared_ptr<PSTDFileConfiguration> conf = shared_ptr<PSTDFileConfiguration>(new PSTDFileConfiguration());
+    conf->Settings = this->GetValue<PSTDFileSettings>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}));
+    conf->Speakers = this->GetArray<QVector3D>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}));
+    conf->Receivers = this->GetArray<QVector3D>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_RECEIVERS, {}));
+    conf->Domains = this->GetArray<Domain>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}));
+
+    return conf;
+}
+
+void PSTDFile::SetSceneConf2(shared_ptr<PSTDFileConfiguration> scene)
+{
+    this->SetValue(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}), scene->Settings);
+    this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}), scene->Speakers);
+    this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_RECEIVERS, {}), scene->Receivers);
+    this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}), scene->Domains);
+}
+
+shared_ptr<PSTDFileConfiguration> PSTDFile::GetPSTDConf2()
+{
+    shared_ptr<PSTDFileConfiguration> conf = shared_ptr<PSTDFileConfiguration>(new PSTDFileConfiguration());
+
+    return conf;
+}
+
+void PSTDFile::SetPSTDConf2(shared_ptr<PSTDFileConfiguration> scene)
+{
+
 }
 
 std::shared_ptr<rapidjson::Document> PSTDFile::GetPSTDConf() {
@@ -174,7 +257,6 @@ int PSTDFile::GetFrameCount(unsigned int domain) {
 PSTD_FRAME_PTR PSTDFile::GetFrame(unsigned int frame, unsigned int domain) {
     unqlite_int64 size;
     char *result = this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
-    //Todo: convert
     return shared_ptr<PSTD_FRAME>(new PSTD_FRAME(result, result + size));
 }
 
@@ -234,9 +316,7 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64 *nBytes) {
 
     rc = unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), NULL, nBytes);
     if (rc != UNQLITE_OK) {
-        std::cout << "Error: " << rc;
-        std::cout << " for key: " << this->KeyToString(key) << std::endl;
-        //todo throw error exception
+        throw PSTDFileIOException(rc, key, "fetch data");
     }
 
     zBuf = new char[*nBytes];
@@ -278,21 +358,6 @@ PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<un
     return result;
 }
 
-std::string PSTDFile::KeyToString(PSTDFile_Key_t key) {
-    unsigned int *values = (unsigned int *) key->data();
-
-    std::string result("{" + boost::lexical_cast<std::string>(values[0]) + ",[");
-    for (int i = 1; i < key->size() / 4; i++) {
-        result = result + boost::lexical_cast<std::string>(values[i]);
-        if (i < key->size() / 4 - 1) {
-            result = result + ",";
-        }
-    }
-    result = result + "]}";
-
-    return result;
-}
-
 void PSTDFile::SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> value) {
     //add the 1 for the null terminator :)
     SetRawValue(key, value->length() + 1, value->c_str());
@@ -304,7 +369,7 @@ void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void 
     rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), value, nBytes);
 
     if (rc != UNQLITE_OK) {
-        //todo throw error exception
+        throw PSTDFileIOException(rc, key, "store data");
     }
 }
 
@@ -321,7 +386,7 @@ void PSTDFile::DeleteValue(PSTDFile_Key_t key) {
     rc = unqlite_kv_delete(this->backend.get(), key->data(), key->size());
 
     if (rc != UNQLITE_OK) {
-        //todo throw error exception
+        throw PSTDFileIOException(rc, key, "delete data");
     }
 }
 
@@ -374,6 +439,46 @@ void PSTDFile::SetSettings(PSTDFileSettings settings) {
     (*conf)["SaveNth"] = settings.GetSaveNth();
 
     this->SetSceneConf(conf);
+}
+
+shared_ptr<PSTDFileConfiguration> PSTDFile::CreateDefaultConf()
+{
+    shared_ptr<PSTDFileConfiguration> conf = shared_ptr<PSTDFileConfiguration>(new PSTDFileConfiguration());
+    conf->Settings.SetRenderTime(1.0f);
+    conf->Settings.SetSoundSpeed(340.0f);
+    conf->Settings.SetAttenuationOfPMLCells(20000.0f);
+    conf->Settings.SetDensityOfAir(1.2f);
+    conf->Settings.SetPatchError(70.0f);
+    conf->Settings.SetFactRK(0.5f);
+    conf->Settings.SetGridSpacing(0.2);
+    conf->Settings.SetPMLCells(50);
+    conf->Settings.SetSaveNth(1);
+
+    //todo: fix good default values for these parameters
+    conf->Settings.SetBandWidth(1.0f);
+    conf->Settings.SetRKCoefficients(vector<float>());
+    conf->Settings.SetWindow(Eigen::ArrayXf());
+    conf->Settings.SetSpectralInterpolation(true);
+
+    conf->Speakers.push_back(QVector3D(4, 5, 0));
+    conf->Receivers.push_back(QVector3D(6, 5, 0));
+
+    Domain d;
+    d.TopLeft = QVector2D(0, 0);
+    d.Size = QVector2D(10, 10);
+    d.T.Absorption = 0;
+    d.B.Absorption = 0;
+    d.L.Absorption = 0;
+    d.R.Absorption = 0;
+
+    d.T.LR = false;
+    d.B.LR = false;
+    d.L.LR = false;
+    d.R.LR = false;
+
+    conf->Domains.push_back(d);
+
+    return conf;
 }
 
 float PSTDFileSettings::GetGridSpacing() {
@@ -461,11 +566,11 @@ void PSTDFileSettings::SetSaveNth(int value) {
     this->SaveNth = value;
 }
 
-float PSTDFileSettings::getBandWidth() {
+float PSTDFileSettings::GetBandWidth() {
     return this->band_width;
 }
 
-void PSTDFileSettings::setBandWidth(float value) {
+void PSTDFileSettings::SetBandWidth(float value) {
     this->band_width = value;
 }
 
@@ -524,7 +629,7 @@ std::vector<float> PSTDFileSettings::GetRKCoefficients() {
     return this->rk_coefficients;
 }
 
-void PSTDFileSettings::setRKCoefficients(std::vector<float> coef) {
+void PSTDFileSettings::SetRKCoefficients(std::vector<float> coef) {
     this->rk_coefficients = coef; //Todo: Set somewhere.
 
 }

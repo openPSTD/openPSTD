@@ -35,7 +35,7 @@ namespace Kernel {
         for (int i = 0; i < domain_width; i++) {
             for (int j = 0; j < domain_height; j++) {
                 float distance = (float) sqrt(pow(rel_x - i * dx, 2) + pow(rel_y - j * dx, 2));
-                float pressure = (float) exp(-domain->settings->getBandWidth() * pow(distance, 2));
+                float pressure = (float) exp(-domain->settings->GetBandWidth() * pow(distance, 2));
                 float horizontal_component = pressure;
                 float vertical_component = 0;
                 values->p0(i,j) += pressure;
