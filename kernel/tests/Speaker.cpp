@@ -18,37 +18,35 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 17-9-15
+// Date: 2-1-2016
 //
 //
-// Authors: omar
+// Authors: Omar Richardson
 //
 //
-// Purpose:
+// Purpose: Test suite for kernel functions
 //
 //
 //////////////////////////////////////////////////////////////////////////
-#ifndef OPENPSTD_GEOMETRY_H
-#define OPENPSTD_GEOMETRY_H
 
-#include <ostream>
-#include <vector>
-namespace Kernel {
-    class Point {
-    public:
-        const int x, y, z;
-        std::vector<int> array;
 
-        /**
-         * Constructor for a point in grid coordinates
-         */
-        Point(int x, int y, int z = 0);
+#ifdef STAND_ALONE
+#   define BOOST_TEST_MODULE Main
+#endif
 
-        friend Point operator+(Point a, Point b);
+#include <boost/test/unit_test.hpp>
+#include "../core/Speaker.h"
+#include <cmath>
 
-        friend Point operator-(Point a, Point b);
-    };
+using namespace Kernel;
+using namespace std;
+using namespace Eigen;
+BOOST_AUTO_TEST_SUITE(speaker)
 
-    std::ostream &operator<<(std::ostream &str, Point const &v);
-}
-#endif //OPENPSTD_GEOMETRY_H
+    BOOST_AUTO_TEST_CASE(test_next_2_power) {
+        //Implement when domains can be initialized
+        BOOST_CHECK(true);
+    }
+
+
+BOOST_AUTO_TEST_SUITE_END()

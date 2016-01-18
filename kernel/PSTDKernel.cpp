@@ -35,6 +35,7 @@
 // interface of the kernel
 
 PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
+    Kernel::debug("Initialzing kernel");
     this->config = config;
     this->settings = std::make_shared<PSTDFileSettings>(config->Settings);
     Kernel::Scene scene(this->config);
@@ -42,22 +43,26 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
     this->initialize_scene();
     auto wnd = Kernel::WaveNumberDiscretizer();
     this->wnd = std::make_shared<Kernel::WaveNumberDiscretizer>(wnd);
+    Kernel::debug("Finished nitialzing kernel");
 }
 
 
 void PSTDKernel::initialize_scene() {
+    Kernel::debug("Initialzing scene");
     this->add_domains();
     scene->add_pml_domains();
     this->add_speakers();
     this->add_receivers();
     scene->compute_rho_arrays();
     scene->compute_pml_matrices();
+    Kernel::debug("Finished initializing");
 }
 
 
 void PSTDKernel::add_domains() {
     int domain_id_int = 0;
     for (auto domain: this->config->Domains) {
+        Kernel::debug("Initializing domain " + std::to_string(domain_id_int));
         std::vector<float> tl = scale_to_grid(domain.TopLeft);
         std::vector<float> s = scale_to_grid(domain.Size);
         std::shared_ptr<Kernel::Point> grid_top_left = std::make_shared<Kernel::Point>((int) tl.at(0), (int) tl.at(1));
@@ -77,6 +82,8 @@ void PSTDKernel::add_speakers() {
     //Inconsistent: We created domains in this class, and speakers in the scene class
     for (auto speaker: this->config->Speakers) {
         std::vector<float> location = scale_to_grid(speaker);
+        Kernel::debug(
+                "Initialzing Speaker (" + std::to_string(location.at(0)) + ", " + std::to_string(location.at(1)) + ")");
         this->scene->add_speaker(location.at(0), location.at(1), 0); // Z-coordinate is 0
     }
 }

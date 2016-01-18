@@ -18,37 +18,45 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 17-9-15
+// Date: 2-1-2016
 //
 //
-// Authors: omar
+// Authors: Omar Richardson
 //
 //
-// Purpose:
+// Purpose: Test suite for kernel functions
 //
 //
 //////////////////////////////////////////////////////////////////////////
-#ifndef OPENPSTD_GEOMETRY_H
-#define OPENPSTD_GEOMETRY_H
 
-#include <ostream>
-#include <vector>
-namespace Kernel {
-    class Point {
-    public:
-        const int x, y, z;
-        std::vector<int> array;
 
-        /**
-         * Constructor for a point in grid coordinates
-         */
-        Point(int x, int y, int z = 0);
+#ifdef STAND_ALONE
+#   define BOOST_TEST_MODULE Main
+#endif
 
-        friend Point operator+(Point a, Point b);
+#include <boost/test/unit_test.hpp>
+#include "../core/Geometry.h"
+#include <cmath>
 
-        friend Point operator-(Point a, Point b);
-    };
+using namespace Kernel;
+using namespace std;
+BOOST_AUTO_TEST_SUITE(geometry)
 
-    std::ostream &operator<<(std::ostream &str, Point const &v);
-}
-#endif //OPENPSTD_GEOMETRY_H
+    BOOST_AUTO_TEST_CASE(point_addition) {
+        Point point1 = Point(2, 3);
+        Point point2(5, 2);
+        Point resultpoint(7, 5);
+        BOOST_CHECK_EQUAL((point1 + point2).x, resultpoint.x);
+        BOOST_CHECK_EQUAL((point1 + point2).y, resultpoint.y);
+    }
+
+    BOOST_AUTO_TEST_CASE(point_substraction) {
+        Point point1 = Point(2, 3);
+        Point point2(5, 2);
+        Point resultpoint(-3, 1);
+        BOOST_CHECK_EQUAL((point1 - point2).x, resultpoint.x);
+        BOOST_CHECK_EQUAL((point1 - point2).y, resultpoint.y);
+    }
+
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -34,6 +34,9 @@ namespace Kernel {
         this->config = scene->config;
         this->settings = scene->settings;
         this->callback = callback;
+        Kernel::debug("Number of render time: "+std::to_string(this->settings->GetRenderTime()));
+        Kernel::debug("Number of time step: "+std::to_string(this->settings->GetTimeStep()));
+
         this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
     }
 

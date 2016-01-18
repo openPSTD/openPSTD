@@ -66,7 +66,7 @@ namespace Kernel {
         float offset = this->grid_offset.at(static_cast<unsigned long>(bt));
         Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
         for (int i = 0; i < discr.wave_numbers->rows(); i++) {
-            std::complex<float> wave_number = (*discr.wave_numbers)(i);
+            float wave_number = (*discr.wave_numbers)(i);
             std::complex<float> complex_factor = (*discr.complex_factors)(i);
             fft_factors(i) = exp(offset * dx * wave_number * complex_factor);
         }
@@ -104,7 +104,7 @@ namespace Kernel {
         std::shared_ptr<Eigen::ArrayXcf> z_fact = this->get_fft_factors(Point(1, this->container_domain->size->y),
                                                        CalcDirection::Y);
         float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
-        int opt_wave_number = next2Power(wave_number);
+        int opt_wave_number = next_2_power(wave_number);
 
         RhoArray rho_array = this->container_domain->rho_arrays[top_domain->id + bottom_domain->id];
 
