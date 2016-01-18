@@ -30,7 +30,7 @@ namespace Kernel {
         for (int i = 0; i < domain_width; i++) {
             for (int j = 0; j < domain_height; j++) {
                 float distance = (float) sqrt(pow(rel_x - i * dx, 2) + pow(rel_y - j * dx, 2));
-                float pressure = (float) exp(-domain->settings->getBandWidth() * pow(distance, 2));
+                float pressure = (float) exp(-domain->settings->GetBandWidth() * pow(distance, 2));
                 // Vectorized versions of above expressions exists//
                 // but we need to get into a for loop anyway, because of atan2
                 float angle = std::atan2(rel_y - j * dx, rel_x - i * dx);
