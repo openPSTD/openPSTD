@@ -43,7 +43,6 @@ extern "C"
 #include <unqlite.h>
 }
 
-#include "rapidjson/document.h"
 #include <memory>
 #include <vector>
 #include "GeneralTypes.h"
@@ -184,10 +183,9 @@ public:
 
 std::string DomainSideToString(PSTD_DOMAIN_SIDE side);
 
-class PSTDFile : public InvalidationData {
+class PSTDFile : public InvalidationData
+{
 private:
-    bool changed;
-    std::shared_ptr<rapidjson::Document> sceneConf;
     std::unique_ptr<unqlite, int (*)(unqlite *)> backend;
 
     std::unique_ptr<std::string> GetStringValue(PSTDFile_Key_t key);
@@ -287,41 +285,6 @@ public:
     static std::unique_ptr<PSTDFile> New(const std::string &filename);
 
     PSTDFile();
-
-    /**
-     * only neccesary with version 1
-     */
-    void Commit() __attribute__ ((deprecated));
-
-    /**
-     * Use version 2
-     */
-    std::shared_ptr<rapidjson::Document> GetSceneConf() __attribute__ ((deprecated));
-
-    /**
-     * Use version 2
-     */
-    void SetSceneConf(std::shared_ptr<rapidjson::Document> scene) __attribute__ ((deprecated));
-
-    /**
-     * Use version 2
-     */
-    std::shared_ptr<rapidjson::Document> GetPSTDConf() __attribute__ ((deprecated));
-
-    /**
-     * Use version 2
-     */
-    void SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD) __attribute__ ((deprecated));
-
-    /**
-     * use GetSceneConf2
-     */
-    PSTDFileSettings GetSettings() __attribute__ ((deprecated));
-
-    /**
-     * use SetSceneConf2
-     */
-    void SetSettings(PSTDFileSettings value) __attribute__ ((deprecated));
 
     /**
      * Reads the scene config out of the file

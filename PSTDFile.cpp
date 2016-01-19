@@ -18,17 +18,13 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 19-1-2016
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
-
-//
-// Created by michiel on 18-7-2015.
-//
 
 #include "PSTDFile.h"
 
@@ -38,62 +34,9 @@ extern "C"
 }
 
 #include <iostream>
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
-
-const char *PSTDEmptyScene = "{\n"
-        "    \"domains\": [\n"
-        "        {\n"
-        "            \"topleft\": [\n"
-        "                0.0,\n"
-        "                0.0\n"
-        "            ],\n"
-        "            \"size\": [\n"
-        "                10.0,\n"
-        "                10.0\n"
-        "            ],\n"
-        "            \"edges\": {\n"
-        "                \"l\": {\n"
-        "                    \"a\": 0.0,\n"
-        "                    \"lr\": false\n"
-        "                },\n"
-        "                \"b\": {\n"
-        "                    \"a\": 0.0,\n"
-        "                    \"lr\": false\n"
-        "                },\n"
-        "                \"t\": {\n"
-        "                    \"a\": 0.0,\n"
-        "                    \"lr\": false\n"
-        "                },\n"
-        "                \"r\": {\n"
-        "                    \"a\": 0.0,\n"
-        "                    \"lr\": false\n"
-        "                }\n"
-        "            }\n"
-        "        }\n"
-        "    ],\n"
-        "    \"calctime\": 1.0,\n"
-        "    \"c1\": 340.0,\n"
-        "    \"ampmax\": 20000.0,\n"
-        "    \"receivers\": [[6.0, 5.0, 0.0]],\n"
-        "    \"rho\": 1.2000000476837158,\n"
-        "    \"plotdir\": \"./openPSTD_plots_20140903_1009\",\n"
-        "    \"patcherror\": 70.0,\n"
-        "    \"speakers\": [\n"
-        "        [\n"
-        "            4.0,\n"
-        "            5.0,\n"
-        "            0.0\n"
-        "        ]\n"
-        "    ],\n"
-        "    \"tfactRK\": 0.5,\n"
-        "    \"grid_spacing\": 0.20000000298023224,\n"
-        "    \"PMLcells\": 50,"
-        "    \"SaveNth\": 1\n"
-        "}";
 
 #define PSTD_FILE_PREFIX_SCENE 1
 #define PSTD_FILE_PREFIX_PSTD 2
@@ -146,7 +89,6 @@ const char* PSTDFileIOException::what() const noexcept
 
 std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename) {
     std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
-    result->changed = false;
     unqlite *backend;
     unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
     result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
@@ -155,7 +97,6 @@ std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename) {
     {
         throw PSTDFileVersionException(version);
     }
-    result->initialize();
     return result;
 }
 
@@ -176,9 +117,10 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename) {
         result->SetSceneConf2(SceneConf);
 
         //create PSTD conf
-        std::shared_ptr<rapidjson::Document> PSTDConf(new rapidjson::Document());
-        PSTDConf->Parse("{}");
-        result->SetPSTDConf(PSTDConf);
+        //todo fix the correct type
+        //std::shared_ptr<rapidjson::Document> PSTDConf(new rapidjson::Document());
+        //PSTDConf->Parse("{}");
+        //result->SetPSTDConf(PSTDConf);
 
         //zero frames are saves
         result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
@@ -189,15 +131,6 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename) {
 
 PSTDFile::PSTDFile() : backend(nullptr, unqlite_close) {
 
-}
-
-std::shared_ptr<rapidjson::Document> PSTDFile::GetSceneConf() {
-    return this->sceneConf;
-}
-
-void PSTDFile::SetSceneConf(std::shared_ptr<rapidjson::Document> scene) {
-    this->sceneConf = scene;
-    this->changed = true;
 }
 
 shared_ptr<PSTDFileConfiguration> PSTDFile::GetSceneConf2()
@@ -229,21 +162,6 @@ shared_ptr<PSTDFileConfiguration> PSTDFile::GetPSTDConf2()
 void PSTDFile::SetPSTDConf2(shared_ptr<PSTDFileConfiguration> scene)
 {
 
-}
-
-std::shared_ptr<rapidjson::Document> PSTDFile::GetPSTDConf() {
-    std::unique_ptr<std::string> json = this->GetStringValue(CreateKey(PSTD_FILE_PREFIX_PSTD, {}));
-    std::shared_ptr<rapidjson::Document> document(new rapidjson::Document());
-    document->Parse(json->c_str());
-    return document;
-}
-
-void PSTDFile::SetPSTDConf(std::shared_ptr<rapidjson::Document> PSTD) {
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    PSTD->Accept(writer);
-    shared_ptr<string> json = make_shared<string>(buffer.GetString());
-    this->SetStringValue(CreateKey(PSTD_FILE_PREFIX_PSTD, {}), json);
 }
 
 int PSTDFile::GetDomainCount() {
@@ -286,17 +204,6 @@ void PSTDFile::DeleteSimulationResults() {
     SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
 }
 
-void PSTDFile::Commit() {
-    if (this->changed) {
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        this->sceneConf->Accept(writer);
-        shared_ptr<string> json = make_shared<string>(buffer.GetString());
-        this->SetStringValue(CreateKey(PSTD_FILE_PREFIX_SCENE, {}), json);
-    }
-    this->changed = false;
-}
-
 std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key) {
     unqlite_int64 nBytes;  //Data length
     char *zBuf;     //Dynamically allocated buffer
@@ -324,15 +231,6 @@ char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64 *nBytes) {
     unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), zBuf, nBytes);
 
     return zBuf;
-}
-
-void PSTDFile::initialize() {
-    std::unique_ptr<std::string> json(this->GetStringValue(CreateKey(PSTD_FILE_PREFIX_SCENE, {})));
-    std::shared_ptr<rapidjson::Document> result(new rapidjson::Document());
-    result->Parse(json->c_str());
-    this->sceneConf = result;
-
-    changed = false;
 }
 
 PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list) {
@@ -402,43 +300,6 @@ std::string DomainSideToString(PSTD_DOMAIN_SIDE side) {
         case PSTD_DOMAIN_SIDE_RIGHT  :
             return "r";
     }
-}
-
-PSTDFileSettings PSTDFile::GetSettings() {
-    using namespace rapidjson;
-
-    std::shared_ptr<Document> conf = this->GetSceneConf();
-
-    PSTDFileSettings settings;
-    settings.SetGridSpacing((*conf)["grid_spacing"].GetDouble());
-    settings.SetPatchError((*conf)["patcherror"].GetDouble());
-    settings.SetRenderTime((*conf)["calctime"].GetDouble());
-    settings.SetPMLCells((*conf)["PMLcells"].GetInt());
-    settings.SetAttenuationOfPMLCells((*conf)["ampmax"].GetDouble());
-    settings.SetDensityOfAir((*conf)["rho"].GetDouble());
-    settings.SetSoundSpeed((*conf)["c1"].GetDouble());
-    settings.SetFactRK((*conf)["tfactRK"].GetDouble());
-    settings.SetSaveNth((*conf)["SaveNth"].GetInt());
-
-    return settings;
-}
-
-void PSTDFile::SetSettings(PSTDFileSettings settings) {
-    using namespace rapidjson;
-
-    std::shared_ptr<Document> conf = this->GetSceneConf();
-
-    (*conf)["grid_spacing"] = settings.GetGridSpacing();
-    (*conf)["patcherror"] = settings.GetPatchError();
-    (*conf)["calctime"] = settings.GetRenderTime();
-    (*conf)["PMLcells"] = settings.GetPMLCells();
-    (*conf)["ampmax"] = settings.GetAttenuationOfPMLCells();
-    (*conf)["rho"] = settings.GetDensityOfAir();
-    (*conf)["c1"] = settings.GetSoundSpeed();
-    (*conf)["tfactRK"] = settings.GetFactRK();
-    (*conf)["SaveNth"] = settings.GetSaveNth();
-
-    this->SetSceneConf(conf);
 }
 
 shared_ptr<PSTDFileConfiguration> PSTDFile::CreateDefaultConf()
