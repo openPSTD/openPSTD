@@ -290,27 +290,27 @@ public:
      * Reads the scene config out of the file
      * @return a shared ptr to a new object of scene configuration
      */
-    std::shared_ptr<PSTDFileConfiguration> GetSceneConf2();
+    std::shared_ptr<PSTDFileConfiguration> GetSceneConf();
 
     /**
      * Writes the scene config to the file
      * @param scene a shared ptr to an object of scene configuration
      */
-    void SetSceneConf2(std::shared_ptr<PSTDFileConfiguration> scene);
+    void SetSceneConf(std::shared_ptr<PSTDFileConfiguration> scene);
 
     /**
      * Reads the scene config out of the file
      * @return a shared ptr to a new object of scene configuration
      */
     //todo fix for the correct type
-    std::shared_ptr<PSTDFileConfiguration> GetPSTDConf2();
+    std::shared_ptr<PSTDFileConfiguration> GetPSTDConf();
 
     /**
      * Writes the scene config to the file
      * @param scene a shared ptr to an object of scene configuration
      */
     //todo fix for the correct type
-    void SetPSTDConf2(std::shared_ptr<PSTDFileConfiguration> scene);
+    void SetPSTDConf(std::shared_ptr<PSTDFileConfiguration> scene);
 
     int GetDomainCount();
 

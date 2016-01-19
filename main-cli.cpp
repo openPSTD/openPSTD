@@ -122,6 +122,7 @@ int CreateCommand::execute(int argc, const char **argv)
         std::string filename = vm["scene-file"].as<std::string>();
 
         PSTDFile::New(filename);
+        return 0;
     }
     catch(std::exception& e)
     {
@@ -147,7 +148,99 @@ std::string ListCommand::GetDescription()
 
 int ListCommand::execute(int argc, const char **argv)
 {
-    return 0;
+    po::variables_map vm;
+
+    try
+    {
+        po::options_description desc("Allowed options");
+        desc.add_options()
+                ("help,h", "produce help message")
+                ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ;
+
+        po::positional_options_description p;
+        p.add("scene-file", 1);
+
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("scene-file") == 0)
+        {
+            std::cerr << "scene file is required" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        std::string filename = vm["scene-file"].as<std::string>();
+
+        Print(filename);
+        return 0;
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << "error: " << e.what() << "\n";
+        return 1;
+    }
+    catch(...)
+    {
+        std::cerr << "Exception of unknown type!\n";
+        return 1;
+    }
+}
+
+void ListCommand::Print(const std::string &filename)
+{
+    std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
+
+    auto SceneConf = file->GetSceneConf();
+    std::cout << "Settings: " << std::endl;
+    std::cout << "  Grid spacing: " << SceneConf->Settings.GetGridSpacing() << std::endl;
+    std::cout << "  Patche rror: " << SceneConf->Settings.GetPatchError() << std::endl;
+    std::cout << "  Window size: " << SceneConf->Settings.GetWindowSize() << std::endl;
+    std::cout << "  Render time: " << SceneConf->Settings.GetRenderTime() << std::endl;
+    std::cout << "  PML cells: " << SceneConf->Settings.GetPMLCells() << std::endl;
+    std::cout << "  Attenuation of PML cells: " << SceneConf->Settings.GetAttenuationOfPMLCells() << std::endl;
+    std::cout << "  Density of air: " << SceneConf->Settings.GetDensityOfAir() << std::endl;
+    std::cout << "  Max frequency: " << SceneConf->Settings.GetMaxFrequency() << std::endl;
+    std::cout << "  Sound speed: " << SceneConf->Settings.GetSoundSpeed() << std::endl;
+    std::cout << "  FactRK: " << SceneConf->Settings.GetFactRK() << std::endl;
+    std::cout << "  Save Nth: " << SceneConf->Settings.GetSaveNth() << std::endl;
+    std::cout << "  Bandwidth: " << SceneConf->Settings.GetBandWidth() << std::endl;
+    std::cout << "  Spectral interpolation: " << SceneConf->Settings.GetSpectralInterpolation() << std::endl;
+    std::cout << "  Wave length: " << SceneConf->Settings.GetWaveLength() << std::endl;
+    std::cout << "  Time step: " << SceneConf->Settings.GetTimeStep() << std::endl;
+    std::cout << "  RKCoefficients: ";
+    auto coef = SceneConf->Settings.GetRKCoefficients();
+    for (int i = 0; i < coef.size(); ++i)
+    {
+        std::cout << coef[i] << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "  Window: " << SceneConf->Settings.GetWindow() << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Speakers: " << std::endl;
+    for (int i = 0; i < SceneConf->Speakers.size(); ++i)
+    {
+        std::cout << "  " << i << ": <" << SceneConf->Speakers[i].x() << ", " << SceneConf->Speakers[i].y() << ">" << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Receivers: " << std::endl;
+    for (int i = 0; i < SceneConf->Receivers.size(); ++i)
+    {
+        std::cout << "  " << i << ": <" << SceneConf->Receivers[i].x() << ", " << SceneConf->Receivers[i].y() << ">" << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Domains: " << std::endl;
+    for (int i = 0; i < SceneConf->Domains.size(); ++i)
+    {
+        std::cout << "Domain " << i << ":" << std::endl;
+        std::cout << "  " << "Pos: <" << SceneConf->Domains[i].TopLeft.x() << ", " << SceneConf->Domains[i].TopLeft.y() << ">" << std::endl;
+        std::cout << "  " << "Size: <" << SceneConf->Domains[i].Size.x() << ", " << SceneConf->Domains[i].Size.y() << ">" << std::endl;
+        std::cout << "  " << "Top: Absorption " << SceneConf->Domains[i].T.Absorption << ", LR " << SceneConf->Domains[i].T.LR << std::endl;
+    }
 }
 
 std::string EditCommand::GetName()

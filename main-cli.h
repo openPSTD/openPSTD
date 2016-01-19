@@ -25,6 +25,9 @@ public:
 
 class ListCommand: public Command
 {
+private:
+    void Print(const std::string& filename);
+
 public:
     std::string GetName() override;
     std::string GetDescription() override;

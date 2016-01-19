@@ -114,7 +114,7 @@ std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename) {
 
         //create basic geometry with default options
         std::shared_ptr<PSTDFileConfiguration> SceneConf = PSTDFile::CreateDefaultConf();
-        result->SetSceneConf2(SceneConf);
+        result->SetSceneConf(SceneConf);
 
         //create PSTD conf
         //todo fix the correct type
@@ -133,7 +133,7 @@ PSTDFile::PSTDFile() : backend(nullptr, unqlite_close) {
 
 }
 
-shared_ptr<PSTDFileConfiguration> PSTDFile::GetSceneConf2()
+shared_ptr<PSTDFileConfiguration> PSTDFile::GetSceneConf()
 {
     shared_ptr<PSTDFileConfiguration> conf = shared_ptr<PSTDFileConfiguration>(new PSTDFileConfiguration());
     conf->Settings = this->GetValue<PSTDFileSettings>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}));
@@ -144,7 +144,7 @@ shared_ptr<PSTDFileConfiguration> PSTDFile::GetSceneConf2()
     return conf;
 }
 
-void PSTDFile::SetSceneConf2(shared_ptr<PSTDFileConfiguration> scene)
+void PSTDFile::SetSceneConf(shared_ptr<PSTDFileConfiguration> scene)
 {
     this->SetValue(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}), scene->Settings);
     this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}), scene->Speakers);
@@ -152,14 +152,14 @@ void PSTDFile::SetSceneConf2(shared_ptr<PSTDFileConfiguration> scene)
     this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}), scene->Domains);
 }
 
-shared_ptr<PSTDFileConfiguration> PSTDFile::GetPSTDConf2()
+shared_ptr<PSTDFileConfiguration> PSTDFile::GetPSTDConf()
 {
     shared_ptr<PSTDFileConfiguration> conf = shared_ptr<PSTDFileConfiguration>(new PSTDFileConfiguration());
 
     return conf;
 }
 
-void PSTDFile::SetPSTDConf2(shared_ptr<PSTDFileConfiguration> scene)
+void PSTDFile::SetPSTDConf(shared_ptr<PSTDFileConfiguration> scene)
 {
 
 }
