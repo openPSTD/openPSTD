@@ -36,49 +36,171 @@
 #include <boost/regex.hpp>
 #include <PSTDFile.h>
 
-
-struct DomainAdd
-{
-public:
-    DomainAdd(float x1, float y1, float x2, float y2)
-            : x1(x1), y1(y1), x2(x2), y2(y2) {};
-    float x1, y1, x2, y2;
-};
-
-struct DomainChange
-{
-public:
-    DomainChange(int id, float x1, float y1, float x2, float y2)
-            : id(id), x1(x1), y1(y1), x2(x2), y2(y2) {};
-    int id;
-    float x1, y1, x2, y2;
-};
-
 namespace po = boost::program_options;
+using namespace boost;
+using namespace boost::program_options;
 
-
-void validate(boost::any& v,
-              const std::vector<std::string>& values,
-              DomainChange*, int)
+namespace CLI
 {
-    using namespace boost;
-    using namespace boost::program_options;
 
-    //static regex r("<([^,]*),([^,]*),([^,]*),([^,]*)>");
-    static regex r("\\(([^,]*),<([^,]*),([^,]*),([^,]*),([^,]*)>\\)");
 
-    // Make sure no previous assignment to 'a' was made.
+
+    struct DomainAdd
+    {
+    public:
+        DomainAdd()
+                : x1(0), y1(0), x2(0), y2(0)
+        { }
+        DomainAdd(float x1, float y1, float x2, float y2)
+                : x1(x1), y1(y1), x2(x2), y2(y2)
+        { };
+        float x1, y1, x2, y2;
+    };
+
+    struct DomainChange
+    {
+    public:
+        DomainChange()
+                : id(-1), x1(0), y1(0), x2(0), y2(0)
+        { }
+
+        DomainChange(int id, float x1, float y1, float x2, float y2)
+                : id(id), x1(x1), y1(y1), x2(x2), y2(y2)
+        { };
+        int id;
+        float x1, y1, x2, y2;
+    };
+
+    struct EdgeAbsorption
+    {
+    public:
+        int id;
+        char edge;
+        float value;
+
+        EdgeAbsorption()
+                : id(-1), edge('t'), value(0)
+        {  }
+
+        EdgeAbsorption(int id, char edge, float value)
+                : id(id), edge(edge), value(value)
+        { }
+    };
+
+    struct EdgeLR
+    {
+    public:
+        int id;
+        char edge;
+        bool value;
+
+        EdgeLR()
+                : id(-1), edge('t'), value(true)
+        {  }
+
+        EdgeLR(int id, char edge, float value)
+                : id(id), edge(edge), value(value)
+        { }
+    };
+
+    struct SpeakerReceiverAdd
+    {
+    public:
+        float x, y;
+
+        SpeakerReceiverAdd()
+                : x(0), y(0)
+        { }
+
+        SpeakerReceiverAdd(float x, float y)
+                : x(x), y(y)
+        { }
+    };
+}
+
+void validate(boost::any& v, const std::vector<std::string>& values, CLI::DomainAdd*, int)
+{
+    static regex r("<([^,]*),([^,]*),([^,]*),([^,]*)>");
+
     validators::check_first_occurrence(v);
-    // Extract the first string from 'values'. If there is more than
-    // one string, it's an error, and exception will be thrown.
     const std::string& s = validators::get_single_string(values);
 
-    // Do regex match and convert the interesting part to
-    // float.
     smatch match;
     if (regex_match(s, match, r)) {
-        v = any(DomainChange(lexical_cast<int>(match[1]), lexical_cast<float>(match[2]), lexical_cast<float>(match[3]),
-                          lexical_cast<float>(match[4]), lexical_cast<float>(match[5])));
+        v = any(CLI::DomainAdd(lexical_cast<int>(match[1]), lexical_cast<float>(match[2]), lexical_cast<float>(match[3]),
+                             lexical_cast<float>(match[4])));
+    } else {
+        throw validation_error(validation_error::invalid_option_value);
+    }
+}
+
+
+void validate(boost::any& v, const std::vector<std::string>& values, CLI::DomainChange*, int)
+{
+    static regex r("\\(([^,]*),<([^,]*),([^,]*),([^,]*),([^,]*)>\\)");
+
+    validators::check_first_occurrence(v);
+    const std::string& s = validators::get_single_string(values);
+
+    smatch match;
+    if (regex_match(s, match, r)) {
+        v = any(CLI::DomainChange(lexical_cast<int>(match[1]), lexical_cast<float>(match[2]), lexical_cast<float>(match[3]),
+                             lexical_cast<float>(match[4]), lexical_cast<float>(match[5])));
+    } else {
+        throw validation_error(validation_error::invalid_option_value);
+    }
+}
+
+void validate(boost::any& v, const std::vector<std::string>& values, CLI::EdgeAbsorption*, int)
+{
+    static regex r("\\(([^,]*),([tdlr]),([^,]*)\\)");
+
+    validators::check_first_occurrence(v);
+    const std::string& s = validators::get_single_string(values);
+
+    smatch match;
+    if (regex_match(s, match, r)) {
+        char edge;
+        if(match[2].compare("l")) edge = 'l';
+        else if(match[2].compare("r")) edge = 'r';
+        else if(match[2].compare("t")) edge = 't';
+        else if(match[2].compare("b")) edge = 'b';
+        v = any(CLI::EdgeAbsorption(lexical_cast<int>(match[1]), edge, lexical_cast<float>(match[3])));
+    } else {
+        throw validation_error(validation_error::invalid_option_value);
+    }
+}
+
+void validate(boost::any& v, const std::vector<std::string>& values, CLI::EdgeLR*, int)
+{
+    static regex r("\\(([^,]*),([tdlr]),(true)|(false)\\)");
+
+    validators::check_first_occurrence(v);
+    const std::string& s = validators::get_single_string(values);
+
+    smatch match;
+    if (regex_match(s, match, r)) {
+        char edge;
+        if(match[2].compare("l")) edge = 'l';
+        else if(match[2].compare("r")) edge = 'r';
+        else if(match[2].compare("t")) edge = 't';
+        else if(match[2].compare("b")) edge = 'b';
+        v = any(CLI::EdgeLR(lexical_cast<int>(match[1]), edge, match[3].matched));
+    } else {
+        throw validation_error(validation_error::invalid_option_value);
+    }
+}
+
+void validate(boost::any& v, const std::vector<std::string>& values, CLI::SpeakerReceiverAdd*, int)
+{
+    static regex r("<([^,]*),([^,]*)>");
+
+    validators::check_first_occurrence(v);
+    const std::string& s = validators::get_single_string(values);
+
+    smatch match;
+    if (regex_match(s, match, r)) {
+        v = any(CLI::SpeakerReceiverAdd(lexical_cast<int>(match[1]), lexical_cast<float>(match[2])));
     } else {
         throw validation_error(validation_error::invalid_option_value);
     }
@@ -255,6 +377,51 @@ std::string EditCommand::GetDescription()
 
 int EditCommand::execute(int argc, const char **argv)
 {
+    /*po::variables_map vm;
+
+    try
+    {
+        po::options_description desc("Allowed options");
+        desc.add_options()
+                ("help,h", "produce help message")
+                ("domain-add,d", po::value<std::vector<CLI::DomainAdd>>(), "Add a domain, --domain-add <x,y,size-x,size-y>, "
+                        "eg --domain-add <0,0,10,10>")
+                ("domain-remove,D", po::value<std::vector<int>>(), "Remove a domain, --domain-remove id")
+                ("domain-change,c", po::value<std::vector<CLI::DomainChange>>(), "Change position of a domain, "
+                        "--domain-change (id,<x,y,size-x,size-y>), eg --domain-change (1,<0,0,10,10>)")
+                ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ;
+
+        po::positional_options_description p;
+        p.add("scene-file", 1);
+
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("scene-file") == 0)
+        {
+            std::cerr << "scene file is required" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        std::string filename = vm["scene-file"].as<std::string>();
+
+        //todo fix edit commands
+
+        return 0;
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << "error: " << e.what() << "\n";
+        return 1;
+    }
+    catch(...)
+    {
+        std::cerr << "Exception of unknown type!\n";
+        return 1;
+    }*/
+    //todo fix this command
     return 0;
 }
 
@@ -270,7 +437,78 @@ std::string RunCommand::GetDescription()
 
 int RunCommand::execute(int argc, const char **argv)
 {
-    return 0;
+    po::variables_map vm;
+
+    try
+    {
+        po::options_description desc("Allowed options");
+        desc.add_options()
+                ("help,h", "produce help message")
+                ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ("multithreaded,m", "use the multi-threaded solver (mutually exclusive with gpu accelerated)")
+                ("gpu-accelerated,g", "Use the gpu for the calculations (mutually exclusive with multithreaded)")
+                ("write-plot,p", "Plots are written to the output directory")
+                ("write-array,a", "Arrays are written to the output directory")
+                ;
+
+        po::positional_options_description p;
+        p.add("scene-file", 1);
+
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+
+        if (vm.count("scene-file") == 0)
+        {
+            std::cerr << "scene file is required" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        if(vm.count("multithreaded")>0 && vm.count("gpu-accelerated")>0)
+        {
+            std::cerr << "multithreaded and gpu accelerated options are mutually exclusive" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        if(vm.count("write-plot")==0 && vm.count("write-array")==0)
+        {
+            std::cout << "Warning: there is no output written" << std::endl;
+        }
+
+        std::string filename = vm["scene-file"].as<std::string>();
+
+        //todo implement plot and array
+        //todo implement mt and gpu
+
+        //open file
+        std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
+        //get conf for the kernel
+        std::shared_ptr<PSTDFileConfiguration> conf = file->GetSceneConf();
+        //create kernel
+        std::unique_ptr<PSTDKernel> kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel(conf));
+        //create output
+        std::shared_ptr<ConsoleOutput> output(new ConsoleOutput());
+        //run kernel
+        kernel->run(output.get());
+        return 0;
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << "error: " << e.what() << "\n";
+        return 1;
+    }
+    catch(...)
+    {
+        std::cerr << "Exception of unknown type!\n";
+        return 1;
+    }
 }
 
 int main(int argc, const char *argv[])
