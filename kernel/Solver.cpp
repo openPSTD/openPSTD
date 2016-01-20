@@ -85,7 +85,7 @@ namespace Kernel {
                     }
                 }
                 for (auto domain:this->scene->domain_list) {
-                    domain->current_values->p0 = domain->current_values->px0 + domain->current_values->py0;
+                    *domain->current_values.p0 = *domain->current_values.px0 + *domain->current_values.py0;
                     // I think this is bugged. @see Speaker::add_domain_contribution().
                     if (frame % this->settings->GetSaveNth() == 0) {
                         this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
@@ -107,16 +107,16 @@ namespace Kernel {
         float dt = this->settings->GetTimeStep();
         float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
         std::vector<float> coefs = this->settings->GetRKCoefficients();
-        domain->current_values->u0 =
-                domain->previous_values->u0 - dt * coefs.at(rk_step) * (*domain->l_values->Lpx / domain->rho).real();
-        domain->current_values->w0 =
-                domain->previous_values->w0 - dt * coefs.at(rk_step) * (*domain->l_values->Lpy / domain->rho).real();
-        domain->current_values->px0 = domain->previous_values->px0 -
+        *domain->current_values.u0 =
+                *domain->previous_values.u0 - dt * coefs.at(rk_step) * (*domain->l_values.Lpx / domain->rho).real();
+        *domain->current_values.w0 =
+                *domain->previous_values.w0 - dt * coefs.at(rk_step) * (*domain->l_values.Lpy / domain->rho).real();
+        *domain->current_values.px0 = *domain->previous_values.px0 -
                                       dt * coefs.at(rk_step) *
-                                      (*domain->l_values->Lvx * domain->rho * c1_square).real();
-        domain->current_values->py0 = domain->previous_values->py0 -
+                                              (*domain->l_values.Lvx * domain->rho * c1_square).real();
+        *domain->current_values.py0 = *domain->previous_values.py0 -
                                       dt * coefs.at(rk_step) *
-                                      (*domain->l_values->Lvy * domain->rho * c1_square).real();
+                                              (*domain->l_values.Lvy * domain->rho * c1_square).real();
 
     }
 

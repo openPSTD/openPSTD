@@ -391,7 +391,7 @@ namespace Kernel {
             Point offset = *domain->top_left - *this->top_left;
             switch (field_type) {
                 case 'p':
-                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += domain->current_values->p0;
+                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += *domain->current_values.p0;
                     break;
                 default:
                     //No other fields are required (yet). However, leaving open for extension.

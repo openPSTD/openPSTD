@@ -42,7 +42,7 @@ namespace Kernel {
                    std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                    const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
         std::shared_ptr<Point> top_left(new Point(top_left_vector.at(0), top_left_vector.at(1)));
-        std::shared_ptr<Point> size;
+        std::shared_ptr<Point> size(new Point(size_vector.at(0), size_vector.at(1)));
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     };
 
@@ -77,9 +77,9 @@ namespace Kernel {
                 // TK: Assert there is only one primary pml domain.
             }
         }
-
-        this->find_update_directions();
-        this->compute_number_of_neighbours();
+        this->current_values = {};
+        this->previous_values = {};
+        this->l_values = {};
         this->clear_fields();
         this->clear_matrices();
         this->local = false;
@@ -181,33 +181,33 @@ namespace Kernel {
                 }
 
                 if (ct == CalculationType::PRESSURE) {
-                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values->p0);
+                    matrix0 = this->current_values.p0;
                 } else if (bt == CalcDirection::X) {
-                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values->u0);
+                    matrix0 = this->current_values.u0;
                 } else {
-                    matrix0 = std::make_shared<Eigen::ArrayXXf>(this->current_values->w0);
+                    matrix0 = this->current_values.w0;
                 }
 
                 // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
                 if (matrix1 == nullptr) {
                     if (ct == CalculationType::PRESSURE) {
-                        matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values->p0);
+                        matrix1 = d1->current_values.p0;
                     } else {
                         if (bt == CalcDirection::X) {
-                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values->u0);
+                            matrix1 = d1->current_values.u0;
                         } else {
-                            matrix1 = std::make_shared<Eigen::ArrayXXf>(d1->current_values->w0);
+                            matrix1 = d1->current_values.w0;
                         }
                     }
                 }
                 if (matrix2 == nullptr) {
                     if (ct == CalculationType::PRESSURE) {
-                        matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values->p0);
+                        matrix2 = d2->current_values.p0;
                     } else {
                         if (bt == CalcDirection::X) {
-                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values->u0);
+                            matrix2 = d2->current_values.u0;
                         } else {
-                            matrix2 = std::make_shared<Eigen::ArrayXXf>(d2->current_values->w0);
+                            matrix2 = d2->current_values.w0;
                         }
                     }
                 }
@@ -561,20 +561,20 @@ namespace Kernel {
     }
 
     void Domain::clear_matrices() {
-        this->l_values->Lpx = extended_zeros(0, 1);
-        this->l_values->Lpy = extended_zeros(1, 0);
-        this->l_values->Lvx = extended_zeros(0, 0);
-        this->l_values->Lvy = extended_zeros(0, 0);
+        this->l_values.Lpx = extended_zeros(0, 1);
+        this->l_values.Lpy = extended_zeros(1, 0);
+        this->l_values.Lvx = extended_zeros(0, 0);
+        this->l_values.Lvy = extended_zeros(0, 0);
     }
 
     void Domain::clear_fields() {
-        this->current_values->p0 = *this->extended_zeros(0, 0);
-        this->current_values->px0 = *this->extended_zeros(0, 0);
-        this->current_values->py0 = *this->extended_zeros(0, 0);
-        this->current_values->u0 = *this->extended_zeros(0, 1);
-        this->current_values->w0 = *this->extended_zeros(1, 0);
+        this->current_values.p0 = this->extended_zeros(0, 0);
+        this->current_values.px0 = this->extended_zeros(0, 0);
+        this->current_values.py0 = this->extended_zeros(0, 0);
+        this->current_values.u0 = this->extended_zeros(0, 1);
+        this->current_values.w0 = this->extended_zeros(1, 0);
 
-        this->previous_values = nullptr;
+        this->previous_values = {}; // Do we def need to empty this?
     }
 
     void Domain::compute_pml_matrices() {
@@ -653,10 +653,10 @@ namespace Kernel {
         assert(this->number_of_neighbours(false) == 1 and this->is_pml or this->number_of_neighbours(true) <= 2 and
                this->is_secondary_pml);
         // The pressure and velocity matrices are multiplied by the PML values.
-        this->current_values->px0 *= *this->pml_arrays.px;
-        this->current_values->py0 *= *this->pml_arrays.py;
-        this->current_values->u0 *= *this->pml_arrays.u;
-        this->current_values->w0 *= *this->pml_arrays.w;
+        *this->current_values.px0 *= *this->pml_arrays.px;
+        *this->current_values.py0 *= *this->pml_arrays.py;
+        *this->current_values.u0 *= *this->pml_arrays.u;
+        *this->current_values.w0 *= *this->pml_arrays.w;
     }
 
 
@@ -719,7 +719,12 @@ namespace Kernel {
         if (v.is_pml) {
             sort += " (pml)";
         }
-        str << sort << ", top left " << *v.top_left << ", bottom right" << *v.bottom_right;
+        str << sort << ", top left " << *v.top_left << ", bottom right " << *v.bottom_right;
+        return str;
+    }
 
+    void Domain::post_initialization() {
+        this->compute_number_of_neighbours();
+        this->find_update_directions();
     }
 }

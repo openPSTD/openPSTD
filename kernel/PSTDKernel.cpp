@@ -43,7 +43,7 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
     this->initialize_scene();
     auto wnd = Kernel::WaveNumberDiscretizer();
     this->wnd = std::make_shared<Kernel::WaveNumberDiscretizer>(wnd);
-    Kernel::debug("Finished nitialzing kernel");
+    Kernel::debug("Finished initialzing kernel");
 }
 
 
@@ -61,6 +61,7 @@ void PSTDKernel::initialize_scene() {
 
 void PSTDKernel::add_domains() {
     int domain_id_int = 0;
+    std::vector<std::shared_ptr<Kernel::Domain>> domains;
     for (auto domain: this->config->Domains) {
         Kernel::debug("Initializing domain " + std::to_string(domain_id_int));
         std::vector<float> tl = scale_to_grid(domain.TopLeft);
@@ -72,8 +73,12 @@ void PSTDKernel::add_domains() {
         std::shared_ptr<Kernel::Domain> domain_ptr(
                 new Kernel::Domain(this->settings, domain_id, default_alpha, grid_top_left,
                                    grid_size, false, this->wnd, edge_param_map, nullptr));
-        this->scene->add_domain(domain_ptr);
+        domains.push_back(domain_ptr);
         domain_id_int++;
+    }
+    for (auto domain: domains) {
+        domain->post_initialization();
+        scene->add_domain(domain);
     }
 }
 

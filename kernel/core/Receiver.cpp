@@ -76,7 +76,7 @@ namespace Kernel {
     float Receiver::compute_with_nn() {
         Point rel_location =
                 *(this->grid_location) - *(this->container_domain->top_left);
-        float nn_value = this->container_domain->current_values->p0(rel_location.x, rel_location.y);
+        float nn_value = (*this->container_domain->current_values.p0)(rel_location.x, rel_location.y);
         return nn_value;
     }
 

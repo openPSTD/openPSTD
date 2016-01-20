@@ -50,11 +50,11 @@ namespace Kernel {
 
 
     struct FieldValues {
-        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a double class
-        Eigen::ArrayXXf w0;
-        Eigen::ArrayXXf p0;
-        Eigen::ArrayXXf px0;
-        Eigen::ArrayXXf py0;
+        std::shared_ptr<Eigen::ArrayXXf> u0; //TODO (Louis): change float to T, derive a float and a double class
+        std::shared_ptr<Eigen::ArrayXXf> w0;
+        std::shared_ptr<Eigen::ArrayXXf> p0;
+        std::shared_ptr<Eigen::ArrayXXf> px0;
+        std::shared_ptr<Eigen::ArrayXXf> py0;
     };
 
     struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
@@ -95,9 +95,8 @@ namespace Kernel {
         std::shared_ptr<Point> size;
         bool is_pml;
         bool local;
-        std::shared_ptr<FieldValues> current_values;
-        std::shared_ptr<FieldValues> previous_values;
-        std::shared_ptr<FieldLValues> l_values;
+        FieldValues current_values, previous_values;
+        FieldLValues l_values;
         std::shared_ptr<WaveNumberDiscretizer> wnd;
         bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
@@ -263,7 +262,13 @@ namespace Kernel {
          */
         void calc(CalcDirection bt, CalculationType ct);
 
-/**
+        /**
+         * Process data after all methods have been initialized.
+         * Finds neighbouring domains and update information.
+         */
+        void post_initialization();
+
+        /**
          * Get ranges of boundary grid points not connected to a neighbour domain along a specified direction.
          * @param direction: Domain side under consideration
          * @return: 2D array each row a range start and end variable

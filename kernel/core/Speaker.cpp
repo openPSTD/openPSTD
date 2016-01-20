@@ -5,7 +5,9 @@
 #include "Speaker.h"
 
 #define SQR(x) x*x
+
 #include <cassert>
+
 namespace Kernel {
     Speaker::Speaker(std::vector<float> location) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
         this->location = location;
@@ -16,17 +18,17 @@ namespace Kernel {
     }
 
     void Speaker::addDomainContribution(std::shared_ptr<Domain> domain) {
-        int domain_width = domain->top_left->x;
-        int domain_height = domain->top_left->y;
-        int domain_depth = domain->top_left->z;
+        int domain_width = domain->size->x;
+        int domain_height = domain->size->y;
+        int domain_depth = domain->size->z;
         float dx = domain->settings->GetGridSpacing();
         //Only partially prepared for 3D.
         float rel_x = this->x - domain_width;
         float rel_y = this->y - domain_height;
         float rel_z = this->z - domain_depth;
-        std::shared_ptr<FieldValues> values = domain->current_values;
-        assert(values->p0.rows() == domain_width);
-        assert(values->p0.cols() == domain_height);
+        FieldValues values = domain->current_values;
+        assert(values.p0->rows() == domain_width);
+        assert(values.p0->cols() == domain_height);
         for (int i = 0; i < domain_width; i++) {
             for (int j = 0; j < domain_height; j++) {
                 float distance = (float) sqrt(pow(rel_x - i * dx, 2) + pow(rel_y - j * dx, 2));
@@ -36,9 +38,9 @@ namespace Kernel {
                 float angle = std::atan2(rel_y - j * dx, rel_x - i * dx);
                 float horizontal_component = SQR(std::cos(angle)) * pressure;
                 float vertical_component = SQR(std::sin(angle)) * pressure;
-                values->p0(i,j) += pressure;
-                values->px0(i, j) += horizontal_component;
-                values->py0(i, j) += vertical_component;
+                (*values.p0)(i, j) += pressure;
+                (*values.px0)(i, j) += horizontal_component;
+                (*values.py0)(i, j) += vertical_component;
             }
         }
     }
