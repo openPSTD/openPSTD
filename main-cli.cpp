@@ -35,176 +35,12 @@
 #include "kernel/PSTDKernel.h"
 #include <boost/regex.hpp>
 #include <PSTDFile.h>
+#include "edit-cli.h"
 
 namespace po = boost::program_options;
 using namespace boost;
 using namespace boost::program_options;
 
-namespace CLI
-{
-
-
-
-    struct DomainAdd
-    {
-    public:
-        DomainAdd()
-                : x1(0), y1(0), x2(0), y2(0)
-        { }
-        DomainAdd(float x1, float y1, float x2, float y2)
-                : x1(x1), y1(y1), x2(x2), y2(y2)
-        { };
-        float x1, y1, x2, y2;
-    };
-
-    struct DomainChange
-    {
-    public:
-        DomainChange()
-                : id(-1), x1(0), y1(0), x2(0), y2(0)
-        { }
-
-        DomainChange(int id, float x1, float y1, float x2, float y2)
-                : id(id), x1(x1), y1(y1), x2(x2), y2(y2)
-        { };
-        int id;
-        float x1, y1, x2, y2;
-    };
-
-    struct EdgeAbsorption
-    {
-    public:
-        int id;
-        char edge;
-        float value;
-
-        EdgeAbsorption()
-                : id(-1), edge('t'), value(0)
-        {  }
-
-        EdgeAbsorption(int id, char edge, float value)
-                : id(id), edge(edge), value(value)
-        { }
-    };
-
-    struct EdgeLR
-    {
-    public:
-        int id;
-        char edge;
-        bool value;
-
-        EdgeLR()
-                : id(-1), edge('t'), value(true)
-        {  }
-
-        EdgeLR(int id, char edge, float value)
-                : id(id), edge(edge), value(value)
-        { }
-    };
-
-    struct SpeakerReceiverAdd
-    {
-    public:
-        float x, y;
-
-        SpeakerReceiverAdd()
-                : x(0), y(0)
-        { }
-
-        SpeakerReceiverAdd(float x, float y)
-                : x(x), y(y)
-        { }
-    };
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values, CLI::DomainAdd*, int)
-{
-    static regex r("<([^,]*),([^,]*),([^,]*),([^,]*)>");
-
-    validators::check_first_occurrence(v);
-    const std::string& s = validators::get_single_string(values);
-
-    smatch match;
-    if (regex_match(s, match, r)) {
-        v = any(CLI::DomainAdd(lexical_cast<int>(match[1]), lexical_cast<float>(match[2]), lexical_cast<float>(match[3]),
-                             lexical_cast<float>(match[4])));
-    } else {
-        throw validation_error(validation_error::invalid_option_value);
-    }
-}
-
-
-void validate(boost::any& v, const std::vector<std::string>& values, CLI::DomainChange*, int)
-{
-    static regex r("\\(([^,]*),<([^,]*),([^,]*),([^,]*),([^,]*)>\\)");
-
-    validators::check_first_occurrence(v);
-    const std::string& s = validators::get_single_string(values);
-
-    smatch match;
-    if (regex_match(s, match, r)) {
-        v = any(CLI::DomainChange(lexical_cast<int>(match[1]), lexical_cast<float>(match[2]), lexical_cast<float>(match[3]),
-                             lexical_cast<float>(match[4]), lexical_cast<float>(match[5])));
-    } else {
-        throw validation_error(validation_error::invalid_option_value);
-    }
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values, CLI::EdgeAbsorption*, int)
-{
-    static regex r("\\(([^,]*),([tdlr]),([^,]*)\\)");
-
-    validators::check_first_occurrence(v);
-    const std::string& s = validators::get_single_string(values);
-
-    smatch match;
-    if (regex_match(s, match, r)) {
-        char edge;
-        if(match[2].compare("l")) edge = 'l';
-        else if(match[2].compare("r")) edge = 'r';
-        else if(match[2].compare("t")) edge = 't';
-        else if(match[2].compare("b")) edge = 'b';
-        v = any(CLI::EdgeAbsorption(lexical_cast<int>(match[1]), edge, lexical_cast<float>(match[3])));
-    } else {
-        throw validation_error(validation_error::invalid_option_value);
-    }
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values, CLI::EdgeLR*, int)
-{
-    static regex r("\\(([^,]*),([tdlr]),(true)|(false)\\)");
-
-    validators::check_first_occurrence(v);
-    const std::string& s = validators::get_single_string(values);
-
-    smatch match;
-    if (regex_match(s, match, r)) {
-        char edge;
-        if(match[2].compare("l")) edge = 'l';
-        else if(match[2].compare("r")) edge = 'r';
-        else if(match[2].compare("t")) edge = 't';
-        else if(match[2].compare("b")) edge = 'b';
-        v = any(CLI::EdgeLR(lexical_cast<int>(match[1]), edge, match[3].matched));
-    } else {
-        throw validation_error(validation_error::invalid_option_value);
-    }
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values, CLI::SpeakerReceiverAdd*, int)
-{
-    static regex r("<([^,]*),([^,]*)>");
-
-    validators::check_first_occurrence(v);
-    const std::string& s = validators::get_single_string(values);
-
-    smatch match;
-    if (regex_match(s, match, r)) {
-        v = any(CLI::SpeakerReceiverAdd(lexical_cast<int>(match[1]), lexical_cast<float>(match[2])));
-    } else {
-        throw validation_error(validation_error::invalid_option_value);
-    }
-}
 
 std::string CreateCommand::GetName()
 {
@@ -358,10 +194,13 @@ void ListCommand::Print(const std::string &filename)
     std::cout << "Domains: " << std::endl;
     for (int i = 0; i < SceneConf->Domains.size(); ++i)
     {
-        std::cout << "Domain " << i << ":" << std::endl;
-        std::cout << "  " << "Pos: <" << SceneConf->Domains[i].TopLeft.x() << ", " << SceneConf->Domains[i].TopLeft.y() << ">" << std::endl;
-        std::cout << "  " << "Size: <" << SceneConf->Domains[i].Size.x() << ", " << SceneConf->Domains[i].Size.y() << ">" << std::endl;
-        std::cout << "  " << "Top: Absorption " << SceneConf->Domains[i].T.Absorption << ", LR " << SceneConf->Domains[i].T.LR << std::endl;
+        std::cout << "  Domain " << i << ":" << std::endl;
+        std::cout << "    Pos: <" << SceneConf->Domains[i].TopLeft.x() << ", " << SceneConf->Domains[i].TopLeft.y() << ">" << std::endl;
+        std::cout << "    Size: <" << SceneConf->Domains[i].Size.x() << ", " << SceneConf->Domains[i].Size.y() << ">" << std::endl;
+        std::cout << "    Top: Absorption " << SceneConf->Domains[i].T.Absorption << ", LR " << SceneConf->Domains[i].T.LR << std::endl;
+        std::cout << "    Bottom: Absorption " << SceneConf->Domains[i].B.Absorption << ", LR " << SceneConf->Domains[i].B.LR << std::endl;
+        std::cout << "    Left: Absorption " << SceneConf->Domains[i].L.Absorption << ", LR " << SceneConf->Domains[i].L.LR << std::endl;
+        std::cout << "    Right: Absorption " << SceneConf->Domains[i].R.Absorption << ", LR " << SceneConf->Domains[i].R.LR << std::endl;
     }
 }
 
@@ -377,19 +216,33 @@ std::string EditCommand::GetDescription()
 
 int EditCommand::execute(int argc, const char **argv)
 {
-    /*po::variables_map vm;
+    po::variables_map vm;
+
+    std::vector<std::unique_ptr<EditCommandPart>> commands;
+    commands.push_back(std::unique_ptr<AddDomainEditCommandPart>(new AddDomainEditCommandPart()));
+    commands.push_back(std::unique_ptr<RemoveDomainEditCommandPart>(new RemoveDomainEditCommandPart()));
+    commands.push_back(std::unique_ptr<ChangeDomainEditCommandPart>(new ChangeDomainEditCommandPart()));
+    commands.push_back(std::unique_ptr<ChangeEdgeAbsorptionEditCommandPart>(new ChangeEdgeAbsorptionEditCommandPart()));
+    commands.push_back(std::unique_ptr<ChangeEdgeLREditCommandPart>(new ChangeEdgeLREditCommandPart()));
+    commands.push_back(std::unique_ptr<AddSpeakerEditCommandPart>(new AddSpeakerEditCommandPart()));
+    commands.push_back(std::unique_ptr<RemoveSpeakerEditCommandPart>(new RemoveSpeakerEditCommandPart()));
+    commands.push_back(std::unique_ptr<AddReceiverEditCommandPart>(new AddReceiverEditCommandPart()));
+    commands.push_back(std::unique_ptr<RemoveReceiverEditCommandPart>(new RemoveReceiverEditCommandPart()));
 
     try
     {
         po::options_description desc("Allowed options");
+        for (int i = 0; i < commands.size(); ++i)
+        {
+            commands[i]->AddOptions(desc.add_options());
+        }
         desc.add_options()
-                ("help,h", "produce help message")
-                ("domain-add,d", po::value<std::vector<CLI::DomainAdd>>(), "Add a domain, --domain-add <x,y,size-x,size-y>, "
-                        "eg --domain-add <0,0,10,10>")
-                ("domain-remove,D", po::value<std::vector<int>>(), "Remove a domain, --domain-remove id")
-                ("domain-change,c", po::value<std::vector<CLI::DomainChange>>(), "Change position of a domain, "
-                        "--domain-change (id,<x,y,size-x,size-y>), eg --domain-change (1,<0,0,10,10>)")
-                ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ("help,h",
+                 "produce help message")
+
+                ("scene-file,f",
+                 po::value<std::string>(),
+                 "The scene file that has to be used (required)")
                 ;
 
         po::positional_options_description p;
@@ -397,6 +250,12 @@ int EditCommand::execute(int argc, const char **argv)
 
         po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
         po::notify(vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
 
         if (vm.count("scene-file") == 0)
         {
@@ -407,8 +266,16 @@ int EditCommand::execute(int argc, const char **argv)
 
         std::string filename = vm["scene-file"].as<std::string>();
 
-        //todo fix edit commands
+        //open file
+        std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
+        auto conf = file->GetSceneConf();
 
+        for (int i = 0; i < commands.size(); ++i)
+        {
+            commands[i]->Execute(conf, vm);
+        }
+
+        file->SetSceneConf(conf);
         return 0;
     }
     catch(std::exception& e)
@@ -420,9 +287,7 @@ int EditCommand::execute(int argc, const char **argv)
     {
         std::cerr << "Exception of unknown type!\n";
         return 1;
-    }*/
-    //todo fix this command
-    return 0;
+    }
 }
 
 std::string RunCommand::GetName()
@@ -519,13 +384,16 @@ int main(int argc, const char *argv[])
     commands.push_back(std::unique_ptr<EditCommand>(new EditCommand()));
     commands.push_back(std::unique_ptr<RunCommand>(new RunCommand()));
 
-    std::string command = argv[1];
-    for (int i = 0; i < commands.size(); ++i)
+    if(argc >= 2)
     {
-        if(command.compare(commands[i]->GetName()) == 0)
+        std::string command = argv[1];
+        for (int i = 0; i < commands.size(); ++i)
         {
-            return commands[i]->execute(argc-1, argv+1);
-            //one less argument, specificaly the first, that is the reason of the +1
+            if (command.compare(commands[i]->GetName()) == 0)
+            {
+                return commands[i]->execute(argc - 1, argv + 1);
+                //one less argument, specificaly the first, that is the reason of the +1
+            }
         }
     }
 

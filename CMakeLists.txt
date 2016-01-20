@@ -189,7 +189,7 @@ target_link_libraries(OpenPSTD ${Qt5_LIBRARIES})
 
 #------------------------------------
 # UI CLI
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp)
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp edit-cli.cpp)
 add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 
 target_link_libraries(OpenPSTD-cli OpenPSTD)
