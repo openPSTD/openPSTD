@@ -20,7 +20,8 @@ cmake \
 	-D OPENPSTD_SYSTEM_NAME=${TRAVIS_OS_NAME} \
 	-G Unix\ Makefiles ./
 
-make OpenPSTD-gui
-make OpenPSTD-test
+make OpenPSTD-cli
+#make OpenPSTD-gui
+#make OpenPSTD-test
 sudo cpack -V -G ${PACKAGE}
 ls -alh

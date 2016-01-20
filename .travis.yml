@@ -21,7 +21,6 @@ install:
 - install_boost.sh
 - install_xsltproc.sh
 - install_Qt55.sh
-- install_rapidjson.sh
 - install_eigen.sh
 
 before_script:
@@ -34,7 +33,7 @@ before_script:
 
 script:
 - compile.sh
-- test.sh
+#- test.sh
 
 after_success:
 - upload_webdav.sh
