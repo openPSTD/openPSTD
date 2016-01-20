@@ -30,7 +30,7 @@
 
 void validate(boost::any& v, const std::vector<std::string>& values, CLIDomainAdd*, int)
 {
-    static regex r("<([^,]*),([^,]*),([^,]*),([^,]*)>");
+    static regex r("\\[([^,]*),([^,]*),([^,]*),([^,]*)\\]");
 
     validators::check_first_occurrence(v);
     const std::string& s = validators::get_single_string(values);
@@ -46,7 +46,7 @@ void validate(boost::any& v, const std::vector<std::string>& values, CLIDomainAd
 
 void validate(boost::any& v, const std::vector<std::string>& values, CLIDomainChange*, int)
 {
-    static regex r("\\(([^,]*),<([^,]*),([^,]*),([^,]*),([^,]*)>\\)");
+    static regex r("\\(([^,]*),\\[([^,]*),([^,]*),([^,]*),([^,]*)\\]\\)");
 
     validators::check_first_occurrence(v);
     const std::string& s = validators::get_single_string(values);
@@ -102,7 +102,7 @@ void validate(boost::any& v, const std::vector<std::string>& values, CLIEdgeLR*,
 
 void validate(boost::any& v, const std::vector<std::string>& values, CLISpeakerReceiverAdd*, int)
 {
-    static regex r("<([^,]*),([^,]*)>");
+    static regex r("\\[([^,]*),([^,]*)\\]");
 
     validators::check_first_occurrence(v);
     const std::string& s = validators::get_single_string(values);
@@ -119,7 +119,7 @@ void AddDomainEditCommandPart::AddOptions(options_description_easy_init add_opti
 {
     add_option("domain-add,d",
                value<std::vector<CLIDomainAdd>>(),
-               "Add a domain, --domain-add <x,y,size-x,size-y>, eg --domain-add <0,0,10,10>");
+               "Add a domain, --domain-add <x,y,size-x,size-y>, eg --domain-add [0,0,10,10]");
 }
 
 void AddDomainEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
@@ -167,7 +167,7 @@ void ChangeDomainEditCommandPart::AddOptions(options_description_easy_init add_o
 {
     add_option("domain-change,c",
                value<std::vector<CLIDomainChange>>(),
-               "Change the positions of a domain, --domain-add (id,<x,y,size-x,size-y>), eg --domain-add (1,<0,0,10,10>)");
+               "Change the positions of a domain, --domain-add (id,[x,y,size-x,size-y]), eg --domain-add (1,[0,0,10,10])");
 }
 
 void ChangeDomainEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
@@ -188,7 +188,7 @@ void ChangeEdgeAbsorptionEditCommandPart::AddOptions(options_description_easy_in
 {
     add_option("edge-absorption,a",
                value<std::vector<CLIEdgeAbsorption>>(),
-               "change the absorption of a speaker, --edge-absorption (id,[tblr],value), eg --edge-absorption (1,t,0.5)");
+               "change the absorption of a speaker, --edge-absorption (id,t|b|l|r,value), eg --edge-absorption (1,t,0.5)");
 }
 
 void ChangeEdgeAbsorptionEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
@@ -215,7 +215,7 @@ void ChangeEdgeLREditCommandPart::AddOptions(options_description_easy_init add_o
 {
     add_option("edge-local-reacting,l",
                value<std::vector<CLIEdgeLR>>(),
-               "change the LR of a speaker, --edge-local-reacting (id,[tblr],value), eg --edge-local-reacting (1,t,true)");
+               "change the LR of a speaker, --edge-local-reacting (id,t|b|l|r,value), eg --edge-local-reacting (1,t,true)");
 }
 
 void ChangeEdgeLREditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
@@ -242,7 +242,7 @@ void AddSpeakerEditCommandPart::AddOptions(options_description_easy_init add_opt
 {
     add_option("speaker-add,p",
                value<std::vector<CLISpeakerReceiverAdd>>(),
-               "Add a speaker, --speaker-add <x,y>, eg --speaker-add <0,0>");
+               "Add a speaker, --speaker-add [x,y], eg --speaker-add [0,0]");
 }
 
 void AddSpeakerEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
@@ -277,7 +277,7 @@ void AddReceiverEditCommandPart::AddOptions(options_description_easy_init add_op
 {
     add_option("receiver-add,r",
                value<std::vector<CLISpeakerReceiverAdd>>(),
-               "Add a receiver, --receiver-add <x,y>, eg --receiver-add <0,0>");
+               "Add a receiver, --receiver-add [x,y], eg --receiver-add [0,0]");
 }
 
 void AddReceiverEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
@@ -306,4 +306,50 @@ void RemoveReceiverEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguratio
         return;
 
     model->Receivers.erase(model->Speakers.begin() + delIndex);
+}
+
+void SetOptionEditCommandPart::AddOptions(options_description_easy_init add_option)
+{
+    add_option("grid-spacing", value<float>(), "help")
+            ("patch-error", value<float>(), "help")
+            ("window-size", value<float>(), "help")
+            ("render-time", value<float>(), "help")
+            ("pml-cells", value<int>(), "help")
+            ("attenuation-of-pml-cells", value<float>(), "help")
+            ("density-of-air", value<float>(), "help")
+            ("max-frequency", value<float>(), "help")
+            ("sound-speed", value<float>(), "help")
+            ("fact-rk", value<float>(), "help")
+            ("save-nth", value<int>(), "help")
+            ("bandwidth", value<float>(), "help")
+            ("spectral-interpolation", value<float>(), "help")
+            ("wave-length", value<float>(), "help")
+            ("time-step", value<float>(), "help")
+            ("rk-coefficients", value<std::vector<float>>()->multitoken(), "help")
+            //todo fix these arguments
+            //("window", value<Eigen::ArrayXf>(), "help")
+            ;
+}
+
+void SetOptionEditCommandPart::Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input)
+{
+    if(input.count("grid-spacing") > 0) model->Settings.SetGridSpacing(input["grid-spacing"].as<float>());
+    if(input.count("patch-error") > 0) model->Settings.SetPatchError(input["patch-error"].as<float>());
+    //todo fix this option
+    //if(input.count("window-size") > 0) model->Settings.SetWindowSize(input["window-size"].as<float>());
+    if(input.count("render-time") > 0) model->Settings.SetRenderTime(input["render-time"].as<float>());
+    if(input.count("pml-cells") > 0) model->Settings.SetPMLCells(input["pml-cells"].as<int>());
+    if(input.count("attenuation-of-pml-cells") > 0) model->Settings.SetAttenuationOfPMLCells(input["attenuation-of-pml-cells"].as<float>());
+    if(input.count("density-of-air") > 0) model->Settings.SetDensityOfAir(input["density-of-air"].as<float>());
+    if(input.count("max-frequency") > 0) model->Settings.SetMaxFrequency(input["max-frequency"].as<float>());
+    if(input.count("sound-speed") > 0) model->Settings.SetSoundSpeed(input["sound-speed"].as<float>());
+    if(input.count("fact-rk") > 0) model->Settings.SetFactRK(input["fact-rk"].as<float>());
+    if(input.count("save-nth") > 0) model->Settings.SetSaveNth(input["save-nth"].as<int>());
+    if(input.count("bandwidth") > 0) model->Settings.SetBandWidth(input["bandwidth"].as<float>());
+    if(input.count("spectral-interpolation") > 0) model->Settings.SetSpectralInterpolation(input["spectral-interpolation"].as<bool>());
+    if(input.count("wave-length") > 0) model->Settings.SetWaveLength(input["wave-length"].as<float>());
+    //todo fix this option
+    //if(input.count("time-step") > 0) model->Settings.SetTimeStep(input["time-step"].as<float>());
+    if(input.count("rk-coefficients") > 0) model->Settings.SetRKCoefficients(input["rk-coefficients"].as<std::vector<float>>());
+    //if(input.count("window") > 0) model->Settings.SetWindow(input["window"].as<Eigen::ArrayXf>());
 }

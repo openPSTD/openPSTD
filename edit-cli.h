@@ -192,4 +192,11 @@ public:
     virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
 };
 
+class SetOptionEditCommandPart: public EditCommandPart
+{
+public:
+    virtual void AddOptions(options_description_easy_init add_option);
+    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+};
+
 #endif //OPENPSTD_EDIT_CLI_H
