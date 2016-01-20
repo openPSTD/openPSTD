@@ -33,7 +33,6 @@ project(OpenPSTD)
 # configuration options in the cache
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
-set(RAPIDJSON_ROOT "" CACHE PATH "The root directory of rapidjson")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 
 SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")
@@ -58,7 +57,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 
 message(STATUS "Boost root hint: ${BOOST_ROOT}")
-find_package(Boost 1.54.0 REQUIRED program_options unit_test_framework chrono system timer)
+find_package(Boost 1.54.0 REQUIRED program_options unit_test_framework chrono system timer regex)
 message(STATUS "Boost found: ${Boost_FOUND}")
 message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost include path: ${Boost_INCLUDE_DIRS}")
@@ -203,7 +202,6 @@ message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
 # include directories
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${Qt5_INCLUDE_DIRS})
-include_directories(${RAPIDJSON_INCLUDE})
 include_directories(unqlite)
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE})
@@ -238,7 +236,7 @@ target_link_libraries(OpenPSTD ${Qt5_LIBRARIES})
 
 #------------------------------------
 # UI CLI
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp)
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp edit-cli.cpp)
 add_executable(OpenPSTD-cli main-cli.cpp ${SOURCE_FILES_CLI})
 
 target_link_libraries(OpenPSTD-cli OpenPSTD)
