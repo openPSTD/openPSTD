@@ -168,32 +168,6 @@ public:
     virtual void Run(const Reciever &reciever) override;
 };
 
-template <typename T>
-class EditPropertyOperation: public BaseOperation
-{
-private:
-    const std::string Property;
-    T NewValue;
-
-public:
-    EditPropertyOperation(const std::string property, T newValue): NewValue(newValue), Property(property)
-    {
-    }
-
-    virtual void Run(const Reciever &reciever) override
-    {
-        using namespace rapidjson;
-
-        std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
-
-        Document::AllocatorType& allocator = conf->GetAllocator();
-
-        (*conf).AddMember(this->Property, this->NewValue, allocator);
-
-        reciever.model->d->SetSceneConf(conf);
-    }
-};
-
 
 #endif //OPENPSTD_EDITOPERATIONS_H
 

@@ -51,7 +51,6 @@ enum PstdObjectType
     OBJECT_SPEAKER
 };
 
-#include <rapidjson/document.h>
 #include <memory>
 #include <vector>
 #include <QtGui/qmatrix4x4.h>

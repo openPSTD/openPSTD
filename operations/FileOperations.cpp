@@ -31,9 +31,6 @@
 //
 
 #include "FileOperations.h"
-#include <rapidjson/document.h>
-#include <rapidjson/filereadstream.h>
-#include <rapidjson/encodedstream.h>
 
 
 OpenFileOperation::OpenFileOperation(std::string filename): filename(filename)
@@ -61,7 +58,8 @@ void NewFileOperation::Run(const Reciever &reciever)
 
 void SaveFileOperation::Run(const Reciever &reciever)
 {
-    reciever.model->d->Commit();
+    //todo fix this command
+    /*reciever.model->d->Commit();
     reciever.model->d->Change();
-    reciever.model->Register(reciever.model->d);
+    reciever.model->Register(reciever.model->d);*/
 }

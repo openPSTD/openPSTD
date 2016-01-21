@@ -39,51 +39,31 @@ CreateDomainOperation::CreateDomainOperation(QVector2D startPoint,
 
 void CreateDomainOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
-
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+    auto conf = reciever.model->d->GetSceneConf();
 
     this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
     this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
 
-    Document::AllocatorType& allocator = conf->GetAllocator();
+    Domain d;
+    d.TopLeft.setX(std::min(this->StartPoint[0], this->EndPoint[0]));
+    d.TopLeft.setY(std::min(this->StartPoint[1], this->EndPoint[1]));
 
-    Value topLeft(kArrayType);
-    topLeft.PushBack(std::min(this->StartPoint[0], this->EndPoint[0]), allocator);
-    topLeft.PushBack(std::min(this->StartPoint[1], this->EndPoint[1]), allocator);
+    d.Size.setX(fabsf(this->StartPoint[0] - this->EndPoint[0]));
+    d.Size.setY(fabsf(this->StartPoint[1] - this->EndPoint[1]));
 
-    Value size(kArrayType);
-    size.PushBack(fabsf(this->StartPoint[0] - this->EndPoint[0]), allocator);
-    size.PushBack(fabsf(this->StartPoint[1] - this->EndPoint[1]), allocator);
+    d.T.Absorption = 1.0;
+    d.T.LR = false;
 
-    Value edgeL(kObjectType);
-    edgeL.AddMember("a", 1.0, allocator);
-    edgeL.AddMember("lr", false, allocator);
+    d.B.Absorption = 1.0;
+    d.B.LR = false;
 
-    Value edgeB(kObjectType);
-    edgeB.AddMember("a", 1.0, allocator);
-    edgeB.AddMember("lr", false, allocator);
+    d.R.Absorption = 1.0;
+    d.R.LR = false;
 
-    Value edgeT(kObjectType);
-    edgeT.AddMember("a", 1.0, allocator);
-    edgeT.AddMember("lr", false, allocator);
+    d.L.Absorption = 1.0;
+    d.L.LR = false;
 
-    Value edgeR(kObjectType);
-    edgeR.AddMember("a", 1.0, allocator);
-    edgeR.AddMember("lr", false, allocator);
-
-    Value edges(kObjectType);
-    edges.AddMember("l", edgeL, allocator);
-    edges.AddMember("b", edgeB, allocator);
-    edges.AddMember("t", edgeT, allocator);
-    edges.AddMember("r", edgeR, allocator);
-
-    Value Domain(kObjectType);
-    Domain.AddMember("topleft", topLeft, allocator);
-    Domain.AddMember("size", size, allocator);
-    Domain.AddMember("edges", edges, allocator);
-
-    (*conf)["domains"].PushBack(Domain, allocator);
+    conf->Domains.push_back(d);
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -97,24 +77,14 @@ CreateReceiverSpeakerOperation::CreateReceiverSpeakerOperation(PstdObjectType ty
 
 void CreateReceiverSpeakerOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
-
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
-
-    Document::AllocatorType& allocator = conf->GetAllocator();
-
-    Value jsonPosition(kArrayType);
-    jsonPosition.PushBack(this->_position[0], allocator);
-    jsonPosition.PushBack(this->_position[1], allocator);
-    jsonPosition.PushBack(this->_position[2], allocator);
-
+    auto conf = reciever.model->d->GetSceneConf();
     if(this->_type == OBJECT_RECEIVER)
     {
-        (*conf)["receivers"].PushBack(jsonPosition, allocator);
+        conf->Receivers.push_back(this->_position);
     }
     else if(this->_type == OBJECT_SPEAKER)
     {
-        (*conf)["speakers"].PushBack(jsonPosition, allocator);
+        conf->Speakers.push_back(this->_position);
     }
     else
     {
@@ -174,11 +144,9 @@ RemoveDomainOperation::RemoveDomainOperation(int index): index(index)
 
 void RemoveDomainOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
+    auto conf = reciever.model->d->GetSceneConf();
 
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
-
-    (*conf)["domains"].Erase((*conf)["domains"].Begin()+this->index);;
+    conf->Domains.erase(conf->Domains.begin()+this->index);
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -191,11 +159,9 @@ RemoveSpeakerOperation::RemoveSpeakerOperation(int index): index(index)
 
 void RemoveSpeakerOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
+    auto conf = reciever.model->d->GetSceneConf();
 
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
-
-    (*conf)["speakers"].Erase((*conf)["speakers"].Begin()+this->index);;
+    conf->Speakers.erase(conf->Speakers.begin()+this->index);
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -208,11 +174,9 @@ RemoveReceiverOperation::RemoveReceiverOperation(int index): index(index)
 
 void RemoveReceiverOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
+    auto conf = reciever.model->d->GetSceneConf();
 
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
-
-    (*conf)["receivers"].Erase((*conf)["receivers"].Begin()+this->index);;
+    conf->Receivers.erase(conf->Receivers.begin()+this->index);
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -226,19 +190,16 @@ EditDomainPositionsOperation::EditDomainPositionsOperation(int index, QVector2D 
 
 void EditDomainPositionsOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
-
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+    auto conf = reciever.model->d->GetSceneConf();
 
     this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
     this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
 
-    Document::AllocatorType& allocator = conf->GetAllocator();
+    conf->Domains[index].TopLeft = this->StartPoint;
+    conf->Domains[index].Size = this->StartPoint - this->EndPoint;
 
-    (*conf)["domains"][index]["topleft"][0] = std::min(this->StartPoint[0], this->EndPoint[0]);
-    (*conf)["domains"][index]["topleft"][1] = std::min(this->StartPoint[1], this->EndPoint[1]);
-    (*conf)["domains"][index]["size"][0] = fabsf(this->StartPoint[0] - this->EndPoint[0]);
-    (*conf)["domains"][index]["size"][1] = fabsf(this->StartPoint[1] - this->EndPoint[1]);
+    conf->Domains[index].Size[0] = fabsf(conf->Domains[index].Size[0]);
+    conf->Domains[index].Size[1] = fabsf(conf->Domains[index].Size[1]);
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -252,13 +213,23 @@ index(index), Side(side), NewValue(newValue)
 
 void EditDomainEdgeAbsorptionOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
+    auto conf = reciever.model->d->GetSceneConf();
 
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
-
-    Document::AllocatorType& allocator = conf->GetAllocator();
-
-    (*conf)["domains"][index]["edges"][DomainSideToString(this->Side)]["a"] = this->NewValue;
+    switch(this->Side)
+    {
+        case PSTD_DOMAIN_SIDE_BOTTOM:
+            conf->Domains[index].B.Absorption = this->NewValue;
+            break;
+        case PSTD_DOMAIN_SIDE_LEFT:
+            conf->Domains[index].L.Absorption = this->NewValue;
+            break;
+        case PSTD_DOMAIN_SIDE_RIGHT:
+            conf->Domains[index].R.Absorption = this->NewValue;
+            break;
+        case PSTD_DOMAIN_SIDE_TOP:
+            conf->Domains[index].T.Absorption = this->NewValue;
+            break;
+    }
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -271,13 +242,24 @@ index(index), Side(side), NewValue(newValue)
 
 void EditDomainEdgeLrOperation::Run(const Reciever &reciever)
 {
-    using namespace rapidjson;
 
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+    auto conf = reciever.model->d->GetSceneConf();
 
-    Document::AllocatorType& allocator = conf->GetAllocator();
-
-    (*conf)["domains"][index]["edges"][DomainSideToString(this->Side)]["ls"] = this->NewValue;
+    switch(this->Side)
+    {
+        case PSTD_DOMAIN_SIDE_BOTTOM:
+            conf->Domains[index].B.LR = this->NewValue;
+            break;
+        case PSTD_DOMAIN_SIDE_LEFT:
+            conf->Domains[index].L.LR = this->NewValue;
+            break;
+        case PSTD_DOMAIN_SIDE_RIGHT:
+            conf->Domains[index].R.LR = this->NewValue;
+            break;
+        case PSTD_DOMAIN_SIDE_TOP:
+            conf->Domains[index].T.LR = this->NewValue;
+            break;
+    }
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -285,24 +267,18 @@ void EditDomainEdgeLrOperation::Run(const Reciever &reciever)
 
 void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
 {
+    auto conf = reciever.model->d->GetSceneConf();
     int index = reciever.model->interactive->Selection.SelectedIndex;
-    using namespace rapidjson;
 
-    std::shared_ptr<Document> conf = reciever.model->d->GetSceneConf();
+    conf->Domains[index].T.Absorption = this->AbsorptionT;
+    conf->Domains[index].B.Absorption = this->AbsorptionB;
+    conf->Domains[index].L.Absorption = this->AbsorptionL;
+    conf->Domains[index].R.Absorption = this->AbsorptionR;
 
-    Document::AllocatorType& allocator = conf->GetAllocator();
-
-    (*conf)["domains"][index]["edges"]["t"]["a"] = this->AbsorptionT;
-    (*conf)["domains"][index]["edges"]["b"]["a"] = this->AbsorptionB;
-    (*conf)["domains"][index]["edges"]["l"]["a"] = this->AbsorptionL;
-    (*conf)["domains"][index]["edges"]["r"]["a"] = this->AbsorptionR;
-
-    (*conf)["domains"][index]["edges"]["t"]["lr"] = this->LRT;
-    (*conf)["domains"][index]["edges"]["b"]["lr"] = this->LRB;
-    (*conf)["domains"][index]["edges"]["l"]["lr"] = this->LRL;
-    (*conf)["domains"][index]["edges"]["r"]["lr"] = this->LRR;
-
-    std::cout << this->AbsorptionT << " == " << (*conf)["domains"][index]["edges"]["t"]["a"].GetDouble() << std::endl;
+    conf->Domains[index].T.LR = this->LRT;
+    conf->Domains[index].B.LR = this->LRB;
+    conf->Domains[index].L.LR = this->LRL;
+    conf->Domains[index].R.LR = this->LRR;
 
     reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
@@ -315,6 +291,8 @@ EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDFileSettings se
 
 void EditDocumentSettingsOperation::Run(const Reciever &reciever)
 {
-    reciever.model->d->SetSettings(this->Settings);
+    auto conf = reciever.model->d->GetSceneConf();
+    conf->Settings = this->Settings;
+    reciever.model->d->SetSceneConf(conf);
     reciever.model->d->Change();
 }

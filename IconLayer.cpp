@@ -128,25 +128,24 @@ MinMaxValue IconLayer::GetMinMax()
 std::vector<QVector2D> IconLayer::GetSpeakers(std::shared_ptr<Model> const &m)
 {
     std::vector<QVector2D> result;
-    std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+    auto conf = m->d->GetSceneConf();
 
-    rapidjson::Value &speakers = (*conf)["speakers"];
-    for (rapidjson::SizeType i = 0; i < speakers.Size(); i++)
+    for (int i = 0; i < conf->Speakers.size(); ++i)
     {
-        result.push_back(QVector2D(speakers[i][0].GetDouble(), speakers[i][1].GetDouble()));
+        result.push_back(conf->Speakers[i].toVector2D());
     }
+
     return result;
 }
 
 std::vector<QVector2D> IconLayer::GetReceivers(std::shared_ptr<Model> const &m)
 {
     std::vector<QVector2D> result;
-    std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+    auto conf = m->d->GetSceneConf();
 
-    rapidjson::Value &receivers = (*conf)["receivers"];
-    for (rapidjson::SizeType i = 0; i < receivers.Size(); i++)
+    for (int i = 0; i < conf->Receivers.size(); ++i)
     {
-        result.push_back(QVector2D(receivers[i][0].GetDouble(), receivers[i][1].GetDouble()));
+        result.push_back(conf->Receivers[i].toVector2D());
     }
     return result;
 }

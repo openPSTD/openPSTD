@@ -110,37 +110,24 @@ void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_
 
         if(this->selectionVisible)
         {
-            std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
+            auto conf = m->d->GetSceneConf();
             int i = m->interactive->Selection.SelectedIndex;
 
             std::unique_ptr<std::vector<float>> positions(new std::vector<float>());
 
             if(m->interactive->Selection.Type == SELECTION_DOMAIN)
             {
-                rapidjson::Value& domains = (*conf)["domains"];
-
-                QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
-                QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
-
-                AddSquareBuffer(positions, tl, size);
+                AddSquareBuffer(positions, conf->Domains[i].TopLeft, conf->Domains[i].Size);
             }
             else if(m->interactive->Selection.Type == SELECTION_RECEIVER)
             {
-                rapidjson::Value& receivers = (*conf)["receivers"];
-
-                QVector2D receiver = QVector2D(receivers[i][0].GetDouble(), receivers[i][1].GetDouble());
                 QVector2D SizeLines(0.4, 0.4);
-
-                AddSquareBuffer(positions, receiver-SizeLines/2, SizeLines);
+                AddSquareBuffer(positions, conf->Receivers[i].toVector2D()-SizeLines/2, SizeLines);
             }
             else if(m->interactive->Selection.Type == SELECTION_SPEAKER)
             {
-                rapidjson::Value& speakers = (*conf)["speakers"];
-
-                QVector2D speaker = QVector2D(speakers[i][0].GetDouble(), speakers[i][1].GetDouble());
                 QVector2D SizeLines(0.4, 0.4);
-
-                AddSquareBuffer(positions, speaker-SizeLines/2, SizeLines);
+                AddSquareBuffer(positions, conf->Speakers[i].toVector2D()-SizeLines/2, SizeLines);
             }
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->selectionBuffer);

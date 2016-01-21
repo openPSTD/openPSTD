@@ -41,8 +41,6 @@
 #include <QOpenGLShader>
 #include <algorithm>
 #include <math.h>
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
 #include <string>
 #include <memory>
 #include "GridLayer.h"

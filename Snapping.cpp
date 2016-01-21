@@ -60,8 +60,8 @@ QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
     }
     if(model->settings->snapping.SnapToGrid)
     {
-        std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
-        float gridSpacing = (*conf)["grid_spacing"].GetDouble();
+        auto conf = model->d->GetSceneConf();
+        float gridSpacing = conf->Settings.GetGridSpacing();
 
         if(!snap0)
             vector[0] = round(vector[0] / gridSpacing) * gridSpacing;
@@ -75,14 +75,12 @@ QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
 std::unique_ptr<std::vector<float>> Snapping::GetEdges(std::shared_ptr<Model> const &model, int dimension)
 {
     std::unique_ptr<std::vector<float>> result(new std::vector<float>());
-    std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
+    auto conf = model->d->GetSceneConf();
 
-    rapidjson::Value& domains = (*conf)["domains"];
-
-    for(rapidjson::SizeType i = 0; i < domains.Size(); i++)
+    for(int i = 0; i < conf->Domains.size(); i++)
     {
-        float first = domains[i]["topleft"][dimension].GetDouble();
-        float second = first+domains[i]["size"][dimension].GetDouble();
+        float first = conf->Domains[i].TopLeft[dimension];
+        float second = first + conf->Domains[i].Size[dimension];
 
         result->push_back(first);
         result->push_back(second);
