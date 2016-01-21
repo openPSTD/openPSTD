@@ -292,6 +292,7 @@ namespace Kernel {
                                const std::shared_ptr<Domain> pml_for_domain);
         void clear_fields();
 
+        void clear_pml_arrays();
         void find_update_directions();
         void compute_number_of_neighbours();
 

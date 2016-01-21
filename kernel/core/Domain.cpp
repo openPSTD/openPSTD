@@ -80,8 +80,10 @@ namespace Kernel {
         this->current_values = {};
         this->previous_values = {};
         this->l_values = {};
+        this->pml_arrays = {};
         this->clear_fields();
         this->clear_matrices();
+        this->clear_pml_arrays();
         this->local = false;
         std::cout << "Initialized " << *this << std::endl;
     }
@@ -276,7 +278,7 @@ namespace Kernel {
     }
 
     bool Domain::contains_location(std::vector<float> location) {
-        for (unsigned long dim = 0; dim < 3; dim++) {
+        for (unsigned long dim = 0; dim < location.size(); dim++) {
             if (this->top_left->array.at(dim) > location.at(dim) or
                 location.at(dim) > this->bottom_right->array.at(dim)) {
                 return false;
@@ -577,6 +579,15 @@ namespace Kernel {
         this->previous_values = {}; // Do we def need to empty this?
     }
 
+
+    void Domain::clear_pml_arrays() {
+        this->pml_arrays.px = this->extended_zeros(0, 0);
+        this->pml_arrays.py = this->extended_zeros(0, 0);
+        this->pml_arrays.u = this->extended_zeros(0, 1);
+        this->pml_arrays.w = this->extended_zeros(1, 0);
+
+    }
+
     void Domain::compute_pml_matrices() {
         //Todo (0mar): Refactor this method? It's asymmetric and spaghetty
         /*
@@ -628,8 +639,7 @@ namespace Kernel {
                 if (has_horizontal_attenuation) {
                     calc_dir = CalcDirection::X;
                 }
-                Eigen::ArrayXXf no_attenuation = Eigen::ArrayXXf::Ones(this->pml_arrays.px->rows(),
-                                                                       this->pml_arrays.px->cols()); //could be nicer
+                Eigen::ArrayXXf no_attenuation = Eigen::ArrayXXf::Ones(size->x, size->y);
                 switch (calc_dir) {
                     case CalcDirection::X:
                         create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),
@@ -681,6 +691,7 @@ namespace Kernel {
          * 0mar: Most of this method only needs to be computed once for all domains.
          * However, the computations are not that big and only executed in the initialization phase.
          */
+
         //Pressure defined in cell centers
         auto pressure_range =
                 Eigen::VectorXf::LinSpaced(settings->GetPMLCells(), 0.5, float(settings->GetPMLCells() - 0.5)).array() /
