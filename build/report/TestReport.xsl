@@ -40,14 +40,14 @@ XSLT version: <xsl:value-of select="system-property('xsl:version')"/>
 </xsl:text><xsl:call-template name="repeat">
     <xsl:with-param name="output" >-</xsl:with-param>
     <xsl:with-param name="count" select="$depth" />
-</xsl:call-template> [ ] <xsl:value-of select="@line"/>
+</xsl:call-template> [ ] Line <xsl:value-of select="@line"/>
 </xsl:template>
 
 <xsl:template match="Error"><xsl:param name="depth" /><xsl:text>
 </xsl:text><xsl:call-template name="repeat">
     <xsl:with-param name="output" >-</xsl:with-param>
     <xsl:with-param name="count" select="$depth" />
-</xsl:call-template> [N] <xsl:value-of select="@line"/>
+</xsl:call-template> [N] Line <xsl:value-of select="@line"/>
 </xsl:template>
 
 <xsl:template name="repeat">
