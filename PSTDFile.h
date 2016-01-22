@@ -204,8 +204,6 @@ private:
 
     static PSTDFile_Key_t CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list);
 
-    static std::shared_ptr<PSTDFileConfiguration> CreateDefaultConf();
-
     template<typename T>
     T GetValue(PSTDFile_Key_t key)
     {
@@ -270,6 +268,11 @@ private:
     }
 
 public:
+
+    /**
+     * Creates a default configuration
+     */
+    static std::shared_ptr<PSTDFileConfiguration> CreateDefaultConf();
     /**
      * Opens a file
      * @param filename the filename that has to be opened

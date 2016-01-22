@@ -141,8 +141,8 @@ namespace Kernel {
      * @param direct direction for computation of derivative
      * @return a 2d array containing the derivative of p2
      */
-    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
+    Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
+                              Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
                               RhoArray rho_array, Eigen::ArrayXf window, int wlen,
                               CalculationType ct, CalcDirection direct);
 

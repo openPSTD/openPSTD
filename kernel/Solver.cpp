@@ -31,7 +31,6 @@
 namespace Kernel {
     Solver::Solver(std::shared_ptr<Scene> scene, KernelCallback *callback) {
         this->scene = scene;
-        this->config = scene->config;
         this->settings = scene->settings;
         this->callback = callback;
         Kernel::debug("Number of render time: "+std::to_string(this->settings->GetRenderTime()));
@@ -82,7 +81,7 @@ namespace Kernel {
                     }
                 }
                 for (auto domain:this->scene->domain_list) {
-                    *domain->current_values.p0 = *domain->current_values.px0 + *domain->current_values.py0;
+                    domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
                     // I think this is bugged. @see Speaker::add_domain_contribution().
                     if (frame % this->settings->GetSaveNth() == 0) {
                         this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
@@ -104,29 +103,29 @@ namespace Kernel {
         float dt = this->settings->GetTimeStep();
         float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
         std::vector<float> coefs = this->settings->GetRKCoefficients();
-        *domain->current_values.u0 =
-                *domain->previous_values.u0 - dt * coefs.at(rk_step) * (*domain->l_values.Lpx / domain->rho).real();
-        *domain->current_values.w0 =
-                *domain->previous_values.w0 - dt * coefs.at(rk_step) * (*domain->l_values.Lpy / domain->rho).real();
-        *domain->current_values.px0 = *domain->previous_values.px0 -
-                                      dt * coefs.at(rk_step) *
-                                              (*domain->l_values.Lvx * domain->rho * c1_square).real();
-        *domain->current_values.py0 = *domain->previous_values.py0 -
-                                      dt * coefs.at(rk_step) *
-                                              (*domain->l_values.Lvy * domain->rho * c1_square).real();
+        domain->current_values.u0 =
+                domain->previous_values.u0 - dt * coefs.at(rk_step) * (domain->l_values.Lpx / domain->rho).real();
+        domain->current_values.w0 =
+                domain->previous_values.w0 - dt * coefs.at(rk_step) * (domain->l_values.Lpy / domain->rho).real();
+        domain->current_values.px0 = domain->previous_values.px0 -
+                                     dt * coefs.at(rk_step) *
+                                     (domain->l_values.Lvx * domain->rho * c1_square).real();
+        domain->current_values.py0 = domain->previous_values.py0 -
+                                     dt * coefs.at(rk_step) *
+                                     (domain->l_values.Lvy * domain->rho * c1_square).real();
 
     }
 
     PSTD_FRAME_PTR Solver::get_pressure_vector() {
         auto aligned_pressure = std::vector<float>();
-        aligned_pressure.reserve((unsigned long) this->scene->size->x * this->scene->size->y);
+        aligned_pressure.reserve((unsigned long) this->scene->size.x * this->scene->size.y);
         auto field = this->scene->get_pressure_field();
-        unsigned long row_length = (unsigned long) this->scene->size->x;
+        unsigned long row_length = (unsigned long) this->scene->size.x;
         for (unsigned long row = 0; row < field.cols(); row++) {
             aligned_pressure.insert(aligned_pressure.end(),
                                     field.data() + row * row_length,
                                     field.data() + (row + 1) * row_length);
         }
-        return std::make_shared<PSTD_FRAME>(aligned_pressure);
+        return std::make_shared<PSTD_FRAME>(nullptr); // Feel free to fix
     }
 }

@@ -108,8 +108,8 @@ namespace Kernel {
         }
     }
 
-    Eigen::ArrayXXf spatderp3(std::shared_ptr<Eigen::ArrayXXf> p1, std::shared_ptr<Eigen::ArrayXXf> p2,
-                              std::shared_ptr<Eigen::ArrayXXf> p3, std::shared_ptr<Eigen::ArrayXcf> derfact,
+    Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
+                              Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
                               RhoArray rho_array, Eigen::ArrayXf window, int wlen,
                               CalculationType ct, CalcDirection direct) {
 
@@ -117,8 +117,8 @@ namespace Kernel {
         int fft_batch, fft_length;
         Eigen::ArrayXXf result(1,1); //also called Lp in some places in documentation
 
-        fft_batch = p2->rows();
-        fft_length = next_2_power((int) p2->cols() + wlen * 2);
+        fft_batch = p2.rows();
+        fft_length = next_2_power((int) p2.cols() + wlen * 2);
 
         float *in_buffer;
         in_buffer = (float*) fftwf_malloc(sizeof(float)*fft_length*fft_batch);
@@ -128,21 +128,21 @@ namespace Kernel {
 
         //if direct == 0, transpose p1, p2 and p3
         if (direct == CalcDirection::Y) {
-            p1->transposeInPlace();
-            p2->transposeInPlace();
-            p3->transposeInPlace();
+            p1.transposeInPlace();
+            p2.transposeInPlace();
+            p3.transposeInPlace();
         }
 
         //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
         //slicing and the values pulled from the Rmatrix is slightly different for the two branches
         if (ct == CalculationType::PRESSURE) {
-            result.resize(fft_batch,p2->cols()+wlen*2+1);
+            result.resize(fft_batch, p2.cols() + wlen * 2 + 1);
 
             //window the outer domains, add a portion of the middle one to the sides and concatenate them all
             Eigen::ArrayXf window_left = window.head(wlen);
             Eigen::ArrayXf window_right = window.tail(wlen);
 
-            if (wlen > p1->cols() || wlen > p3->cols()) {
+            if (wlen > p1.cols() || wlen > p3.cols()) {
                 //TODO error (or just warn) if this happens and give user feedback.
             }
 
@@ -150,11 +150,11 @@ namespace Kernel {
             Eigen::ArrayXXf dom3(fft_batch, wlen);
             Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
             //this looks inefficient, but Eigen should optimize it into single operations (TODO: check if it does)
-            dom1 = p1->rightCols(wlen).rowwise()*window_left.transpose()*rho_array.pressure(2,1) +
-                    p2->leftCols(wlen).rowwise().reverse()*rho_array.pressure(0,0);
-            dom3 = p3->leftCols(wlen).rowwise()*window_right.transpose()*rho_array.pressure(3,1) +
-                    p2->rightCols(wlen).rowwise().reverse()*rho_array.pressure(1,0);
-            windowed_data << dom1,*p2, dom3;
+            dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
+                   p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
+            dom3 = p3.leftCols(wlen).rowwise() * window_right.transpose() * rho_array.pressure(3, 1) +
+                   p2.rightCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
+            windowed_data << dom1, p2, dom3;
 
             //TODO rewrite the C interfacing to acceptable C++
             int shape[] = {fft_length};
@@ -184,7 +184,7 @@ namespace Kernel {
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
 
             //apply the spectral derivative
-            spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
+            spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
             std::complex<float> *spectrum_prep;
             Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length/2+1) = spectrum_array;
             fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex*>(&spectrum_prep[0]), in_buffer);
@@ -192,28 +192,30 @@ namespace Kernel {
             Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer,fft_batch,fft_length).array();
 
             //ifft result contains the outer domains, so slice
-            result = derived_array.leftCols(wlen+p2->cols()+1).rightCols(p2->cols()+1);
+            result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
 
         } else {
             //repeat for velocity calculation with different slicing
 
-            result.resize(fft_batch,p2->cols()+wlen*2-1);
+            result.resize(fft_batch, p2.cols() + wlen * 2 - 1);
 
             //window the outer domains, add a portion of the middle one to the sides and concatenate them all
             Eigen::ArrayXf window_left = window.head(wlen);
             Eigen::ArrayXf window_right = window.tail(wlen);
 
-            if (wlen > p1->cols() || wlen > p3->cols()) {
+            if (wlen > p1.cols() || wlen > p3.cols()) {
                 //TODO error (or just warn) if this happens and give user feedback.
             }
             Eigen::ArrayXXf dom1(fft_batch, wlen);
             Eigen::ArrayXXf dom3(fft_batch, wlen);
             Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
-            dom1 = p1->rightCols(wlen+1).leftCols(wlen).rowwise()*window_left.transpose()*rho_array.pressure(2,1) +
-                   p2->leftCols(wlen+1).rightCols(wlen).rowwise().reverse()*rho_array.pressure(0,0);
-            dom3 = p3->leftCols(wlen+1).rightCols(wlen).rowwise()*window_right.transpose()*rho_array.pressure(3,1) +
-                   p2->rightCols(wlen+1).leftCols(wlen).rowwise().reverse()*rho_array.pressure(1,0);
-            windowed_data << dom1,*p2, dom3;
+            dom1 = p1.rightCols(wlen + 1).leftCols(wlen).rowwise() * window_left.transpose() *
+                   rho_array.pressure(2, 1) +
+                   p2.leftCols(wlen + 1).rightCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
+            dom3 = p3.leftCols(wlen + 1).rightCols(wlen).rowwise() * window_right.transpose() *
+                   rho_array.pressure(3, 1) +
+                   p2.rightCols(wlen + 1).leftCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
+            windowed_data << dom1, p2, dom3;
 
             //TODO rewrite the C interfacing to acceptable C++
             int shape[] = {fft_length};
@@ -243,7 +245,7 @@ namespace Kernel {
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
 
             //apply the spectral derivative
-            spectrum_array = spectrum_array.array().rowwise() * derfact->transpose();
+            spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
             std::complex<float> *spectrum_prep;
             Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length/2+1) = spectrum_array;
             fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex*>(&spectrum_prep[0]), in_buffer);
@@ -251,7 +253,7 @@ namespace Kernel {
             Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer,fft_batch,fft_length).array();
 
             //ifft result contains the outer domains, so slice
-            result = derived_array.leftCols(wlen+p2->cols()-1).rightCols(p2->cols()-1);
+            result = derived_array.leftCols(wlen + p2.cols() - 1).rightCols(p2.cols() - 1);
 
         }
         //TODO transpose it if direct == 0

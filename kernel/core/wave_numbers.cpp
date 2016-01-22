@@ -21,7 +21,7 @@
 // Date: 29-9-15
 //
 //
-// Authors: 0mar
+// Authors: Omar Richardson
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -54,29 +54,24 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     float dka = max_wave_number / two_power;
     Discretization discr;
     float wave = 0;
-    Eigen::ArrayXf wave_number_array(2 * two_power);
+    discr.wave_numbers = Eigen::ArrayXf(2 * two_power);
     unsigned long index = 0;
 
-    wave_number_array.head(two_power + 1) = Eigen::ArrayXf::LinSpaced(two_power + 1, 0, max_wave_number);
-    wave_number_array.tail(two_power - 1) = Eigen::ArrayXf::LinSpaced(two_power - 1, max_wave_number - dka, dka);
-    discr.wave_numbers = std::make_shared<Eigen::ArrayXf>(wave_number_array);
-    Eigen::ArrayXcf complex_factor_array(2 * two_power);
+    discr.wave_numbers.head(two_power + 1) = Eigen::ArrayXf::LinSpaced(two_power + 1, 0, max_wave_number);
+    discr.wave_numbers.tail(two_power - 1) = Eigen::ArrayXf::LinSpaced(two_power - 1, max_wave_number - dka, dka);
+    discr.complex_factors = Eigen::ArrayXcf(2 * two_power);
     Eigen::ArrayXf partial_ones = Eigen::ArrayXf::Ones(2 * two_power);
     partial_ones.tail(two_power - 1) = Eigen::ArrayXf::Ones(two_power - 1);
-    complex_factor_array.imag() = partial_ones;
-    complex_factor_array.real() = Eigen::ArrayXf::Zero(2 * two_power);
-    discr.complex_factors = std::make_shared<Eigen::ArrayXcf>(complex_factor_array);
-    Eigen::ArrayXcf complex_wave_numbers = complex_factor_array * wave_number_array;
-    Eigen::ArrayXcf pderfact_array = (-complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
-    Eigen::ArrayXcf vderfact_array = (complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
-    discr.pressure_deriv_factors = make_shared<Eigen::ArrayXcf>(pderfact_array);
-    discr.velocity_deriv_factors = make_shared<Eigen::ArrayXcf>(vderfact_array);
-
+    discr.complex_factors.imag() = partial_ones;
+    discr.complex_factors.real() = Eigen::ArrayXf::Zero(2 * two_power);
+    Eigen::ArrayXcf complex_wave_numbers = discr.complex_factors * discr.wave_numbers;
+    discr.pressure_deriv_factors = (-complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
+    discr.velocity_deriv_factors = (complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
     return discr;
 }
 
 int WaveNumberDiscretizer::match_number(int n) {
-    return (int) (ceil(log2(n)));
+    return (int) ceil(log2(n));
 }
 
 

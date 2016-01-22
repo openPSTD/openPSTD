@@ -45,8 +45,8 @@ using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(domain)
 
     BOOST_AUTO_TEST_CASE(domain_initialization) {
-        shared_ptr<Point> top_left(new Point(0, 0));
-        shared_ptr<Point> size(new Point(100, 150));
+        Point top_left(0, 0);
+        Point size(100, 150);
         shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
         EdgeParameters standard = {};
         standard.locally_reacting = true;

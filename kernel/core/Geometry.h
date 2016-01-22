@@ -36,9 +36,9 @@
 namespace Kernel {
     class Point {
     public:
-        const int x, y, z;
+        int x, y, z;
         std::vector<int> array;
-
+        //Point():x(0),y(0),z(0) {}; //todo:wtf
         /**
          * Constructor for a point in grid coordinates
          */
