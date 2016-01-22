@@ -34,7 +34,7 @@ before_script:
 
 script:
 - compile.sh
-#- test.sh
+- test.sh
 
 after_success:
 - upload_webdav.sh

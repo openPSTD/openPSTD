@@ -157,27 +157,14 @@ void SceneLayer::CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr
 
 std::unique_ptr<std::vector<Edge>> SceneLayer::GetAllEdges(std::shared_ptr<Model> const &m)
 {
-    std::shared_ptr<rapidjson::Document> conf = m->d->GetSceneConf();
-
-    rapidjson::Value &domains = (*conf)["domains"];
-
+    auto conf = m->d->GetSceneConf();
     std::unique_ptr<std::vector<Edge>> result(new std::vector<Edge>());
 
-    for (rapidjson::SizeType i = 0; i < domains.Size(); i++)
+    for (int i = 0; i < conf->Domains.size(); i++)
     {
-        QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
-        QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
+        QVector2D tl = conf->Domains[i].TopLeft;
+        QVector2D size = conf->Domains[i].Size;
         QVector2D br = tl + size;
-
-        float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
-        float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
-        float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
-        float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
-
-        bool lrTop = domains[i]["edges"]["t"]["lr"].GetBool();
-        bool lrBottom = domains[i]["edges"]["b"]["lr"].GetBool();
-        bool lrLeft = domains[i]["edges"]["l"]["lr"].GetBool();
-        bool lrRight = domains[i]["edges"]["r"]["lr"].GetBool();
 
         float left = tl[0];
         float top = tl[1];
@@ -185,11 +172,11 @@ std::unique_ptr<std::vector<Edge>> SceneLayer::GetAllEdges(std::shared_ptr<Model
         float right = br[0];
         float bottom = br[1];
 
-        result->push_back(Edge(QVector2D(left, top), QVector2D(left, bottom), aLeft, lrLeft));
-        result->push_back(Edge(QVector2D(right, top), QVector2D(right, bottom), aRight, lrRight));
+        result->push_back(Edge(QVector2D(left, top), QVector2D(left, bottom), conf->Domains[i].L.Absorption, conf->Domains[i].L.Absorption));
+        result->push_back(Edge(QVector2D(right, top), QVector2D(right, bottom), conf->Domains[i].R.Absorption, conf->Domains[i].R.Absorption));
 
-        result->push_back(Edge(QVector2D(left, bottom), QVector2D(right, bottom), aBottom, lrBottom));
-        result->push_back(Edge(QVector2D(left, top), QVector2D(right, top), aTop, lrTop));
+        result->push_back(Edge(QVector2D(left, bottom), QVector2D(right, bottom), conf->Domains[i].B.Absorption, conf->Domains[i].B.Absorption));
+        result->push_back(Edge(QVector2D(left, top), QVector2D(right, top), conf->Domains[i].T.Absorption, conf->Domains[i].T.Absorption));
     }
 
     return std::move(result);

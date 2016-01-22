@@ -57,12 +57,11 @@ SelectObjectOperation::SelectObjectOperation(QVector2D ScreenPosition): ScreenPo
 void SelectObjectOperation::Run(const Reciever &reciever)
 {
     QVector2D mousePos = (reciever.model->view->viewMatrix.inverted() * this->ScreenPosition.toVector3D()).toVector2D();
-    std::shared_ptr<rapidjson::Document> conf = reciever.model->d->GetSceneConf();
+    auto conf = reciever.model->d->GetSceneConf();
 
-    rapidjson::Value &receivers = (*conf)["receivers"];
-    for (rapidjson::SizeType i = 0; i < receivers.Size(); i++)
+    for (int i = 0; i < conf->Receivers.size(); i++)
     {
-        QVector2D receiverPos(receivers[i][0].GetDouble(), receivers[i][1].GetDouble());
+        QVector2D receiverPos(conf->Receivers[i][0], conf->Receivers[i][1]);
         if(receiverPos.distanceToPoint(mousePos) < 0.4f)
         {
             reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
@@ -71,10 +70,10 @@ void SelectObjectOperation::Run(const Reciever &reciever)
         }
     }
 
-    rapidjson::Value &speakers = (*conf)["speakers"];
-    for (rapidjson::SizeType i = 0; i < speakers.Size(); i++)
+
+    for (int i = 0; i < conf->Speakers.size(); i++)
     {
-        QVector2D speakersPos(speakers[i][0].GetDouble(), speakers[i][1].GetDouble());
+        QVector2D speakersPos(conf->Speakers[i][0], conf->Speakers[i][1]);
         if(speakersPos.distanceToPoint(mousePos) < 0.4f)
         {
             reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
@@ -83,11 +82,10 @@ void SelectObjectOperation::Run(const Reciever &reciever)
         }
     }
 
-    rapidjson::Value &domains = (*conf)["domains"];
-    for (rapidjson::SizeType i = 0; i < domains.Size(); i++)
+    for (int i = 0; i < conf->Domains.size(); i++)
     {
-        QVector2D tl(domains[i]["topleft"][0].GetDouble(), domains[i]["topleft"][1].GetDouble());
-        QVector2D size(domains[i]["size"][0].GetDouble(), domains[i]["size"][1].GetDouble());
+        QVector2D tl = conf->Domains[i].TopLeft;
+        QVector2D size = conf->Domains[i].Size;
 
         if (PointInSquare(tl, size, mousePos))
         {

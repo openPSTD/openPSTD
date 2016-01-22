@@ -89,30 +89,9 @@ void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
 
     if(model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
     {
-        std::shared_ptr<rapidjson::Document> conf = model->d->GetSceneConf();
-
-        rapidjson::Value& domains = (*conf)["domains"];
+        auto conf = model->d->GetSceneConf();
         int i = model->interactive->Selection.SelectedIndex;
-
-        float aTop = domains[i]["edges"]["t"]["a"].GetDouble();
-        float aBottom = domains[i]["edges"]["b"]["a"].GetDouble();
-        float aLeft = domains[i]["edges"]["l"]["a"].GetDouble();
-        float aRight = domains[i]["edges"]["r"]["a"].GetDouble();
-
-        bool lrTop = domains[i]["edges"]["t"]["lr"].GetBool();
-        bool lrBottom = domains[i]["edges"]["b"]["lr"].GetBool();
-        bool lrLeft = domains[i]["edges"]["l"]["lr"].GetBool();
-        bool lrRight = domains[i]["edges"]["r"]["lr"].GetBool();
-
-        domainProperties->SetAbsorptionT(aTop);
-        domainProperties->SetAbsorptionB(aBottom);
-        domainProperties->SetAbsorptionL(aLeft);
-        domainProperties->SetAbsorptionR(aRight);
-
-        domainProperties->SetLRT(lrTop);
-        domainProperties->SetLRB(lrBottom);
-        domainProperties->SetLRL(lrLeft);
-        domainProperties->SetLRR(lrRight);
+        domainProperties->SetDomain(conf->Domains[i]);
     }
 }
 
