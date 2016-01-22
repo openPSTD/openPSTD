@@ -62,11 +62,23 @@ BOOST_AUTO_TEST_SUITE(domain)
         BOOST_CHECK(true);
     }
 
-    BOOST_AUTO_TEST_CASE(domain_init_from_scene) {
-        //To be implemented when cnf is done
+    BOOST_AUTO_TEST_CASE(domain_dimensions) {
+        // Test whether the topleft, bottom right and size, are well initiated
         BOOST_CHECK(true);
 
     }
 
+
+    BOOST_AUTO_TEST_CASE(domain_pml_checks) {
+        //Check whether we have the right number of pml domains with the right dimensions
+        BOOST_CHECK(true);
+
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_) {
+        //Check whether we have the right number of pml domains with the right dimensions
+        BOOST_CHECK(true);
+
+    }
 
 BOOST_AUTO_TEST_SUITE_END()

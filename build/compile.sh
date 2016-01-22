@@ -10,7 +10,6 @@ else
 fi
 
 cmake \
-	-D RAPIDJSON_ROOT:PATH=$PWD/rapidjson \
 	-D EIGEN_INCLUDE:PATH=$PWD/eigen \
 	-D Qt5_DIR:PATH=${QT5DIR} \
 	-D CPACK_GENERATOR=${PACKAGE} \
@@ -21,7 +20,7 @@ cmake \
 	-G Unix\ Makefiles ./
 
 make OpenPSTD-cli
-#make OpenPSTD-gui
-#make OpenPSTD-test
+make OpenPSTD-gui
+make OpenPSTD-test
 sudo cpack -V -G ${PACKAGE}
 ls -alh

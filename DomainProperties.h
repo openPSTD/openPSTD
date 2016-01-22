@@ -39,6 +39,7 @@
 #include <QDialog>
 #include <ui_DomainProperties.h>
 #include <memory>
+#include "PSTDFile.h"
 
 class DomainProperties: public QDialog
 {
@@ -64,7 +65,11 @@ public:
     void SetLRL(bool value);
     void SetLRR(bool value);
 
+    void SetDomain(Domain d);
+    Domain GetDomain();
+
 private:
+    Domain _d;
     std::unique_ptr<Ui_DomainProperties> ui;
 };
 

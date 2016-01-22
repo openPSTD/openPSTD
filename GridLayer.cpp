@@ -76,7 +76,7 @@ void GridLayer::UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOp
     program->bind();
     if(m->view->IsChanged() || m->d->IsChanged())
     {
-        this->gridSpacing = (*m->d->GetSceneConf())["grid_spacing"].GetDouble();
+        this->gridSpacing = m->d->GetSceneConf()->Settings.GetGridSpacing();
         this->viewMatrix = m->view->viewMatrix;
 
         UpdateLines();

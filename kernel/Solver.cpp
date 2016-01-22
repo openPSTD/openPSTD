@@ -42,25 +42,22 @@ namespace Kernel {
 
     SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
             scene, callback) {
-        this->compute_propagation();
     }
 
     GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
             : Solver::Solver(scene, callback) {
-        //TODO implement solver
     }
 
     MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(scene,
                                                                                                                   callback) {
-        //TODO implement solver
     }
 
     GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
             scene, callback) {
-        //TODO implement solver
     }
 
 
+    // Todo: Overwrite solver for GPU/Multithreaded
     void Solver::compute_propagation() {
         this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", -1);
         for (int frame = 0; frame < this->number_of_time_steps; frame++) {
