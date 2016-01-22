@@ -103,14 +103,26 @@ namespace Kernel {
 
         std::shared_ptr<Eigen::ArrayXXf> source;
 
-        if (dest != nullptr || ct == CalculationType::PRESSURE) {
-            if (bt == CalcDirection::X) {
-                source = extended_zeros(0, 1);
+        if (dest != nullptr) {
+            if( ct == CalculationType::VELOCITY ) {
+                if (bt == CalcDirection::X) {
+                    source = extended_zeros(0, 1);
+                } else {
+                    source = extended_zeros(1, 0);
+                }
             } else {
-                source = extended_zeros(1, 0);
+                source = extended_zeros(0, 0);
             }
         } else {
-            source = extended_zeros(0, 0);
+            if ( ct == CalculationType::PRESSURE ) {
+                source = this->current_values.p0;
+            } else {
+                if ( bt == CalcDirection::X) {
+                    source = this->current_values.u0;
+                } else {
+                    source = this->current_values.w0;
+                }
+            }
         }
 
         // loop over all possible combinations of neighbours for this domain (including null on one side)
@@ -257,6 +269,8 @@ namespace Kernel {
                 } else {
                     rho_array = this->rho_arrays[rho_array_id].velocity;
                 }
+
+
 
                 //TODO: set matrix to result of spatderp3
             }
