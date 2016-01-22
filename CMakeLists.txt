@@ -34,6 +34,9 @@ project(OpenPSTD)
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
 set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
+set(FFTWF_LIBRARY "" CACHE PATH "The lib of fftw3f")
+set(FFTWF_INCLUDE_DIR "" CACHE PATH "The include dirs of fftw3f")
+set(FFTWF_SHARED_OBJECT "" CACHE PATH "The dll/so file of fftw3f")
 
 SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")
 SET(OPENPSTD_VERSION_MINOR 0 CACHE STRING "Minor version number")
@@ -142,42 +145,8 @@ endif()
 
 #------------------------------------
 # FFTW3
-find_library(FFTW_LIBRARY
-        NAMES fftw3 fftw)
-find_library(FFTWF_LIBRARY
-        NAMES fftw3f fftwf)
-set(FFTW_LIBRARIES "${FFTW_LIBRARY}")
-set(FFTWF_LIBRARIES "${FFTWF_LIBRARY}")
-
-IF(FFTWF_INCLUDE_DIRS)
-    FIND_PATH(FFTWF_INCLUDE_DIR fftw3.h ${FFTWF_INCLUDE_DIRS})
-    FIND_LIBRARY(FFTWF_LIBRARY fftw3f ${FFTWF_LIBRARY_DIRS})
-    FIND_LIBRARY(FFTWF_THREADS_LIBRARY fftw3f_threads ${FFTWF_LIBRARY_DIRS})
-ELSE(FFTWF_INCLUDE_DIRS)
-    SET(TRIAL_PATHS
-        $ENV{FFTWF_HOME}/include
-        /usr/include
-        /usr/local/include
-        /opt/include
-        /usr/apps/include
-    )
-
-    SET(TRIAL_LIBRARY_PATHS
-        $ENV{FFTWF_HOME}/lib
-        /usr/lib
-        /usr/local/lib
-        /opt/lib
-        /sw/lib
-    )
-
-    FIND_PATH(FFTWF_INCLUDE_DIR fftw3.h ${TRIAL_PATHS})
-    FIND_LIBRARY(FFTWF_LIBRARIES fftw3f ${TRIAL_LIBRARY_PATHS})
-    FIND_LIBRARY(FFTWF_THREADS_LIBRARIES fftw3f_threads ${TRIAL_LIBRARY_PATHS})
-ENDIF(FFTWF_INCLUDE_DIRS)
-
-include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (FFTWF DEFAULT_MSG FFTWF_LIBRARIES FFTWF_INCLUDE_DIR)
-
+message(STATUS "FFTW3F include path: ${FFTWF_INCLUDE_DIR}")
+message(STATUS "FFTW3F lib path: ${FFTWF_LIBRARY}")
 
 #------------------------------------
 # Rapidjson
@@ -205,8 +174,7 @@ include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(unqlite)
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE})
-include_directories(${FFTW3F_INCLUDE})
-include_directories(${FFTW3F_INCLUDE})
+include_directories(${FFTWF_INCLUDE_DIR})
 
 #------------------------------------
 # Compiling flags
@@ -233,6 +201,7 @@ add_library(OpenPSTD SHARED ${SOURCE_FILES_LIB})
 target_link_libraries(OpenPSTD ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD unqlite)
 target_link_libraries(OpenPSTD ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD ${FFTWF_LIBRARY})
 
 #------------------------------------
 # UI CLI
@@ -276,7 +245,7 @@ target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
 #------------------------------------
 # Test
 # Source files
-set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI} ${SOURCE_FILES_LIB})
+set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI})
 # GUI test files
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} Edges-test.cpp)
 # Kernel test files
@@ -291,31 +260,11 @@ set_target_properties(OpenPSTD-test
         AUTOUIC ON
         AUTORCC ON)
 
-#------------------------------------
-# link libraries
-target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
-target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${FFTW_LIBRARIES})
-target_link_libraries(OpenPSTD-cli ${FFTWF_LIBRARIES})
-
-
-target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
-target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
-target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
-target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
-target_link_libraries(OpenPSTD-gui ${FFTW_LIBRARIES})
-target_link_libraries(OpenPSTD-gui ${FFTWF_LIBRARIES})
-
-
 target_link_libraries(OpenPSTD-test OpenPSTD)
 target_link_libraries(OpenPSTD-test ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-test unqlite)
 target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
-target_link_libraries(OpenPSTD-test ${FFTW_LIBRARIES})
-target_link_libraries(OpenPSTD-test ${FFTWF_LIBRARIES})
-
 
 #------------------------------------
 # INSTALL
@@ -344,6 +293,7 @@ elseif(WIN32)
     install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
     install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
+    install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
 
 elseif(UNIX)
     install(TARGETS OpenPSTD DESTINATION lib)
@@ -356,6 +306,7 @@ elseif(UNIX)
     install(FILES ${QtWidgets_location} DESTINATION lib)
     install(FILES ${QtOpenGL_location} DESTINATION lib)
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION lib)
+    install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
 endif()
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
