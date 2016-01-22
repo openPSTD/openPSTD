@@ -36,6 +36,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include "../core/Domain.h"
+
 #include <cmath>
 
 using namespace Kernel;
@@ -44,9 +45,40 @@ using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(domain)
 
     BOOST_AUTO_TEST_CASE(domain_initialization) {
-        //Implement when domains can be initialized
+        shared_ptr<Point> top_left(new Point(0, 0));
+        shared_ptr<Point> size(new Point(100, 150));
+        shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
+        EdgeParameters standard = {};
+        standard.locally_reacting = true;
+        standard.alpha = 1;
+        shared_ptr<PSTDFileSettings> settings(new PSTDFileSettings());
+        map<Direction, EdgeParameters> edge_param_map = {{Direction::LEFT,   standard},
+                                                         {Direction::RIGHT,  standard},
+                                                         {Direction::TOP,    standard},
+                                                         {Direction::BOTTOM, standard}};
+        shared_ptr<Kernel::Domain> test_domain(
+                new Kernel::Domain(settings, "test_domain", 1, top_left, size, false, wnd,
+                                   edge_param_map, nullptr));
         BOOST_CHECK(true);
     }
 
+    BOOST_AUTO_TEST_CASE(domain_dimensions) {
+        // Test whether the topleft, bottom right and size, are well initiated
+        BOOST_CHECK(true);
+
+    }
+
+
+    BOOST_AUTO_TEST_CASE(domain_pml_checks) {
+        //Check whether we have the right number of pml domains with the right dimensions
+        BOOST_CHECK(true);
+
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_) {
+        //Check whether we have the right number of pml domains with the right dimensions
+        BOOST_CHECK(true);
+
+    }
 
 BOOST_AUTO_TEST_SUITE_END()

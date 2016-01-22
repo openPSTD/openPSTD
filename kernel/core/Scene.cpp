@@ -258,9 +258,8 @@ namespace Kernel {
     void Scene::add_receiver(const float x, const float y, const float z) {
         std::vector<float> grid_like_location = {x, y, z};
         std::shared_ptr<Domain> container(nullptr);
-        for (unsigned long i = 0; i < this->domain_list.size(); i++) {
-            std::shared_ptr<Domain> domain = this->domain_list.at(i);
-            if (domain->is_pml && domain->contains_location(grid_like_location)) {
+        for (auto domain:this->domain_list) {
+            if (!domain->is_pml && domain->contains_location(grid_like_location)) {
                 container = domain;
             }
         }
@@ -391,7 +390,7 @@ namespace Kernel {
             Point offset = *domain->top_left - *this->top_left;
             switch (field_type) {
                 case 'p':
-                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += domain->current_values->p0;
+                    field.block(offset.x, offset.y, domain->size->x, domain->size->y) += *domain->current_values.p0;
                     break;
                 default:
                     //No other fields are required (yet). However, leaving open for extension.

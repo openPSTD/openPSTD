@@ -141,6 +141,51 @@ if(NOT Qt5_FOUND)
 endif()
 
 #------------------------------------
+# FFTW3
+find_library(FFTW_LIBRARY
+        NAMES fftw3 fftw)
+find_library(FFTWF_LIBRARY
+        NAMES fftw3f fftwf)
+set(FFTW_LIBRARIES "${FFTW_LIBRARY}")
+set(FFTWF_LIBRARIES "${FFTWF_LIBRARY}")
+
+IF(FFTWF_INCLUDE_DIRS)
+    FIND_PATH(FFTWF_INCLUDE_DIR fftw3.h ${FFTWF_INCLUDE_DIRS})
+    FIND_LIBRARY(FFTWF_LIBRARY fftw3f ${FFTWF_LIBRARY_DIRS})
+    FIND_LIBRARY(FFTWF_THREADS_LIBRARY fftw3f_threads ${FFTWF_LIBRARY_DIRS})
+ELSE(FFTWF_INCLUDE_DIRS)
+    SET(TRIAL_PATHS
+        $ENV{FFTWF_HOME}/include
+        /usr/include
+        /usr/local/include
+        /opt/include
+        /usr/apps/include
+    )
+
+    SET(TRIAL_LIBRARY_PATHS
+        $ENV{FFTWF_HOME}/lib
+        /usr/lib
+        /usr/local/lib
+        /opt/lib
+        /sw/lib
+    )
+
+    FIND_PATH(FFTWF_INCLUDE_DIR fftw3.h ${TRIAL_PATHS})
+    FIND_LIBRARY(FFTWF_LIBRARIES fftw3f ${TRIAL_LIBRARY_PATHS})
+    FIND_LIBRARY(FFTWF_THREADS_LIBRARIES fftw3f_threads ${TRIAL_LIBRARY_PATHS})
+ENDIF(FFTWF_INCLUDE_DIRS)
+
+include (FindPackageHandleStandardArgs)
+find_package_handle_standard_args (FFTWF DEFAULT_MSG FFTWF_LIBRARIES FFTWF_INCLUDE_DIR)
+
+
+#------------------------------------
+# Rapidjson
+add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
+set(RAPIDJSON_INCLUDE "${RAPIDJSON_ROOT}/include")
+message(STATUS "Rapidjson include path: ${RAPIDJSON_INCLUDE}")
+
+#------------------------------------
 # Eigen
 message(STATUS "Eigen include path: ${EIGEN_INCLUDE}")
 
@@ -160,6 +205,8 @@ include_directories(${Qt5_INCLUDE_DIRS})
 include_directories(unqlite)
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${EIGEN_INCLUDE})
+include_directories(${FFTW3F_INCLUDE})
+include_directories(${FFTW3F_INCLUDE})
 
 #------------------------------------
 # Compiling flags
@@ -244,11 +291,31 @@ set_target_properties(OpenPSTD-test
         AUTOUIC ON
         AUTORCC ON)
 
+#------------------------------------
+# link libraries
+target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${FFTW_LIBRARIES})
+target_link_libraries(OpenPSTD-cli ${FFTWF_LIBRARIES})
+
+
+target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${UNQLITE_LIB})
+target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${FFTW_LIBRARIES})
+target_link_libraries(OpenPSTD-gui ${FFTWF_LIBRARIES})
+
+
 target_link_libraries(OpenPSTD-test OpenPSTD)
 target_link_libraries(OpenPSTD-test ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-test ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-test unqlite)
 target_link_libraries(OpenPSTD-test ${OPENGL_LIBRARIES})
+target_link_libraries(OpenPSTD-test ${FFTW_LIBRARIES})
+target_link_libraries(OpenPSTD-test ${FFTWF_LIBRARIES})
+
 
 #------------------------------------
 # INSTALL
