@@ -139,6 +139,11 @@ public:
      * application of the progress of the kernel.
      */
     void run(KernelCallback *callback);
+
+    /**
+     * Query the kernel for the discretization of the Domains, in order they were passed (WxH)
+     */
+    std::vector<std::vector<int>> GetDomainMetadata();
 };
 
 
