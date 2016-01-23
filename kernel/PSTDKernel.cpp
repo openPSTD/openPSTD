@@ -103,25 +103,29 @@ void PSTDKernel::add_receivers() {
 
 void PSTDKernel::run(KernelCallback *callback) {
     int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
-    Kernel::Solver *solver;
+    std::shared_ptr<Kernel::Solver> solver;
     switch (solver_num) {
         case 0:
-            solver = new Kernel::SingleThreadSolver(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::SingleThreadSolver(this->scene, callback));
             break;
         case 1:
-            solver = new Kernel::GPUSingleThreadSolver(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUSingleThreadSolver(this->scene, callback));
             break;
         case 2:
-            solver = new Kernel::MultiThreadSolver(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::MultiThreadSolver(this->scene, callback));
             break;
         case 3:
-            solver = new Kernel::GPUMultiThreadSolver(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUMultiThreadSolver(this->scene, callback));
             break;
         default:
             //Raise Error
             break;
     }
     solver->compute_propagation();
+}
+
+std::vector<std::vector<int>> PSTDKernel::GetDomainMetadata() {
+
 }
 
 
