@@ -43,10 +43,10 @@ namespace Kernel {
     class WaveNumberDiscretizer {
     public:
         struct Discretization {
-            std::shared_ptr<Eigen::ArrayXf> wave_numbers;
-            std::shared_ptr<Eigen::ArrayXcf> complex_factors;
-            std::shared_ptr<Eigen::ArrayXcf> pressure_deriv_factors;
-            std::shared_ptr<Eigen::ArrayXcf> velocity_deriv_factors;
+            Eigen::ArrayXf wave_numbers;
+            Eigen::ArrayXcf complex_factors;
+            Eigen::ArrayXcf pressure_deriv_factors;
+            Eigen::ArrayXcf velocity_deriv_factors;
         };
 
         /*

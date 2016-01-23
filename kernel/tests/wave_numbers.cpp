@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
         WaveNumberDiscretizer::Discretization discr2 = wnd.get_discretization(dx, size2);
         WaveNumberDiscretizer::Discretization discr3 = wnd.get_discretization(dx, size3);
 
-        BOOST_CHECK_EQUAL(discr2.wave_numbers->size(), discr3.wave_numbers->size());
-        BOOST_CHECK_EQUAL(discr2.wave_numbers->size(), 2 * discr1.wave_numbers->size());
+        BOOST_CHECK_EQUAL(discr2.wave_numbers.size(), discr3.wave_numbers.size());
+        BOOST_CHECK_EQUAL(discr2.wave_numbers.size(), 2 * discr1.wave_numbers.size());
         //Check maximum of wavenumbers
         //check all wavenumbers bigger zero
         //Check several values
@@ -76,8 +76,8 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
         float dx = 0.2;
         WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
         WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
-        BOOST_CHECK(discr1.wave_numbers->maxCoeff() <= 15.8);
-        BOOST_CHECK(discr1.wave_numbers->minCoeff() >= 0);
+        BOOST_CHECK(discr1.wave_numbers.maxCoeff() <= 15.8);
+        BOOST_CHECK(discr1.wave_numbers.minCoeff() >= 0);
         // Value from default python run.
         // Computed by linear stepping from 0 with minimum wave length to middle of array
     }
@@ -88,20 +88,20 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
         float dx = 0.2;
         WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
         WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
-        BOOST_CHECK(almost_equal(discr1.wave_numbers->coeff(1), 0.245437));
-        BOOST_CHECK(almost_equal(discr1.wave_numbers->coeff(99), 7.1176707));
+        BOOST_CHECK(almost_equal(discr1.wave_numbers.coeff(1), 0.245437));
+        BOOST_CHECK(almost_equal(discr1.wave_numbers.coeff(99), 7.1176707));
 
-        BOOST_CHECK(almost_equal(discr1.complex_factors->imag().coeff(64), 1));
-        BOOST_CHECK(almost_equal(discr1.complex_factors->imag().coeff(65), -1));
+        BOOST_CHECK(almost_equal(discr1.complex_factors.imag().coeff(64), 1));
+        BOOST_CHECK(almost_equal(discr1.complex_factors.imag().coeff(65), -1));
 
-        BOOST_CHECK(almost_equal(discr1.complex_factors->real().coeff(64), 0));
-        BOOST_CHECK(almost_equal(discr1.complex_factors->real().coeff(65), 0));
+        BOOST_CHECK(almost_equal(discr1.complex_factors.real().coeff(64), 0));
+        BOOST_CHECK(almost_equal(discr1.complex_factors.real().coeff(65), 0));
 
-        BOOST_CHECK(almost_equal(discr1.pressure_deriv_factors->real().coeff(39), 7.8259545));
-        BOOST_CHECK(almost_equal(discr1.pressure_deriv_factors->imag().coeff(39), 5.511659));
+        BOOST_CHECK(almost_equal(discr1.pressure_deriv_factors.real().coeff(39), 7.8259545));
+        BOOST_CHECK(almost_equal(discr1.pressure_deriv_factors.imag().coeff(39), 5.511659));
 
-        BOOST_CHECK(almost_equal(discr1.velocity_deriv_factors->real().coeff(56), -13.480372));
-        BOOST_CHECK(almost_equal(discr1.velocity_deriv_factors->imag().coeff(56), 2.681413));
+        BOOST_CHECK(almost_equal(discr1.velocity_deriv_factors.real().coeff(56), -13.480372));
+        BOOST_CHECK(almost_equal(discr1.velocity_deriv_factors.imag().coeff(56), 2.681413));
 
         // Values from default python run. analytical reproduction should be possible.
     }

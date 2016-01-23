@@ -27,40 +27,42 @@
 
 #include "Domain.h"
 
+using namespace std;
+using namespace Eigen;
 namespace Kernel {
 
-    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
-                   std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
-                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
+    Domain::Domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+                   Point top_left, Point size, const bool is_pml,
+                   shared_ptr<WaveNumberDiscretizer> wnd, map<Direction, EdgeParameters> edge_param_map,
+                   const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
 
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    Domain::Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
-                   std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-                   std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
-                   const std::shared_ptr<Domain> pml_for_domain = std::shared_ptr<Domain>(nullptr)) {
-        std::shared_ptr<Point> top_left(new Point(top_left_vector.at(0), top_left_vector.at(1)));
-        std::shared_ptr<Point> size(new Point(size_vector.at(0), size_vector.at(1)));
+    Domain::Domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+                   vector<float> top_left_vector, vector<float> size_vector, const bool is_pml,
+                   shared_ptr<WaveNumberDiscretizer> wnd, map<Direction, EdgeParameters> edge_param_map,
+                   const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
+        Point top_left((int) top_left_vector.at(0), (int) top_left_vector.at(1));
+        Point size((int) size_vector.at(0), (int) size_vector.at(1));
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
-    };
+    }
 
-    void Domain::initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
-                                   std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
-                                   std::shared_ptr<WaveNumberDiscretizer> wnd,
-                                   std::map<Direction, EdgeParameters> edge_param_map,
-                                   const std::shared_ptr<Domain> pml_for_domain) {
+    void Domain::initialize_domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+                                   Point top_left, Point size, const bool is_pml,
+                                   shared_ptr<WaveNumberDiscretizer> wnd,
+                                   map<Direction, EdgeParameters> edge_param_map,
+                                   const shared_ptr<Domain> pml_for_domain) {
         this->settings = settings;
         this->top_left = top_left;
         this->size = size; // Remember PML domains have a fixed size.
-        this->bottom_right = std::make_shared<Point>(*top_left + *size);
+        this->bottom_right = top_left + size;
         this->wnd = wnd;
         this->id = id;
         this->edge_param_map = edge_param_map;
         this->alpha = alpha; // Todo: Usually 1, and barely used. Push to settings when PML domain becomes subclass
         //Todo: (TK): Probably wrong, especially with two neighbouring PML domains
-        this->impedance = -((std::sqrt(1 - alpha) + 1) / (std::sqrt(1 - alpha) - 1));
+        this->impedance = -((sqrt(1 - alpha) + 1) / (sqrt(1 - alpha) - 1));
         if (is_pml) { // Ugly... Fix when possible
             this->pml_for_domain_list.push_back(pml_for_domain);
         }
@@ -85,25 +87,25 @@ namespace Kernel {
         this->clear_matrices();
         this->clear_pml_arrays();
         this->local = false;
-        std::cout << "Initialized " << *this << std::endl;
+        cout << "Initialized " << *this << endl;
     }
 
     // version of calc that would have a return value.
-    Eigen::ArrayXXf Domain::calc(CalcDirection bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest) {
-        std::vector<std::shared_ptr<Domain>> domains1, domains2;
+    ArrayXXf Domain::calc(CalcDirection bt, CalculationType ct, ArrayXcf dest) {
+        vector<shared_ptr<Domain>> domains1, domains2;
         if (bt == CalcDirection::X) {
-            domains1 = this->left;
-            domains2 = this->right;
+            domains1 = left;
+            domains2 = right;
         } else {
-            domains1 = this->bottom;
-            domains2 = this->top;
+            domains1 = bottom;
+            domains2 = top;
         }
 
-        std::vector<int> own_range = get_range(bt);
+        vector<int> own_range = get_range(bt);
 
-        std::shared_ptr<Eigen::ArrayXXf> source;
+        ArrayXXf source;
 
-        if (dest != nullptr) {
+        if (/*dest != nullptr ||*/ false) { //TODO FIXME Fix dest checking
             if( ct == CalculationType::VELOCITY ) {
                 if (bt == CalcDirection::X) {
                     source = extended_zeros(0, 1);
@@ -126,26 +128,26 @@ namespace Kernel {
         }
 
         // loop over all possible combinations of neighbours for this domain (including null on one side)
-        std::shared_ptr<Domain> d1, d2;
+        shared_ptr<Domain> d1, d2;
         for (int i = 0; i != domains1.size() + 1; i++) { //the +1 because a null pointer is also needed
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
             for (int j = 0; i != domains2.size() + 1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
-                std::vector<std::string> rho_matrix_key;
+                vector<string> rho_matrix_key;
                 rho_matrix_key.push_back(d1->id);
                 rho_matrix_key.push_back(d2->id);
 
                 //The range is determined and clipped to the neighbour domain ranges
-                std::vector<int> range_intersection = own_range;
+                vector<int> range_intersection = own_range;
 
                 if (d1 != nullptr) {
-                    std::vector<int> range1 = d1->get_range(bt);
+                    vector<int> range1 = d1->get_range(bt);
                     set_intersection(range1.begin(), range1.end(),
                                      range_intersection.begin(), range_intersection.end(),
                                      back_inserter(range_intersection));
                 }
                 if (d2 != nullptr) {
-                    std::vector<int> range2 = d1->get_range(bt);
+                    vector<int> range2 = d1->get_range(bt);
                     set_intersection(range2.begin(), range2.end(),
                                      range_intersection.begin(), range_intersection.end(),
                                      back_inserter(range_intersection));
@@ -157,10 +159,10 @@ namespace Kernel {
                 }
 
                 // Set up various parameters and intermediates that are needed for the spatial derivatives
-                int range_start = *std::min_element(range_intersection.begin(), range_intersection.end());
-                int range_end = *std::max_element(range_intersection.begin(), range_intersection.end()) + 1;
-                int primary_dimension = (bt == CalcDirection::X) ? this->size->x : this->size->y;
-                int N_total = 2 * this->settings->GetWindowSize() + primary_dimension;
+                int range_start = *min_element(range_intersection.begin(), range_intersection.end());
+                int range_end = *max_element(range_intersection.begin(), range_intersection.end()) + 1;
+                int primary_dimension = (bt == CalcDirection::X) ? size.x : size.y;
+                int N_total = 2 * settings->GetWindowSize() + primary_dimension;
 
                 if (ct == CalculationType::PRESSURE) {
                     N_total++;
@@ -168,7 +170,7 @@ namespace Kernel {
                     primary_dimension++;
                 }
 
-                std::shared_ptr<Eigen::ArrayXXf> matrix0 = nullptr, matrix1 = nullptr, matrix2 = nullptr;
+                ArrayXXf matrix0, matrix1, matrix2;
                 if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                     // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
                     // TODO Louis: Why only zeroes for ct==velocity? Should zeroes also be added in the else{} block?
@@ -195,15 +197,15 @@ namespace Kernel {
                 }
 
                 if (ct == CalculationType::PRESSURE) {
-                    matrix0 = this->current_values.p0;
+                    matrix0 = current_values.p0;
                 } else if (bt == CalcDirection::X) {
-                    matrix0 = this->current_values.u0;
+                    matrix0 = current_values.u0;
                 } else {
-                    matrix0 = this->current_values.w0;
+                    matrix0 = current_values.w0;
                 }
 
                 // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
-                if (matrix1 == nullptr) {
+                if (matrix1.isZero()) { // Todo: Trouble
                     if (ct == CalculationType::PRESSURE) {
                         matrix1 = d1->current_values.p0;
                     } else {
@@ -214,7 +216,7 @@ namespace Kernel {
                         }
                     }
                 }
-                if (matrix2 == nullptr) {
+                if (matrix2.isZero()) { // Todo: Trouble
                     if (ct == CalculationType::PRESSURE) {
                         matrix2 = d2->current_values.p0;
                     } else {
@@ -235,39 +237,39 @@ namespace Kernel {
                     direction = 1;
                 }
 
-                std::shared_ptr<Eigen::ArrayXcf> derfact;
-                if (dest != nullptr) {
+                ArrayXcf derfact;
+                if (dest.isZero()) { // Todo: Fix
                     derfact = dest;
                 } else {
                     if (ct == CalculationType::PRESSURE) {
-                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(),
+                        derfact = wnd->get_discretization(settings->GetGridSpacing(),
                                                           N_total).pressure_deriv_factors;
                     } else {
-                        derfact = wnd->get_discretization(this->settings->GetGridSpacing(),
+                        derfact = wnd->get_discretization(settings->GetGridSpacing(),
                                                           N_total).velocity_deriv_factors;
                     }
                 }
 
                 // Determine which rho matrix instance to use
-                std::string rho_array_id;
+                string rho_array_id;
                 if (d1 != nullptr) {
                     if (d2 != nullptr) {
-                        rho_array_id = d1->id + this->id + d2->id;
+                        rho_array_id = d1->id + id + d2->id;
                     } else {
-                        rho_array_id = d1->id + this->id;
+                        rho_array_id = d1->id + id;
                     }
                 } else {
                     if (d2 != nullptr) {
-                        rho_array_id = this->id + d2->id;
+                        rho_array_id = id + d2->id;
                     } else {
-                        rho_array_id = this->id;
+                        rho_array_id = id;
                     }
                 }
-                Eigen::Array<float, 4, 2> rho_array;
+                Array<float, 4, 2> rho_array;
                 if (ct == CalculationType::PRESSURE) {
-                    rho_array = this->rho_arrays[rho_array_id].pressure;
+                    rho_array = rho_arrays[rho_array_id].pressure;
                 } else {
-                    rho_array = this->rho_arrays[rho_array_id].velocity;
+                    rho_array = rho_arrays[rho_array_id].velocity;
                 }
 
                 //source
@@ -277,106 +279,102 @@ namespace Kernel {
     }
 
     /**
-     * Near-alias to calc(BoundaryType bt, CalculationType ct, std::vector<float> dest), but with
+     * Near-alias to calc(BoundaryType bt, CalculationType ct, vector<float> dest), but with
      * a default empty vector as dest.
      */
     void Domain::calc(CalcDirection bt, CalculationType ct) {
-        std::shared_ptr<Eigen::ArrayXcf> dest;
-        Domain::calc(bt, ct, dest);
+        //Domain::calc(bt, ct, nullptr); //Todo: Fix this call
     }
 
     bool Domain::contains_point(Point point) {
-        std::vector<float> location = {(float) point.x, (float) point.y, (float) point.z};
-        return this->contains_location(location);
+        vector<float> location = {(float) point.x, (float) point.y, (float) point.z};
+        return contains_location(location);
     }
 
-    bool Domain::contains_location(std::vector<float> location) {
+    bool Domain::contains_location(vector<float> location) {
         for (unsigned long dim = 0; dim < location.size(); dim++) {
-            if (this->top_left->array.at(dim) > location.at(dim) or
-                location.at(dim) > this->bottom_right->array.at(dim)) {
+            if (top_left.array.at(dim) > location.at(dim) or
+                location.at(dim) > bottom_right.array.at(dim)) {
                 return false;
             }
         }
         return true;
     }
 
-    bool Domain::is_neighbour_of(std::shared_ptr<Domain> domain) {
+    bool Domain::is_neighbour_of(shared_ptr<Domain> domain) {
         for (Direction direction :all_directions) {
             auto dir_nb = get_neighbours_at(direction);
-            if (std::find(dir_nb.begin(), dir_nb.end(), domain) != dir_nb.end()) {
+            if (find(dir_nb.begin(), dir_nb.end(), domain) != dir_nb.end()) {
                 return true;
             }
         }
         return false;
     }
 
-    bool Domain::is_pml_for(std::shared_ptr<Domain> domain) {
-        return (std::find(this->pml_for_domain_list.begin(), this->pml_for_domain_list.end(), domain) !=
-                this->pml_for_domain_list.end());
+    bool Domain::is_pml_for(shared_ptr<Domain> domain) {
+        return (find(pml_for_domain_list.begin(), pml_for_domain_list.end(), domain) != pml_for_domain_list.end());
     }
 
     bool Domain::is_rigid() {
-        return this->impedance > 1000; //Why this exact value?
+        return impedance > 1000; //Why this exact value?
     }
 
-    std::vector<int> Domain::get_range(CalcDirection bt) {
+    vector<int> Domain::get_range(CalcDirection bt) {
         int a_l, b_l;
         if (bt == CalcDirection::X) {
-            a_l = this->top_left->x;
-            b_l = this->bottom_right->x;
+            a_l = top_left.x;
+            b_l = bottom_right.x;
         } else {
-            a_l = this->top_left->y;
-            b_l = this->bottom_right->y;
+            a_l = top_left.y;
+            b_l = bottom_right.y;
         }
-        std::vector<int> tmp((unsigned long) (b_l - a_l));
-        std::iota(tmp.begin(), tmp.end(), a_l); // Increases with 1 from a_l
+        vector<int> tmp((unsigned long) (b_l - a_l));
+        iota(tmp.begin(), tmp.end(), a_l); // Increases with 1 from a_l
         return tmp;
     }
 
-    std::vector<int> Domain::get_intersection_with(std::shared_ptr<Domain> other_domain, Direction direction) {
-        std::vector<int> own_range;
-        std::vector<int> other_range;
+    vector<int> Domain::get_intersection_with(shared_ptr<Domain> other_domain, Direction direction) {
+        vector<int> own_range;
+        vector<int> other_range;
         switch (direction) {
             case Direction::LEFT:
             case Direction::RIGHT:
-                own_range = this->get_range(CalcDirection::X);
+                own_range = get_range(CalcDirection::X);
                 other_range = other_domain->get_range(CalcDirection::X);
                 break;
             case Direction::TOP:
             case Direction::BOTTOM:
-                own_range = this->get_range(CalcDirection::Y);
+                own_range = get_range(CalcDirection::Y);
                 other_range = other_domain->get_range(CalcDirection::Y);
                 break;
         }
-        std::vector<int> range_intersection = own_range;
+        vector<int> range_intersection = own_range;
         set_intersection(other_range.begin(), other_range.end(), range_intersection.begin(), range_intersection.end(),
                          back_inserter(range_intersection));
         return range_intersection;
     }
 
-    std::shared_ptr<Eigen::ArrayXXf> Domain::extended_zeros(int x, int y, int z) {
-        std::shared_ptr<Eigen::ArrayXXf> tmp(new Eigen::ArrayXXf(this->size->x + x, this->size->y + y));
-        tmp->setZero();
-        return tmp;
+    ArrayXXf Domain::extended_zeros(int x, int y, int z) {
+        return ArrayXXf::Zero(size.x + x, size.y + y);
     }
 
-    std::vector<std::shared_ptr<Domain>> Domain::get_neighbours_at(Direction direction) {
+    vector<shared_ptr<Domain>> Domain::get_neighbours_at(Direction direction) {
         switch (direction) {
             case Direction::LEFT:
-                return this->left;
+                return left;
             case Direction::RIGHT:
-                return this->right;
+                return right;
             case Direction::TOP:
-                return this->top;
+                return top;
             case Direction::BOTTOM:
-                return this->bottom;
+                return bottom;
         }
     }
 
-    std::shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, std::vector<float> location) {
-        std::shared_ptr<Domain> correct_domain = nullptr;
-        auto dir_neighbours = this->get_neighbours_at(direction);
-        for (std::shared_ptr<Domain> domain:dir_neighbours) {
+    shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, vector<float> location) {
+        shared_ptr<Domain> correct_domain = nullptr;
+        auto dir_neighbours = get_neighbours_at(direction);
+        for (shared_ptr<Domain> domain:dir_neighbours) {
             if (domain->contains_location(location)) {
                 assert(correct_domain == nullptr);
                 correct_domain = domain;
@@ -387,13 +385,13 @@ namespace Kernel {
 
 
     void Domain::compute_number_of_neighbours() {
-        this->num_neighbour_domains = 0;
-        this->num_pml_neighbour_domains = 0;
+        num_neighbour_domains = 0;
+        num_pml_neighbour_domains = 0;
         for (Direction direction: all_directions) {
-            for (auto domain: this->get_neighbours_at(direction)) {
-                this->num_neighbour_domains++;
+            for (auto domain: get_neighbours_at(direction)) {
+                num_neighbour_domains++;
                 if (domain->is_pml) {
-                    this->num_pml_neighbour_domains++;
+                    num_pml_neighbour_domains++;
                 }
             }
         }
@@ -407,19 +405,19 @@ namespace Kernel {
         }
     }
 
-    void Domain::add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction) {
+    void Domain::add_neighbour_at(shared_ptr<Domain> domain, Direction direction) {
         switch (direction) {
             case Direction::LEFT:
-                this->left.push_back(domain);
+                left.push_back(domain);
                 break;
             case Direction::RIGHT:
-                this->right.push_back(domain);
+                right.push_back(domain);
                 break;
             case Direction::TOP:
-                this->top.push_back(domain);
+                top.push_back(domain);
                 break;
             case Direction::BOTTOM:
-                this->bottom.push_back(domain);
+                bottom.push_back(domain);
                 break;
         }
     }
@@ -427,109 +425,109 @@ namespace Kernel {
     void Domain::compute_rho_arrays() {
         //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
         struct index_strings {
-            std::string id(std::shared_ptr<Domain> d1, Domain *dm, std::shared_ptr<Domain> d2) {
+            string id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
                 return d1->id + dm->id + d2->id;
             }
 
-            std::string id(std::shared_ptr<Domain> d1, Domain *dm) {
+            string id(shared_ptr<Domain> d1, Domain *dm) {
                 return d1->id + dm->id;
             }
 
-            std::string id(Domain *dm, std::shared_ptr<Domain> d2) {
+            string id(Domain *dm, shared_ptr<Domain> d2) {
                 return dm->id + d2->id;
             }
 
-            std::string id(Domain *dm) {
+            string id(Domain *dm) {
                 return dm->id;
             }
         };
         index_strings x;
-        std::vector<std::shared_ptr<Domain>> left_domains = this->left;
-        std::vector<std::shared_ptr<Domain>> right_domains = this->right;
-        std::vector<std::shared_ptr<Domain>> top_domains = this->top;
-        std::vector<std::shared_ptr<Domain>> bottom_domains = this->bottom;
+        vector<shared_ptr<Domain>> left_domains = left;
+        vector<shared_ptr<Domain>> right_domains = right;
+        vector<shared_ptr<Domain>> top_domains = top;
+        vector<shared_ptr<Domain>> bottom_domains = bottom;
 
-        float max_rho = 1E10; // Large value, well within float range. hange for double.
+        float max_rho = 1E10; // Large value, well within float range. Change for double.
 
         // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
         // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
         if (left_domains.size()) {
-            for (std::shared_ptr<Domain> d1 : left_domains) {
+            for (shared_ptr<Domain> d1 : left_domains) {
                 if (right_domains.size()) {
-                    for (std::shared_ptr<Domain> d2 : right_domains) {
-                        std::vector<float> rhos = {d1->rho, d2->rho};
-                        this->rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    for (shared_ptr<Domain> d2 : right_domains) {
+                        vector<float> rhos = {d1->rho, d2->rho};
+                        rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                     }
                 } else {
-                    std::vector<float> rhos = {d1->rho, max_rho};
-                    this->rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    vector<float> rhos = {d1->rho, max_rho};
+                    rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], rho, rhos[1]);
                 }
             }
         } else {
             if (right_domains.size()) {
-                for (std::shared_ptr<Domain> d2 : right_domains) {
-                    std::vector<float> rhos = {max_rho, d2->rho};
-                    this->rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                for (shared_ptr<Domain> d2 : right_domains) {
+                    vector<float> rhos = {max_rho, d2->rho};
+                    rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                 }
             } else {
-                std::vector<float> rhos = {max_rho, max_rho};
-                this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                vector<float> rhos = {max_rho, max_rho};
+                rho_arrays[x.id(this)] = get_rho_array(rhos[0], rho, rhos[1]);
             }
         }
 
         if (bottom_domains.size()) {
-            for (std::shared_ptr<Domain> d1 : bottom_domains) {
+            for (shared_ptr<Domain> d1 : bottom_domains) {
                 if (top_domains.size()) {
-                    for (std::shared_ptr<Domain> d2 : top_domains) {
-                        std::vector<float> rhos = {d1->rho, d2->rho};
-                        this->rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    for (shared_ptr<Domain> d2 : top_domains) {
+                        vector<float> rhos = {d1->rho, d2->rho};
+                        rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                     }
                 } else {
-                    std::vector<float> rhos = {d1->rho, max_rho};
-                    this->rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                    vector<float> rhos = {d1->rho, max_rho};
+                    rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], rho, rhos[1]);
                 }
             }
         } else {
             if (top_domains.size()) {
-                for (std::shared_ptr<Domain> d2 : top_domains) {
-                    std::vector<float> rhos = {max_rho, d2->rho};
-                    this->rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                for (shared_ptr<Domain> d2 : top_domains) {
+                    vector<float> rhos = {max_rho, d2->rho};
+                    rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                 }
             } else {
-                std::vector<float> rhos = {max_rho, max_rho};
-                this->rho_arrays[x.id(this)] = get_rho_array(rhos[0], this->rho, rhos[1]);
+                vector<float> rhos = {max_rho, max_rho};
+                rho_arrays[x.id(this)] = get_rho_array(rhos[0], rho, rhos[1]);
             }
         }
     }
 
-    Eigen::ArrayXXi Domain::get_vacant_range(Direction direction) {
-        std::vector<std::shared_ptr<Domain>> neighbour_list;
+    ArrayXXi Domain::get_vacant_range(Direction direction) {
+        vector<shared_ptr<Domain>> neighbour_list;
         CalcDirection calc_dir = direction_to_calc_direction(direction);
-        std::vector<int> range = this->get_range(calc_dir);
-        std::set<int> range_set(range.begin(), range.end());
+        vector<int> range = get_range(calc_dir);
+        set<int> range_set(range.begin(), range.end());
         switch (direction) {
             case Direction::LEFT:
-                neighbour_list = this->left;
+                neighbour_list = left;
                 break;
             case Direction::RIGHT:
-                neighbour_list = this->right;
+                neighbour_list = right;
                 break;
             case Direction::TOP:
-                neighbour_list = this->top;
+                neighbour_list = top;
                 break;
             case Direction::BOTTOM:
-                neighbour_list = this->bottom;
+                neighbour_list = bottom;
                 break;
         }
-        for (std::shared_ptr<Domain> domain: neighbour_list) {
-            std::vector<int> neighbour_range = domain->get_range(calc_dir);
-            std::set<int> neighbour_range_set(neighbour_range.begin(), neighbour_range.end());
-            std::set<int> set_diff;
-            std::set_difference(range_set.begin(), range_set.end(), neighbour_range_set.begin(),
-                                neighbour_range_set.end(), std::inserter(set_diff, set_diff.end()));
+        for (shared_ptr<Domain> domain: neighbour_list) {
+            vector<int> neighbour_range = domain->get_range(calc_dir);
+            set<int> neighbour_range_set(neighbour_range.begin(), neighbour_range.end());
+            set<int> set_diff;
+            set_difference(range_set.begin(), range_set.end(), neighbour_range_set.begin(),
+                           neighbour_range_set.end(), inserter(set_diff, set_diff.end()));
             range_set.swap(set_diff);
         }
-        Eigen::ArrayXXi vacant_range(range_set.size(), 2);
+        ArrayXXi vacant_range(range_set.size(), 2);
         range.assign(range_set.begin(), range_set.end());
         int iterator = 0;
         for (unsigned long i = 0; i < range.size(); i++) {
@@ -547,25 +545,25 @@ namespace Kernel {
 
 
     void Domain::find_update_directions() {
-        std::vector<CalcDirection> calc_directions = {CalcDirection::X, CalcDirection::Y};
-        std::vector<Direction> directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
+        vector<CalcDirection> calc_directions = {CalcDirection::X, CalcDirection::Y};
+        vector<Direction> directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
         for (CalcDirection calc_dir: calc_directions) {
             bool should_update = false;
-            if (this->number_of_neighbours(false) == 1 and this->is_pml) {
-                if (this->has_horizontal_attenuation and calc_dir == CalcDirection::X) {
+            if (number_of_neighbours(false) == 1 and is_pml) {
+                if (has_horizontal_attenuation and calc_dir == CalcDirection::X) {
                     // Todo: make sure we calculate in direction orthogonal to boundary
                     should_update = true;
-                } else if (!this->has_horizontal_attenuation and calc_dir == CalcDirection::Y) {
+                } else if (!has_horizontal_attenuation and calc_dir == CalcDirection::Y) {
                     should_update = true;
-                } else if (this->local) {
+                } else if (local) {
                     should_update = false;
                 } else {
                     for (Direction direction: directions) {
-                        std::vector<std::shared_ptr<Domain>> dir_neighbours = this->get_neighbours_at(direction);
+                        vector<shared_ptr<Domain>> dir_neighbours = get_neighbours_at(direction);
                         if (dir_neighbours.size() == 1 and !dir_neighbours.at(0)->is_pml) {
-                            std::vector<std::shared_ptr<Domain>> opp_neighbours =
+                            vector<shared_ptr<Domain>> opp_neighbours =
                                     dir_neighbours.at(0)->get_neighbours_at(get_opposite(direction));
-                            assert(opp_neighbours.size() == 1 and this->id == opp_neighbours.at(0)->id);
+                            assert(opp_neighbours.size() == 1 and id == opp_neighbours.at(0)->id);
                             should_update = !dir_neighbours.at(0)->edge_param_map[direction].locally_reacting;
                         }
                     }
@@ -576,28 +574,28 @@ namespace Kernel {
     }
 
     void Domain::clear_matrices() {
-        this->l_values.Lpx = extended_zeros(0, 1);
-        this->l_values.Lpy = extended_zeros(1, 0);
-        this->l_values.Lvx = extended_zeros(0, 0);
-        this->l_values.Lvy = extended_zeros(0, 0);
+        l_values.Lpx = extended_zeros(0, 1);
+        l_values.Lpy = extended_zeros(1, 0);
+        l_values.Lvx = extended_zeros(0, 0);
+        l_values.Lvy = extended_zeros(0, 0);
     }
 
     void Domain::clear_fields() {
-        this->current_values.p0 = this->extended_zeros(0, 0);
-        this->current_values.px0 = this->extended_zeros(0, 0);
-        this->current_values.py0 = this->extended_zeros(0, 0);
-        this->current_values.u0 = this->extended_zeros(0, 1);
-        this->current_values.w0 = this->extended_zeros(1, 0);
+        current_values.p0 = extended_zeros(0, 0);
+        current_values.px0 = extended_zeros(0, 0);
+        current_values.py0 = extended_zeros(0, 0);
+        current_values.u0 = extended_zeros(0, 1);
+        current_values.w0 = extended_zeros(1, 0);
 
-        this->previous_values = {}; // Do we def need to empty this?
+        previous_values = {}; // Do we def need to empty this?
     }
 
 
     void Domain::clear_pml_arrays() {
-        this->pml_arrays.px = this->extended_zeros(0, 0);
-        this->pml_arrays.py = this->extended_zeros(0, 0);
-        this->pml_arrays.u = this->extended_zeros(0, 1);
-        this->pml_arrays.w = this->extended_zeros(1, 0);
+        pml_arrays.px = extended_zeros(0, 0);
+        pml_arrays.py = extended_zeros(0, 0);
+        pml_arrays.u = extended_zeros(0, 1);
+        pml_arrays.w = extended_zeros(1, 0);
 
     }
 
@@ -608,28 +606,28 @@ namespace Kernel {
          * or for secondary PML domains with a single PML neighbour.
          */
         int number_normal_neighbour_domains = num_neighbour_domains - num_pml_neighbour_domains;
-        if (this->is_secondary_pml) {
-            this->is_corner_domain = num_neighbour_domains == 2;
+        if (is_secondary_pml) {
+            is_corner_domain = num_neighbour_domains == 2;
             /*
              * TK: If this domain has its neighbour to the left or to the right,
              * a PML matrix is obtained for horizontal attenuation.
              */
-            this->has_horizontal_attenuation = !this->left.empty() or !this->right.empty();
-            if (this->is_corner_domain) {
+            has_horizontal_attenuation = !left.empty() or !right.empty();
+            if (is_corner_domain) {
                 /**
                  * TK: Corner PML domains should have a horizontal as well as a vertical component.
                  * In particular: not to neighbours in the same direction.
                  */
-                assert(this->has_horizontal_attenuation and (!this->top.empty() or !this->bottom.empty()));
-                this->needs_reversed_attenuation = std::vector<bool>(); // Init necessary?
-                this->needs_reversed_attenuation.push_back(!this->left.empty());
-                this->needs_reversed_attenuation.push_back(!this->bottom.empty());
+                assert(has_horizontal_attenuation and (!top.empty() or !bottom.empty()));
+                needs_reversed_attenuation = vector<bool>(); // Init necessary?
+                needs_reversed_attenuation.push_back(!left.empty());
+                needs_reversed_attenuation.push_back(!bottom.empty());
             } else {
                 //TK: If this neighbour is located to the left or bottom, the attenuation is reversed.
-                this->needs_reversed_attenuation.push_back(!this->left.empty() or !this->bottom.empty());
+                needs_reversed_attenuation.push_back(!left.empty() or !bottom.empty());
             }
         } else {
-            this->is_corner_domain = false;
+            is_corner_domain = false;
             /*
              * TK: If this domain has a neighbour to the left or right
              * and this neighbour is not a PML domain,
@@ -639,33 +637,31 @@ namespace Kernel {
             bool all_air_right = !right.empty() and get_num_pmls_in_direction(Direction::RIGHT) == 0;
             bool all_air_bottom = !bottom.empty() and get_num_pmls_in_direction(Direction::BOTTOM) == 0;
 
-            this->has_horizontal_attenuation = all_air_left or all_air_right;
-            this->needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
-            if (this->is_secondary_pml and this->is_corner_domain) {
+            has_horizontal_attenuation = all_air_left or all_air_right;
+            needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
+            if (is_secondary_pml and is_corner_domain) {
                 // TK: PML is the product of horizontal and vertical attenuation.
                 create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
-                                         *this->pml_arrays.px, *this->pml_arrays.u);
+                                         pml_arrays.px, pml_arrays.u);
                 create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
-                                         *this->pml_arrays.py, *this->pml_arrays.u);
+                                         pml_arrays.py, pml_arrays.u);
             } else {
                 CalcDirection calc_dir = CalcDirection::Y;
                 if (has_horizontal_attenuation) {
                     calc_dir = CalcDirection::X;
                 }
-                Eigen::ArrayXXf no_attenuation = Eigen::ArrayXXf::Ones(size->x, size->y);
                 switch (calc_dir) {
                     case CalcDirection::X:
-                        create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),
-                                                 *this->pml_arrays.px, *this->pml_arrays.u);
-
-                        this->pml_arrays.py = std::make_shared<Eigen::ArrayXXf>(no_attenuation);//Change if unique
-                        this->pml_arrays.w = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
+                        create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
+                                                 pml_arrays.px, pml_arrays.u);
+                        pml_arrays.py = ArrayXXf::Ones(size.x, size.y);//Change if unique
+                        pml_arrays.w = ArrayXXf::Ones(size.x, size.y);
                         break;
                     case CalcDirection::Y:
-                        create_attenuation_array(calc_dir, this->needs_reversed_attenuation.at(0),
-                                                 *this->pml_arrays.py, *this->pml_arrays.w);
-                        this->pml_arrays.px = std::make_shared<Eigen::ArrayXXf>(no_attenuation);//Change if unique
-                        this->pml_arrays.u = std::make_shared<Eigen::ArrayXXf>(no_attenuation);
+                        create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
+                                                 pml_arrays.py, pml_arrays.w);
+                        pml_arrays.px = ArrayXXf::Ones(size.x, size.y);//Change if unique
+                        pml_arrays.u = ArrayXXf::Ones(size.x, size.y);//Change if unique
                         break;
                 }
             }
@@ -673,24 +669,24 @@ namespace Kernel {
     }
 
     void Domain::apply_pml_matrices() {
-        assert(this->number_of_neighbours(false) == 1 and this->is_pml or this->number_of_neighbours(true) <= 2 and
-               this->is_secondary_pml);
+        assert(number_of_neighbours(false) == 1 and is_pml or number_of_neighbours(true) <= 2 and
+               is_secondary_pml);
         // The pressure and velocity matrices are multiplied by the PML values.
-        *this->current_values.px0 *= *this->pml_arrays.px;
-        *this->current_values.py0 *= *this->pml_arrays.py;
-        *this->current_values.u0 *= *this->pml_arrays.u;
-        *this->current_values.w0 *= *this->pml_arrays.w;
+        current_values.px0 *= pml_arrays.px;
+        current_values.py0 *= pml_arrays.py;
+        current_values.u0 *= pml_arrays.u;
+        current_values.w0 *= pml_arrays.w;
     }
 
 
     void Domain::push_values() {
-        this->previous_values = this->current_values;
+        previous_values = current_values;
     }
 
 
     int Domain::get_num_pmls_in_direction(Direction direction) {
         int num_pml_doms = 0;
-        for (auto domain: this->get_neighbours_at(direction)) {
+        for (auto domain: get_neighbours_at(direction)) {
             if (domain->is_pml) {
                 num_pml_doms++;
             }
@@ -698,8 +694,8 @@ namespace Kernel {
         return num_pml_doms;
     }
 
-    void Domain::create_attenuation_array(CalcDirection calc_dir, bool ascending, Eigen::ArrayXXf &pml_pressure,
-                                          Eigen::ArrayXXf &pml_velocity) {
+    void Domain::create_attenuation_array(CalcDirection calc_dir, bool ascending, ArrayXXf &pml_pressure,
+                                          ArrayXXf &pml_velocity) {
         /*
          * 0mar: Most of this method only needs to be computed once for all domains.
          * However, the computations are not that big and only executed in the initialization phase.
@@ -707,19 +703,18 @@ namespace Kernel {
 
         //Pressure defined in cell centers
         auto pressure_range =
-                Eigen::VectorXf::LinSpaced(settings->GetPMLCells(), 0.5, float(settings->GetPMLCells() - 0.5)).array() /
+                VectorXf::LinSpaced(settings->GetPMLCells(), 0.5, float(settings->GetPMLCells() - 0.5)).array() /
                 settings->GetPMLCells();
         //Velocity defined in cell edges
         auto velocity_range =
-                Eigen::VectorXf::LinSpaced(settings->GetPMLCells() + 1, 0, float(settings->GetPMLCells())).array() /
+                VectorXf::LinSpaced(settings->GetPMLCells() + 1, 0, float(settings->GetPMLCells())).array() /
                 settings->GetPMLCells();
-        Eigen::ArrayXXf alpha_pml_pressure = settings->GetAttenuationOfPMLCells() * pressure_range.pow(4);
-        Eigen::ArrayXXf alpha_pml_velocity =
+        ArrayXXf alpha_pml_pressure = settings->GetAttenuationOfPMLCells() * pressure_range.pow(4);
+        ArrayXXf alpha_pml_velocity =
                 settings->GetDensityOfAir() * settings->GetAttenuationOfPMLCells() * velocity_range.pow(4);
-        //Todo: This looks wrong to me. I think the multiplication with rho is a bug.
-        Eigen::ArrayXXf pressure_pml_factors = (-alpha_pml_pressure * settings->GetTimeStep() /
-                                                settings->GetDensityOfAir()).exp();
-        Eigen::ArrayXXf velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
+        ArrayXXf pressure_pml_factors = (-alpha_pml_pressure * settings->GetTimeStep() /
+                                         settings->GetDensityOfAir()).exp();
+        ArrayXXf velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
         if (!ascending) {
             //Reverse if the attenuation takes place in the other direction
             pressure_pml_factors.reverseInPlace();
@@ -728,27 +723,27 @@ namespace Kernel {
         switch (calc_dir) {
             //Replicate matrices to size of domain
             case CalcDirection::X:
-                pml_pressure = pressure_pml_factors.transpose().replicate(1, this->size->x);
-                pml_velocity = velocity_pml_factors.transpose().replicate(1, this->size->x);
+                pml_pressure = pressure_pml_factors.transpose().replicate(1, size.x);
+                pml_velocity = velocity_pml_factors.transpose().replicate(1, size.x);
                 break;
             case CalcDirection::Y:
-                pml_pressure = pressure_pml_factors.replicate(this->size->y, 1);
-                pml_velocity = velocity_pml_factors.replicate(this->size->y, 1);
+                pml_pressure = pressure_pml_factors.replicate(size.y, 1);
+                pml_velocity = velocity_pml_factors.replicate(size.y, 1);
                 break;
         }
     }
 
-    std::ostream &operator<<(std::ostream &str, Domain const &v) {
-        std::string sort = v.id;
+    ostream &operator<<(ostream &str, Domain const &v) {
+        string sort = v.id;
         if (v.is_pml) {
             sort += " (pml)";
         }
-        str << sort << ", top left " << *v.top_left << ", bottom right " << *v.bottom_right;
+        str << sort << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
         return str;
     }
 
     void Domain::post_initialization() {
-        this->compute_number_of_neighbours();
-        this->find_update_directions();
+        compute_number_of_neighbours();
+        find_update_directions();
     }
 }

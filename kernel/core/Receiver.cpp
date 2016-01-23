@@ -27,100 +27,92 @@
 
 #include "Receiver.h"
 
+using namespace Eigen;
+using namespace std;
 namespace Kernel {
-    Receiver::Receiver(std::vector<float> location, std::shared_ptr<PSTDFileSettings> config, int id,
-                       std::shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
+    Receiver::Receiver(vector<float> location, shared_ptr<PSTDFileSettings> config, int id,
+                       shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
         this->config = config;
         this->location = location;
         this->container_domain = container;
-        this->grid_location = std::make_shared<Point>(Point((int) this->x, (int) this->y, (int) this->z));
+        this->grid_location = Point((int) this->x, (int) this->y, (int) this->z);
         for (unsigned long i = 0; i < this->location.size(); i++) {
-            this->grid_offset.push_back(this->location.at(i) = this->grid_location->array.at(i));
+            this->grid_offset.push_back(this->location.at(i) = this->grid_location.array.at(i));
         }
         this->id = id;
     }
 
     float Receiver::compute_local_pressure() {
         float pressure;
-        if (this->config->GetSpectralInterpolation()) {
-            pressure = this->compute_with_si();
+        if (config->GetSpectralInterpolation()) {
+            pressure = compute_with_si();
         } else {
-            pressure = this->compute_with_nn();
+            pressure = compute_with_nn();
         }
-        this->received_values.push_back(pressure);
+        received_values.push_back(pressure);
         return pressure;
     }
 
-    std::shared_ptr<Eigen::ArrayXcf> Receiver::get_fft_factors(Point size, CalcDirection bt) {
+    ArrayXcf Receiver::get_fft_factors(Point size, CalcDirection bt) {
         int primary_dimension = 0;
         if (bt == CalcDirection::X) {
             primary_dimension = size.x;
         } else {
             primary_dimension = size.y;
         }
-        float dx = this->config->GetGridSpacing();
-        int wave_length_number = (int) (2 * this->config->GetWaveLength() + primary_dimension + 1);
+        float dx = config->GetGridSpacing();
+        int wave_length_number = (int) (2 * config->GetWaveLength() + primary_dimension + 1);
         //Pressure grid is staggered, hence + 1
-        WaveNumberDiscretizer::Discretization discr = this->container_domain->wnd->get_discretization(dx,
-                                                                                                      wave_length_number);
-        float offset = this->grid_offset.at(static_cast<unsigned long>(bt));
-        Eigen::ArrayXcf fft_factors(discr.wave_numbers->rows());
-        for (int i = 0; i < discr.wave_numbers->rows(); i++) {
-            float wave_number = (*discr.wave_numbers)(i);
-            std::complex<float> complex_factor = (*discr.complex_factors)(i);
+        WaveNumberDiscretizer::Discretization discr = container_domain->wnd->get_discretization(dx, wave_length_number);
+        float offset = grid_offset.at(static_cast<unsigned long>(bt));
+        ArrayXcf fft_factors(discr.wave_numbers.rows());
+        for (int i = 0; i < discr.wave_numbers.rows(); i++) {
+            float wave_number = discr.wave_numbers(i);
+            complex<float> complex_factor = discr.complex_factors(i);
             fft_factors(i) = exp(offset * dx * wave_number * complex_factor);
         }
-        return std::make_shared<Eigen::ArrayXcf>(fft_factors);
+        return fft_factors;
     }
 
     float Receiver::compute_with_nn() {
-        Point rel_location =
-                *(this->grid_location) - *(this->container_domain->top_left);
-        float nn_value = (*this->container_domain->current_values.p0)(rel_location.x, rel_location.y);
+        Point rel_location = grid_location - container_domain->top_left;
+        float nn_value = container_domain->current_values.p0(rel_location.x, rel_location.y);
         return nn_value;
     }
 
     float Receiver::compute_with_si() {
-        std::shared_ptr<Domain> top_domain = this->container_domain->get_neighbour_at(Direction::TOP, this->location);
-        std::shared_ptr<Domain> bottom_domain = this->container_domain->get_neighbour_at(Direction::BOTTOM,
-                                                                                         this->location);
-        std::shared_ptr<Eigen::ArrayXXf> p0dx = this->calc_domain_fields(this->container_domain,
-                                                                             CalcDirection::X);
-        int rel_x_point = this->grid_location->x - this->container_domain->top_left->x;
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_slice = std::make_shared<Eigen::ArrayXXf>(
-                p0dx->middleCols(rel_x_point, 1));
+        shared_ptr<Domain> top_domain = container_domain->get_neighbour_at(Direction::TOP, location);
+        shared_ptr<Domain> bottom_domain = container_domain->get_neighbour_at(Direction::BOTTOM, location);
+        ArrayXXf p0dx = calc_domain_fields(container_domain, CalcDirection::X);
+        int rel_x_point = grid_location.x - container_domain->top_left.x;
+        ArrayXXf p0dx_slice = p0dx.middleCols(rel_x_point, 1);
 
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_top = this->calc_domain_fields(top_domain, CalcDirection::X);
-        int top_rel_x_point = this->grid_location->x - top_domain->top_left->x;
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_top_slice = std::make_shared<Eigen::ArrayXXf>(
-                p0dx_top->middleCols(top_rel_x_point, 1));
+        ArrayXXf p0dx_top = calc_domain_fields(top_domain, CalcDirection::X);
+        int top_rel_x_point = grid_location.x - top_domain->top_left.x;
+        ArrayXXf p0dx_top_slice = p0dx_top.middleCols(top_rel_x_point, 1);
 
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom = this->calc_domain_fields(bottom_domain,
-                                                                                    CalcDirection::X);
-        int bottom_rel_x_point = this->grid_location->x - bottom_domain->top_left->x;
-        std::shared_ptr<Eigen::ArrayXXf> p0dx_bottom_slice = std::make_shared<Eigen::ArrayXXf>(
-                p0dx_bottom->middleCols(bottom_rel_x_point, 1));
+        ArrayXXf p0dx_bottom = calc_domain_fields(bottom_domain, CalcDirection::X);
+        int bottom_rel_x_point = grid_location.x - bottom_domain->top_left.x;
+        ArrayXXf p0dx_bottom_slice = p0dx_bottom.middleCols(bottom_rel_x_point, 1);
 
-        std::shared_ptr<Eigen::ArrayXcf> z_fact = this->get_fft_factors(Point(1, this->container_domain->size->y),
-                                                       CalcDirection::Y);
-        float wave_number = 2 * this->config->GetWaveLength() + this->container_domain->size->y + 1;
+        ArrayXcf z_fact = get_fft_factors(Point(1, container_domain->size.y), CalcDirection::Y);
+        float wave_number = 2 * config->GetWaveLength() + container_domain->size.y + 1;
         int opt_wave_number = next_2_power(wave_number);
 
-        RhoArray rho_array = this->container_domain->rho_arrays[top_domain->id + bottom_domain->id];
+        RhoArray rho_array = container_domain->rho_arrays[top_domain->id + bottom_domain->id];
 
-        Eigen::ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
-                                            z_fact, rho_array, config->GetWindow(), config->GetWindowSize(),
-                                            CalculationType::PRESSURE , CalcDirection::Y);
+        ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
+                                     z_fact, rho_array, config->GetWindow(), config->GetWindowSize(),
+                                     CalculationType::PRESSURE , CalcDirection::Y);
 
-        int rel_y_point = this->grid_location->y - this->container_domain->top_left->y;
+        int rel_y_point = grid_location.y - container_domain->top_left.y;
         float si_value = p0shift(rel_y_point, 0);
         return si_value;
     }
 
     // Todo: Different name;
-    std::shared_ptr<Eigen::ArrayXXf> Receiver::calc_domain_fields(std::shared_ptr<Domain> domain, CalcDirection bt) {
-        Eigen::ArrayXXf domain_result = domain->calc(bt, CalculationType::PRESSURE,
-                                                     this->get_fft_factors(*(domain->size), bt));
-        return std::make_shared<Eigen::ArrayXXf>(domain_result);
+    // Todo: Can we improve memory management here?
+    ArrayXXf Receiver::calc_domain_fields(shared_ptr<Domain> domain, CalcDirection bt) {
+        return domain->calc(bt, CalculationType::PRESSURE, get_fft_factors(domain->size, bt));
     }
 }

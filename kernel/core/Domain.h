@@ -50,26 +50,26 @@ namespace Kernel {
 
 
     struct FieldValues {
-        std::shared_ptr<Eigen::ArrayXXf> u0; //TODO (Louis): change float to T, derive a float and a double class
-        std::shared_ptr<Eigen::ArrayXXf> w0;
-        std::shared_ptr<Eigen::ArrayXXf> p0;
-        std::shared_ptr<Eigen::ArrayXXf> px0;
-        std::shared_ptr<Eigen::ArrayXXf> py0;
+        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a double class
+        Eigen::ArrayXXf w0;
+        Eigen::ArrayXXf p0;
+        Eigen::ArrayXXf px0;
+        Eigen::ArrayXXf py0;
     };
 
     struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
-        std::shared_ptr<Eigen::ArrayXXf> Lpx;
-        std::shared_ptr<Eigen::ArrayXXf> Lpy;
-        std::shared_ptr<Eigen::ArrayXXf> Lvx;
-        std::shared_ptr<Eigen::ArrayXXf> Lvy;
+        Eigen::ArrayXXf Lpx;
+        Eigen::ArrayXXf Lpy;
+        Eigen::ArrayXXf Lvx;
+        Eigen::ArrayXXf Lvy;
 
     };
 
     struct PMLArrays { // Todo: Change to unique pointers.
-        std::shared_ptr<Eigen::ArrayXXf> px;
-        std::shared_ptr<Eigen::ArrayXXf> py;
-        std::shared_ptr<Eigen::ArrayXXf> u;
-        std::shared_ptr<Eigen::ArrayXXf> w;
+        Eigen::ArrayXXf px;
+        Eigen::ArrayXXf py;
+        Eigen::ArrayXXf u;
+        Eigen::ArrayXXf w;
     };
 
     struct EdgeParameters {
@@ -90,9 +90,9 @@ namespace Kernel {
         std::map<Direction, EdgeParameters> edge_param_map;
         std::map<std::string, RhoArray> rho_arrays;
         std::map<CalcDirection, bool> should_update;
-        std::shared_ptr<Point> top_left;
-        std::shared_ptr<Point> bottom_right;
-        std::shared_ptr<Point> size;
+        Point top_left;
+        Point bottom_right;
+        Point size;
         bool is_pml;
         bool local;
         FieldValues current_values, previous_values;
@@ -118,7 +118,7 @@ namespace Kernel {
          *
          */
 
-        Domain() { };
+        //Domain() { };
         /**
          * Default constructor
          * @param settings: PSTD settings pointer
@@ -131,7 +131,7 @@ namespace Kernel {
          * @return: Domain object
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
-               std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+               Point top_left, Point size, const bool is_pml,
                std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
@@ -208,7 +208,7 @@ namespace Kernel {
 
 
         /**
-         * Add a a neigbour to the set of neighbour domains.
+         * Add a a neighbour to the set of neighbour domains.
          * @param domain: Pointer to fully initialized neighbour domain
          * @param direction: Direction in which the domain is neighboured.
          */
@@ -252,7 +252,7 @@ namespace Kernel {
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(CalcDirection bt, CalculationType ct, std::shared_ptr<Eigen::ArrayXcf> dest);
+        Eigen::ArrayXXf calc(CalcDirection bt, CalculationType ct, Eigen::ArrayXcf dest);
 
         /**
          * Calculate one timestep of propagation in this domain
@@ -282,11 +282,11 @@ namespace Kernel {
          * @param y extension in y direction
          * @param z extension in z direction (default: 0)
          */
-        std::shared_ptr<Eigen::ArrayXXf> extended_zeros(int x, int y, int z = 0);
+        Eigen::ArrayXXf extended_zeros(int x, int y, int z = 0);
 
     private:
         void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
-                               std::shared_ptr<Point> top_left, std::shared_ptr<Point> size, const bool is_pml,
+                               Point top_left, Point size, const bool is_pml,
                                std::shared_ptr<WaveNumberDiscretizer> wnd,
                                std::map<Direction, EdgeParameters> edge_param_map,
                                const std::shared_ptr<Domain> pml_for_domain);

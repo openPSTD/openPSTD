@@ -65,7 +65,7 @@ namespace Kernel {
         /**
          * Integer grid location. <=> Cell containing the receiver.
          */
-        std::shared_ptr<Point> grid_location;
+        Point grid_location;
 
         /**
          * Distance from the receiver to the top left of the cell
@@ -100,7 +100,7 @@ namespace Kernel {
         /**
          * Computes the fft_factors along the provided boundary
          */
-        std::shared_ptr<Eigen::ArrayXcf> get_fft_factors(Point size, CalcDirection bt);
+        Eigen::ArrayXcf get_fft_factors(Point size, CalcDirection bt);
 
         /**
          * Computes the pressure from the nearest neighbour
@@ -117,7 +117,7 @@ namespace Kernel {
         /**
          * Compute the pressure for the receiver.
          */
-        std::shared_ptr<Eigen::ArrayXXf> calc_domain_fields(std::shared_ptr<Domain> container, CalcDirection bt);
+        Eigen::ArrayXXf calc_domain_fields(std::shared_ptr<Domain> container, CalcDirection bt);
 
     };
 
