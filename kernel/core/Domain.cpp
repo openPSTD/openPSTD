@@ -127,7 +127,7 @@ namespace Kernel {
 
         // loop over all possible combinations of neighbours for this domain (including null on one side)
         std::shared_ptr<Domain> d1, d2;
-        for (int i = 0; i != domains1.size() + 1; i++) {
+        for (int i = 0; i != domains1.size() + 1; i++) { //the +1 because a null pointer is also needed
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
             for (int j = 0; i != domains2.size() + 1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
@@ -270,8 +270,7 @@ namespace Kernel {
                     rho_array = this->rho_arrays[rho_array_id].velocity;
                 }
 
-
-
+                //source
                 //TODO: set matrix to result of spatderp3
             }
         }
