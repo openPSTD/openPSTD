@@ -4,7 +4,7 @@
 
 #include "KernelInterface.h"
 
-const char* PSTDKernelNotConfiguredException::what() const
+const char* PSTDKernelNotConfiguredException::what() const noexcept
 {
     return "Kernel is not yet configured";
 }

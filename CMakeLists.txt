@@ -195,7 +195,8 @@ SET(SOURCE_FILES_LIB kernel/PSTDKernel.cpp
         kernel/core/Receiver.cpp kernel/core/Boundary.cpp
         kernel/Solver.cpp
         kernel/core/Geometry.cpp PSTDFile.cpp
-        kernel/core/wave_numbers.cpp InvalidationData.cpp)
+        kernel/core/wave_numbers.cpp InvalidationData.cpp
+        kernel/KernelInterface.cpp)
 add_library(OpenPSTD SHARED ${SOURCE_FILES_LIB})
 
 target_link_libraries(OpenPSTD ${Boost_LIBRARIES})

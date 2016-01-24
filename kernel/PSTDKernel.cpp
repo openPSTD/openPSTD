@@ -36,11 +36,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
-PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
-
-}
-
-void PSTDKernel::SetConfiguration(std::shared_ptr<PSTDFileConfiguration> config)
+void PSTDKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
 {
     using namespace Kernel;
     debug("Initializing kernel");
