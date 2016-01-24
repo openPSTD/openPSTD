@@ -40,10 +40,10 @@ PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
     using namespace Kernel;
     debug("Initializing kernel");
     this->config = config;
-    this->settings = make_shared<PSTDFileSettings>(new PSTDFileSettings(config->Settings));
-    this->scene = make_shared<Scene>(new Scene(this->settings));
+    this->settings = make_shared<PSTDFileSettings>(config->Settings);
+    this->scene = make_shared<Scene>(this->settings);
     this->initialize_scene();
-    this->wnd = make_shared<WaveNumberDiscretizer>(new WaveNumberDiscretizer());
+    this->wnd = make_shared<WaveNumberDiscretizer>();
     debug("Finished initializing kernel");
 }
 
@@ -134,9 +134,9 @@ std::vector<std::vector<int>> PSTDKernel::GetDomainMetadata() {
     std::vector<std::vector<int>> result;
     for(int i=0; i<ndomains; i++) {
         std::vector<int> dimensions;
-        dimensions.push_back(this->scene->domain_list.at(i)->size->x);
-        dimensions.push_back(this->scene->domain_list.at(i)->size->y);
-        dimensions.push_back(this->scene->domain_list.at(i)->size->z);
+        dimensions.push_back(this->scene->domain_list[i]->size.x);
+        dimensions.push_back(this->scene->domain_list[i]->size.y);
+        dimensions.push_back(this->scene->domain_list[i]->size.z);
         result.push_back(dimensions);
     }
     return result;

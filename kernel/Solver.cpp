@@ -126,6 +126,6 @@ namespace Kernel {
                                     field.data() + row * row_length,
                                     field.data() + (row + 1) * row_length);
         }
-        return std::make_shared<PSTD_FRAME>(nullptr); // Feel free to fix
+        return std::shared_ptr<PSTD_FRAME>();
     }
 }

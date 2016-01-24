@@ -38,7 +38,7 @@ namespace Kernel {
     public:
         int x, y, z;
         std::vector<int> array;
-        //Point():x(0),y(0),z(0) {}; //todo:wtf
+        Point():x(0),y(0),z(0) {}; //todo:wtf
         /**
          * Constructor for a point in grid coordinates
          */
