@@ -139,14 +139,14 @@ SimulationMetadata PSTDKernel::GetSimulationMetadata()
         throw PSTDKernelNotConfiguredException();
 
     SimulationMetadata result;
-    int ndomains = this->scene->domain_list.size();
+    int ndomains = (int) this->scene->domain_list.size();
     for(int i=0; i<ndomains; i++) {
         Kernel::Point dsize = this->scene->domain_list[i]->size;
         std::vector<int> dimensions = {dsize.x, dsize.y, dsize.z};
         result.DomainMetadata.push_back(dimensions);
     }
 
-    result.Framecount = this->settings->GetRenderTime() / this->settings->GetTimeStep();
+    result.Framecount = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
     return result;
 }
 

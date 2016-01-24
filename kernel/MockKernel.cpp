@@ -54,7 +54,7 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
         result.DomainMetadata.push_back(d);
     }
 
-    result.Framecount = _conf->Settings.GetRenderTime() / _conf->Settings.GetTimeStep();
+    result.Framecount = (int) (_conf->Settings.GetRenderTime() / _conf->Settings.GetTimeStep());
 
     return result;
 }
@@ -62,7 +62,7 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
 PSTD_FRAME_PTR MockKernel::CreateRandomFrame(int x, int y)
 {
     PSTD_FRAME_PTR result = std::make_shared<PSTD_FRAME>();
-    result->reserve(x*y);
+    result->reserve((unsigned long) (x * y));
     for (int i = 0; i < x * y; ++i)
     {
         float v = rand()/((float)RAND_MAX);
