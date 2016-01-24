@@ -111,16 +111,16 @@ void PSTDKernel::run(KernelCallback *callback) {
     std::shared_ptr<Kernel::Solver> solver;
     switch (solver_num) {
         case 0:
-            solver = std::make_shared<Kernel::SingleThreadSolver>(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::SingleThreadSolver(this->scene, callback));
             break;
         case 1:
-            solver = std::make_shared<Kernel::GPUSingleThreadSolver>(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUSingleThreadSolver(this->scene, callback));
             break;
         case 2:
-            solver = std::make_shared<Kernel::MultiThreadSolver>(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::MultiThreadSolver(this->scene, callback));
             break;
         case 3:
-            solver = std::make_shared<Kernel::GPUMultiThreadSolver>(this->scene, callback);
+            solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUMultiThreadSolver(this->scene, callback));
             break;
         default:
             //TODO Raise Error
