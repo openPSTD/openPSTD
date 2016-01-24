@@ -21,13 +21,14 @@ void MockKernel::run(KernelCallback *callback)
 
     for (int i = 0; i < meta.Framecount; ++i)
     {
-        callback->Callback(CALLBACKSTATUS::RUNNING, "Starting to mock", i);
+        callback->Callback(CALLBACKSTATUS::RUNNING, "At frame " + boost::lexical_cast<std::string>(i), i);
         for (int j = 0; j < _conf->Domains.size(); ++j)
         {
             int type = j%1;
             if(type == 0)
             {
-                callback->WriteFrame(i, boost::lexical_cast<std::string>(j), CreateRandomFrame(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]));
+                std::string domain = boost::lexical_cast<std::string>(j);
+                callback->WriteFrame(i, domain, CreateRandomFrame(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]));
             }
         }
     }
@@ -46,8 +47,8 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
     for (int i = 0; i < _conf->Domains.size(); ++i)
     {
         std::vector<int> d;
-        d.push_back(roundf(_conf->Domains[i].Size.x()/grid)*grid);
-        d.push_back(roundf(_conf->Domains[i].Size.y()/grid)*grid);
+        d.push_back(roundf(_conf->Domains[i].Size.x()/grid));
+        d.push_back(roundf(_conf->Domains[i].Size.y()/grid));
         d.push_back(1);
 
         result.DomainMetadata.push_back(d);
@@ -58,9 +59,9 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
     return result;
 }
 
-std::shared_ptr<std::vector<float>> MockKernel::CreateRandomFrame(int x, int y)
+PSTD_FRAME_PTR MockKernel::CreateRandomFrame(int x, int y)
 {
-    std::shared_ptr<std::vector<float>> result = make_shared<std::vector<float>>();
+    PSTD_FRAME_PTR result = std::make_shared<PSTD_FRAME>();
     result->reserve(x*y);
     for (int i = 0; i < x * y; ++i)
     {

@@ -203,6 +203,7 @@ private:
     unsigned int IncrementFrameCount(unsigned int domain);
 
     static PSTDFile_Key_t CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list);
+    static PSTDFile_Key_t CreateKeyFromData(char *pBuf,int pnByte);
 
     template<typename T>
     T GetValue(PSTDFile_Key_t key)
@@ -326,6 +327,8 @@ public:
     void InitializeSimulationResults(int domains);
 
     void DeleteSimulationResults();
+
+    void OutputDebugInfo();
 };
 
 
