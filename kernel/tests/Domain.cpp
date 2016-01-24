@@ -44,9 +44,9 @@ using namespace std;
 using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(domain)
 
-    BOOST_AUTO_TEST_CASE(domain_initialization) {
+    shared_ptr<Kernel::Domain> create_a_domain(int size_x,int size_y) {
         Point top_left(0, 0);
-        Point size(100, 150);
+        Point size(size_x,size_y);
         shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
         EdgeParameters standard = {};
         standard.locally_reacting = true;
@@ -59,12 +59,17 @@ BOOST_AUTO_TEST_SUITE(domain)
         shared_ptr<Kernel::Domain> test_domain(
                 new Kernel::Domain(settings, "test_domain", 1, top_left, size, false, wnd,
                                    edge_param_map, nullptr));
+        return test_domain;
+    }
+    BOOST_AUTO_TEST_CASE(domain_initialization) {
+        auto domain = create_a_domain(100,150);
         BOOST_CHECK(true);
     }
 
     BOOST_AUTO_TEST_CASE(domain_dimensions) {
-        // Test whether the topleft, bottom right and size, are well initiated
-        BOOST_CHECK(true);
+        auto domain = create_a_domain(100,150);
+        BOOST_CHECK_EQUAL(domain->size.x,100);
+        BOOST_CHECK_EQUAL(domain->size.y,150);
 
     }
 
@@ -75,10 +80,44 @@ BOOST_AUTO_TEST_SUITE(domain)
 
     }
 
-    BOOST_AUTO_TEST_CASE(domain_) {
-        //Check whether we have the right number of pml domains with the right dimensions
+    BOOST_AUTO_TEST_CASE(domain_rho_arrays) {
+        //Test the rho arrays
         BOOST_CHECK(true);
+    }
 
+    BOOST_AUTO_TEST_CASE(domain_clear_methods) {
+        //Test the clear matrix/arrays methods
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_push_values) {
+        //Test data pushing
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_pml_matrices) {
+        //Test the computation and application of pmlmatrices
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_neighbours) {
+        //Test whether we have the right number of neighbours in the right places
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_get_points) {
+        //Test the points method of the domain.
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_test_calc) {
+        //test the calc method
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_get_vacant_range) {
+        //Test the vacant range method
+        BOOST_CHECK(true);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
