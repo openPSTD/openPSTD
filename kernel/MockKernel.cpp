@@ -46,22 +46,22 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
     for (int i = 0; i < _conf->Domains.size(); ++i)
     {
         std::vector<int> d;
-        d.push_back(roundf(_conf->Domains[i].Size.x()/grid)*grid);
-        d.push_back(roundf(_conf->Domains[i].Size.y()/grid)*grid);
+        d.push_back((int) (roundf(_conf->Domains[i].Size.x() / grid) * grid));
+        d.push_back((int) (roundf(_conf->Domains[i].Size.y() / grid) * grid));
         d.push_back(1);
 
         result.DomainMetadata.push_back(d);
     }
 
-    result.Framecount = _conf->Settings.GetRenderTime() / _conf->Settings.GetTimeStep();
+    result.Framecount = (int) (_conf->Settings.GetRenderTime() / _conf->Settings.GetTimeStep());
 
     return result;
 }
 
 std::shared_ptr<std::vector<float>> MockKernel::CreateRandomFrame(int x, int y)
 {
-    std::shared_ptr<std::vector<float>> result = make_shared<std::vector<float>>();
-    result->reserve(x*y);
+    std::shared_ptr<std::vector<float>> result = std::make_shared<std::vector<float>>();
+    result->reserve((unsigned long) (x * y));
     for (int i = 0; i < x * y; ++i)
     {
         float v = rand()/((float)RAND_MAX);
