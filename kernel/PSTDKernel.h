@@ -39,39 +39,15 @@
 #include "PSTDFile.h"
 #include "Solver.h"
 #include "core/Scene.h"
+#include "KernelInterface.h"
 
-/**
- * The status of the kernel when the callback is called.
- */
-enum class CALLBACKSTATUS {
-    ERROR,
-    STARTING,
-    RUNNING,
-    FINISHED,
-};
 
-class KernelCallback {
-public:
-    /**
-     * This callback will be called with information how far the kernel is progressed.
-     * @param status: CALLBACKSTATUS enum, either one of starting/running/finishing/error.
-     * @param message: Message to pass to callback handler
-     * @param frame: either positive integer corresponding to time step of data or -1 when kernel is not running.
-     */
-    virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
-
-    /**
-     * Return pressure data of scene to callback handler.
-     * @param frame: Positive integer corresponding to time step of data.
-     * @param data: 1D row-major vector of pressure data.
-     */
-    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) = 0;
-};
 
 /**
  * The kernel API. Contains one method for initialization and one for running the simulation.
  */
-class PSTDKernel {
+class PSTDKernel: public KernelInterface
+{
 private:
     std::shared_ptr<PSTDFileConfiguration> config;
     std::shared_ptr<PSTDFileSettings> settings;
@@ -130,22 +106,21 @@ private:
 
 public:
     /**
-     * Initializes the kernel and the scene, constructs the domains and sets the parameters.
+     * Sets the configuration,
+     * also initializes the kernel and the scene, constructs the domains and sets the parameters.
      */
-    PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config);
+    void Configure(std::shared_ptr<PSTDFileConfiguration> config) override;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the
      * application of the progress of the kernel.
      */
-    void run(KernelCallback *callback);
+    void run(KernelCallback *callback) override;
 
     /**
-     * Query the kernel for the discretization of the Domains, in order they were passed.
-     * Returns a vector in which domain n is represented by a vector at the nth position.
-     * In the "inner" vectors, v[0],v[1],v[2] correspond to size x,y,z.
+     * Query the kernel for metadata about the simulation that is configured.
      */
-    std::vector<std::vector<int>> GetDomainMetadata();
+    SimulationMetadata GetSimulationMetadata() override;
 };
 
 

@@ -36,7 +36,8 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
-PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
+void PSTDKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
+{
     using namespace Kernel;
     debug("Initializing kernel");
     this->config = config;
@@ -106,6 +107,9 @@ void PSTDKernel::add_receivers() {
 }
 
 void PSTDKernel::run(KernelCallback *callback) {
+    if(!config)
+        throw PSTDKernelNotConfiguredException();
+
     using namespace Kernel;
     int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
     std::shared_ptr<Kernel::Solver> solver;
@@ -129,19 +133,25 @@ void PSTDKernel::run(KernelCallback *callback) {
     solver->compute_propagation();
 }
 
-std::vector<std::vector<int>> PSTDKernel::GetDomainMetadata() {
+SimulationMetadata PSTDKernel::GetSimulationMetadata()
+{
+    if(!config)
+        throw PSTDKernelNotConfiguredException();
+
+    SimulationMetadata result;
     int ndomains = this->scene->domain_list.size();
-    std::vector<std::vector<int>> result;
     for(int i=0; i<ndomains; i++) {
         std::vector<int> dimensions;
         dimensions.push_back(this->scene->domain_list[i]->size.x);
         dimensions.push_back(this->scene->domain_list[i]->size.y);
         dimensions.push_back(this->scene->domain_list[i]->size.z);
-        result.push_back(dimensions);
+        result.DomainMetadata.push_back(dimensions);
     }
+
+    //todo: this has to be implemented yet
+    result.Framecount = 0;
     return result;
 }
-
 
 vector<float> PSTDKernel::scale_to_grid(QVector2D world_vector) {
     QVector2D scaled_vector = world_vector / this->settings->GetGridSpacing();
