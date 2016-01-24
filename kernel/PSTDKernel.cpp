@@ -127,7 +127,7 @@ void PSTDKernel::run(KernelCallback *callback) {
             solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUMultiThreadSolver(this->scene, callback));
             break;
         default:
-            //Raise Error
+            //TODO Raise Error
             break;
     }
     solver->compute_propagation();
@@ -141,15 +141,12 @@ SimulationMetadata PSTDKernel::GetSimulationMetadata()
     SimulationMetadata result;
     int ndomains = this->scene->domain_list.size();
     for(int i=0; i<ndomains; i++) {
-        std::vector<int> dimensions;
-        dimensions.push_back(this->scene->domain_list[i]->size.x);
-        dimensions.push_back(this->scene->domain_list[i]->size.y);
-        dimensions.push_back(this->scene->domain_list[i]->size.z);
+        Kernel::Point dsize = this->scene->domain_list[i]->size;
+        std::vector<int> dimensions = {dsize.x, dsize.y, dsize.z};
         result.DomainMetadata.push_back(dimensions);
     }
 
-    //todo: this has to be implemented yet
-    result.Framecount = 0;
+    result.Framecount = this->settings->GetRenderTime() / this->settings->GetTimeStep();
     return result;
 }
 
