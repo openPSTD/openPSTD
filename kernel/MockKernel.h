@@ -18,7 +18,7 @@ public:
     /**
      * Sets the configuration.
      */
-    virtual void Configure(std::shared_ptr<PSTDFileConfiguration> config) override;
+    virtual void start_kernel(std::shared_ptr<PSTDFileConfiguration> config) override;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the
@@ -30,7 +30,7 @@ public:
     /**
      * Query the kernel for metadata about the simulation that is configured.
      */
-    virtual SimulationMetadata GetSimulationMetadata() override;
+    virtual SimulationMetadata get_metadata() override;
 };
 
 

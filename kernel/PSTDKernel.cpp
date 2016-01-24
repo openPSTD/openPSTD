@@ -36,7 +36,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
-void PSTDKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
+void PSTDKernel::start_kernel(std::shared_ptr<PSTDFileConfiguration> config)
 {
     using namespace Kernel;
     debug("Initializing kernel");
@@ -133,7 +133,11 @@ void PSTDKernel::run(KernelCallback *callback) {
     solver->compute_propagation();
 }
 
-SimulationMetadata PSTDKernel::GetSimulationMetadata()
+std::shared_ptr<Kernel::Scene> PSTDKernel::get_scene() {
+    return this->scene;
+}
+
+SimulationMetadata PSTDKernel::get_metadata()
 {
     if(!config)
         throw PSTDKernelNotConfiguredException();

@@ -61,7 +61,7 @@ public:
     /**
      * Sets the configuration.
      */
-    virtual void Configure(std::shared_ptr<PSTDFileConfiguration> config) = 0;
+    virtual void start_kernel(std::shared_ptr<PSTDFileConfiguration> config) = 0;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the
@@ -73,7 +73,7 @@ public:
     /**
      * Query the kernel for metadata about the simulation that is configured.
      */
-    virtual SimulationMetadata GetSimulationMetadata() = 0;
+    virtual SimulationMetadata get_metadata() = 0;
 };
 
 class PSTDKernelNotConfiguredException : public std::exception

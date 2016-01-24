@@ -36,16 +36,41 @@
 
 #include <boost/test/unit_test.hpp>
 #include "../core/Domain.h"
+#include "../../PSTDFile.h"
 
 #include <cmath>
+#include <kernel/PSTDKernel.h>
 
-using namespace Kernel;
+
 using namespace std;
 using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(domain)
 
-    shared_ptr<Kernel::Domain> create_a_domain(int size_x,int size_y) {
-        Point top_left(0, 0);
+    shared_ptr<Kernel::Scene> create_a_scene() {
+        shared_ptr<PSTDFileConfiguration> config = PSTDFile::CreateDefaultConf();
+        Domain domain1;
+        domain1.TopLeft = QVector2D(0, 0);
+        domain1.Size = QVector2D(50, 60);
+        domain1.T.Absorption = 0;
+        domain1.B.Absorption = 0.25;
+        domain1.L.Absorption = 0.35;
+        domain1.R.Absorption = 0.7;
+        domain1.T.LR = false;
+        domain1.B.LR = false;
+        domain1.L.LR = true;
+        domain1.R.LR = false;
+        config->Domains.clear();
+        config->Domains.push_back(domain1);
+        BOOST_CHECK(config->Domains.size() == 1);
+        PSTDKernel kernel = PSTDKernel();
+        kernel.start_kernel(config);
+        auto scene = kernel.get_scene();
+        return scene;
+    }
+
+    shared_ptr<Kernel::Domain> create_a_domain(int point_x, int point_y, int size_x, int size_y) {
+        using namespace Kernel;
+        Point top_left(point_x, point_y);
         Point size(size_x,size_y);
         shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
         EdgeParameters standard = {};
@@ -61,33 +86,66 @@ BOOST_AUTO_TEST_SUITE(domain)
                                    edge_param_map, nullptr));
         return test_domain;
     }
-    BOOST_AUTO_TEST_CASE(domain_initialization) {
-        auto domain = create_a_domain(100,150);
-        BOOST_CHECK(true);
+
+    BOOST_AUTO_TEST_CASE(domain_initialization_from_kernel) {
+        auto domain = create_a_domain(-50, -25, 100, 150);
+        BOOST_CHECK(!domain->is_pml);
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_initialization_from_config) {
+        auto scene = create_a_scene();
+        BOOST_CHECK_EQUAL(scene->domain_list.size(), 5);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->size.x, 250);
     }
 
     BOOST_AUTO_TEST_CASE(domain_dimensions) {
-        auto domain = create_a_domain(100,150);
-        BOOST_CHECK_EQUAL(domain->size.x,100);
-        BOOST_CHECK_EQUAL(domain->size.y,150);
-
+        auto domain = create_a_domain(-50, -25, 100, 150);
+        BOOST_CHECK_EQUAL(domain->bottom_right.x, 50);
+        BOOST_CHECK_EQUAL(domain->bottom_right.y, 125);
     }
 
 
     BOOST_AUTO_TEST_CASE(domain_pml_checks) {
-        //Check whether we have the right number of pml domains with the right dimensions
-        BOOST_CHECK(true);
+        auto scene = create_a_scene();
+        auto standard_domain = scene->domain_list.at(0);
+        for (auto domain:scene->domain_list) {
+            if (domain != standard_domain) {
+                BOOST_CHECK(domain->is_pml);
+            } else {
+                BOOST_CHECK(!domain->is_pml);
+            }
 
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(domain_pml_checks_connected) {
+        auto scene = create_a_scene();
+        auto standard_domain = scene->domain_list.at(0);
+        for (auto domain:scene->domain_list) {
+            if (domain != standard_domain) {
+                BOOST_CHECK(domain->is_pml);
+                BOOST_CHECK(standard_domain->is_neighbour_of(domain));
+            }
+
+        }
     }
 
     BOOST_AUTO_TEST_CASE(domain_rho_arrays) {
-        //Test the rho arrays
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
+        //Some python check
         BOOST_CHECK(true);
     }
 
     BOOST_AUTO_TEST_CASE(domain_clear_methods) {
-        //Test the clear matrix/arrays methods
-        BOOST_CHECK(true);
+        auto domain = create_a_domain(-50, -25, 100, 150);
+        domain->clear_matrices();
+        BOOST_CHECK(domain->current_values.p0.isZero());
+        BOOST_CHECK(domain->current_values.u0.isZero());
+        BOOST_CHECK(domain->current_values.w0.isZero());
+        BOOST_CHECK(domain->l_values.Lpx.isZero());
+        BOOST_CHECK(domain->l_values.Lpy.isZero());
+
     }
 
     BOOST_AUTO_TEST_CASE(domain_push_values) {
@@ -106,12 +164,14 @@ BOOST_AUTO_TEST_SUITE(domain)
     }
 
     BOOST_AUTO_TEST_CASE(domain_get_points) {
-        //Test the points method of the domain.
-        BOOST_CHECK(true);
+        using namespace Kernel;
+        auto domain = create_a_domain(-50, -25, 100, 150);
+        BOOST_CHECK(domain->contains_point(Point(20, 20)));
+        BOOST_CHECK(!domain->contains_point(Point(-60, 20)));
     }
 
     BOOST_AUTO_TEST_CASE(domain_test_calc) {
-        //test the calc method
+        //test the calc method // Todo: Louis
         BOOST_CHECK(true);
     }
 

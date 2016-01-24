@@ -361,7 +361,7 @@ int RunCommand::execute(int argc, const char **argv)
         //create kernel
         std::unique_ptr<PSTDKernel> kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
         //configure the kernel
-        kernel->Configure(conf);
+        kernel->start_kernel(conf);
         //create output
         std::shared_ptr<ConsoleOutput> output(new ConsoleOutput());
         //run kernel

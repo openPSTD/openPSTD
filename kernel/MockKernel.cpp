@@ -5,7 +5,7 @@
 #include "MockKernel.h"
 #include <boost/lexical_cast.hpp>
 
-void MockKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
+void MockKernel::start_kernel(std::shared_ptr<PSTDFileConfiguration> config)
 {
     _conf = config;
 }
@@ -15,7 +15,7 @@ void MockKernel::run(KernelCallback *callback)
     if(!_conf)
         throw PSTDKernelNotConfiguredException();
 
-    auto meta = GetSimulationMetadata();
+    auto meta = get_metadata();
 
     callback->Callback(CALLBACKSTATUS::STARTING, "Starting to mock", -1);
 
@@ -35,7 +35,7 @@ void MockKernel::run(KernelCallback *callback)
     callback->Callback(CALLBACKSTATUS::FINISHED, "finished mocking", -1);
 }
 
-SimulationMetadata MockKernel::GetSimulationMetadata()
+SimulationMetadata MockKernel::get_metadata()
 {
     if(!_conf)
         throw PSTDKernelNotConfiguredException();

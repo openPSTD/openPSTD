@@ -109,7 +109,7 @@ public:
      * Sets the configuration,
      * also initializes the kernel and the scene, constructs the domains and sets the parameters.
      */
-    void Configure(std::shared_ptr<PSTDFileConfiguration> config) override;
+    void start_kernel(std::shared_ptr<PSTDFileConfiguration> config) override;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the
@@ -120,7 +120,9 @@ public:
     /**
      * Query the kernel for metadata about the simulation that is configured.
      */
-    SimulationMetadata GetSimulationMetadata() override;
+    SimulationMetadata get_metadata() override;
+
+    std::shared_ptr<Kernel::Scene> get_scene();
 };
 
 
