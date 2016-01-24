@@ -359,7 +359,9 @@ int RunCommand::execute(int argc, const char **argv)
         //get conf for the kernel
         std::shared_ptr<PSTDFileConfiguration> conf = file->GetSceneConf();
         //create kernel
-        std::unique_ptr<PSTDKernel> kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel(conf));
+        std::unique_ptr<PSTDKernel> kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
+        //configure the kernel
+        kernel->Configure(conf);
         //create output
         std::shared_ptr<ConsoleOutput> output(new ConsoleOutput());
         //run kernel
