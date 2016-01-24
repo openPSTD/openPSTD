@@ -130,13 +130,13 @@ void PSTDKernel::run(KernelCallback *callback) {
 }
 
 std::vector<std::vector<int>> PSTDKernel::GetDomainMetadata() {
-    int ndomains = this->scene->domain_list.size();
+    unsigned long ndomains = this->scene->domain_list.size();
     std::vector<std::vector<int>> result;
-    for(int i=0; i<ndomains; i++) {
+    for (unsigned long i = 0; i < ndomains; i++) {
         std::vector<int> dimensions;
-        dimensions.push_back(this->scene->domain_list.at(i)->size->x);
-        dimensions.push_back(this->scene->domain_list.at(i)->size->y);
-        dimensions.push_back(this->scene->domain_list.at(i)->size->z);
+        dimensions.push_back(this->scene->domain_list.at(i)->size.x);
+        dimensions.push_back(this->scene->domain_list.at(i)->size.y);
+        dimensions.push_back(this->scene->domain_list.at(i)->size.z);
         result.push_back(dimensions);
     }
     return result;
