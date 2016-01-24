@@ -118,11 +118,9 @@ public:
     void run(KernelCallback *callback) override;
 
     /**
-     * Query the kernel for the discretization of the Domains, in order they were passed.
-     * Returns a vector in which domain n is represented by a vector at the nth position.
-     * In the "inner" vectors, v[0],v[1],v[2] correspond to size x,y,z.
+     * Query the kernel for metadata about the simulation that is configured.
      */
-    std::vector<std::vector<int>> GetDomainMetadata() override;
+    SimulationMetadata GetSimulationMetadata() override;
 };
 
 

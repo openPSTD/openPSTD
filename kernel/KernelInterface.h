@@ -40,6 +40,18 @@ public:
     virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) = 0;
 };
 
+class SimulationMetadata
+{
+public:
+    /**
+     * The discretization of the domains, in order they were passed to the kernel.
+     * A vector in which domain n is represented by a vector at the nth position.
+     * In the "inner" vectors, v[0],v[1],v[2] correspond to size x,y,z.
+     */
+    std::vector<std::vector<int>> DomainMetadata;
+    int Framecount;
+};
+
 /**
  * The kernel API. Contains one method for initialization and one for running the simulation.
  */
@@ -59,12 +71,9 @@ public:
     virtual void run(KernelCallback *callback) = 0;
 
     /**
-     * Query the kernel for the discretization of the Domains, in order they were passed.
-     * Returns a vector in which domain n is represented by a vector at the nth position.
-     * In the "inner" vectors, v[0],v[1],v[2] correspond to size x,y,z.
-     * Must first be configured, else a PSTDKernelNotConfiguredException is thrown.
+     * Query the kernel for metadata about the simulation that is configured.
      */
-    virtual std::vector<std::vector<int>> GetDomainMetadata() = 0;
+    virtual SimulationMetadata GetSimulationMetadata() = 0;
 };
 
 class PSTDKernelNotConfiguredException : public std::exception

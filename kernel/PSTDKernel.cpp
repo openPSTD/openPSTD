@@ -133,22 +133,25 @@ void PSTDKernel::run(KernelCallback *callback) {
     solver->compute_propagation();
 }
 
-std::vector<std::vector<int>> PSTDKernel::GetDomainMetadata() {
+SimulationMetadata PSTDKernel::GetSimulationMetadata()
+{
     if(!config)
         throw PSTDKernelNotConfiguredException();
 
+    SimulationMetadata result;
     int ndomains = this->scene->domain_list.size();
-    std::vector<std::vector<int>> result;
     for(int i=0; i<ndomains; i++) {
         std::vector<int> dimensions;
         dimensions.push_back(this->scene->domain_list[i]->size.x);
         dimensions.push_back(this->scene->domain_list[i]->size.y);
         dimensions.push_back(this->scene->domain_list[i]->size.z);
-        result.push_back(dimensions);
+        result.DomainMetadata.push_back(dimensions);
     }
+
+    //todo: this has to be implemented yet
+    result.Framecount = 0;
     return result;
 }
-
 
 vector<float> PSTDKernel::scale_to_grid(QVector2D world_vector) {
     QVector2D scaled_vector = world_vector / this->settings->GetGridSpacing();
