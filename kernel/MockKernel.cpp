@@ -19,7 +19,7 @@ void MockKernel::run(KernelCallback *callback)
 
     callback->Callback(CALLBACKSTATUS::STARTING, "Starting to mock", -1);
 
-    for (int i = 0; i < 1000; ++i)
+    for (int i = 0; i < meta.Framecount; ++i)
     {
         callback->Callback(CALLBACKSTATUS::RUNNING, "Starting to mock", i);
         for (int j = 0; j < _conf->Domains.size(); ++j)
@@ -53,7 +53,7 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
         result.DomainMetadata.push_back(d);
     }
 
-    result.Framecount = 1000;
+    result.Framecount = _conf->Settings.GetRenderTime() / _conf->Settings.GetTimeStep();
 
     return result;
 }
