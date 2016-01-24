@@ -204,6 +204,32 @@ void PSTDFile::DeleteSimulationResults() {
     SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
 }
 
+void PSTDFile::OutputDebugInfo()
+{
+    int rc = 0;
+    unqlite_kv_cursor *cursor;
+    unqlite_kv_cursor_init(this->backend.get(), &cursor);
+
+    unqlite_kv_cursor_first_entry(cursor);
+    while(unqlite_kv_cursor_valid_entry(cursor))
+    {
+        int nbytes;
+        char * buffer;
+
+        unqlite_kv_cursor_key(cursor, NULL, &nbytes);
+        buffer = new char[nbytes];
+        unqlite_kv_cursor_key(cursor, buffer, &nbytes);
+
+        std::cout << "Key " << PSTDFileKeyToString(CreateKeyFromData(buffer, nbytes)) << std::endl;
+
+        delete[] buffer;
+
+        unqlite_kv_cursor_next_entry(cursor);
+    }
+
+    unqlite_kv_cursor_release(this->backend.get(), cursor);
+}
+
 std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key) {
     unqlite_int64 nBytes;  //Data length
     char *zBuf;     //Dynamically allocated buffer
@@ -250,9 +276,16 @@ PSTDFile_Key_t PSTDFile::CreateKey(unsigned int prefix, std::initializer_list<un
         i++;
     }
 
-    PSTDFile_Key_t result = shared_ptr<std::vector<char> >(new vector<char>(data, data + length));
+    PSTDFile_Key_t result = make_shared<std::vector<char>>(data, data + length);
     delete[] data;
 
+    return result;
+}
+
+PSTDFile_Key_t PSTDFile::CreateKeyFromData(char *pBuf,int pnByte)
+{
+    PSTDFile_Key_t result = make_shared<std::vector<char>>(pBuf, pBuf + pnByte);
+    //PSTDFile_Key_t result = std::shared_ptr<std::vector<char>>(new vector<char>(pBuf, pBuf + pnByte));
     return result;
 }
 
@@ -301,6 +334,8 @@ std::string DomainSideToString(PSTD_DOMAIN_SIDE side) {
             return "r";
     }
 }
+
+
 
 shared_ptr<PSTDFileConfiguration> PSTDFile::CreateDefaultConf()
 {

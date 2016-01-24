@@ -26,7 +26,7 @@ public:
 class ListCommand: public Command
 {
 private:
-    void Print(const std::string& filename);
+    void Print(const std::string& filename, bool debug);
 
 public:
     std::string GetName() override;
@@ -49,6 +49,5 @@ public:
     std::string GetDescription() override;
     int execute(int argc, const char *argv[]) override;
 };
-
 
 #endif //OPENPSTD_MAIN_CLI_H_H

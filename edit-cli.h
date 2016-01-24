@@ -35,7 +35,6 @@
 #define OPENPSTD_EDIT_CLI_H
 
 #include <boost/program_options.hpp>
-#include <boost/regex.hpp>
 #include <PSTDFile.h>
 
 using namespace boost;

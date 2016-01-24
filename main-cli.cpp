@@ -33,9 +33,12 @@
 #include <fstream>
 #include "kernel/ConsoleOutput.h"
 #include "kernel/PSTDKernel.h"
+#include "kernel/MockKernel.h"
 #include <boost/regex.hpp>
 #include <PSTDFile.h>
 #include "edit-cli.h"
+#include "output-cli.h"
+
 
 namespace po = boost::program_options;
 using namespace boost;
@@ -114,6 +117,7 @@ int ListCommand::execute(int argc, const char **argv)
         desc.add_options()
                 ("help,h", "produce help message")
                 ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ("debug,d", "debug information(only useful for development)")
                 ;
 
         po::positional_options_description p;
@@ -131,7 +135,7 @@ int ListCommand::execute(int argc, const char **argv)
 
         std::string filename = vm["scene-file"].as<std::string>();
 
-        Print(filename);
+        Print(filename, vm.count("debug") > 0);
         return 0;
     }
     catch(std::exception& e)
@@ -146,10 +150,22 @@ int ListCommand::execute(int argc, const char **argv)
     }
 }
 
-void ListCommand::Print(const std::string &filename)
+void ListCommand::Print(const std::string &filename, bool debug)
 {
     std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
 
+    if(debug)
+    {
+        std::cout << "=============================================================" << std::endl;
+        std::cout << "== Debug                                                   ==" << std::endl;
+        std::cout << "=============================================================" << std::endl;
+
+        file->OutputDebugInfo();
+    }
+
+    std::cout << "=============================================================" << std::endl;
+    std::cout << "== Configuration                                           ==" << std::endl;
+    std::cout << "=============================================================" << std::endl;
     auto SceneConf = file->GetSceneConf();
     std::cout << "Settings: " << std::endl;
     std::cout << "  Grid spacing: " << SceneConf->Settings.GetGridSpacing() << std::endl;
@@ -201,6 +217,17 @@ void ListCommand::Print(const std::string &filename)
         std::cout << "    Bottom: Absorption " << SceneConf->Domains[i].B.Absorption << ", LR " << SceneConf->Domains[i].B.LR << std::endl;
         std::cout << "    Left: Absorption " << SceneConf->Domains[i].L.Absorption << ", LR " << SceneConf->Domains[i].L.LR << std::endl;
         std::cout << "    Right: Absorption " << SceneConf->Domains[i].R.Absorption << ", LR " << SceneConf->Domains[i].R.LR << std::endl;
+    }
+
+    std::cout << "=============================================================" << std::endl;
+    std::cout << "== Data                                                    ==" << std::endl;
+    std::cout << "=============================================================" << std::endl;
+
+    int frameCount = file->GetDomainCount();
+    std::cout << "Domains: " << frameCount << std::endl;
+    for (int i = 0; i < frameCount; ++i)
+    {
+        std::cout << "Frame count: " << file->GetFrameCount(i);
     }
 }
 
@@ -314,8 +341,9 @@ int RunCommand::execute(int argc, const char **argv)
                 ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
                 ("multithreaded,m", "use the multi-threaded solver (mutually exclusive with gpu accelerated)")
                 ("gpu-accelerated,g", "Use the gpu for the calculations (mutually exclusive with multithreaded)")
-                ("write-plot,p", "Plots are written to the output directory")
-                ("write-array,a", "Arrays are written to the output directory")
+                ("mock,M", "Use the mock kernel(only useful for development)")
+                //("write-plot,p", "Plots are written to the output directory")
+                //("write-array,a", "Arrays are written to the output directory")
                 ;
 
         po::positional_options_description p;
@@ -344,26 +372,39 @@ int RunCommand::execute(int argc, const char **argv)
             return 1;
         }
 
-        if(vm.count("write-plot")==0 && vm.count("write-array")==0)
+        if(vm.count("mock")>0 && (vm.count("multithreaded")>0 || vm.count("gpu-accelerated")>0))
         {
-            std::cout << "Warning: there is no output written" << std::endl;
+            std::cout << "warning: no multithreaded or gpu accelerated versions of the mock kernel, "
+                                 "using normal version" << std::endl;
         }
 
         std::string filename = vm["scene-file"].as<std::string>();
 
-        //todo implement plot and array
-        //todo implement mt and gpu
-
-        //open file
-        std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
+        //open file (and make a shared_ptr of the unique_ptr)
+        std::shared_ptr<PSTDFile> file = PSTDFile::Open(filename);
         //get conf for the kernel
         std::shared_ptr<PSTDFileConfiguration> conf = file->GetSceneConf();
+        //initilize output in file
+        std::cout << "Delete old results(if any)" << std::endl;
+        file->DeleteSimulationResults();
+        std::cout << "initilize new results" << std::endl;
+        file->InitializeSimulationResults(conf->Domains.size());
         //create kernel
-        std::unique_ptr<PSTDKernel> kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
+        std::unique_ptr<KernelInterface> kernel;
+        if(vm.count("mock")>0)
+        {
+            //use the mocking
+            kernel = std::unique_ptr<MockKernel>(new MockKernel());
+        }
+        else
+        {
+            //use the real kernel
+            kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
+        }
         //configure the kernel
         kernel->start_kernel(conf);
         //create output
-        std::shared_ptr<ConsoleOutput> output(new ConsoleOutput());
+        std::shared_ptr<KernelCallback> output = std::make_shared<CLIOutput>(file);
         //run kernel
         kernel->run(output.get());
         return 0;
