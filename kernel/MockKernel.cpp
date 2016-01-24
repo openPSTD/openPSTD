@@ -3,7 +3,7 @@
 //
 
 #include "MockKernel.h"
-
+#include <boost/lexical_cast.hpp>
 
 void MockKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
 {
@@ -22,8 +22,14 @@ void MockKernel::run(KernelCallback *callback)
     for (int i = 0; i < 1000; ++i)
     {
         callback->Callback(CALLBACKSTATUS::RUNNING, "Starting to mock", i);
-        //generate some frame
-        //write
+        for (int j = 0; j < _conf->Domains.size(); ++j)
+        {
+            int type = j%1;
+            if(type == 0)
+            {
+                callback->WriteFrame(i, boost::lexical_cast<std::string>(j), CreateRandomFrame(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]));
+            }
+        }
     }
 
     callback->Callback(CALLBACKSTATUS::FINISHED, "finished mocking", -1);
@@ -49,5 +55,17 @@ SimulationMetadata MockKernel::GetSimulationMetadata()
 
     result.Framecount = 1000;
 
+    return result;
+}
+
+std::shared_ptr<std::vector<float>> MockKernel::CreateRandomFrame(int x, int y)
+{
+    std::shared_ptr<std::vector<float>> result = make_shared<std::vector<float>>();
+    result->reserve(x*y);
+    for (int i = 0; i < x * y; ++i)
+    {
+        float v = rand()/((float)RAND_MAX);
+        result->push_back(v);
+    }
     return result;
 }

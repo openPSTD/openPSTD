@@ -11,6 +11,9 @@ class MockKernel: public KernelInterface
 {
 private:
     std::shared_ptr<PSTDFileConfiguration> _conf;
+
+    std::vector<float> CreateRandomFrame(int x, int y);
+
 public:
     /**
      * Sets the configuration.
