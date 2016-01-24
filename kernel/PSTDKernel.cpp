@@ -37,6 +37,11 @@ using namespace std;
 // interface of the kernel
 
 PSTDKernel::PSTDKernel(std::shared_ptr<PSTDFileConfiguration> config) {
+
+}
+
+void PSTDKernel::SetConfiguration(std::shared_ptr<PSTDFileConfiguration> config)
+{
     using namespace Kernel;
     debug("Initializing kernel");
     this->config = config;
@@ -106,6 +111,9 @@ void PSTDKernel::add_receivers() {
 }
 
 void PSTDKernel::run(KernelCallback *callback) {
+    if(!config)
+        throw PSTDKernelNotConfiguredException();
+
     using namespace Kernel;
     int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
     std::shared_ptr<Kernel::Solver> solver;
@@ -130,6 +138,9 @@ void PSTDKernel::run(KernelCallback *callback) {
 }
 
 std::vector<std::vector<int>> PSTDKernel::GetDomainMetadata() {
+    if(!config)
+        throw PSTDKernelNotConfiguredException();
+
     int ndomains = this->scene->domain_list.size();
     std::vector<std::vector<int>> result;
     for(int i=0; i<ndomains; i++) {
