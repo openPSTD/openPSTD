@@ -53,7 +53,6 @@ void PSTDKernel::initialize_scene() {
     using namespace Kernel;
     debug("Initializing scene");
     this->add_domains();
-    scene->add_pml_domains();
     this->add_speakers();
     this->add_receivers();
     scene->compute_rho_arrays();
@@ -80,8 +79,11 @@ void PSTDKernel::add_domains() {
         domain_id_int++;
     }
     for (auto domain: domains) {
-        domain->post_initialization();
         scene->add_domain(domain);
+    }
+    scene->add_pml_domains();
+    for (auto domain:domains) {
+        domain->post_initialization();
     }
 }
 

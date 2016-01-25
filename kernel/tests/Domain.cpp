@@ -174,8 +174,10 @@ BOOST_AUTO_TEST_SUITE(domain)
     }
 
     BOOST_AUTO_TEST_CASE(domain_neighbours) {
-        //Test whether we have the right number of neighbours in the right places
-        BOOST_CHECK(true);
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
+        BOOST_CHECK_EQUAL(domain->number_of_neighbours(false), 0);
+        BOOST_CHECK_EQUAL(domain->number_of_neighbours(true), 4);
     }
 
     BOOST_AUTO_TEST_CASE(domain_get_points) {
@@ -191,7 +193,8 @@ BOOST_AUTO_TEST_SUITE(domain)
     }
 
     BOOST_AUTO_TEST_CASE(domain_get_vacant_range) {
-        //Test the vacant range method
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
         BOOST_CHECK(true);
     }
 
