@@ -6,7 +6,7 @@
 #define OPENPSTD_OUTPUT_CLI_H
 
 #include "PSTDFile.h"
-#include "Kernel/KernelInterface.h"
+#include "kernel/KernelInterface.h"
 
 class CLIOutput: public KernelCallback
 {
@@ -16,7 +16,8 @@ public:
     CLIOutput(std::shared_ptr<PSTDFile> file): _file(file) { };
 
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;
-    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) override;
+
+    virtual void WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) override;
 };
 
 #endif //OPENPSTD_OUTPUT_CLI_H

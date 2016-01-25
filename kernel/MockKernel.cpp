@@ -27,7 +27,7 @@ void MockKernel::run(KernelCallback *callback)
             int type = j%1;
             if(type == 0)
             {
-                std::string domain = boost::lexical_cast<std::string>(j);
+                int domain = j;
                 callback->WriteFrame(i, domain, CreateRandomFrame(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]));
             }
         }

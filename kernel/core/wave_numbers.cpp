@@ -61,7 +61,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     discr.wave_numbers.tail(two_power - 1) = Eigen::ArrayXf::LinSpaced(two_power - 1, max_wave_number - dka, dka);
     discr.complex_factors = Eigen::ArrayXcf(2 * two_power);
     Eigen::ArrayXf partial_ones = Eigen::ArrayXf::Ones(2 * two_power);
-    partial_ones.tail(two_power - 1) = Eigen::ArrayXf::Ones(two_power - 1);
+    partial_ones.tail(two_power - 1) = -Eigen::ArrayXf::Ones(two_power - 1);
     discr.complex_factors.imag() = partial_ones;
     discr.complex_factors.real() = Eigen::ArrayXf::Zero(2 * two_power);
     Eigen::ArrayXcf complex_wave_numbers = discr.complex_factors * discr.wave_numbers;

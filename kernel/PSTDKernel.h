@@ -53,6 +53,8 @@ private:
     std::shared_ptr<PSTDFileSettings> settings;
     std::shared_ptr<Kernel::Scene> scene;
     const float default_alpha = 1.f;
+
+
     void initialize_scene();
 
     std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd;
@@ -104,7 +106,9 @@ private:
      */
     std::map<Kernel::Direction, Kernel::EdgeParameters> translate_edge_parameters(Domain domain);
 
+
 public:
+
     /**
      * Sets the configuration,
      * also initializes the kernel and the scene, constructs the domains and sets the parameters.

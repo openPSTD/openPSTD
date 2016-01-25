@@ -36,8 +36,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include "../core/Domain.h"
-#include "../../PSTDFile.h"
-
 #include <cmath>
 #include <kernel/PSTDKernel.h>
 
@@ -63,6 +61,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Domains.push_back(domain1);
         BOOST_CHECK(config->Domains.size() == 1);
         PSTDKernel kernel = PSTDKernel();
+
         kernel.start_kernel(config);
         auto scene = kernel.get_scene();
         return scene;
@@ -71,7 +70,7 @@ BOOST_AUTO_TEST_SUITE(domain)
     shared_ptr<Kernel::Domain> create_a_domain(int point_x, int point_y, int size_x, int size_y) {
         using namespace Kernel;
         Point top_left(point_x, point_y);
-        Point size(size_x,size_y);
+        Point size(size_x, size_y);
         shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
         EdgeParameters standard = {};
         standard.locally_reacting = true;
@@ -82,7 +81,7 @@ BOOST_AUTO_TEST_SUITE(domain)
                                                          {Direction::TOP,    standard},
                                                          {Direction::BOTTOM, standard}};
         shared_ptr<Kernel::Domain> test_domain(
-                new Kernel::Domain(settings, "test_domain", 1, top_left, size, false, wnd,
+                new Kernel::Domain(settings, 1, 1, top_left, size, false, wnd,
                                    edge_param_map, nullptr));
         return test_domain;
     }
@@ -95,7 +94,12 @@ BOOST_AUTO_TEST_SUITE(domain)
     BOOST_AUTO_TEST_CASE(domain_initialization_from_config) {
         auto scene = create_a_scene();
         BOOST_CHECK_EQUAL(scene->domain_list.size(), 5);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->top_left.x, 0);
         BOOST_CHECK_EQUAL(scene->domain_list.at(0)->size.x, 250);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->bottom_right.y, 300);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->edge_param_map[Kernel::Direction::LEFT].locally_reacting, true);
+        BOOST_CHECK(Kernel::is_approx(scene->domain_list.at(0)->edge_param_map[Kernel::Direction::RIGHT].alpha, 0.7));
+
     }
 
     BOOST_AUTO_TEST_CASE(domain_dimensions) {
@@ -109,12 +113,12 @@ BOOST_AUTO_TEST_SUITE(domain)
         auto scene = create_a_scene();
         auto standard_domain = scene->domain_list.at(0);
         for (auto domain:scene->domain_list) {
+            cout << *domain << endl;
             if (domain != standard_domain) {
                 BOOST_CHECK(domain->is_pml);
             } else {
                 BOOST_CHECK(!domain->is_pml);
             }
-
         }
     }
 
@@ -133,8 +137,19 @@ BOOST_AUTO_TEST_SUITE(domain)
     BOOST_AUTO_TEST_CASE(domain_rho_arrays) {
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);
-        //Some python check
-        BOOST_CHECK(true);
+        shared_ptr<Kernel::Domain> left_domain = domain->get_neighbours_at(Kernel::Direction::LEFT).at(0);
+        shared_ptr<Kernel::Domain> right_domain = domain->get_neighbours_at(Kernel::Direction::RIGHT).at(0);
+        shared_ptr<Kernel::Domain> top_domain = domain->get_neighbours_at(Kernel::Direction::TOP).at(0);
+
+        int index1 = domain->id * left_domain->id * right_domain->id;
+        ArrayXXf correct_center_domain_velocity(4, 2);
+        correct_center_domain_velocity << 0, 0, 0, 0, 1, 1, 1, 1;
+        BOOST_CHECK(correct_center_domain_velocity.isApprox(domain->rho_arrays[index1].velocity));
+
+        int index2 = domain->id * top_domain->id;
+        ArrayXXf correct_top_pml_domain_pressure(4, 2);
+        correct_top_pml_domain_pressure << 0, 0, 1, -1, 1, 1, 2, 0;
+        BOOST_CHECK(correct_top_pml_domain_pressure.isApprox(top_domain->rho_arrays[index2].pressure));
     }
 
     BOOST_AUTO_TEST_CASE(domain_clear_methods) {
@@ -159,8 +174,10 @@ BOOST_AUTO_TEST_SUITE(domain)
     }
 
     BOOST_AUTO_TEST_CASE(domain_neighbours) {
-        //Test whether we have the right number of neighbours in the right places
-        BOOST_CHECK(true);
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
+        BOOST_CHECK_EQUAL(domain->number_of_neighbours(false), 0);
+        BOOST_CHECK_EQUAL(domain->number_of_neighbours(true), 4);
     }
 
     BOOST_AUTO_TEST_CASE(domain_get_points) {
@@ -176,7 +193,8 @@ BOOST_AUTO_TEST_SUITE(domain)
     }
 
     BOOST_AUTO_TEST_CASE(domain_get_vacant_range) {
-        //Test the vacant range method
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
         BOOST_CHECK(true);
     }
 
