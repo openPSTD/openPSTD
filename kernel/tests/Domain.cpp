@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_SUITE(domain)
     shared_ptr<Kernel::Domain> create_a_domain(int point_x, int point_y, int size_x, int size_y) {
         using namespace Kernel;
         Point top_left(point_x, point_y);
-        Point size(size_x,size_y);
+        Point size(size_x, size_y);
         shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
         EdgeParameters standard = {};
         standard.locally_reacting = true;
@@ -113,6 +113,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         auto scene = create_a_scene();
         auto standard_domain = scene->domain_list.at(0);
         for (auto domain:scene->domain_list) {
+            cout << *domain << endl;
             if (domain != standard_domain) {
                 BOOST_CHECK(domain->is_pml);
             } else {
@@ -136,9 +137,19 @@ BOOST_AUTO_TEST_SUITE(domain)
     BOOST_AUTO_TEST_CASE(domain_rho_arrays) {
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);
-        cout << domain->rho_arrays[scene->domain_list.at(3)->id + domain->id + scene->domain_list.at(1)->id].pressure <<
-        endl;
-        BOOST_CHECK(true);
+        shared_ptr<Kernel::Domain> left_domain = domain->get_neighbours_at(Kernel::Direction::LEFT).at(0);
+        shared_ptr<Kernel::Domain> right_domain = domain->get_neighbours_at(Kernel::Direction::RIGHT).at(0);
+        shared_ptr<Kernel::Domain> top_domain = domain->get_neighbours_at(Kernel::Direction::TOP).at(0);
+
+        int index1 = domain->id * left_domain->id * right_domain->id;
+        ArrayXXf correct_center_domain_velocity(4, 2);
+        correct_center_domain_velocity << 0, 0, 0, 0, 1, 1, 1, 1;
+        BOOST_CHECK(correct_center_domain_velocity.isApprox(domain->rho_arrays[index1].velocity));
+
+        int index2 = domain->id * top_domain->id;
+        ArrayXXf correct_top_pml_domain_pressure(4, 2);
+        correct_top_pml_domain_pressure << 0, 0, 1, -1, 1, 1, 2, 0;
+        BOOST_CHECK(correct_top_pml_domain_pressure.isApprox(top_domain->rho_arrays[index2].pressure));
     }
 
     BOOST_AUTO_TEST_CASE(domain_clear_methods) {

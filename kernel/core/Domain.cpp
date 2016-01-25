@@ -444,9 +444,9 @@ namespace Kernel {
         vector<shared_ptr<Domain>> left_domains = left;
         vector<shared_ptr<Domain>> right_domains = right;
         vector<shared_ptr<Domain>> top_domains = top;
-        vector<shared_ptr<Domain>> bottom_domains = bottom;
+        vector<shared_ptr<Domain>> bottom_domains = bottom; // Why are these copied?
 
-        float max_rho = 1E10; // Large value, well within float range. Change for double.
+        float max_rho = 1E10; // Large value, well within float range.
 
         // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
         // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
@@ -734,16 +734,27 @@ namespace Kernel {
     }
 
     ostream &operator<<(ostream &str, Domain const &v) {
-        string sort = "Domain " + v.id;
+        str << "Domain " << v.id;
         if (v.is_pml) {
-            sort += " (pml)";
+            str << " (pml)";
         }
-        str << sort << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
+        str << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
         return str;
     }
 
     void Domain::post_initialization() {
         compute_number_of_neighbours();
         find_update_directions();
+    }
+
+    int Domain::get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2) {
+        int key = this->id;
+        if (domain1 != nullptr) {
+            key *= domain1->id;
+        }
+        if (domain2 != nullptr) {
+            key *= domain2->id;
+        }
+        return key;
     }
 }

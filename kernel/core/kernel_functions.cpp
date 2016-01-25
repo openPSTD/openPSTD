@@ -265,7 +265,7 @@ namespace Kernel {
 
 
     void debug(std::string msg) {
-#if 0
+#if 1
         std::cout << msg << std::endl;
 #endif
     }

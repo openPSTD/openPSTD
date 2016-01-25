@@ -296,6 +296,8 @@ namespace Kernel {
         void find_update_directions();
         void compute_number_of_neighbours();
 
+        int get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
+
         int get_num_pmls_in_direction(Direction direction);
 
         void create_attenuation_array(CalcDirection calc_dir, bool ascending, Eigen::ArrayXXf &pml_pressure,
