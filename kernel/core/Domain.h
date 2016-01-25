@@ -232,10 +232,10 @@ namespace Kernel {
 
         /**
          * Returns a vector of 1d locations of all nodes spanned by the domain in world grid
-         * coordinates in direction bt. This exists to facilitate porting the legacy code.
-         * @param bt Direction in which the range is requested
+         * coordinates in direction cd. This exists to facilitate porting the legacy code.
+         * @param cd Direction in which the range is requested
          */
-        std::vector<int> get_range(CalcDirection bt);
+        std::vector<int> get_range(CalcDirection cd);
 
         /**
          * Computes the grid points in a given direction the domain has in common with another domain.
@@ -247,20 +247,20 @@ namespace Kernel {
 
         /**
          * Calculate one timestep of propagation in this domain
-         * @param bt Boundary type (calculation direction)
+         * @param cd Boundary type (calculation direction)
          * @param ct Calculation type (pressure/velocity)
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(CalcDirection bt, CalculationType ct, Eigen::ArrayXcf dest);
+        Eigen::ArrayXXf calc(CalcDirection cd, CalculationType ct, Eigen::ArrayXcf dest);
 
         /**
          * Calculate one timestep of propagation in this domain
-         * @param bt Boundary type (calculation direction)
+         * @param cd Boundary type (calculation direction)
          * @param ct Calculation type (pressure/velocity)
          * @see spatderp3
          */
-        void calc(CalcDirection bt, CalculationType ct);
+        void calc(CalcDirection cd, CalculationType ct);
 
         /**
          * Process data after all methods have been initialized.

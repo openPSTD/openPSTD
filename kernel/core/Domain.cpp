@@ -91,9 +91,9 @@ namespace Kernel {
     }
 
     // version of calc that would have a return value.
-    ArrayXXf Domain::calc(CalcDirection bt, CalculationType ct, ArrayXcf dest) {
+    ArrayXXf Domain::calc(CalcDirection cd, CalculationType ct, ArrayXcf dest) {
         vector<shared_ptr<Domain>> domains1, domains2;
-        if (bt == CalcDirection::X) {
+        if (cd == CalcDirection::X) {
             domains1 = left;
             domains2 = right;
         } else {
@@ -101,13 +101,13 @@ namespace Kernel {
             domains2 = top;
         }
 
-        vector<int> own_range = get_range(bt);
+        vector<int> own_range = get_range(cd);
 
         ArrayXXf source;
 
         if (/*dest != nullptr ||*/ false) { //TODO FIXME Fix dest checking
             if( ct == CalculationType::VELOCITY ) {
-                if (bt == CalcDirection::X) {
+                if (cd == CalcDirection::X) {
                     source = extended_zeros(0, 1);
                 } else {
                     source = extended_zeros(1, 0);
@@ -119,7 +119,7 @@ namespace Kernel {
             if ( ct == CalculationType::PRESSURE ) {
                 source = this->current_values.p0;
             } else {
-                if ( bt == CalcDirection::X) {
+                if (cd == CalcDirection::X) {
                     source = this->current_values.u0;
                 } else {
                     source = this->current_values.w0;
@@ -141,13 +141,13 @@ namespace Kernel {
                 vector<int> range_intersection = own_range;
 
                 if (d1 != nullptr) {
-                    vector<int> range1 = d1->get_range(bt);
+                    vector<int> range1 = d1->get_range(cd);
                     set_intersection(range1.begin(), range1.end(),
                                      range_intersection.begin(), range_intersection.end(),
                                      back_inserter(range_intersection));
                 }
                 if (d2 != nullptr) {
-                    vector<int> range2 = d1->get_range(bt);
+                    vector<int> range2 = d1->get_range(cd);
                     set_intersection(range2.begin(), range2.end(),
                                      range_intersection.begin(), range_intersection.end(),
                                      back_inserter(range_intersection));
@@ -161,8 +161,10 @@ namespace Kernel {
                 // Set up various parameters and intermediates that are needed for the spatial derivatives
                 int range_start = *min_element(range_intersection.begin(), range_intersection.end());
                 int range_end = *max_element(range_intersection.begin(), range_intersection.end()) + 1;
-                int primary_dimension = (bt == CalcDirection::X) ? size.x : size.y;
+                int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                 int N_total = 2 * settings->GetWindowSize() + primary_dimension;
+                int wlen = this->settings->GetWindowSize();
+                Eigen::ArrayXf wind = this->settings->GetWindow();
 
                 if (ct == CalculationType::PRESSURE) {
                     N_total++;
@@ -170,7 +172,7 @@ namespace Kernel {
                     primary_dimension++;
                 }
 
-                ArrayXXf matrix0, matrix1, matrix2;
+                ArrayXXf matrix_main, matrix_side1, matrix_side2;
                 if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                     // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
                     // TODO Louis: Why only zeroes for ct==velocity? Should zeroes also be added in the else{} block?
@@ -180,12 +182,12 @@ namespace Kernel {
                     //   |     PML     |
                     //  <--------------->
                     d1 = d2 = shared_from_this();
-                    if (bt == CalcDirection::X) {
-                        matrix1 = extended_zeros(0, 1);
-                        matrix2 = extended_zeros(0, 1);
+                    if (cd == CalcDirection::X) {
+                        matrix_side1 = extended_zeros(0, 1);
+                        matrix_side2 = extended_zeros(0, 1);
                     } else {
-                        matrix1 = extended_zeros(1, 0);
-                        matrix2 = extended_zeros(1, 0);
+                        matrix_side1 = extended_zeros(1, 0);
+                        matrix_side2 = extended_zeros(1, 0);
                     }
                 } else {
                     if (d1 == nullptr) {
@@ -197,44 +199,35 @@ namespace Kernel {
                 }
 
                 if (ct == CalculationType::PRESSURE) {
-                    matrix0 = current_values.p0;
-                } else if (bt == CalcDirection::X) {
-                    matrix0 = current_values.u0;
+                    matrix_main = current_values.p0;
+                } else if (cd == CalcDirection::X) {
+                    matrix_main = current_values.u0;
                 } else {
-                    matrix0 = current_values.w0;
+                    matrix_main = current_values.w0;
                 }
 
                 // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
-                if (matrix1.isZero()) { // Todo: Trouble
+                if (true /*matrix_side1 == nullptr*/) { // Todo: This broke in commit 074469a. Think of a fix
                     if (ct == CalculationType::PRESSURE) {
-                        matrix1 = d1->current_values.p0;
+                        matrix_side1 = d1->current_values.p0;
                     } else {
-                        if (bt == CalcDirection::X) {
-                            matrix1 = d1->current_values.u0;
+                        if (cd == CalcDirection::X) {
+                            matrix_side1 = d1->current_values.u0;
                         } else {
-                            matrix1 = d1->current_values.w0;
+                            matrix_side1 = d1->current_values.w0;
                         }
                     }
                 }
-                if (matrix2.isZero()) { // Todo: Trouble
+                if (true /*matrix_side2 == nullptr*/) { // Todo: This broke in commit 074469a. Think of a fix
                     if (ct == CalculationType::PRESSURE) {
-                        matrix2 = d2->current_values.p0;
+                        matrix_side2 = d2->current_values.p0;
                     } else {
-                        if (bt == CalcDirection::X) {
-                            matrix2 = d2->current_values.u0;
+                        if (cd == CalcDirection::X) {
+                            matrix_side2 = d2->current_values.u0;
                         } else {
-                            matrix2 = d2->current_values.w0;
+                            matrix_side2 = d2->current_values.w0;
                         }
                     }
-                }
-
-                // Set up parameters for the spatial derivative later
-                int var_index = 0, direction = 0;
-                if (ct == CalculationType::VELOCITY) {
-                    var_index = 1;
-                }
-                if (bt == CalcDirection::X) {
-                    direction = 1;
                 }
 
                 ArrayXcf derfact;
@@ -265,24 +258,62 @@ namespace Kernel {
                         rho_array_id = id;
                     }
                 }
-                Array<float, 4, 2> rho_array;
+                RhoArray rho_array;
                 if (ct == CalculationType::PRESSURE) {
-                    rho_array = rho_arrays[rho_array_id].pressure;
+                    rho_array = rho_arrays[rho_array_id];
                 } else {
-                    rho_array = rho_arrays[rho_array_id].velocity;
+                    rho_array = rho_arrays[rho_array_id];
                 }
 
-                //source
-                //TODO: set matrix to result of spatderp3
+                int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
+                Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
+
+                if (cd == CalcDirection::X) {
+                    matrix_main_offset = this->top_left.y;
+                    matrix_side1_offset = d1->top_left.y;
+                    matrix_side2_offset = d2->top_left.y;
+
+                    int ncols = range_end - range_start;
+
+                    matrix_main_indexed = matrix_main.block(0, range_start - matrix_main_offset,
+                                                            matrix_main.rows(), ncols);
+                    matrix_side1_indexed = matrix_side1.block(0, range_start - matrix_side1_offset,
+                                                            matrix_side1.rows(), ncols);
+                    matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
+                                                            matrix_side2.rows(), ncols);
+
+                    //TODO FIXME source here is values, but should be a pointer to the values in the Domain or Receiver
+                    source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) =
+                        spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct, cd);
+
+                } else {
+                    matrix_main_offset = this->top_left.x;
+                    matrix_side1_offset = d1->top_left.x;
+                    matrix_side2_offset = d2->top_left.x;
+
+                    int nrows = range_end - range_start;
+
+                    matrix_main_indexed = matrix_main.block(range_start - matrix_main_offset, 0,
+                                                              nrows, matrix_main.cols());
+                    matrix_side1_indexed = matrix_side1.block(range_start - matrix_side1_offset, 0,
+                                                              nrows, matrix_side1.cols());
+                    matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
+                                                              nrows, matrix_side2.cols());
+
+                    //TODO FIXME source here is values, but should be a pointer to the values in the Domain or Receiver
+                    source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) =
+                            spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct, cd);
+                }
             }
         }
+        return source;
     }
 
     /**
-     * Near-alias to calc(BoundaryType bt, CalculationType ct, vector<float> dest), but with
+     * Near-alias to calc(CalcDirection cd, CalculationType ct, vector<float> dest), but with
      * a default empty vector as dest.
      */
-    void Domain::calc(CalcDirection bt, CalculationType ct) {
+    void Domain::calc(CalcDirection cd, CalculationType ct) {
         //Domain::calc(bt, ct, nullptr); //Todo: Fix this call
     }
 
@@ -319,9 +350,9 @@ namespace Kernel {
         return impedance > 1000; //Why this exact value?
     }
 
-    vector<int> Domain::get_range(CalcDirection bt) {
+    vector<int> Domain::get_range(CalcDirection cd) {
         int a_l, b_l;
-        if (bt == CalcDirection::X) {
+        if (cd == CalcDirection::X) {
             a_l = top_left.x;
             b_l = bottom_right.x;
         } else {
