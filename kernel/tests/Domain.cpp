@@ -36,8 +36,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include "../core/Domain.h"
-#include "../../PSTDFile.h"
-
 #include <cmath>
 #include <kernel/PSTDKernel.h>
 
@@ -63,6 +61,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Domains.push_back(domain1);
         BOOST_CHECK(config->Domains.size() == 1);
         PSTDKernel kernel = PSTDKernel();
+
         kernel.start_kernel(config);
         auto scene = kernel.get_scene();
         return scene;
@@ -82,7 +81,7 @@ BOOST_AUTO_TEST_SUITE(domain)
                                                          {Direction::TOP,    standard},
                                                          {Direction::BOTTOM, standard}};
         shared_ptr<Kernel::Domain> test_domain(
-                new Kernel::Domain(settings, "test_domain", 1, top_left, size, false, wnd,
+                new Kernel::Domain(settings, 1, 1, top_left, size, false, wnd,
                                    edge_param_map, nullptr));
         return test_domain;
     }
@@ -95,7 +94,12 @@ BOOST_AUTO_TEST_SUITE(domain)
     BOOST_AUTO_TEST_CASE(domain_initialization_from_config) {
         auto scene = create_a_scene();
         BOOST_CHECK_EQUAL(scene->domain_list.size(), 5);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->top_left.x, 0);
         BOOST_CHECK_EQUAL(scene->domain_list.at(0)->size.x, 250);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->bottom_right.y, 300);
+        BOOST_CHECK_EQUAL(scene->domain_list.at(0)->edge_param_map[Kernel::Direction::LEFT].locally_reacting, true);
+        BOOST_CHECK(Kernel::is_approx(scene->domain_list.at(0)->edge_param_map[Kernel::Direction::RIGHT].alpha, 0.7));
+
     }
 
     BOOST_AUTO_TEST_CASE(domain_dimensions) {
@@ -114,7 +118,6 @@ BOOST_AUTO_TEST_SUITE(domain)
             } else {
                 BOOST_CHECK(!domain->is_pml);
             }
-
         }
     }
 
@@ -133,7 +136,8 @@ BOOST_AUTO_TEST_SUITE(domain)
     BOOST_AUTO_TEST_CASE(domain_rho_arrays) {
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);
-        //Some python check
+        cout << domain->rho_arrays[scene->domain_list.at(3)->id + domain->id + scene->domain_list.at(1)->id].pressure <<
+        endl;
         BOOST_CHECK(true);
     }
 

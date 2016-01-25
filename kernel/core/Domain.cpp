@@ -31,7 +31,7 @@ using namespace std;
 using namespace Eigen;
 namespace Kernel {
 
-    Domain::Domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+    Domain::Domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                    Point top_left, Point size, const bool is_pml,
                    shared_ptr<WaveNumberDiscretizer> wnd, map<Direction, EdgeParameters> edge_param_map,
                    const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
@@ -39,7 +39,7 @@ namespace Kernel {
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    Domain::Domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+    Domain::Domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                    vector<float> top_left_vector, vector<float> size_vector, const bool is_pml,
                    shared_ptr<WaveNumberDiscretizer> wnd, map<Direction, EdgeParameters> edge_param_map,
                    const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
@@ -48,7 +48,7 @@ namespace Kernel {
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    void Domain::initialize_domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+    void Domain::initialize_domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                                    Point top_left, Point size, const bool is_pml,
                                    shared_ptr<WaveNumberDiscretizer> wnd,
                                    map<Direction, EdgeParameters> edge_param_map,
@@ -87,7 +87,6 @@ namespace Kernel {
         this->clear_matrices();
         this->clear_pml_arrays();
         this->local = false;
-        cout << "Initialized " << *this << endl;
     }
 
     // version of calc that would have a return value.
@@ -106,7 +105,7 @@ namespace Kernel {
         ArrayXXf source;
 
         if (/*dest != nullptr ||*/ false) { //TODO FIXME Fix dest checking
-            if( ct == CalculationType::VELOCITY ) {
+            if (ct == CalculationType::VELOCITY) {
                 if (bt == CalcDirection::X) {
                     source = extended_zeros(0, 1);
                 } else {
@@ -116,10 +115,10 @@ namespace Kernel {
                 source = extended_zeros(0, 0);
             }
         } else {
-            if ( ct == CalculationType::PRESSURE ) {
+            if (ct == CalculationType::PRESSURE) {
                 source = this->current_values.p0;
             } else {
-                if ( bt == CalcDirection::X) {
+                if (bt == CalcDirection::X) {
                     source = this->current_values.u0;
                 } else {
                     source = this->current_values.w0;
@@ -133,7 +132,7 @@ namespace Kernel {
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
             for (int j = 0; i != domains2.size() + 1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
-                vector<string> rho_matrix_key;
+                vector<int> rho_matrix_key;
                 rho_matrix_key.push_back(d1->id);
                 rho_matrix_key.push_back(d2->id);
 
@@ -251,16 +250,16 @@ namespace Kernel {
                 }
 
                 // Determine which rho matrix instance to use
-                string rho_array_id;
+                int rho_array_id;
                 if (d1 != nullptr) {
                     if (d2 != nullptr) {
-                        rho_array_id = d1->id + id + d2->id;
+                        rho_array_id = d1->id * id * d2->id;
                     } else {
-                        rho_array_id = d1->id + id;
+                        rho_array_id = d1->id * id;
                     }
                 } else {
                     if (d2 != nullptr) {
-                        rho_array_id = id + d2->id;
+                        rho_array_id = id * d2->id;
                     } else {
                         rho_array_id = id;
                     }
@@ -425,19 +424,19 @@ namespace Kernel {
     void Domain::compute_rho_arrays() {
         //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
         struct index_strings {
-            string id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
-                return d1->id + dm->id + d2->id;
+            int id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
+                return d1->id * dm->id * d2->id;
             }
 
-            string id(shared_ptr<Domain> d1, Domain *dm) {
-                return d1->id + dm->id;
+            int id(shared_ptr<Domain> d1, Domain *dm) {
+                return d1->id * dm->id;
             }
 
-            string id(Domain *dm, shared_ptr<Domain> d2) {
-                return dm->id + d2->id;
+            int id(Domain *dm, shared_ptr<Domain> d2) {
+                return dm->id * d2->id;
             }
 
-            string id(Domain *dm) {
+            int id(Domain *dm) {
                 return dm->id;
             }
         };
@@ -451,6 +450,7 @@ namespace Kernel {
 
         // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
         // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
+        // Todo: Now you are computing rho's for any possible combination. I think that's overdoing it...
         if (left_domains.size()) {
             for (shared_ptr<Domain> d1 : left_domains) {
                 if (right_domains.size()) {
@@ -734,7 +734,7 @@ namespace Kernel {
     }
 
     ostream &operator<<(ostream &str, Domain const &v) {
-        string sort = v.id;
+        string sort = "Domain " + v.id;
         if (v.is_pml) {
             sort += " (pml)";
         }

@@ -72,7 +72,7 @@ void PSTDKernel::add_domains() {
         Kernel::Point grid_top_left((int) tl.at(0), (int) tl.at(1));
         Kernel::Point grid_size((int) s.at(0), (int) s.at(1));
         map<Kernel::Direction, Kernel::EdgeParameters> edge_param_map = translate_edge_parameters(domain);
-        string domain_id = "Domain" + to_string(domain_id_int);
+        int domain_id = scene->get_new_id();
         shared_ptr<Kernel::Domain> domain_ptr(
                 new Kernel::Domain(this->settings, domain_id, default_alpha, grid_top_left,
                                    grid_size, false, this->wnd, edge_param_map, nullptr));
@@ -179,3 +179,4 @@ vector<int> PSTDKernel::round_off(vector<float> vector) {
     assert(vector.size() == 2); // We don't need to be very general here.
     return std::vector<int>{(int) vector.at(0), (int) vector.at(1)};
 }
+

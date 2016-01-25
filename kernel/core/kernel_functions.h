@@ -91,6 +91,7 @@ namespace Kernel {
     const std::vector<CalcDirection> all_calc_directions = {CalcDirection::X, CalcDirection::Y};
     const std::vector<CalculationType> all_calculation_types = {CalculationType::PRESSURE, CalculationType::VELOCITY};
 
+
     /**
      * Return the opposite direction of the provided direction
      * @param direction: Direction enum
@@ -171,6 +172,8 @@ namespace Kernel {
      * return 2^k >= n
      */
     int next_2_power(float n);
+
+    bool is_approx(float a, float b);
 
     void debug(std::string msg);
 

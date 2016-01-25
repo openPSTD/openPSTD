@@ -115,16 +115,16 @@ namespace Kernel {
 
         //in the Python code: N1 = fft_batch and N2 = fft_length
         int fft_batch, fft_length;
-        Eigen::ArrayXXf result(1,1); //also called Lp in some places in documentation
+        Eigen::ArrayXXf result(1, 1); //also called Lp in some places in documentation
 
         fft_batch = p2.rows();
         fft_length = next_2_power((int) p2.cols() + wlen * 2);
 
         float *in_buffer;
-        in_buffer = (float*) fftwf_malloc(sizeof(float)*fft_length*fft_batch);
+        in_buffer = (float *) fftwf_malloc(sizeof(float) * fft_length * fft_batch);
 
         fftwf_complex *out_buffer;
-        out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float)*2*(fft_length/2+1)*fft_batch);
+        out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float) * 2 * (fft_length / 2 + 1) * fft_batch);
 
         //if direct == 0, transpose p1, p2 and p3
         if (direct == CalcDirection::Y) {
@@ -166,30 +166,30 @@ namespace Kernel {
             fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
                                                       out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
 
-            idist = (fft_length/2)+1;
+            idist = (fft_length / 2) + 1;
             odist = idist;
-            int ishape[] = {fft_length/2+1};
+            int ishape[] = {fft_length / 2 + 1};
             fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
-                                                      in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
+                                                          in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
             //perform the fft
-            memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
+            memcpy(in_buffer, windowed_data.data(), sizeof(float) * fft_batch * fft_length);
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
             //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
-            for(int i=0; i<(fft_length/2+1)*fft_batch; i++) { //TODO this looks wasteful/slow. Better way?
-                spectrum_data.push_back(std::complex<float>(out_buffer[i][0],out_buffer[i][1]));
+            for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Better way?
+                spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
             }
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
 
             //apply the spectral derivative
             spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
             std::complex<float> *spectrum_prep;
-            Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length/2+1) = spectrum_array;
-            fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex*>(&spectrum_prep[0]), in_buffer);
+            Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length / 2 + 1) = spectrum_array;
+            fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex *>(&spectrum_prep[0]), in_buffer);
 
-            Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer,fft_batch,fft_length).array();
+            Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer, fft_batch, fft_length).array();
 
             //ifft result contains the outer domains, so slice
             result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
@@ -227,37 +227,37 @@ namespace Kernel {
             fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
                                                       out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
 
-            idist = (fft_length/2)+1;
+            idist = (fft_length / 2) + 1;
             odist = idist;
-            int ishape[] = {fft_length/2+1};
+            int ishape[] = {fft_length / 2 + 1};
             fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
                                                           in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
             //perform the fft
-            memcpy(in_buffer, windowed_data.data(), sizeof(float)*fft_batch*fft_length);
+            memcpy(in_buffer, windowed_data.data(), sizeof(float) * fft_batch * fft_length);
             fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
             //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
-            for(int i=0; i<(fft_length/2+1)*fft_batch; i++) { //TODO this looks wasteful/slow. Better way?
-                spectrum_data.push_back(std::complex<float>(out_buffer[i][0],out_buffer[i][1]));
+            for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Better way?
+                spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
             }
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
 
             //apply the spectral derivative
             spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
             std::complex<float> *spectrum_prep;
-            Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length/2+1) = spectrum_array;
-            fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex*>(&spectrum_prep[0]), in_buffer);
+            Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length / 2 + 1) = spectrum_array;
+            fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex *>(&spectrum_prep[0]), in_buffer);
 
-            Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer,fft_batch,fft_length).array();
+            Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer, fft_batch, fft_length).array();
 
             //ifft result contains the outer domains, so slice
             result = derived_array.leftCols(wlen + p2.cols() - 1).rightCols(p2.cols() - 1);
 
         }
         //TODO transpose it if direct == 0
-        if(direct == CalcDirection::Y) {
+        if (direct == CalcDirection::Y) {
             result.transposeInPlace();
         }
         return result;
@@ -265,9 +265,19 @@ namespace Kernel {
 
 
     void debug(std::string msg) {
-#if 1
+#if 0
         std::cout << msg << std::endl;
 #endif
+    }
+
+    bool is_approx(float a, float b) {
+        if (a == 0) {
+            return fabs(b) < EPSILON;
+        } else {
+            return (fabs((a - b) / a) < EPSILON);
+
+        }
+
     }
 }
 
