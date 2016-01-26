@@ -50,7 +50,7 @@ namespace Kernel {
 
 
     struct FieldValues {
-        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a double class
+        Eigen::ArrayXXf u0; //TODO (do we want to do this?): change float to T, derive a float and a double class
         Eigen::ArrayXXf w0;
         Eigen::ArrayXXf p0;
         Eigen::ArrayXXf px0;

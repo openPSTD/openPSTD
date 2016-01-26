@@ -206,7 +206,7 @@ namespace Kernel {
                 }
 
                 // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
-                if (true /*matrix_side1 == nullptr*/) { // Todo: This broke in commit 074469a. Think of a fix
+                if (matrix_side1.cols() == 0) {
                     if (ct == CalculationType::PRESSURE) {
                         matrix_side1 = d1->current_values.p0;
                     } else {
@@ -217,7 +217,7 @@ namespace Kernel {
                         }
                     }
                 }
-                if (true /*matrix_side2 == nullptr*/) { // Todo: This broke in commit 074469a. Think of a fix
+                if (matrix_side2.cols() == 0) {
                     if (ct == CalculationType::PRESSURE) {
                         matrix_side2 = d2->current_values.p0;
                     } else {
@@ -230,7 +230,7 @@ namespace Kernel {
                 }
 
                 ArrayXcf derfact;
-                if (dest.isZero()) { // Todo: Fix
+                if (dest.cols() == 0) {
                     derfact = dest;
                 } else {
                     if (ct == CalculationType::PRESSURE) {
@@ -264,9 +264,9 @@ namespace Kernel {
                     rho_array = rho_arrays[rho_array_id];
                 }
 
+                // Calculate the spatial derivatives for the current intersection range and store
                 int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
                 Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
-
                 if (cd == CalcDirection::X) {
                     matrix_main_offset = this->top_left.y;
                     matrix_side1_offset = d1->top_left.y;
@@ -281,7 +281,6 @@ namespace Kernel {
                     matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
                                                             matrix_side2.rows(), ncols);
 
-                    //TODO FIXME source here is values, but should be a pointer to the values in the Domain or Receiver
                     source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) =
                         spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct, cd);
 
@@ -299,13 +298,23 @@ namespace Kernel {
                     matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
                                                               nrows, matrix_side2.cols());
 
-                    //TODO FIXME source here is values, but should be a pointer to the values in the Domain or Receiver
                     source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) =
                             spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct, cd);
                 }
             }
         }
 
+        if (dest.cols() != 0) {
+            if (ct == CalculationType::PRESSURE) {
+                this->current_values.p0 = source;
+            } else {
+                if (cd == CalcDirection::X) {
+                    this->current_values.u0 = source;
+                } else {
+                    this->current_values.w0 = source;
+                }
+            }
+        }
         return source;
     }
 
