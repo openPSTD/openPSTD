@@ -97,7 +97,7 @@ namespace Kernel {
         bool local;
         FieldValues current_values, previous_values;
         FieldLValues l_values;
-        std::shared_ptr<WaveNumberDiscretizer> wnd;
+        std::shared_ptr<WisdomCache> wnd;
         bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
 
@@ -132,7 +132,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                Point top_left, Point size, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
+               std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -141,7 +141,7 @@ namespace Kernel {
          */
         Domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
+               std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -287,7 +287,7 @@ namespace Kernel {
     private:
         void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                                Point top_left, Point size, const bool is_pml,
-                               std::shared_ptr<WaveNumberDiscretizer> wnd,
+                               std::shared_ptr<WisdomCache> wnd,
                                std::map<Direction, EdgeParameters> edge_param_map,
                                const std::shared_ptr<Domain> pml_for_domain);
         void clear_fields();

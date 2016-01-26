@@ -44,7 +44,7 @@ void PSTDKernel::start_kernel(std::shared_ptr<PSTDFileConfiguration> config)
     this->settings = make_shared<PSTDFileSettings>(config->Settings);
     this->scene = make_shared<Scene>(this->settings);
     this->initialize_scene();
-    this->wnd = make_shared<WaveNumberDiscretizer>();
+    this->wnd = make_shared<WisdomCache>();
     debug("Finished initializing kernel");
 }
 

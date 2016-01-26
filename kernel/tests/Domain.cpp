@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         using namespace Kernel;
         Point top_left(point_x, point_y);
         Point size(size_x, size_y);
-        shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
+        shared_ptr<WisdomCache> wnd(new WisdomCache());
         EdgeParameters standard = {};
         standard.locally_reacting = true;
         standard.alpha = 1;

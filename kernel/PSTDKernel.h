@@ -57,7 +57,7 @@ private:
 
     void initialize_scene();
 
-    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd;
+    std::shared_ptr<Kernel::WisdomCache> wnd;
 
     /**
      * Read the scene description from application or file and converts the coordinates to domains.

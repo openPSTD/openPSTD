@@ -50,10 +50,10 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
         int size2 = 178;
         int size3 = 227;
         float dx = 0.2;
-        WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
-        WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
-        WaveNumberDiscretizer::Discretization discr2 = wnd.get_discretization(dx, size2);
-        WaveNumberDiscretizer::Discretization discr3 = wnd.get_discretization(dx, size3);
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(dx, size1);
+        WisdomCache::Discretization discr2 = wnd.get_discretization(dx, size2);
+        WisdomCache::Discretization discr3 = wnd.get_discretization(dx, size3);
 
         BOOST_CHECK_EQUAL(discr2.wave_numbers.size(), discr3.wave_numbers.size());
         BOOST_CHECK_EQUAL(discr2.wave_numbers.size(), 2 * discr1.wave_numbers.size());
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
     BOOST_AUTO_TEST_CASE(test_wavenumber_bounds) {
         int size1 = 115;
         float dx = 0.2;
-        WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
-        WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(dx, size1);
         BOOST_CHECK(discr1.wave_numbers.maxCoeff() <= 15.8);
         BOOST_CHECK(discr1.wave_numbers.minCoeff() >= 0);
         // Value from default python run.
@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
     BOOST_AUTO_TEST_CASE(test_discretized_values) {
         int size1 = 115;
         float dx = 0.2;
-        WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
-        WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(dx, size1);
         BOOST_CHECK(is_approx(discr1.wave_numbers.coeff(1), 0.245437));
         BOOST_CHECK(is_approx(discr1.wave_numbers.coeff(99), 7.1176707));
 

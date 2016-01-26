@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_SUITE(speaker)
     BOOST_AUTO_TEST_CASE(test_speaker_contribution_in_bounds) {
 //        shared_ptr<Point> top_left(new Point(0, 0));
 //        shared_ptr<Point> size(new Point(100, 150));
-//        shared_ptr<WaveNumberDiscretizer> wnd(new WaveNumberDiscretizer());
+//        shared_ptr<WisdomCache> wnd(new WisdomCache());
 //        EdgeParameters standard = {};
 //        standard.locally_reacting = true;
 //        standard.alpha = 1;
