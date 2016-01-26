@@ -126,7 +126,7 @@ namespace Kernel {
         fftwf_complex *out_buffer;
         out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float) * 2 * (fft_length / 2 + 1) * fft_batch);
 
-        //if direct == 0, transpose p1, p2 and p3
+        //if direct == Y, transpose p1, p2 and p3
         if (direct == CalcDirection::Y) {
             p1.transposeInPlace();
             p2.transposeInPlace();
@@ -178,7 +178,7 @@ namespace Kernel {
 
             //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
-            for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Better way?
+            for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Check if it is
                 spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
             }
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
@@ -239,7 +239,7 @@ namespace Kernel {
 
             //map the results back into an eigen array
             std::vector<std::complex<float>> spectrum_data;
-            for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Better way?
+            for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) {
                 spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
             }
             Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
@@ -256,7 +256,6 @@ namespace Kernel {
             result = derived_array.leftCols(wlen + p2.cols() - 1).rightCols(p2.cols() - 1);
 
         }
-        //TODO transpose it if direct == 0
         if (direct == CalcDirection::Y) {
             result.transposeInPlace();
         }
