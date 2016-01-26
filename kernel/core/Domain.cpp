@@ -104,7 +104,7 @@ namespace Kernel {
 
         ArrayXXf source;
 
-        if (/*dest != nullptr ||*/ false) { //TODO FIXME Fix dest checking
+        if (dest.cols() == 0) {
             if( ct == CalculationType::VELOCITY ) {
                 if (cd == CalcDirection::X) {
                     source = extended_zeros(0, 1);
@@ -305,6 +305,7 @@ namespace Kernel {
                 }
             }
         }
+
         return source;
     }
 
@@ -313,7 +314,8 @@ namespace Kernel {
      * a default empty vector as dest.
      */
     void Domain::calc(CalcDirection cd, CalculationType ct) {
-        //Domain::calc(bt, ct, nullptr); //Todo: Fix this call
+        Eigen::ArrayXcf nulldest;
+        Domain::calc(cd, ct, nulldest);
     }
 
     bool Domain::contains_point(Point point) {
