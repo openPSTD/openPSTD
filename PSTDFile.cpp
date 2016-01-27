@@ -174,8 +174,8 @@ int PSTDFile::GetFrameCount(unsigned int domain) {
 
 PSTD_FRAME_PTR PSTDFile::GetFrame(unsigned int frame, unsigned int domain) {
     unqlite_int64 size;
-    char *result = this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
-    return shared_ptr<PSTD_FRAME>(new PSTD_FRAME(result, result + size));
+    float *result = (float*)this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
+    return shared_ptr<PSTD_FRAME>(new PSTD_FRAME(result, result + (size/4)));
 }
 
 void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME_PTR frameData) {

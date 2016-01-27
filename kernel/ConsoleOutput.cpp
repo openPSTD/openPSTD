@@ -53,3 +53,8 @@ void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int fra
 void ConsoleOutput::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) {
 
 }
+
+void ConsoleOutput::WriteSample(int startSample, int receiver, std::vector<float> data)
+{
+
+}

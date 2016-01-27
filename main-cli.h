@@ -6,6 +6,8 @@
 #define OPENPSTD_MAIN_CLI_H_H
 
 #include <string>
+#include <memory>
+#include <export/Export.h>
 
 class Command
 {
@@ -44,6 +46,16 @@ public:
 
 class RunCommand: public Command
 {
+public:
+    std::string GetName() override;
+    std::string GetDescription() override;
+    int execute(int argc, const char *argv[]) override;
+};
+
+class ExportCommand: public Command
+{
+private:
+    std::unique_ptr<ExportDomain> GetExport(std::string format);
 public:
     std::string GetName() override;
     std::string GetDescription() override;

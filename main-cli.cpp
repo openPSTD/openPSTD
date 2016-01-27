@@ -38,6 +38,8 @@
 #include <PSTDFile.h>
 #include "edit-cli.h"
 #include "output-cli.h"
+#include "export/Export.h"
+#include "export/Image.h"
 
 
 namespace po = boost::program_options;
@@ -421,6 +423,127 @@ int RunCommand::execute(int argc, const char **argv)
     }
 }
 
+std::unique_ptr<ExportDomain> ExportCommand::GetExport(std::string format)
+{
+    std::vector<std::unique_ptr<ExportDomain>> exports;
+    exports.push_back(std::unique_ptr<ExportImage>(new ExportImage()));
+
+    for (int i = 0; i < exports.size(); ++i)
+    {
+        auto f = exports[i]->GetFormats();
+        for (int j = 0; j < f.size(); ++j)
+        {
+            if(f[j].compare(format) == 0)
+                return std::move(exports[i]);
+        }
+    }
+    throw ExportFormatNotSupported(format, std::vector<std::string>());
+}
+
+std::string ExportCommand::GetName()
+{
+    return "export";
+}
+
+std::string ExportCommand::GetDescription()
+{
+    return "Exports data into other formats, like images or matlab files, see OpenPSTD-cli export -h";
+}
+
+int ExportCommand::execute(int argc, const char **argv)
+{
+    po::variables_map vm;
+    std::vector<std::unique_ptr<ExportDomain>> exports;
+    exports.push_back(std::unique_ptr<ExportImage>(new ExportImage()));
+
+    try
+    {
+        po::options_description desc("Allowed options");
+        desc.add_options()
+                ("help,h", "produce help message")
+                ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
+                ("format,F", po::value<std::string>(), "The output format")
+                ("list-format,l", "Prints a list with output formats")
+                ("output-dir,d", po::value<std::string>()->default_value("./"), "output directory")
+                ("output-name,n", po::value<std::string>()->default_value("result"), "prefix name")
+                ("start-frame,s", po::value<int>()->default_value(0), "The start that has to be exported(included)")
+                ("end-frame,e", po::value<int>()->default_value(-1), "The end frame that has to be exported(included), -1 for the last frame.")
+                ("domains,D", po::value<std::vector<int> >(), "Domain that should be exported. By default it exports all domains. Can be used multiple times.")
+                ;
+
+        po::positional_options_description p;
+        p.add("scene-file", 1);
+
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+        po::notify(vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+
+        if(vm.count("list-format"))
+        {
+            std::cout << "Formats supported: " << std::endl;
+            for (int i = 0; i < exports.size(); ++i)
+            {
+                auto f = exports[i]->GetFormats();
+                for (int j = 0; j < f.size(); ++j)
+                {
+                    std::cout << f[j] << std::endl;
+                }
+            }
+            return 0;
+        }
+
+        if (vm.count("scene-file") == 0)
+        {
+            std::cerr << "scene file is required" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        if (vm.count("format") == 0)
+        {
+            std::cerr << "format is required" << std::endl;
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        std::string filename = vm["scene-file"].as<std::string>();
+
+        //open file (and make a shared_ptr of the unique_ptr)
+        std::shared_ptr<PSTDFile> file = PSTDFile::Open(filename);
+
+        std::string format = vm["format"].as<std::string>();
+        std::unique_ptr<ExportDomain> e = GetExport(format);
+
+        std::vector<int> domains;
+        if(vm.count("domains") > 0)
+        {
+            domains = vm["domains"].as<std::vector<int>>();
+        }
+
+        e->ExportData(format, file, vm["output-dir"].as<std::string>(), vm["output-name"].as<std::string>(),
+                        false, domains, vm["start-frame"].as<int>(), vm["end-frame"].as<int>());
+
+        return 0;
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << "error: " << e.what() << "\n";
+        return 1;
+    }
+    catch(...)
+    {
+        std::cerr << "Exception of unknown type!\n";
+        return 1;
+    }
+}
+
+
+
 int main(int argc, const char *argv[])
 {
     std::vector<std::unique_ptr<Command>> commands;
@@ -428,6 +551,7 @@ int main(int argc, const char *argv[])
     commands.push_back(std::unique_ptr<ListCommand>(new ListCommand()));
     commands.push_back(std::unique_ptr<EditCommand>(new EditCommand()));
     commands.push_back(std::unique_ptr<RunCommand>(new RunCommand()));
+    commands.push_back(std::unique_ptr<ExportCommand>(new ExportCommand()));
 
     if(argc >= 2)
     {

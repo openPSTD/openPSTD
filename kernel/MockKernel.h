@@ -13,6 +13,12 @@ private:
     std::shared_ptr<PSTDFileConfiguration> _conf;
 
     PSTD_FRAME_PTR CreateRandomFrame(int x, int y);
+    PSTD_FRAME_PTR CreateHorizontalLines(int x, int y);
+    PSTD_FRAME_PTR CreateVerticalLines(int x, int y);
+    PSTD_FRAME_PTR CreateHorizontalGradient(int x, int y);
+    PSTD_FRAME_PTR CreateVerticalGradient(int x, int y);
+    PSTD_FRAME_PTR CreateVerticalGradientNeg(int x, int y);
+
 
 public:
     /**

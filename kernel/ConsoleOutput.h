@@ -50,6 +50,9 @@ class ConsoleOutput : public KernelCallback {
      * @see KernelCallback.WriteFrame()
      */
     virtual void WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) override;
+
+    virtual void WriteSample(int startSample, int receiver, std::vector<float> data) override;
+
 };
 
 #endif //OPENPSTD_CONSOLEOUTPUT_H

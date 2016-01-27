@@ -64,6 +64,15 @@ public:
     virtual std::unique_ptr<std::vector<QColor>> CreateColorMap(float start, float stop, unsigned int count);
 
     /**
+     * Creates a complete color map of RGB values,
+     * @param start The minimal value of the colormap
+     * @param stop The maximal value of the colormap
+     * @param count The number of samples taken
+     * @return the complete colormap
+     */
+    virtual std::unique_ptr<std::vector<QRgb>> CreateColorRGBMap(float start, float stop, unsigned int count);
+
+    /**
      * Creates a raw color map with RGBA values.
      * @param start The minimal value of the colormap
      * @param stop The maximal value of the colormap
