@@ -433,10 +433,11 @@ std::unique_ptr<ExportDomain> ExportCommand::GetExport(std::string format)
         auto f = exports[i]->GetFormats();
         for (int j = 0; j < f.size(); ++j)
         {
-            if(f[i] == format)
+            if(f[j].compare(format) == 0)
                 return std::move(exports[i]);
         }
     }
+    throw ExportFormatNotSupported(format, std::vector<std::string>());
 }
 
 std::string ExportCommand::GetName()
@@ -465,6 +466,9 @@ int ExportCommand::execute(int argc, const char **argv)
                 ("list-format,l", "Prints a list with output formats")
                 ("output-dir,d", po::value<std::string>()->default_value("./"), "output directory")
                 ("output-name,n", po::value<std::string>()->default_value("result"), "prefix name")
+                ("start-frame,s", po::value<int>()->default_value(0), "The start that has to be exported(included)")
+                ("end-frame,e", po::value<int>()->default_value(-1), "The end frame that has to be exported(included), -1 for the last frame.")
+                ("domains,D", po::value<std::vector<int> >(), "Domain that should be exported. By default it exports all domains. Can be used multiple times.")
                 ;
 
         po::positional_options_description p;
@@ -516,8 +520,13 @@ int ExportCommand::execute(int argc, const char **argv)
         std::unique_ptr<ExportDomain> e = GetExport(format);
 
         std::vector<int> domains;
+        if(vm.count("domains") > 0)
+        {
+            domains = vm["domains"].as<std::vector<int>>();
+        }
+
         e->ExportData(format, file, vm["output-dir"].as<std::string>(), vm["output-name"].as<std::string>(),
-                        false, domains, -1, -1);
+                        false, domains, vm["start-frame"].as<int>(), vm["end-frame"].as<int>());
 
         return 0;
     }

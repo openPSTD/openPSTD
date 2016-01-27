@@ -50,7 +50,7 @@ void ExportImage::ExportData(std::string format, std::shared_ptr<PSTDFile> file,
         for (int d = 0; d < domains.size(); ++d)
         {
             if(startFrame == -1) startFrame = 0;
-            if(endFrame == -1) endFrame = file->GetFrameCount(d)-1;
+            if(endFrame == -1) endFrame = file->GetFrameCount(domains[d])-1;
             for (int f = startFrame; f <= endFrame; ++f)
             {
                 this->saveImage(format, file,

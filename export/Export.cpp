@@ -12,11 +12,18 @@ ExportFormatNotSupported::ExportFormatNotSupported(std::string format, std::vect
 
 const char* ExportFormatNotSupported::what() const noexcept
 {
-    std::string s = _supportedFormats[0];
-    for (int i = 1; i < _supportedFormats.size(); ++i)
+    if(_supportedFormats.size() == 0)
     {
-        s = s + ", " + _supportedFormats[i];
+        return ("Format " + _format + " not supported").c_str();
     }
-    return ("Format " + _format + " not supported, supported formats are: " + s).c_str();
+    else
+    {
+        std::string s = _supportedFormats[0];
+        for (int i = 1; i < _supportedFormats.size(); ++i)
+        {
+            s = s + ", " + _supportedFormats[i];
+        }
+        return ("Format " + _format + " not supported, supported formats are: " + s).c_str();
+    }
 }
 
