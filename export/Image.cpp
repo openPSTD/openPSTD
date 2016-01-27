@@ -6,7 +6,7 @@
 #include <QImage>
 #include <boost/lexical_cast.hpp>
 #include "Colors.h"
-#include "Kernel/MockKernel.h"
+#include "kernel/MockKernel.h"
 #include <limits>
 
 std::vector<std::string> ExportImage::GetFormats()
