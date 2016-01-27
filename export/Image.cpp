@@ -106,7 +106,7 @@ void ExportImage::saveImage(std::string format, std::shared_ptr<PSTDFile> file, 
         for (int j = 0; j < size[1]; ++j)
         {
             //int color = (int)roundf((*it)/0.10f*(colorMap.size()-1));
-            int color = (int)roundf((*it)*(colorMap.size()-1));
+            int color = (int)roundf(((*it)-min)/(max-min)*(colorMap.size()-1));
             result.setPixel(i, j, color);
             it++;
         }

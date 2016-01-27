@@ -25,7 +25,7 @@ void MockKernel::run(KernelCallback *callback)
         for (int j = 0; j < _conf->Domains.size(); ++j)
         {
             PSTD_FRAME_PTR frame;
-            int type = j%5;
+            int type = j%6;
             switch(type)
             {
                 case 0:
@@ -42,6 +42,9 @@ void MockKernel::run(KernelCallback *callback)
                     break;
                 case 4:
                     frame = CreateVerticalGradient(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]);
+                    break;
+                case 5:
+                    frame = CreateVerticalGradientNeg(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]);
                     break;
             }
             callback->WriteFrame(i, j, frame);
@@ -151,6 +154,20 @@ PSTD_FRAME_PTR MockKernel::CreateVerticalGradient(int x, int y)
         for (int i = 0; i < x; ++i)
         {
             result->push_back(j/((float)y));
+        }
+    }
+    return result;
+}
+
+PSTD_FRAME_PTR MockKernel::CreateVerticalGradientNeg(int x, int y)
+{
+    PSTD_FRAME_PTR result = std::make_shared<PSTD_FRAME>();
+    result->reserve((unsigned long) (x * y));
+    for (int j = 0; j < y; ++j)
+    {
+        for (int i = 0; i < x; ++i)
+        {
+            result->push_back(j/((float)y)*2-1);
         }
     }
     return result;
