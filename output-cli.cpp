@@ -31,3 +31,8 @@ void CLIOutput::WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data)
 {
     _file->SaveNextFrame(boost::lexical_cast<int>(domain), data);
 }
+
+void CLIOutput::WriteSample(int startSample, int receiver, std::vector<float> data)
+{
+
+}

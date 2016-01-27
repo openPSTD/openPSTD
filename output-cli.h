@@ -17,6 +17,7 @@ public:
 
     virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;
     virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) override;
+    virtual void WriteSample(int startSample, int receiver, std::vector<float> data) override;
 };
 
 #endif //OPENPSTD_OUTPUT_CLI_H

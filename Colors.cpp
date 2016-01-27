@@ -58,6 +58,18 @@ std::unique_ptr<std::vector<QColor>> BaseColorGradient::CreateColorMap(float sta
     return std::move(result);
 }
 
+std::unique_ptr<std::vector<QRgb>> BaseColorGradient::CreateColorRGBMap(float start, float stop, unsigned int count)
+{
+    std::unique_ptr<std::vector<QRgb>> result(new std::vector<QRgb>(count));
+    float diff = stop-start;
+    float step = diff/(count-1); //the -1 is that the stop is including in the colormap
+    for(int i = 0; i < count; i++)
+    {
+        (*result)[i] = this->CalcColor(start+i*step).rgb();
+    }
+    return std::move(result);
+}
+
 void MultiColorGradient::AddColor(float position, QColor c)
 {
     this->colors[position] = c;
@@ -65,16 +77,21 @@ void MultiColorGradient::AddColor(float position, QColor c)
 
 QColor MultiColorGradient::CalcColor(float value)
 {
+    auto begin = this->colors.begin();
+    if(value <= begin->first)
+    {
+        return this->colors.begin()->second;
+    }
+    auto last = this->colors.end();
+    last--;
+    float lastValue = last->first;
+    if(value >= last->first)
+    {
+        return last->second;
+    }
     std::map<float, QColor>::iterator upperBound = this->colors.upper_bound(value);
-    if(upperBound == this->colors.begin())
-    {
-        return upperBound->second;
-    }
-    std::map<float, QColor>::iterator lowerBound = upperBound--;
-    if(upperBound == this->colors.end())
-    {
-        return lowerBound->second;
-    }
+    std::map<float, QColor>::iterator lowerBound = upperBound;
+    lowerBound--;
 
     QColor result;
     result.setRedF(this->LinearInterpolation(lowerBound->first, lowerBound->second.redF(), upperBound->first, upperBound->second.redF(), value));
