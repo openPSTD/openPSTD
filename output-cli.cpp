@@ -29,7 +29,7 @@ void CLIOutput::Callback(CALLBACKSTATUS status, std::string message, int frame)
 
 void CLIOutput::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data)
 {
-    _file->SaveNextFrame(boost::lexical_cast<int>(domain), data);
+    _file->SaveNextFrame(domain, data);
 }
 
 void CLIOutput::WriteSample(int startSample, int receiver, std::vector<float> data)

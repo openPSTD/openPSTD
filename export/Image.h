@@ -14,7 +14,7 @@ class ExportImage: public ExportDomain
 {
 private:
     void saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
-                   int domain, int frame, std::vector<int> size);
+                   int domain, int frame, std::vector<int> size, float min, float max);
 public:
     /**
  * Creates a vector with strings that describes the formats that are supported. Every element should be in the

@@ -24,7 +24,6 @@ void MockKernel::run(KernelCallback *callback)
         callback->Callback(CALLBACKSTATUS::RUNNING, "At frame " + boost::lexical_cast<std::string>(i), i);
         for (int j = 0; j < _conf->Domains.size(); ++j)
         {
-            std::string domain = boost::lexical_cast<std::string>(j);
             PSTD_FRAME_PTR frame;
             int type = j%5;
             switch(type)
@@ -45,7 +44,7 @@ void MockKernel::run(KernelCallback *callback)
                     frame = CreateVerticalGradient(meta.DomainMetadata[j][0], meta.DomainMetadata[j][1]);
                     break;
             }
-            callback->WriteFrame(i, domain, frame);
+            callback->WriteFrame(i, j, frame);
         }
     }
 

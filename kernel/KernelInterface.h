@@ -37,7 +37,7 @@ public:
      * @param domain: an identifier that identifies the domain
      * @param data: 1D row-major vector of pressure data.
      */
-    virtual void WriteFrame(int frame, std::string domain, PSTD_FRAME_PTR data) = 0;
+    virtual void WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) = 0;
 
     /**
      * Return receiver data of scene to callback handler.
