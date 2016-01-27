@@ -404,7 +404,7 @@ int RunCommand::execute(int argc, const char **argv)
             kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
         }
         //configure the kernel
-        kernel->Configure(conf);
+        kernel->start_kernel(conf);
         //create output
         std::shared_ptr<KernelCallback> output = std::make_shared<CLIOutput>(file);
         //run kernel

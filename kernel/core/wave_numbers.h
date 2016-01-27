@@ -21,12 +21,11 @@
 // Date: 29-9-15
 //
 //
-// Authors: Omar Richardson
-//
+// Authors: Omar Richardson, Louis van Harten
 //
 // Purpose: Discretize wave numbers dynamically,
 // and optimize them for FFT computations.
-//
+// Also contains the plans for FFTW.
 //
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_WAVE_NUMBERS_H
@@ -34,13 +33,14 @@
 
 #include <map>
 #include <math.h>
+#include <fftw3.h>
 #include <complex>
 #include <memory>
 #include <iostream>
 #include <Eigen/Dense>
 
 namespace Kernel {
-    class WaveNumberDiscretizer {
+    class WisdomCache {
     public:
         struct Discretization {
             Eigen::ArrayXf wave_numbers;
@@ -49,7 +49,12 @@ namespace Kernel {
             Eigen::ArrayXcf velocity_deriv_factors;
         };
 
-        /*
+        struct Planset_FFTW {
+            fftwf_plan plan;
+            fftwf_plan plan_inv;
+        };
+
+        /**
          * Obtain the discretization for the given grid size and number of grid points.
          * If discretization is unknown, it is computed and stored for future reference.
          * @param dx: grid size
@@ -59,11 +64,20 @@ namespace Kernel {
         Discretization get_discretization(float dx, int N); //Todo: should we include dx here?
 
         /**
-         * Initializer for wave number discretizator. Initialize only a single instance to optimize computations.
+         * Obtain an FFTW plan for the given fft length and batch size.
+         * If the plan does not exist yet, it is created and cached.
+         * @param fft_length: Length of the planned FFT
+         * @param fft_batch_size: Batch size of the planned FFT
          */
-        WaveNumberDiscretizer();
+        Planset_FFTW get_fftw_planset(int fft_length, int fft_batch_size);
+
+        /**
+         * Initializer for the cache. Initialize only a single instance to optimize computations.
+         */
+        WisdomCache();
 
         std::map<int, Discretization> computed_discretization; // Should be private! public for debugging purposes
+        std::map<std::string, Planset_FFTW> cached_fftw_plans; // Should be private! public for debugging purposes
 
     private:
 
@@ -76,6 +90,13 @@ namespace Kernel {
         Discretization discretize_wave_numbers(float dx, int N); //Todo: Needs a better name
 
         /**
+         * Create new planset for given fftw length, batch size
+         * @param: fft_length: Length of the planned FFT
+         * @param fft_batch_size: Batch size of the planned FFT
+         */
+        Planset_FFTW create_fftw_planset(int fft_length, int fft_batch_size);
+
+        /**
          * Internal storage of wave number discretizations.
          */
 
@@ -85,7 +106,7 @@ namespace Kernel {
         int match_number(int n);
     };
 
-    std::ostream &operator<<(std::ostream &str, WaveNumberDiscretizer const &v);
+    std::ostream &operator<<(std::ostream &str, WisdomCache const &v);
 }
 
 #endif //OPENPSTD_WAVE_NUMBERS_H

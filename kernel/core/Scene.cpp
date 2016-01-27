@@ -50,14 +50,9 @@ namespace Kernel {
             }
             for (unsigned long i = 0; i < directions.size(); i++) {
                 Direction direction = directions.at(i);
-                Eigen::ArrayXXi vacant_range = domain->get_vacant_range(direction);
+                Eigen::ArrayXXi vacant_range = domain->get_vacant_range(direction); // todo: Test vacant range.
                 for (unsigned long j = 0; j < vacant_range.rows(); j++) {
-                    ostringstream pml_ss;
-                    pml_ss << domain->id << dir_strings.at(i);
-                    if (vacant_range.rows() > 1) {
-                        pml_ss << "_" << j;
-                    }
-                    string pml_id = pml_ss.str();
+                    int pml_id = get_new_id();
                     float alpha = domain->edge_param_map[direction].alpha;
                     float pml_alpha = max(alpha, EPSILON);
                     int x_offset, y_offset, z_offset;
@@ -122,9 +117,7 @@ namespace Kernel {
                         second_dir_its.push_back(dir_2);
                         for (unsigned long second_dir_it: second_dir_its) {
                             Direction second_dir = directions.at(second_dir_it);
-                            stringstream second_pml_id_ss;
-                            second_pml_id_ss << domain->id << "_" << dir_strings.at(second_dir_it);
-                            string second_pml_id = second_pml_id_ss.str();
+                            int second_pml_id = get_new_id();
                             float other_pml_alpha = domain->edge_param_map[second_dir].alpha;
                             /* TK: An attempt to prevent refraction on the secondary PML corner.
                              * This is especially effective in the case of a fully absorbent domain
@@ -207,7 +200,7 @@ namespace Kernel {
                     if (should_merge_domains(domain_i, domain_j)) {
                         processed_domain_indices.push_back(i);
                         processed_domain_indices.push_back(j);
-                        domain_i->id = domain_i->id + domain_j->id; // Todo: Find better naming algorithm.
+                        domain_i->id = domain_i->id; // Todo: What happens with mergeable domains?
                         for (auto pml_for_domain: domain_j->pml_for_domain_list) {
                             domain_i->pml_for_domain_list.push_back(pml_for_domain);
                         }
@@ -394,7 +387,8 @@ namespace Kernel {
         return field;
     }
 
-    shared_ptr<Domain> Scene::get_domain(string id) {
+    shared_ptr<Domain> Scene::get_domain(int id) {
+        // Probably not a necessary function.
         shared_ptr<Domain> correct_domain;
         for (auto domain:domain_list) {
             if (domain->id == id) {
@@ -409,5 +403,31 @@ namespace Kernel {
         return str << "Scene: " << v.domain_list.size() << " domains, " << v.speaker_list.size() << " speakers, " <<
                v.receiver_list.size() << " receivers";
 
+    }
+
+    int Scene::get_new_id() {
+        /**
+         * We use prime numbers as domain id's to facilitate commutative multi-indexing.
+         */
+        int last_prime = ids.at(ids.size() - 1);
+        bool potential_prime = true;
+        int new_prime = last_prime + 2;
+        while (true) {
+            for (int id:ids) {
+                if (new_prime % id == 0) {
+                    potential_prime = false;
+                    break;
+                }
+            }
+            if (potential_prime) {
+                break;
+            }
+            else {
+                new_prime += 2;
+                potential_prime = true;
+            }
+        }
+        ids.push_back(new_prime);
+        return new_prime;
     }
 }

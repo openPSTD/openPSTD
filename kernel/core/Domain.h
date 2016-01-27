@@ -50,7 +50,7 @@ namespace Kernel {
 
 
     struct FieldValues {
-        Eigen::ArrayXXf u0; //TODO (Louis): change float to T, derive a float and a double class
+        Eigen::ArrayXXf u0; //TODO (do we want to do this?): change float to T, derive a float and a double class
         Eigen::ArrayXXf w0;
         Eigen::ArrayXXf p0;
         Eigen::ArrayXXf px0;
@@ -83,12 +83,12 @@ namespace Kernel {
     class Domain : public std::enable_shared_from_this<Domain> {
     public:
         std::shared_ptr<PSTDFileSettings> settings;
-        std::string id;
+        int id;
         float alpha;
         float impedance;
         float rho;
         std::map<Direction, EdgeParameters> edge_param_map;
-        std::map<std::string, RhoArray> rho_arrays;
+        std::map<int, RhoArray> rho_arrays;
         std::map<CalcDirection, bool> should_update;
         Point top_left;
         Point bottom_right;
@@ -97,7 +97,7 @@ namespace Kernel {
         bool local;
         FieldValues current_values, previous_values;
         FieldLValues l_values;
-        std::shared_ptr<WaveNumberDiscretizer> wnd;
+        std::shared_ptr<WisdomCache> wnd;
         bool is_secondary_pml;
         std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
 
@@ -130,18 +130,18 @@ namespace Kernel {
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          * @return: Domain object
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+        Domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                Point top_left, Point size, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
+               std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
          * Constructor that accepts vectors of real word coordinates instead of points.
          * @see Domain(***)
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+        Domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
-               std::shared_ptr<WaveNumberDiscretizer> wnd, std::map<Direction, EdgeParameters> edge_param_map,
+               std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
 
         /**
@@ -232,10 +232,10 @@ namespace Kernel {
 
         /**
          * Returns a vector of 1d locations of all nodes spanned by the domain in world grid
-         * coordinates in direction bt. This exists to facilitate porting the legacy code.
-         * @param bt Direction in which the range is requested
+         * coordinates in direction cd. This exists to facilitate porting the legacy code.
+         * @param cd Direction in which the range is requested
          */
-        std::vector<int> get_range(CalcDirection bt);
+        std::vector<int> get_range(CalcDirection cd);
 
         /**
          * Computes the grid points in a given direction the domain has in common with another domain.
@@ -247,20 +247,20 @@ namespace Kernel {
 
         /**
          * Calculate one timestep of propagation in this domain
-         * @param bt Boundary type (calculation direction)
+         * @param cd Boundary type (calculation direction)
          * @param ct Calculation type (pressure/velocity)
          * @param dest Values to be used as factor to compute derivative in wavenumber domain
          * @see spatderp3
          */
-        Eigen::ArrayXXf calc(CalcDirection bt, CalculationType ct, Eigen::ArrayXcf dest);
+        Eigen::ArrayXXf calc(CalcDirection cd, CalculationType ct, Eigen::ArrayXcf dest);
 
         /**
          * Calculate one timestep of propagation in this domain
-         * @param bt Boundary type (calculation direction)
+         * @param cd Boundary type (calculation direction)
          * @param ct Calculation type (pressure/velocity)
          * @see spatderp3
          */
-        void calc(CalcDirection bt, CalculationType ct);
+        void calc(CalcDirection cd, CalculationType ct);
 
         /**
          * Process data after all methods have been initialized.
@@ -285,9 +285,9 @@ namespace Kernel {
         Eigen::ArrayXXf extended_zeros(int x, int y, int z = 0);
 
     private:
-        void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, std::string id, const float alpha,
+        void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                                Point top_left, Point size, const bool is_pml,
-                               std::shared_ptr<WaveNumberDiscretizer> wnd,
+                               std::shared_ptr<WisdomCache> wnd,
                                std::map<Direction, EdgeParameters> edge_param_map,
                                const std::shared_ptr<Domain> pml_for_domain);
         void clear_fields();
@@ -295,6 +295,8 @@ namespace Kernel {
         void clear_pml_arrays();
         void find_update_directions();
         void compute_number_of_neighbours();
+
+        int get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
 
         int get_num_pmls_in_direction(Direction direction);
 

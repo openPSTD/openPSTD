@@ -30,11 +30,11 @@
 using namespace Kernel;
 using namespace std;
 
-WaveNumberDiscretizer::WaveNumberDiscretizer() {
+WisdomCache::WisdomCache() {
     //I believe this does not need any init
 }
 
-WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(float dx, int N) {
+WisdomCache::Discretization WisdomCache::get_discretization(float dx, int N) {
     int matched_int = this->match_number(N);
     auto search = this->computed_discretization.find(matched_int);
     if (search != this->computed_discretization.end()) {
@@ -47,7 +47,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::get_discretization(
 }
 
 
-WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_numbers(float dx, int N) {
+WisdomCache::Discretization WisdomCache::discretize_wave_numbers(float dx, int N) {
     float max_wave_number = (float) M_PI / dx;
     int two_power = (int) pow(2, N - 1);
 
@@ -61,7 +61,7 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     discr.wave_numbers.tail(two_power - 1) = Eigen::ArrayXf::LinSpaced(two_power - 1, max_wave_number - dka, dka);
     discr.complex_factors = Eigen::ArrayXcf(2 * two_power);
     Eigen::ArrayXf partial_ones = Eigen::ArrayXf::Ones(2 * two_power);
-    partial_ones.tail(two_power - 1) = Eigen::ArrayXf::Ones(two_power - 1);
+    partial_ones.tail(two_power - 1) = -Eigen::ArrayXf::Ones(two_power - 1);
     discr.complex_factors.imag() = partial_ones;
     discr.complex_factors.real() = Eigen::ArrayXf::Zero(2 * two_power);
     Eigen::ArrayXcf complex_wave_numbers = discr.complex_factors * discr.wave_numbers;
@@ -70,12 +70,34 @@ WaveNumberDiscretizer::Discretization WaveNumberDiscretizer::discretize_wave_num
     return discr;
 }
 
-int WaveNumberDiscretizer::match_number(int n) {
+WisdomCache::Planset_FFTW WisdomCache::get_fftw_planset(int fft_length, int fft_batch_size) {
+    std::string plan_key = std::to_string(fft_length).append(",").append(std::to_string(fft_batch_size));
+    auto search = this->cached_fftw_plans.find(plan_key);
+    if (search != this->cached_fftw_plans.end()) {
+        return search->second;
+    } else {
+        Planset_FFTW new_fftw_planset = create_fftw_planset(fft_length, fft_batch_size);
+        cached_fftw_plans[plan_key] = new_fftw_planset;
+        return new_fftw_planset;
+    }
+}
+
+WisdomCache::Planset_FFTW WisdomCache::create_fftw_planset(int fft_length, int fft_batch_size) {
+    int shape[] = {fft_length};
+    int istride = 1; //distance between two elements in one fft-able array
+    int ostride = istride;
+    int idist = fft_length; //distance between first element of different arrays
+    int odist = idist;
+    fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch_size, in_buffer, NULL, istride, idist,
+                                              out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
+}
+
+int WisdomCache::match_number(int n) {
     return (int) ceil(log2(n));
 }
 
 
-ostream &::Kernel::operator<<(ostream &str, WaveNumberDiscretizer const &v) {
+ostream &::Kernel::operator<<(ostream &str, WisdomCache const &v) {
     string number_repr;
     for (auto iterator = v.computed_discretization.begin(); iterator != v.computed_discretization.end(); iterator++) {
         number_repr += "n = 2^" + to_string(iterator->first) + " ";

@@ -53,9 +53,11 @@ private:
     std::shared_ptr<PSTDFileSettings> settings;
     std::shared_ptr<Kernel::Scene> scene;
     const float default_alpha = 1.f;
+
+
     void initialize_scene();
 
-    std::shared_ptr<Kernel::WaveNumberDiscretizer> wnd;
+    std::shared_ptr<Kernel::WisdomCache> wnd;
 
     /**
      * Read the scene description from application or file and converts the coordinates to domains.
@@ -104,12 +106,14 @@ private:
      */
     std::map<Kernel::Direction, Kernel::EdgeParameters> translate_edge_parameters(Domain domain);
 
+
 public:
+
     /**
      * Sets the configuration,
      * also initializes the kernel and the scene, constructs the domains and sets the parameters.
      */
-    void Configure(std::shared_ptr<PSTDFileConfiguration> config) override;
+    void start_kernel(std::shared_ptr<PSTDFileConfiguration> config) override;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the
@@ -120,7 +124,9 @@ public:
     /**
      * Query the kernel for metadata about the simulation that is configured.
      */
-    SimulationMetadata GetSimulationMetadata() override;
+    SimulationMetadata get_metadata() override;
+
+    std::shared_ptr<Kernel::Scene> get_scene();
 };
 
 

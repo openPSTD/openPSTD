@@ -36,7 +36,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
-void PSTDKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
+void PSTDKernel::start_kernel(std::shared_ptr<PSTDFileConfiguration> config)
 {
     using namespace Kernel;
     debug("Initializing kernel");
@@ -44,7 +44,7 @@ void PSTDKernel::Configure(std::shared_ptr<PSTDFileConfiguration> config)
     this->settings = make_shared<PSTDFileSettings>(config->Settings);
     this->scene = make_shared<Scene>(this->settings);
     this->initialize_scene();
-    this->wnd = make_shared<WaveNumberDiscretizer>();
+    this->wnd = make_shared<WisdomCache>();
     debug("Finished initializing kernel");
 }
 
@@ -53,7 +53,6 @@ void PSTDKernel::initialize_scene() {
     using namespace Kernel;
     debug("Initializing scene");
     this->add_domains();
-    scene->add_pml_domains();
     this->add_speakers();
     this->add_receivers();
     scene->compute_rho_arrays();
@@ -72,7 +71,7 @@ void PSTDKernel::add_domains() {
         Kernel::Point grid_top_left((int) tl.at(0), (int) tl.at(1));
         Kernel::Point grid_size((int) s.at(0), (int) s.at(1));
         map<Kernel::Direction, Kernel::EdgeParameters> edge_param_map = translate_edge_parameters(domain);
-        string domain_id = "Domain" + to_string(domain_id_int);
+        int domain_id = scene->get_new_id();
         shared_ptr<Kernel::Domain> domain_ptr(
                 new Kernel::Domain(this->settings, domain_id, default_alpha, grid_top_left,
                                    grid_size, false, this->wnd, edge_param_map, nullptr));
@@ -80,8 +79,11 @@ void PSTDKernel::add_domains() {
         domain_id_int++;
     }
     for (auto domain: domains) {
-        domain->post_initialization();
         scene->add_domain(domain);
+    }
+    scene->add_pml_domains();
+    for (auto domain:domains) {
+        domain->post_initialization();
     }
 }
 
@@ -133,7 +135,11 @@ void PSTDKernel::run(KernelCallback *callback) {
     solver->compute_propagation();
 }
 
-SimulationMetadata PSTDKernel::GetSimulationMetadata()
+std::shared_ptr<Kernel::Scene> PSTDKernel::get_scene() {
+    return this->scene;
+}
+
+SimulationMetadata PSTDKernel::get_metadata()
 {
     if(!config)
         throw PSTDKernelNotConfiguredException();
@@ -175,3 +181,4 @@ vector<int> PSTDKernel::round_off(vector<float> vector) {
     assert(vector.size() == 2); // We don't need to be very general here.
     return std::vector<int>{(int) vector.at(0), (int) vector.at(1)};
 }
+

@@ -31,26 +31,26 @@ using namespace std;
 using namespace Eigen;
 namespace Kernel {
 
-    Domain::Domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+    Domain::Domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                    Point top_left, Point size, const bool is_pml,
-                   shared_ptr<WaveNumberDiscretizer> wnd, map<Direction, EdgeParameters> edge_param_map,
+                   shared_ptr<WisdomCache> wnd, map<Direction, EdgeParameters> edge_param_map,
                    const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
 
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    Domain::Domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+    Domain::Domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                    vector<float> top_left_vector, vector<float> size_vector, const bool is_pml,
-                   shared_ptr<WaveNumberDiscretizer> wnd, map<Direction, EdgeParameters> edge_param_map,
+                   shared_ptr<WisdomCache> wnd, map<Direction, EdgeParameters> edge_param_map,
                    const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
         Point top_left((int) top_left_vector.at(0), (int) top_left_vector.at(1));
         Point size((int) size_vector.at(0), (int) size_vector.at(1));
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    void Domain::initialize_domain(shared_ptr<PSTDFileSettings> settings, string id, const float alpha,
+    void Domain::initialize_domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
                                    Point top_left, Point size, const bool is_pml,
-                                   shared_ptr<WaveNumberDiscretizer> wnd,
+                                   shared_ptr<WisdomCache> wnd,
                                    map<Direction, EdgeParameters> edge_param_map,
                                    const shared_ptr<Domain> pml_for_domain) {
         this->settings = settings;
@@ -87,13 +87,12 @@ namespace Kernel {
         this->clear_matrices();
         this->clear_pml_arrays();
         this->local = false;
-        cout << "Initialized " << *this << endl;
     }
 
     // version of calc that would have a return value.
-    ArrayXXf Domain::calc(CalcDirection bt, CalculationType ct, ArrayXcf dest) {
+    ArrayXXf Domain::calc(CalcDirection cd, CalculationType ct, ArrayXcf dest) {
         vector<shared_ptr<Domain>> domains1, domains2;
-        if (bt == CalcDirection::X) {
+        if (cd == CalcDirection::X) {
             domains1 = left;
             domains2 = right;
         } else {
@@ -101,13 +100,13 @@ namespace Kernel {
             domains2 = top;
         }
 
-        vector<int> own_range = get_range(bt);
+        vector<int> own_range = get_range(cd);
 
         ArrayXXf source;
 
-        if (/*dest != nullptr ||*/ false) { //TODO FIXME Fix dest checking
+        if (dest.cols() == 0) {
             if( ct == CalculationType::VELOCITY ) {
-                if (bt == CalcDirection::X) {
+                if (cd == CalcDirection::X) {
                     source = extended_zeros(0, 1);
                 } else {
                     source = extended_zeros(1, 0);
@@ -116,10 +115,10 @@ namespace Kernel {
                 source = extended_zeros(0, 0);
             }
         } else {
-            if ( ct == CalculationType::PRESSURE ) {
+            if (ct == CalculationType::PRESSURE) {
                 source = this->current_values.p0;
             } else {
-                if ( bt == CalcDirection::X) {
+                if (cd == CalcDirection::X) {
                     source = this->current_values.u0;
                 } else {
                     source = this->current_values.w0;
@@ -133,7 +132,7 @@ namespace Kernel {
             d1 = (i != domains1.size()) ? domains1[i] : nullptr;
             for (int j = 0; i != domains2.size() + 1; j++) {
                 d2 = (i != domains2.size()) ? domains2[i] : nullptr;
-                vector<string> rho_matrix_key;
+                vector<int> rho_matrix_key;
                 rho_matrix_key.push_back(d1->id);
                 rho_matrix_key.push_back(d2->id);
 
@@ -141,13 +140,13 @@ namespace Kernel {
                 vector<int> range_intersection = own_range;
 
                 if (d1 != nullptr) {
-                    vector<int> range1 = d1->get_range(bt);
+                    vector<int> range1 = d1->get_range(cd);
                     set_intersection(range1.begin(), range1.end(),
                                      range_intersection.begin(), range_intersection.end(),
                                      back_inserter(range_intersection));
                 }
                 if (d2 != nullptr) {
-                    vector<int> range2 = d1->get_range(bt);
+                    vector<int> range2 = d1->get_range(cd);
                     set_intersection(range2.begin(), range2.end(),
                                      range_intersection.begin(), range_intersection.end(),
                                      back_inserter(range_intersection));
@@ -161,8 +160,10 @@ namespace Kernel {
                 // Set up various parameters and intermediates that are needed for the spatial derivatives
                 int range_start = *min_element(range_intersection.begin(), range_intersection.end());
                 int range_end = *max_element(range_intersection.begin(), range_intersection.end()) + 1;
-                int primary_dimension = (bt == CalcDirection::X) ? size.x : size.y;
+                int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                 int N_total = 2 * settings->GetWindowSize() + primary_dimension;
+                int wlen = this->settings->GetWindowSize();
+                Eigen::ArrayXf wind = this->settings->GetWindow();
 
                 if (ct == CalculationType::PRESSURE) {
                     N_total++;
@@ -170,7 +171,7 @@ namespace Kernel {
                     primary_dimension++;
                 }
 
-                ArrayXXf matrix0, matrix1, matrix2;
+                ArrayXXf matrix_main, matrix_side1, matrix_side2;
                 if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                     // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
                     // TODO Louis: Why only zeroes for ct==velocity? Should zeroes also be added in the else{} block?
@@ -180,12 +181,12 @@ namespace Kernel {
                     //   |     PML     |
                     //  <--------------->
                     d1 = d2 = shared_from_this();
-                    if (bt == CalcDirection::X) {
-                        matrix1 = extended_zeros(0, 1);
-                        matrix2 = extended_zeros(0, 1);
+                    if (cd == CalcDirection::X) {
+                        matrix_side1 = extended_zeros(0, 1);
+                        matrix_side2 = extended_zeros(0, 1);
                     } else {
-                        matrix1 = extended_zeros(1, 0);
-                        matrix2 = extended_zeros(1, 0);
+                        matrix_side1 = extended_zeros(1, 0);
+                        matrix_side2 = extended_zeros(1, 0);
                     }
                 } else {
                     if (d1 == nullptr) {
@@ -197,48 +198,39 @@ namespace Kernel {
                 }
 
                 if (ct == CalculationType::PRESSURE) {
-                    matrix0 = current_values.p0;
-                } else if (bt == CalcDirection::X) {
-                    matrix0 = current_values.u0;
+                    matrix_main = current_values.p0;
+                } else if (cd == CalcDirection::X) {
+                    matrix_main = current_values.u0;
                 } else {
-                    matrix0 = current_values.w0;
+                    matrix_main = current_values.w0;
                 }
 
                 // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
-                if (matrix1.isZero()) { // Todo: Trouble
+                if (matrix_side1.cols() == 0) {
                     if (ct == CalculationType::PRESSURE) {
-                        matrix1 = d1->current_values.p0;
+                        matrix_side1 = d1->current_values.p0;
                     } else {
-                        if (bt == CalcDirection::X) {
-                            matrix1 = d1->current_values.u0;
+                        if (cd == CalcDirection::X) {
+                            matrix_side1 = d1->current_values.u0;
                         } else {
-                            matrix1 = d1->current_values.w0;
+                            matrix_side1 = d1->current_values.w0;
                         }
                     }
                 }
-                if (matrix2.isZero()) { // Todo: Trouble
+                if (matrix_side2.cols() == 0) {
                     if (ct == CalculationType::PRESSURE) {
-                        matrix2 = d2->current_values.p0;
+                        matrix_side2 = d2->current_values.p0;
                     } else {
-                        if (bt == CalcDirection::X) {
-                            matrix2 = d2->current_values.u0;
+                        if (cd == CalcDirection::X) {
+                            matrix_side2 = d2->current_values.u0;
                         } else {
-                            matrix2 = d2->current_values.w0;
+                            matrix_side2 = d2->current_values.w0;
                         }
                     }
-                }
-
-                // Set up parameters for the spatial derivative later
-                int var_index = 0, direction = 0;
-                if (ct == CalculationType::VELOCITY) {
-                    var_index = 1;
-                }
-                if (bt == CalcDirection::X) {
-                    direction = 1;
                 }
 
                 ArrayXcf derfact;
-                if (dest.isZero()) { // Todo: Fix
+                if (dest.cols() == 0) {
                     derfact = dest;
                 } else {
                     if (ct == CalculationType::PRESSURE) {
@@ -251,39 +243,88 @@ namespace Kernel {
                 }
 
                 // Determine which rho matrix instance to use
-                string rho_array_id;
+                int rho_array_id;
                 if (d1 != nullptr) {
                     if (d2 != nullptr) {
-                        rho_array_id = d1->id + id + d2->id;
+                        rho_array_id = d1->id * id * d2->id;
                     } else {
-                        rho_array_id = d1->id + id;
+                        rho_array_id = d1->id * id;
                     }
                 } else {
                     if (d2 != nullptr) {
-                        rho_array_id = id + d2->id;
+                        rho_array_id = id * d2->id;
                     } else {
                         rho_array_id = id;
                     }
                 }
-                Array<float, 4, 2> rho_array;
+                RhoArray rho_array;
                 if (ct == CalculationType::PRESSURE) {
-                    rho_array = rho_arrays[rho_array_id].pressure;
+                    rho_array = rho_arrays[rho_array_id];
                 } else {
-                    rho_array = rho_arrays[rho_array_id].velocity;
+                    rho_array = rho_arrays[rho_array_id];
                 }
 
-                //source
-                //TODO: set matrix to result of spatderp3
+                // Calculate the spatial derivatives for the current intersection range and store
+                int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
+                Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
+                if (cd == CalcDirection::X) {
+                    matrix_main_offset = this->top_left.y;
+                    matrix_side1_offset = d1->top_left.y;
+                    matrix_side2_offset = d2->top_left.y;
+
+                    int ncols = range_end - range_start;
+
+                    matrix_main_indexed = matrix_main.block(0, range_start - matrix_main_offset,
+                                                            matrix_main.rows(), ncols);
+                    matrix_side1_indexed = matrix_side1.block(0, range_start - matrix_side1_offset,
+                                                            matrix_side1.rows(), ncols);
+                    matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
+                                                            matrix_side2.rows(), ncols);
+
+                    source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) =
+                        spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct, cd);
+
+                } else {
+                    matrix_main_offset = this->top_left.x;
+                    matrix_side1_offset = d1->top_left.x;
+                    matrix_side2_offset = d2->top_left.x;
+
+                    int nrows = range_end - range_start;
+
+                    matrix_main_indexed = matrix_main.block(range_start - matrix_main_offset, 0,
+                                                              nrows, matrix_main.cols());
+                    matrix_side1_indexed = matrix_side1.block(range_start - matrix_side1_offset, 0,
+                                                              nrows, matrix_side1.cols());
+                    matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
+                                                              nrows, matrix_side2.cols());
+
+                    source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) =
+                            spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct, cd);
+                }
             }
         }
+
+        if (dest.cols() != 0) {
+            if (ct == CalculationType::PRESSURE) {
+                this->current_values.p0 = source;
+            } else {
+                if (cd == CalcDirection::X) {
+                    this->current_values.u0 = source;
+                } else {
+                    this->current_values.w0 = source;
+                }
+            }
+        }
+        return source;
     }
 
     /**
-     * Near-alias to calc(BoundaryType bt, CalculationType ct, vector<float> dest), but with
+     * Near-alias to calc(CalcDirection cd, CalculationType ct, vector<float> dest), but with
      * a default empty vector as dest.
      */
-    void Domain::calc(CalcDirection bt, CalculationType ct) {
-        //Domain::calc(bt, ct, nullptr); //Todo: Fix this call
+    void Domain::calc(CalcDirection cd, CalculationType ct) {
+        Eigen::ArrayXcf nulldest;
+        Domain::calc(cd, ct, nulldest);
     }
 
     bool Domain::contains_point(Point point) {
@@ -319,9 +360,9 @@ namespace Kernel {
         return impedance > 1000; //Why this exact value?
     }
 
-    vector<int> Domain::get_range(CalcDirection bt) {
+    vector<int> Domain::get_range(CalcDirection cd) {
         int a_l, b_l;
-        if (bt == CalcDirection::X) {
+        if (cd == CalcDirection::X) {
             a_l = top_left.x;
             b_l = bottom_right.x;
         } else {
@@ -425,19 +466,19 @@ namespace Kernel {
     void Domain::compute_rho_arrays() {
         //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
         struct index_strings {
-            string id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
-                return d1->id + dm->id + d2->id;
+            int id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
+                return d1->id * dm->id * d2->id;
             }
 
-            string id(shared_ptr<Domain> d1, Domain *dm) {
-                return d1->id + dm->id;
+            int id(shared_ptr<Domain> d1, Domain *dm) {
+                return d1->id * dm->id;
             }
 
-            string id(Domain *dm, shared_ptr<Domain> d2) {
-                return dm->id + d2->id;
+            int id(Domain *dm, shared_ptr<Domain> d2) {
+                return dm->id * d2->id;
             }
 
-            string id(Domain *dm) {
+            int id(Domain *dm) {
                 return dm->id;
             }
         };
@@ -445,12 +486,13 @@ namespace Kernel {
         vector<shared_ptr<Domain>> left_domains = left;
         vector<shared_ptr<Domain>> right_domains = right;
         vector<shared_ptr<Domain>> top_domains = top;
-        vector<shared_ptr<Domain>> bottom_domains = bottom;
+        vector<shared_ptr<Domain>> bottom_domains = bottom; // Why are these copied?
 
-        float max_rho = 1E10; // Large value, well within float range. Change for double.
+        float max_rho = 1E10; // Large value, well within float range.
 
         // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
         // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
+        // Todo: Now you are computing rho's for any possible combination. I think that's overdoing it...
         if (left_domains.size()) {
             for (shared_ptr<Domain> d1 : left_domains) {
                 if (right_domains.size()) {
@@ -734,16 +776,27 @@ namespace Kernel {
     }
 
     ostream &operator<<(ostream &str, Domain const &v) {
-        string sort = v.id;
+        str << "Domain " << v.id;
         if (v.is_pml) {
-            sort += " (pml)";
+            str << " (pml)";
         }
-        str << sort << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
+        str << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
         return str;
     }
 
     void Domain::post_initialization() {
         compute_number_of_neighbours();
         find_update_directions();
+    }
+
+    int Domain::get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2) {
+        int key = this->id;
+        if (domain1 != nullptr) {
+            key *= domain1->id;
+        }
+        if (domain2 != nullptr) {
+            key *= domain2->id;
+        }
+        return key;
     }
 }

@@ -63,7 +63,7 @@ namespace Kernel {
         float dx = config->GetGridSpacing();
         int wave_length_number = (int) (2 * config->GetWaveLength() + primary_dimension + 1);
         //Pressure grid is staggered, hence + 1
-        WaveNumberDiscretizer::Discretization discr = container_domain->wnd->get_discretization(dx, wave_length_number);
+        WisdomCache::Discretization discr = container_domain->wnd->get_discretization(dx, wave_length_number);
         float offset = grid_offset.at(static_cast<unsigned long>(bt));
         ArrayXcf fft_factors(discr.wave_numbers.rows());
         for (int i = 0; i < discr.wave_numbers.rows(); i++) {

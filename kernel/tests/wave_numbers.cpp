@@ -37,19 +37,11 @@
 #include <boost/test/unit_test.hpp>
 #include "../core/wave_numbers.h"
 #include <cmath>
+#include <kernel/core/kernel_functions.h>
 
 using namespace Kernel;
 using namespace std;
 using namespace Eigen;
-
-bool almost_equal(float a, float b, float eps = 1E-5) {
-    if ((fabs(a - b) < eps) or (fabs(a - b) / b < eps) or (fabs(a - b) / a < eps)) {
-        return true;
-    } else {
-        cout << "No equality between " << a << " and " << b << endl;
-        return false;
-    }
-}
 
 BOOST_AUTO_TEST_SUITE(wave_numbers)
 
@@ -58,10 +50,10 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
         int size2 = 178;
         int size3 = 227;
         float dx = 0.2;
-        WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
-        WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
-        WaveNumberDiscretizer::Discretization discr2 = wnd.get_discretization(dx, size2);
-        WaveNumberDiscretizer::Discretization discr3 = wnd.get_discretization(dx, size3);
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(dx, size1);
+        WisdomCache::Discretization discr2 = wnd.get_discretization(dx, size2);
+        WisdomCache::Discretization discr3 = wnd.get_discretization(dx, size3);
 
         BOOST_CHECK_EQUAL(discr2.wave_numbers.size(), discr3.wave_numbers.size());
         BOOST_CHECK_EQUAL(discr2.wave_numbers.size(), 2 * discr1.wave_numbers.size());
@@ -74,8 +66,8 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
     BOOST_AUTO_TEST_CASE(test_wavenumber_bounds) {
         int size1 = 115;
         float dx = 0.2;
-        WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
-        WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(dx, size1);
         BOOST_CHECK(discr1.wave_numbers.maxCoeff() <= 15.8);
         BOOST_CHECK(discr1.wave_numbers.minCoeff() >= 0);
         // Value from default python run.
@@ -86,22 +78,21 @@ BOOST_AUTO_TEST_SUITE(wave_numbers)
     BOOST_AUTO_TEST_CASE(test_discretized_values) {
         int size1 = 115;
         float dx = 0.2;
-        WaveNumberDiscretizer wnd = WaveNumberDiscretizer();
-        WaveNumberDiscretizer::Discretization discr1 = wnd.get_discretization(dx, size1);
-        BOOST_CHECK(almost_equal(discr1.wave_numbers.coeff(1), 0.245437));
-        BOOST_CHECK(almost_equal(discr1.wave_numbers.coeff(99), 7.1176707));
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(dx, size1);
+        BOOST_CHECK(is_approx(discr1.wave_numbers.coeff(1), 0.245437));
+        BOOST_CHECK(is_approx(discr1.wave_numbers.coeff(99), 7.1176707));
 
-        BOOST_CHECK(almost_equal(discr1.complex_factors.imag().coeff(64), 1));
-        BOOST_CHECK(almost_equal(discr1.complex_factors.imag().coeff(65), -1));
+        BOOST_CHECK(is_approx(discr1.complex_factors.imag().coeff(64), 1));
+        BOOST_CHECK(is_approx(discr1.complex_factors.imag().coeff(65), -1));
+        BOOST_CHECK(is_approx(discr1.complex_factors.real().coeff(64), 0));
+        BOOST_CHECK(is_approx(discr1.complex_factors.real().coeff(65), 0));
 
-        BOOST_CHECK(almost_equal(discr1.complex_factors.real().coeff(64), 0));
-        BOOST_CHECK(almost_equal(discr1.complex_factors.real().coeff(65), 0));
+        BOOST_CHECK(is_approx(discr1.pressure_deriv_factors.real().coeff(39), 7.8259545));
+        BOOST_CHECK(is_approx(discr1.pressure_deriv_factors.imag().coeff(39), 5.511659));
 
-        BOOST_CHECK(almost_equal(discr1.pressure_deriv_factors.real().coeff(39), 7.8259545));
-        BOOST_CHECK(almost_equal(discr1.pressure_deriv_factors.imag().coeff(39), 5.511659));
-
-        BOOST_CHECK(almost_equal(discr1.velocity_deriv_factors.real().coeff(56), -13.480372));
-        BOOST_CHECK(almost_equal(discr1.velocity_deriv_factors.imag().coeff(56), 2.681413));
+        BOOST_CHECK(is_approx(discr1.velocity_deriv_factors.real().coeff(56), -13.480372));
+        BOOST_CHECK(is_approx(discr1.velocity_deriv_factors.imag().coeff(56), 2.681413));
 
         // Values from default python run. analytical reproduction should be possible.
     }
