@@ -5,7 +5,7 @@
 #ifndef OPENPSTD_IMAGE_H
 #define OPENPSTD_IMAGE_H
 
-#include "export/Export.h"
+#include "Export.h"
 #include "PSTDFile.h"
 #include <string>
 #include <vector>

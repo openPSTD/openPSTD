@@ -5,7 +5,7 @@
 #include "Image.h"
 #include <QImage>
 #include <boost/lexical_cast.hpp>
-#include "Colors.h"
+#include <shared/Colors.h>
 #include "kernel/MockKernel.h"
 #include <limits>
 

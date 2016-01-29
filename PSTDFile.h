@@ -46,7 +46,7 @@ extern "C"
 #include <memory>
 #include <vector>
 #include "GeneralTypes.h"
-#include "InvalidationData.h"
+#include "shared/InvalidationData.h"
 #include <QVector2D>
 #include <QVector3D>
 
