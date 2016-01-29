@@ -231,7 +231,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MainWindow.cpp GUI/DomainProperties
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
 # Remaining
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp shared/PSTDFile.cpp shared/Colors.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp shared/InvalidationData.cpp GUI/Edges.cpp GUI/Edges.h)
-add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main-gui.cpp)
+add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main.cpp)
 
 # create extra Qt5 code
 set_target_properties(OpenPSTD-gui
@@ -255,7 +255,7 @@ set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/GUI/Edges-test.cpp)
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/Kernel/kernel_functions.cpp
         test/Kernel/Speaker.cpp test/Kernel/Geometry.cpp test/Kernel/Domain.cpp
         test/Kernel/wave_numbers.cpp)
-add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} test/main-test.cpp)
+add_executable(OpenPSTD-test ${SOURCE_FILES_TEST} test/main.cpp)
 
 # create extra Qt5 code
 set_target_properties(OpenPSTD-test

@@ -33,7 +33,7 @@
 #include <iostream>
 #include <QtWidgets/qapplication.h>
 #include "MainWindow.h"
-#include "main-gui.h"
+#include "main.h"
 #include "operations/InitializationOperation.h"
 
 int main(int argc, char *argv[])
