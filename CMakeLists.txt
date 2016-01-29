@@ -217,21 +217,21 @@ target_link_libraries(OpenPSTD-cli unqlite)
 #------------------------------------
 # UI Graphical
 # Operations
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} operations/BaseOperation.cpp operations/FileOperations.cpp
-        operations/EditOperations.cpp operations/ViewOperations.cpp
-        operations/InitializationOperation.cpp operations/MouseOperations.cpp
-        operations/SelectionOperations.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/BaseOperation.cpp GUI/operations/FileOperations.cpp
+        GUI/operations/EditOperations.cpp GUI/operations/ViewOperations.cpp
+        GUI/operations/InitializationOperation.cpp GUI/operations/MouseOperations.cpp
+        GUI/operations/SelectionOperations.cpp)
 # mouse handlers
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MouseHandlers.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MouseHandlers.cpp)
 # OpenGL viewer
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp Viewer2D.cpp GridLayer.cpp SceneLayer.cpp InteractiveLayer.cpp IconLayer.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Viewer2D.cpp GUI/GridLayer.cpp GUI/SceneLayer.cpp GUI/InteractiveLayer.cpp GUI/IconLayer.cpp)
 # UI files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} MainWindow.cpp DomainProperties.cpp DocumentSettings.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MainWindow.cpp GUI/DomainProperties.cpp GUI/DocumentSettings.cpp)
 # Resource files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Resources.qrc)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} Model.cpp PSTDFile.cpp Colors.cpp Snapping.cpp PstdAlgorithm.cpp InvalidationData.cpp Edges.cpp Edges.h)
-add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} main-gui.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp PSTDFile.cpp Colors.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp InvalidationData.cpp GUI/Edges.cpp GUI/Edges.h)
+add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main-gui.cpp)
 
 # create extra Qt5 code
 set_target_properties(OpenPSTD-gui
@@ -313,8 +313,8 @@ elseif(UNIX)
 endif()
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
-set(CPACK_BUNDLE_ICON OpenPSTD.icns)
-set(CPACK_BUNDLE_PLIST Info.plist)
+set(CPACK_BUNDLE_ICON GUI/OpenPSTD.icns)
+set(CPACK_BUNDLE_PLIST GUI/Info.plist)
 set(CPACK_BUNDLE_STARTUP_COMMAND OpenPSTD-gui)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${OPENPSTD_VERSION_MAJOR})

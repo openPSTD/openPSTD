@@ -383,7 +383,7 @@
   <customwidget>
    <class>Viewer2D</class>
    <extends>QWidget</extends>
-   <header>Viewer2D.h</header>
+   <header>GUI/Viewer2D.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -29,7 +29,7 @@
 
 #include "SelectionOperations.h"
 #include <iostream>
-#include <PstdAlgorithm.h>
+#include "../PstdAlgorithm.h"
 
 SelectIndexedObjectOperation::SelectIndexedObjectOperation(SelectionType type, int index):
     type(type), index(index)

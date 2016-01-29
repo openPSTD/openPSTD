@@ -38,7 +38,7 @@
 
 #include <ui_DocumentSettings.h>
 #include <memory>
-#include <Model.h>
+#include "Model.h"
 
 class DocumentSettings: public QDialog
 {
