@@ -140,6 +140,7 @@ namespace OpenPSTD
         class DomainConf
         {
         public:
+            //todo replace QVector2D
             QVector2D TopLeft;
             QVector2D Size;
             DomainConfEdge T, L, B, R;
@@ -149,6 +150,7 @@ namespace OpenPSTD
         {
         public:
             PSTDSettings Settings;
+            //todo replace QVector3D
             std::vector<QVector3D> Speakers;
             std::vector<QVector3D> Receivers;
             std::vector<DomainConf> Domains;

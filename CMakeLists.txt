@@ -53,6 +53,8 @@ message(STATUS "Building version: ${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_M
 # General
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+#------------------------------------
+# Dependencies
 include(dependencies.cmake)
 
 #------------------------------------
@@ -63,15 +65,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 #------------------------------------
-# include directories
-include_directories(${Boost_INCLUDE_DIR})
-include_directories(${Qt5_INCLUDE_DIRS})
-include_directories(unqlite)
-include_directories(${OPENGL_INCLUDE_DIR})
-include_directories(${EIGEN_INCLUDE})
-include_directories(${FFTWF_INCLUDE_DIR})
-
-#------------------------------------
 # parts
 include(unqlite/unqlite.cmake)
 include(kernel/kernel.cmake)
@@ -79,5 +72,8 @@ include(shared/shared.cmake)
 include(CLI/CLI.cmake)
 include(GUI/GUI.cmake)
 include(test/test.cmake)
+
+#------------------------------------
+# install
 include(install.cmake)
 

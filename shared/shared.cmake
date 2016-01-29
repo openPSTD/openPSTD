@@ -14,6 +14,10 @@ set_target_properties(OpenPSTD-shared
         AUTOUIC ON
         AUTORCC ON)
 
+target_include_directories(OpenPSTD PUBLIC ${Qt5_INCLUDE_DIRS})
+target_include_directories(OpenPSTD PUBLIC unqlite)
+target_include_directories(OpenPSTD PUBLIC ${Boost_INCLUDE_DIR})
+
 target_link_libraries(OpenPSTD-shared OpenPSTD)
 target_link_libraries(OpenPSTD-shared unqlite)
 target_link_libraries(OpenPSTD-shared ${Boost_LIBRARIES})
