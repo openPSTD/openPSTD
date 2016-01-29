@@ -35,7 +35,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
-#include "PSTDFile.h"
+#include "../KernelInterface.h"
 #include "Geometry.h"
 #include "Domain.h"
 #include <string>

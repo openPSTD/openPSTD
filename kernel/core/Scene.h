@@ -42,7 +42,7 @@
 #include "Speaker.h"
 #include "Receiver.h"
 #include "Boundary.h"
-#include "PSTDFile.h"
+#include "../KernelInterface.h"
 
 namespace Kernel {
     class Scene {

@@ -54,7 +54,8 @@ enum PstdObjectType
 #include <memory>
 #include <vector>
 #include <QtGui/qmatrix4x4.h>
-#include "PSTDFile.h"
+#include <kernel/KernelInterface.h>
+#include <shared/PSTDFile.h>
 #include "MouseHandlers.h"
 #include <QVector2D>
 #include <shared/Colors.h>

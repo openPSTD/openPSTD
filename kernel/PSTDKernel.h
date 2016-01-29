@@ -36,7 +36,6 @@
 #define OPENPSTD_KERNELFACADE_H
 
 #include <string>
-#include "PSTDFile.h"
 #include "Solver.h"
 #include "core/Scene.h"
 #include "KernelInterface.h"

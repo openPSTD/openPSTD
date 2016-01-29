@@ -39,7 +39,7 @@
 #include <QDialog>
 #include <ui_DomainProperties.h>
 #include <memory>
-#include "PSTDFile.h"
+#include <kernel/KernelInterface.h>
 
 class DomainProperties: public QDialog
 {

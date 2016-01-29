@@ -26,19 +26,21 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "main-cli.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "kernel/ConsoleOutput.h"
-#include "kernel/PSTDKernel.h"
-#include "kernel/MockKernel.h"
+
+#include <kernel/PSTDKernel.h>
+#include <kernel/MockKernel.h>
+
 #include <boost/regex.hpp>
-#include <PSTDFile.h>
+#include <shared/PSTDFile.h>
+#include <shared/export/Image.h>
+
 #include "edit-cli.h"
 #include "output-cli.h"
-#include <shared/export/Image.h>
+#include "main-cli.h"
 
 
 namespace po = boost::program_options;

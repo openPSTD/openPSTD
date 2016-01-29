@@ -5,8 +5,7 @@
 #ifndef OPENPSTD_OUTPUT_CLI_H
 #define OPENPSTD_OUTPUT_CLI_H
 
-#include "PSTDFile.h"
-#include "kernel/KernelInterface.h"
+#include <shared/PSTDFile.h>
 
 class CLIOutput: public KernelCallback
 {

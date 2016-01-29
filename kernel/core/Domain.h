@@ -42,7 +42,7 @@
 #include <iterator>
 #include "kernel_functions.h"
 #include "Geometry.h"
-#include "PSTDFile.h"
+#include "../KernelInterface.h"
 #include "Geometry.h"
 #include "wave_numbers.h"
 

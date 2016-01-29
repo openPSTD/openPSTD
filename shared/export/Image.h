@@ -6,7 +6,7 @@
 #define OPENPSTD_IMAGE_H
 
 #include "Export.h"
-#include "PSTDFile.h"
+#include <shared/PSTDFile.h>
 #include <string>
 #include <vector>
 

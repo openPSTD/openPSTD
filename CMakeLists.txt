@@ -194,7 +194,7 @@ SET(SOURCE_FILES_LIB kernel/PSTDKernel.cpp
         kernel/core/Speaker.cpp kernel/core/Scene.cpp
         kernel/core/Receiver.cpp kernel/core/Boundary.cpp
         kernel/Solver.cpp
-        kernel/core/Geometry.cpp PSTDFile.cpp
+        kernel/core/Geometry.cpp shared/PSTDFile.cpp
         kernel/core/wave_numbers.cpp shared/InvalidationData.cpp
         kernel/KernelInterface.cpp kernel/MockKernel.cpp)
 add_library(OpenPSTD SHARED ${SOURCE_FILES_LIB})
@@ -230,7 +230,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MainWindow.cpp GUI/DomainProperties
 # Resource files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp PSTDFile.cpp shared/Colors.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp shared/InvalidationData.cpp GUI/Edges.cpp GUI/Edges.h)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp shared/PSTDFile.cpp shared/Colors.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp shared/InvalidationData.cpp GUI/Edges.cpp GUI/Edges.h)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main-gui.cpp)
 
 # create extra Qt5 code

@@ -33,7 +33,7 @@
 #ifndef OPENPSTD_SOLVER_H
 #define OPENPSTD_SOLVER_H
 
-#include "PSTDFile.h"
+#include "KernelInterface.h"
 #include "core/Scene.h"
 #include "PSTDKernel.h"
 
