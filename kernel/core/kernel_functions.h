@@ -42,7 +42,7 @@
 #include <map>
 #include <math.h>
 #include <algorithm>
-#include "PSTDFile.h"
+#include "../KernelInterface.h"
 #include "Geometry.h"
 
 namespace Kernel {
@@ -164,7 +164,7 @@ namespace Kernel {
      * @param cnf config object containing the properties of the geometry
      * @return float corresponding to the grid size
     */
-    float get_grid_spacing(PSTDFileSettings cnf);
+    float get_grid_spacing(PSTDSettings cnf);
 
     /**
      * Computes the smallest power of 2 larger or equal to n if n positive, and 1 otherwise

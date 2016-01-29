@@ -102,7 +102,7 @@ void DomainProperties::SetLRR(bool value)
     ui->LRR->setChecked(value);
 }
 
-void DomainProperties::SetDomain(Domain d)
+void DomainProperties::SetDomain(DomainConf d)
 {
     this->SetAbsorptionT(d.T.Absorption);
     this->SetAbsorptionB(d.B.Absorption);
@@ -117,9 +117,9 @@ void DomainProperties::SetDomain(Domain d)
     this->_d = d;
 }
 
-Domain DomainProperties::GetDomain()
+DomainConf DomainProperties::GetDomain()
 {
-    Domain result = this->_d;
+    DomainConf result = this->_d;
 
     result.L.LR = this->LRL();
     result.R.LR = this->LRR();

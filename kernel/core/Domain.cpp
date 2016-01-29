@@ -31,7 +31,7 @@ using namespace std;
 using namespace Eigen;
 namespace Kernel {
 
-    Domain::Domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
+    Domain::Domain(shared_ptr<PSTDSettings> settings, int id, const float alpha,
                    Point top_left, Point size, const bool is_pml,
                    shared_ptr<WisdomCache> wnd, map<Direction, EdgeParameters> edge_param_map,
                    const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
@@ -39,7 +39,7 @@ namespace Kernel {
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    Domain::Domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
+    Domain::Domain(shared_ptr<PSTDSettings> settings, int id, const float alpha,
                    vector<float> top_left_vector, vector<float> size_vector, const bool is_pml,
                    shared_ptr<WisdomCache> wnd, map<Direction, EdgeParameters> edge_param_map,
                    const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
@@ -48,7 +48,7 @@ namespace Kernel {
         this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
     }
 
-    void Domain::initialize_domain(shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
+    void Domain::initialize_domain(shared_ptr<PSTDSettings> settings, int id, const float alpha,
                                    Point top_left, Point size, const bool is_pml,
                                    shared_ptr<WisdomCache> wnd,
                                    map<Direction, EdgeParameters> edge_param_map,

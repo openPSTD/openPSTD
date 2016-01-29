@@ -116,14 +116,14 @@ class EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option) = 0;
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input) = 0;
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input) = 0;
 };
 
 class AddDomainEditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class RemoveDomainEditCommandPart: public EditCommandPart
@@ -133,35 +133,35 @@ private:
 
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class ChangeDomainEditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class ChangeEdgeAbsorptionEditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class ChangeEdgeLREditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class AddSpeakerEditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class RemoveSpeakerEditCommandPart: public EditCommandPart
@@ -171,14 +171,14 @@ private:
 
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class AddReceiverEditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class RemoveReceiverEditCommandPart: public EditCommandPart
@@ -188,14 +188,14 @@ private:
 
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 class SetOptionEditCommandPart: public EditCommandPart
 {
 public:
     virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDFileConfiguration> model, variables_map input);
+    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
 };
 
 #endif //OPENPSTD_EDIT_CLI_H

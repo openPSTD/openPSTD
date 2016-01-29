@@ -47,7 +47,7 @@ class DocumentSettings: public QDialog
 public:
     explicit DocumentSettings(QWidget *parent = 0);
     void UpdateFromModel(std::shared_ptr<Model> const &model);
-    PSTDFileSettings GetResult();
+    PSTDSettings GetResult();
 
 private:
     std::unique_ptr<Ui_DocumentSettings> ui;

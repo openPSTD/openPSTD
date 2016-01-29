@@ -49,8 +49,8 @@
 class PSTDKernel: public KernelInterface
 {
 private:
-    std::shared_ptr<PSTDFileConfiguration> config;
-    std::shared_ptr<PSTDFileSettings> settings;
+    std::shared_ptr<PSTDConfiguration> config;
+    std::shared_ptr<PSTDSettings> settings;
     std::shared_ptr<Kernel::Scene> scene;
     const float default_alpha = 1.f;
 
@@ -104,7 +104,7 @@ private:
     /**
      * Translate edge parameters from the GUI to the simulation format.
      */
-    std::map<Kernel::Direction, Kernel::EdgeParameters> translate_edge_parameters(Domain domain);
+    std::map<Kernel::Direction, Kernel::EdgeParameters> translate_edge_parameters(DomainConf domain);
 
 
 public:
@@ -113,7 +113,7 @@ public:
      * Sets the configuration,
      * also initializes the kernel and the scene, constructs the domains and sets the parameters.
      */
-    void start_kernel(std::shared_ptr<PSTDFileConfiguration> config) override;
+    void start_kernel(std::shared_ptr<PSTDConfiguration> config) override;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the

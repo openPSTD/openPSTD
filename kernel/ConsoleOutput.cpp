@@ -31,12 +31,7 @@
 
 void ConsoleOutput::Callback(CALLBACKSTATUS status, std::string message, int frame)
 {
-    if (status == CALLBACKSTATUS::ERROR)
-    {
-        std::cerr << "Error encountered while running OpenPSTD:" << std::endl;
-        std::cerr << message << std::endl;
-    }
-    else if (status == CALLBACKSTATUS::STARTING)
+    if (status == CALLBACKSTATUS::STARTING)
     {
         std::cout << message << std::endl;
     }

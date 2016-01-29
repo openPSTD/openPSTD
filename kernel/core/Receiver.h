@@ -72,7 +72,7 @@ namespace Kernel {
          */
         std::vector<float> grid_offset;
 
-        std::shared_ptr<PSTDFileSettings> config;
+        std::shared_ptr<PSTDSettings> config;
 
         std::shared_ptr<Domain> container_domain;
         std::vector<float> received_values;
@@ -84,7 +84,7 @@ namespace Kernel {
          * @param id: Unique receiver identifier
          * @param container: The domain in which the receiver is located. This should not be a PML-domain.
          */
-        Receiver(std::vector<float> location, std::shared_ptr<PSTDFileSettings> config, int id,
+        Receiver(std::vector<float> location, std::shared_ptr<PSTDSettings> config, int id,
                  std::shared_ptr<Domain> container);
 
         /**

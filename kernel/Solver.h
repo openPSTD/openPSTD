@@ -47,7 +47,7 @@ namespace Kernel {
 
     class Solver {
     private:
-        std::shared_ptr<PSTDFileSettings> settings;
+        std::shared_ptr<PSTDSettings> settings;
         std::shared_ptr<Scene> scene;
 
     protected:

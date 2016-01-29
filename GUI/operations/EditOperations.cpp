@@ -44,7 +44,7 @@ void CreateDomainOperation::Run(const Reciever &reciever)
     this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
     this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
 
-    Domain d;
+    DomainConf d;
     d.TopLeft.setX(std::min(this->StartPoint[0], this->EndPoint[0]));
     d.TopLeft.setY(std::min(this->StartPoint[1], this->EndPoint[1]));
 
@@ -284,7 +284,7 @@ void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
     reciever.model->d->Change();
 }
 
-EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDFileSettings settings): Settings(settings)
+EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDSettings settings): Settings(settings)
 {
 
 }

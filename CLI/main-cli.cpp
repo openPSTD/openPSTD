@@ -384,7 +384,7 @@ int RunCommand::execute(int argc, const char **argv)
         //open file (and make a shared_ptr of the unique_ptr)
         std::shared_ptr<PSTDFile> file = PSTDFile::Open(filename);
         //get conf for the kernel
-        std::shared_ptr<PSTDFileConfiguration> conf = file->GetSceneConf();
+        std::shared_ptr<PSTDConfiguration> conf = file->GetSceneConf();
         //initilize output in file
         std::cout << "Delete old results(if any)" << std::endl;
         file->DeleteSimulationResults();

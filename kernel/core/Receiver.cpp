@@ -30,7 +30,7 @@
 using namespace Eigen;
 using namespace std;
 namespace Kernel {
-    Receiver::Receiver(vector<float> location, shared_ptr<PSTDFileSettings> config, int id,
+    Receiver::Receiver(vector<float> location, shared_ptr<PSTDSettings> config, int id,
                        shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
         this->config = config;
         this->location = location;

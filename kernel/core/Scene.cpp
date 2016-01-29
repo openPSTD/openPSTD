@@ -29,7 +29,7 @@
 
 using namespace std;
 namespace Kernel {
-    Scene::Scene(shared_ptr<PSTDFileSettings> settings) {
+    Scene::Scene(shared_ptr<PSTDSettings> settings) {
         this->settings = settings;
         this->top_left = Point(0, 0);
         this->bottom_right = Point(0, 0);

@@ -48,7 +48,7 @@ namespace Kernel {
     class Scene {
     public:
         std::vector<std::shared_ptr<Domain>> domain_list;
-        std::shared_ptr<PSTDFileSettings> settings; // Derived from config
+        std::shared_ptr<PSTDSettings> settings; // Derived from config
         Point top_left;
         Point bottom_right;
         Point size;
@@ -65,7 +65,7 @@ namespace Kernel {
          * Constructor of Scene object
          * @param config: pointer to configuration settings
          */
-        Scene(std::shared_ptr<PSTDFileSettings> settings);
+        Scene(std::shared_ptr<PSTDSettings> settings);
 
         /**
          * Adds a receiver to the scene.

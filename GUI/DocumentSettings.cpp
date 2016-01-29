@@ -41,7 +41,7 @@ DocumentSettings::DocumentSettings(QWidget *parent): QDialog(parent), ui(new Ui_
 
 void DocumentSettings::UpdateFromModel(std::shared_ptr<Model> const &model)
 {
-    PSTDFileSettings settings = model->d->GetSceneConf()->Settings;
+    PSTDSettings settings = model->d->GetSceneConf()->Settings;
 
     ui->sbGridSpacing->setValue(settings.GetGridSpacing());
     ui->sbPatchError->setValue(settings.GetPatchError());
@@ -54,9 +54,9 @@ void DocumentSettings::UpdateFromModel(std::shared_ptr<Model> const &model)
     ui->sbSaveEveryNth->setValue(settings.GetSaveNth());
 }
 
-PSTDFileSettings DocumentSettings::GetResult()
+PSTDSettings DocumentSettings::GetResult()
 {
-    PSTDFileSettings settings;
+    PSTDSettings settings;
 
     settings.SetGridSpacing(ui->sbGridSpacing->value());
     settings.SetPatchError(ui->sbPatchError->value());

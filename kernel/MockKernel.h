@@ -10,7 +10,7 @@
 class MockKernel: public KernelInterface
 {
 private:
-    std::shared_ptr<PSTDFileConfiguration> _conf;
+    std::shared_ptr<PSTDConfiguration> _conf;
 
     PSTD_FRAME_PTR CreateRandomFrame(int x, int y);
     PSTD_FRAME_PTR CreateHorizontalLines(int x, int y);
@@ -24,7 +24,7 @@ public:
     /**
      * Sets the configuration.
      */
-    virtual void start_kernel(std::shared_ptr<PSTDFileConfiguration> config) override;
+    virtual void start_kernel(std::shared_ptr<PSTDConfiguration> config) override;
 
     /**
      * Runs the kernel. The callback has a single function that informs the rest of the

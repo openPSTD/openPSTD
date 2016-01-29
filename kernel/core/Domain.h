@@ -82,7 +82,7 @@ namespace Kernel {
      */
     class Domain : public std::enable_shared_from_this<Domain> {
     public:
-        std::shared_ptr<PSTDFileSettings> settings;
+        std::shared_ptr<PSTDSettings> settings;
         int id;
         float alpha;
         float impedance;
@@ -130,7 +130,7 @@ namespace Kernel {
          * @param pml_for array of adjacent domains for a PML domain. nullptr if not PML domain.
          * @return: Domain object
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
+        Domain(std::shared_ptr<PSTDSettings> settings, int id, const float alpha,
                Point top_left, Point size, const bool is_pml,
                std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
@@ -139,7 +139,7 @@ namespace Kernel {
          * Constructor that accepts vectors of real word coordinates instead of points.
          * @see Domain(***)
          */
-        Domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
+        Domain(std::shared_ptr<PSTDSettings> settings, int id, const float alpha,
                std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
                std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                const std::shared_ptr<Domain> pml_for_domain);
@@ -285,7 +285,7 @@ namespace Kernel {
         Eigen::ArrayXXf extended_zeros(int x, int y, int z = 0);
 
     private:
-        void initialize_domain(std::shared_ptr<PSTDFileSettings> settings, int id, const float alpha,
+        void initialize_domain(std::shared_ptr<PSTDSettings> settings, int id, const float alpha,
                                Point top_left, Point size, const bool is_pml,
                                std::shared_ptr<WisdomCache> wnd,
                                std::map<Direction, EdgeParameters> edge_param_map,

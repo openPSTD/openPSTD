@@ -45,8 +45,8 @@ using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(domain)
 
     shared_ptr<Kernel::Scene> create_a_scene() {
-        shared_ptr<PSTDFileConfiguration> config = PSTDFile::CreateDefaultConf();
-        Domain domain1;
+        shared_ptr<PSTDConfiguration> config = PSTDConfiguration::CreateDefaultConf();
+        DomainConf domain1;
         domain1.TopLeft = QVector2D(0, 0);
         domain1.Size = QVector2D(50, 60);
         domain1.T.Absorption = 0;
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         EdgeParameters standard = {};
         standard.locally_reacting = true;
         standard.alpha = 1;
-        shared_ptr<PSTDFileSettings> settings(new PSTDFileSettings());
+        shared_ptr<PSTDSettings> settings(new PSTDSettings());
         map<Direction, EdgeParameters> edge_param_map = {{Direction::LEFT,   standard},
                                                          {Direction::RIGHT,  standard},
                                                          {Direction::TOP,    standard},

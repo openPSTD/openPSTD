@@ -5,7 +5,7 @@
 #include "MockKernel.h"
 #include <boost/lexical_cast.hpp>
 
-void MockKernel::start_kernel(std::shared_ptr<PSTDFileConfiguration> config)
+void MockKernel::start_kernel(std::shared_ptr<PSTDConfiguration> config)
 {
     _conf = config;
 }

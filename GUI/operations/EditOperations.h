@@ -163,8 +163,8 @@ class EditDocumentSettingsOperation: public BaseOperation
 {
 public:
     EditDocumentSettingsOperation(){};
-    EditDocumentSettingsOperation(PSTDFileSettings settings);
-    PSTDFileSettings Settings;
+    EditDocumentSettingsOperation(PSTDSettings settings);
+    PSTDSettings Settings;
     virtual void Run(const Reciever &reciever) override;
 };
 

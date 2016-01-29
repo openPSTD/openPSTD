@@ -46,118 +46,14 @@ extern "C"
 #include <memory>
 #include <vector>
 #include <kernel/GeneralTypes.h>
-#include "shared/InvalidationData.h"
+#include <kernel/KernelInterface.h>
+#include <shared/InvalidationData.h>
 #include <QVector2D>
 #include <QVector3D>
 
 using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
 
 std::string PSTDFileKeyToString(PSTDFile_Key_t key);
-
-class PSTDFileSettings {
-private:
-    float calctime;
-    float c1;
-    float ampMax;
-    float freqMax;
-    float rho;
-    float patcherror;
-    float tfactRK;
-    float gridSpacing;
-    float band_width;
-    float wave_length;
-    std::vector<float> rk_coefficients;
-    bool spectral_interpolation;
-    int PMLCells;
-    int SaveNth;
-    bool gpu;
-    bool multithread;
-    Eigen::ArrayXf window;
-public:
-    float GetGridSpacing();
-    void SetGridSpacing(float value);
-
-    float GetPatchError();
-    void SetPatchError(float value);
-
-    int GetWindowSize();
-
-    float GetRenderTime();
-    void SetRenderTime(float value);
-
-    int GetPMLCells();
-    void SetPMLCells(int value);
-
-    float GetAttenuationOfPMLCells();
-    void SetAttenuationOfPMLCells(float value);
-
-    float GetDensityOfAir();
-    void SetDensityOfAir(float value);
-
-    float GetMaxFrequency();
-    void SetMaxFrequency(float value);
-
-    float GetSoundSpeed();
-    void SetSoundSpeed(float value);
-
-    float GetFactRK();
-    void SetFactRK(float value);
-
-    int GetSaveNth();
-    void SetSaveNth(int value);
-
-    float GetBandWidth();
-    void SetBandWidth(float value);
-
-    bool GetSpectralInterpolation();
-    void SetSpectralInterpolation(bool value);
-
-    float GetWaveLength();
-    void SetWaveLength(float value);
-
-    float GetTimeStep();
-
-    bool GetGPUAccel();
-    void SetGPUAccel(bool value);
-
-    bool GetMultiThread();
-    void SetMultiThread(bool value);
-
-    std::vector<float> GetRKCoefficients();
-    void SetRKCoefficients(std::vector<float> coef);
-
-    Eigen::ArrayXf GetWindow();
-    void SetWindow(Eigen::ArrayXf A);
-};
-
-class DomainEdge {
-public:
-    float Absorption;
-    bool LR;
-};
-
-class Domain {
-public:
-    QVector2D TopLeft;
-    QVector2D Size;
-    DomainEdge T, L, B, R;
-};
-
-class PSTDFileConfiguration {
-public:
-    PSTDFileSettings Settings;
-    std::vector<QVector3D> Speakers;
-    std::vector<QVector3D> Receivers;
-    std::vector<Domain> Domains;
-};
-
-enum PSTD_DOMAIN_SIDE {
-    PSTD_DOMAIN_SIDE_TOP,
-    PSTD_DOMAIN_SIDE_BOTTOM,
-    PSTD_DOMAIN_SIDE_LEFT,
-    PSTD_DOMAIN_SIDE_RIGHT,
-};
-
 
 class PSTDFileVersionException : public std::exception
 {
@@ -180,8 +76,6 @@ public:
     PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action);
     const char* what() const noexcept override;
 };
-
-std::string DomainSideToString(PSTD_DOMAIN_SIDE side);
 
 class PSTDFile : public InvalidationData
 {
@@ -269,11 +163,6 @@ private:
     }
 
 public:
-
-    /**
-     * Creates a default configuration
-     */
-    static std::shared_ptr<PSTDFileConfiguration> CreateDefaultConf();
     /**
      * Opens a file
      * @param filename the filename that has to be opened
@@ -294,27 +183,13 @@ public:
      * Reads the scene config out of the file
      * @return a shared ptr to a new object of scene configuration
      */
-    std::shared_ptr<PSTDFileConfiguration> GetSceneConf();
+    std::shared_ptr<PSTDConfiguration> GetSceneConf();
 
     /**
      * Writes the scene config to the file
      * @param scene a shared ptr to an object of scene configuration
      */
-    void SetSceneConf(std::shared_ptr<PSTDFileConfiguration> scene);
-
-    /**
-     * Reads the scene config out of the file
-     * @return a shared ptr to a new object of scene configuration
-     */
-    //todo fix for the correct type
-    std::shared_ptr<PSTDFileConfiguration> GetPSTDConf();
-
-    /**
-     * Writes the scene config to the file
-     * @param scene a shared ptr to an object of scene configuration
-     */
-    //todo fix for the correct type
-    void SetPSTDConf(std::shared_ptr<PSTDFileConfiguration> scene);
+    void SetSceneConf(std::shared_ptr<PSTDConfiguration> scene);
 
     int GetDomainCount();
 

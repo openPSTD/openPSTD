@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
     }
 
     BOOST_AUTO_TEST_CASE(test_get_grid_spacing) {
-        //Todo: Implement when PSTDFILESettings cnf is implemented
+        //Todo: Implement when PSTDSettings cnf is implemented
         BOOST_CHECK(true);
     }
 

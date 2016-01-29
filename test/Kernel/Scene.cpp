@@ -46,7 +46,7 @@ using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(wave_numbers)
 
     shared_ptr<Kernel::Scene> create_a_scene() {
-        shared_ptr<PSTDFileConfiguration> config = PSTDFile::CreateDefaultConf();
+        shared_ptr<PSTDConfiguration> config = PSTDFile::CreateDefaultConf();
         Domain domain1;
         domain1.TopLeft = QVector2D(0, 0);
         domain1.Size = QVector2D(50, 60);

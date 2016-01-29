@@ -36,12 +36,12 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
-void PSTDKernel::start_kernel(std::shared_ptr<PSTDFileConfiguration> config)
+void PSTDKernel::start_kernel(std::shared_ptr<PSTDConfiguration> config)
 {
     using namespace Kernel;
     debug("Initializing kernel");
     this->config = config;
-    this->settings = make_shared<PSTDFileSettings>(config->Settings);
+    this->settings = make_shared<PSTDSettings>(config->Settings);
     this->scene = make_shared<Scene>(this->settings);
     this->initialize_scene();
     this->wnd = make_shared<WisdomCache>();
@@ -167,7 +167,7 @@ vector<float> PSTDKernel::scale_to_grid(QVector3D world_vector) {
     return vector<float>{scaled_vector[0], scaled_vector[1]};
 }
 
-map<Kernel::Direction, Kernel::EdgeParameters> PSTDKernel::translate_edge_parameters(Domain domain) {
+map<Kernel::Direction, Kernel::EdgeParameters> PSTDKernel::translate_edge_parameters(DomainConf domain) {
     using namespace Kernel;
     map<Direction, EdgeParameters> edge_parameters;
     edge_parameters[Direction::LEFT] = {domain.L.LR, domain.L.Absorption};

@@ -65,11 +65,11 @@ public:
     void SetLRL(bool value);
     void SetLRR(bool value);
 
-    void SetDomain(Domain d);
-    Domain GetDomain();
+    void SetDomain(DomainConf d);
+    DomainConf GetDomain();
 
 private:
-    Domain _d;
+    DomainConf _d;
     std::unique_ptr<Ui_DomainProperties> ui;
 };
 
