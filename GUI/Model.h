@@ -57,8 +57,8 @@ enum PstdObjectType
 #include "PSTDFile.h"
 #include "MouseHandlers.h"
 #include <QVector2D>
-#include "Colors.h"
-#include "InvalidationData.h"
+#include <shared/Colors.h>
+#include <shared/InvalidationData.h>
 
 class InteractiveModel: public InvalidationData
 {
