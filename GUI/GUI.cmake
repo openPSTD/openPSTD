@@ -8,13 +8,14 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/BaseOperation.cpp GUI/op
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MouseHandlers.cpp)
 # OpenGL viewer
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Viewer2D.cpp GUI/GridLayer.cpp GUI/SceneLayer.cpp GUI/InteractiveLayer.cpp GUI/IconLayer.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Viewer2D.cpp GUI/GridLayer.cpp GUI/SceneLayer.cpp
+        GUI/InteractiveLayer.cpp GUI/IconLayer.cpp)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MainWindow.cpp GUI/DomainProperties.cpp GUI/DocumentSettings.cpp)
 # Resource files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp shared/PSTDFile.cpp shared/Colors.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp shared/InvalidationData.cpp GUI/Edges.cpp GUI/Edges.h)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp GUI/Edges.cpp)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main.cpp)
 
 # create extra Qt5 code
@@ -24,7 +25,8 @@ set_target_properties(OpenPSTD-gui
         AUTORCC ON)
 
 target_link_libraries(OpenPSTD-gui OpenPSTD)
+target_link_libraries(OpenPSTD-gui OpenPSTD-shared)
+target_link_libraries(OpenPSTD-gui unqlite)
 target_link_libraries(OpenPSTD-gui ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-gui ${Qt5_LIBRARIES})
-target_link_libraries(OpenPSTD-gui unqlite)
 target_link_libraries(OpenPSTD-gui ${OPENGL_LIBRARIES})

@@ -72,12 +72,12 @@ include_directories(${EIGEN_INCLUDE})
 include_directories(${FFTWF_INCLUDE_DIR})
 
 #------------------------------------
-# partz
+# parts
 include(unqlite/unqlite.cmake)
 include(kernel/kernel.cmake)
+include(shared/shared.cmake)
 include(CLI/CLI.cmake)
 include(GUI/GUI.cmake)
-include(shared/shared.cmake)
 include(test/test.cmake)
 include(install.cmake)
 
