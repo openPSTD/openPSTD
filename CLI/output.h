@@ -13,9 +13,9 @@ namespace OpenPSTD
         class CLIOutput : public KernelCallback
         {
         private:
-            std::shared_ptr<PSTDFile> _file;
+            std::shared_ptr<Shared::PSTDFile> _file;
         public:
-            CLIOutput(std::shared_ptr<PSTDFile> file) : _file(file)
+            CLIOutput(std::shared_ptr<Shared::PSTDFile> file) : _file(file)
             { };
 
             virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;

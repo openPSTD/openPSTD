@@ -43,7 +43,7 @@ namespace OpenPSTD
 
         void OpenFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->d = PSTDFile::Open(this->filename);
+            reciever.model->d = Shared::PSTDFile::Open(this->filename);
             reciever.model->d->Change();
             reciever.model->Register(reciever.model->d);
         }
@@ -55,7 +55,7 @@ namespace OpenPSTD
 
         void NewFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->d = PSTDFile::New(this->filename);
+            reciever.model->d = Shared::PSTDFile::New(this->filename);
             reciever.model->d->Change();
             reciever.model->Register(reciever.model->d);
         }

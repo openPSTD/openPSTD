@@ -41,7 +41,7 @@ namespace OpenPSTD
         void InitializationOperation::Run(const Reciever &reciever)
         {
             //todo: make sure an no file is loaded
-            reciever.model->d = std::unique_ptr<PSTDFile>(PSTDFile::New("test.jps"));
+            reciever.model->d = std::unique_ptr<Shared::PSTDFile>(Shared::PSTDFile::New("test.jps"));
             reciever.model->d->Change();
             reciever.model->Register(reciever.model->d);
 
@@ -50,8 +50,8 @@ namespace OpenPSTD
             reciever.model->view->worldMatrix = QMatrix4x4();
             reciever.model->view->Change();
 
-            reciever.model->settings->visual.colorScheme = std::unique_ptr<StandardColorScheme>(
-                    new StandardColorScheme());
+            reciever.model->settings->visual.colorScheme = std::unique_ptr<Shared::StandardColorScheme>(
+                    new Shared::StandardColorScheme());
             reciever.model->settings->Change();
 
             //select none of the domains

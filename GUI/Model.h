@@ -70,7 +70,7 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        class InteractiveModel : public InvalidationData
+        class InteractiveModel : public Shared::InvalidationData
         {
         public:
             struct
@@ -100,17 +100,17 @@ namespace OpenPSTD
         {
         public:
             float EdgeSize = 5.0f;
-            std::unique_ptr<BaseColorScheme> colorScheme;
+            std::unique_ptr<Shared::BaseColorScheme> colorScheme;
         };
 
-        class Settings : public InvalidationData
+        class Settings : public Shared::InvalidationData
         {
         public:
             SnappingSettings snapping;
             VisualSettings visual;
         };
 
-        class View : public InvalidationData
+        class View : public Shared::InvalidationData
         {
         public:
             QMatrix4x4 viewMatrix;
@@ -118,12 +118,12 @@ namespace OpenPSTD
             QMatrix4x4 aspectMatrix;
         };
 
-        class Model : public InvalidationData
+        class Model : public Shared::InvalidationData
         {
         public:
             Model();
 
-            std::shared_ptr<PSTDFile> d;
+            std::shared_ptr<Shared::PSTDFile> d;
             std::shared_ptr<View> view;
             std::unique_ptr<MouseStrategy> mouseHandler;
             std::shared_ptr<InteractiveModel> interactive;

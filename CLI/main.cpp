@@ -88,7 +88,7 @@ namespace OpenPSTD
 
                 std::string filename = vm["scene-file"].as<std::string>();
 
-                PSTDFile::New(filename);
+                Shared::PSTDFile::New(filename);
                 return 0;
             }
             catch (std::exception &e)
@@ -157,7 +157,7 @@ namespace OpenPSTD
 
         void ListCommand::Print(const std::string &filename, bool debug)
         {
-            std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
+            std::unique_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
 
             if (debug)
             {
@@ -309,7 +309,7 @@ namespace OpenPSTD
                 std::string filename = vm["scene-file"].as<std::string>();
 
                 //open file
-                std::unique_ptr<PSTDFile> file = PSTDFile::Open(filename);
+                std::unique_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
                 auto conf = file->GetSceneConf();
 
                 for (int i = 0; i < commands.size(); ++i)
@@ -395,7 +395,7 @@ namespace OpenPSTD
                 std::string filename = vm["scene-file"].as<std::string>();
 
                 //open file (and make a shared_ptr of the unique_ptr)
-                std::shared_ptr<PSTDFile> file = PSTDFile::Open(filename);
+                std::shared_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
                 //get conf for the kernel
                 std::shared_ptr<PSTDConfiguration> conf = file->GetSceneConf();
                 //initilize output in file
@@ -435,10 +435,10 @@ namespace OpenPSTD
             }
         }
 
-        std::unique_ptr<ExportDomain> ExportCommand::GetExport(std::string format)
+        std::unique_ptr<Shared::ExportDomain> ExportCommand::GetExport(std::string format)
         {
-            std::vector<std::unique_ptr<ExportDomain>> exports;
-            exports.push_back(std::unique_ptr<ExportImage>(new ExportImage()));
+            std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
+            exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
 
             for (int i = 0; i < exports.size(); ++i)
             {
@@ -449,7 +449,7 @@ namespace OpenPSTD
                         return std::move(exports[i]);
                 }
             }
-            throw ExportFormatNotSupported(format, std::vector<std::string>());
+            throw Shared::ExportFormatNotSupported(format, std::vector<std::string>());
         }
 
         std::string ExportCommand::GetName()
@@ -465,8 +465,8 @@ namespace OpenPSTD
         int ExportCommand::execute(int argc, const char **argv)
         {
             po::variables_map vm;
-            std::vector<std::unique_ptr<ExportDomain>> exports;
-            exports.push_back(std::unique_ptr<ExportImage>(new ExportImage()));
+            std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
+            exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
 
             try
             {
@@ -528,10 +528,10 @@ namespace OpenPSTD
                 std::string filename = vm["scene-file"].as<std::string>();
 
                 //open file (and make a shared_ptr of the unique_ptr)
-                std::shared_ptr<PSTDFile> file = PSTDFile::Open(filename);
+                std::shared_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
 
                 std::string format = vm["format"].as<std::string>();
-                std::unique_ptr<ExportDomain> e = GetExport(format);
+                std::unique_ptr<Shared::ExportDomain> e = GetExport(format);
 
                 std::vector<int> domains;
                 if (vm.count("domains") > 0)
