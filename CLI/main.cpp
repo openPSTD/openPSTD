@@ -240,7 +240,7 @@ namespace OpenPSTD
             std::cout << "Domains: " << frameCount << std::endl;
             for (int i = 0; i < frameCount; ++i)
             {
-                std::cout << "Frame count: " << file->GetFrameCount(i);
+                std::cout << "Frame count for domain " << i << ": " << file->GetFrameCount(i) << std::endl;
             }
         }
 
