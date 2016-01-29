@@ -2,7 +2,7 @@
 // Created by michiel on 24-1-2016.
 //
 
-#include "output-cli.h"
+#include "output.h"
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 

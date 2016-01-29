@@ -38,9 +38,9 @@
 #include <shared/PSTDFile.h>
 #include <shared/export/Image.h>
 
-#include "edit-cli.h"
-#include "output-cli.h"
-#include "main-cli.h"
+#include "edit.h"
+#include "output.h"
+#include "main.h"
 
 
 namespace po = boost::program_options;

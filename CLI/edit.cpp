@@ -26,7 +26,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "edit-cli.h"
+#include "edit.h"
 #include <boost/regex.hpp>
 
 void validate(boost::any& v, const std::vector<std::string>& values, CLIDomainAdd*, int)

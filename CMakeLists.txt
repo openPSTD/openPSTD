@@ -206,8 +206,8 @@ target_link_libraries(OpenPSTD ${FFTWF_LIBRARY})
 
 #------------------------------------
 # UI CLI
-set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp CLI/edit-cli.cpp CLI/output-cli.cpp shared/export/Export.cpp shared/export/Image.cpp shared/Colors.cpp)
-add_executable(OpenPSTD-cli CLI/main-cli.cpp ${SOURCE_FILES_CLI})
+set(SOURCE_FILES_CLI kernel/ConsoleOutput.cpp CLI/edit.cpp CLI/output.cpp shared/export/Export.cpp shared/export/Image.cpp shared/Colors.cpp)
+add_executable(OpenPSTD-cli CLI/main.cpp ${SOURCE_FILES_CLI})
 
 target_link_libraries(OpenPSTD-cli ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-cli ${Qt5_LIBRARIES})
