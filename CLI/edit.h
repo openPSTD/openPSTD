@@ -37,165 +37,171 @@
 #include <boost/program_options.hpp>
 #include <kernel/KernelInterface.h>
 
-using namespace boost;
-using namespace boost::program_options;
-
-struct CLIDomainAdd
+namespace OpenPSTD
 {
-public:
-    CLIDomainAdd()
-            : x1(0), y1(0), x2(0), y2(0)
-    { }
-    CLIDomainAdd(float x1, float y1, float x2, float y2)
-            : x1(x1), y1(y1), x2(x2), y2(y2)
-    { };
-    float x1, y1, x2, y2;
-};
+    namespace CLI
+    {
+        namespace po = boost::program_options;
 
-struct CLIDomainChange
-{
-public:
-    CLIDomainChange()
-            : id(-1), x1(0), y1(0), x2(0), y2(0)
-    { }
+        struct CLIDomainAdd
+        {
+        public:
+            CLIDomainAdd()
+                    : x1(0), y1(0), x2(0), y2(0)
+            { }
+            CLIDomainAdd(float x1, float y1, float x2, float y2)
+                    : x1(x1), y1(y1), x2(x2), y2(y2)
+            { };
+            float x1, y1, x2, y2;
+        };
 
-    CLIDomainChange(int id, float x1, float y1, float x2, float y2)
-            : id(id), x1(x1), y1(y1), x2(x2), y2(y2)
-    { };
-    int id;
-    float x1, y1, x2, y2;
-};
+        struct CLIDomainChange
+        {
+        public:
+            CLIDomainChange()
+                    : id(-1), x1(0), y1(0), x2(0), y2(0)
+            { }
 
-struct CLIEdgeAbsorption
-{
-public:
-    int id;
-    char edge;
-    float value;
+            CLIDomainChange(int id, float x1, float y1, float x2, float y2)
+                    : id(id), x1(x1), y1(y1), x2(x2), y2(y2)
+            { };
+            int id;
+            float x1, y1, x2, y2;
+        };
 
-    CLIEdgeAbsorption()
-            : id(-1), edge('t'), value(0)
-    {  }
+        struct CLIEdgeAbsorption
+        {
+        public:
+            int id;
+            char edge;
+            float value;
 
-    CLIEdgeAbsorption(int id, char edge, float value)
-            : id(id), edge(edge), value(value)
-    { }
-};
+            CLIEdgeAbsorption()
+                    : id(-1), edge('t'), value(0)
+            {  }
 
-struct CLIEdgeLR
-{
-public:
-    int id;
-    char edge;
-    bool value;
+            CLIEdgeAbsorption(int id, char edge, float value)
+                    : id(id), edge(edge), value(value)
+            { }
+        };
 
-    CLIEdgeLR()
-            : id(-1), edge('t'), value(true)
-    {  }
+        struct CLIEdgeLR
+        {
+        public:
+            int id;
+            char edge;
+            bool value;
 
-    CLIEdgeLR(int id, char edge, float value)
-            : id(id), edge(edge), value(value)
-    { }
-};
+            CLIEdgeLR()
+                    : id(-1), edge('t'), value(true)
+            {  }
 
-struct CLISpeakerReceiverAdd
-{
-public:
-    float x, y;
+            CLIEdgeLR(int id, char edge, float value)
+                    : id(id), edge(edge), value(value)
+            { }
+        };
 
-    CLISpeakerReceiverAdd()
-            : x(0), y(0)
-    { }
+        struct CLISpeakerReceiverAdd
+        {
+        public:
+            float x, y;
 
-    CLISpeakerReceiverAdd(float x, float y)
-            : x(x), y(y)
-    { }
-};
+            CLISpeakerReceiverAdd()
+                    : x(0), y(0)
+            { }
 
-class EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option) = 0;
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input) = 0;
-};
+            CLISpeakerReceiverAdd(float x, float y)
+                    : x(x), y(y)
+            { }
+        };
 
-class AddDomainEditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option) = 0;
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input) = 0;
+        };
 
-class RemoveDomainEditCommandPart: public EditCommandPart
-{
-private:
-    int delIndex;
+        class AddDomainEditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class RemoveDomainEditCommandPart: public EditCommandPart
+        {
+        private:
+            int delIndex;
 
-class ChangeDomainEditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-class ChangeEdgeAbsorptionEditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class ChangeDomainEditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-class ChangeEdgeLREditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class ChangeEdgeAbsorptionEditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-class AddSpeakerEditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class ChangeEdgeLREditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-class RemoveSpeakerEditCommandPart: public EditCommandPart
-{
-private:
-    int delIndex;
+        class AddSpeakerEditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class RemoveSpeakerEditCommandPart: public EditCommandPart
+        {
+        private:
+            int delIndex;
 
-class AddReceiverEditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-class RemoveReceiverEditCommandPart: public EditCommandPart
-{
-private:
-    int delIndex;
+        class AddReceiverEditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        class RemoveReceiverEditCommandPart: public EditCommandPart
+        {
+        private:
+            int delIndex;
 
-class SetOptionEditCommandPart: public EditCommandPart
-{
-public:
-    virtual void AddOptions(options_description_easy_init add_option);
-    virtual void Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input);
-};
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
+
+        class SetOptionEditCommandPart: public EditCommandPart
+        {
+        public:
+            virtual void AddOptions(po::options_description_easy_init add_option);
+            virtual void Execute(std::shared_ptr<PSTDConfiguration> model, po::variables_map input);
+        };
 
 #endif //OPENPSTD_EDIT_CLI_H
+
+    }
+}
