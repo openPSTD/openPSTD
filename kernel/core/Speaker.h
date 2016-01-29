@@ -39,33 +39,39 @@
 #include <Eigen/Dense>
 #include <math.h>
 
-namespace Kernel {
-    class Speaker {
-        /*
-         * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
-         * Note that speaker locations (just like receiver locations) are defined on the grid,
-         * but don't need to lie on grid points; their coordinates are not rounded off.
-         */
-    public:
-        const float x;
-        const float y;
-        const float z;
-        std::vector<float> location;
-        Point grid_point = Point((int) x, (int) y, (int) z); // Todo: Allowed? Other init seems difficult.
-        std::vector<float> grid_offset;
+namespace OpenPSTD
+{
+    namespace Kernel
+    {
+        class Speaker
+        {
+            /*
+             * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
+             * Note that speaker locations (just like receiver locations) are defined on the grid,
+             * but don't need to lie on grid points; their coordinates are not rounded off.
+             */
+        public:
+            const float x;
+            const float y;
+            const float z;
+            std::vector<float> location;
+            Point grid_point = Point((int) x, (int) y, (int) z); // Todo: Allowed? Other init seems difficult.
+            std::vector<float> grid_offset;
 
-        /*
-         * Speaker initialization with coordinates from scene.
-         * @param location: vector of world coordinates
-         */
-        Speaker(std::vector<float> location);
+            /*
+             * Speaker initialization with coordinates from scene.
+             * @param location: vector of world coordinates
+             */
+            Speaker(std::vector<float> location);
 
-        /*
-         * Adds the initial sound pressure to the domain values.
-         * @param domain: domain to compute sound pressure contribution for
-         */
-        void addDomainContribution(std::shared_ptr<Domain> domain);
+            /*
+             * Adds the initial sound pressure to the domain values.
+             * @param domain: domain to compute sound pressure contribution for
+             */
+            void addDomainContribution(std::shared_ptr<Domain> domain);
 
-    };
+        };
+    }
 }
+
 #endif //OPENPSTD_SPEAKER_H

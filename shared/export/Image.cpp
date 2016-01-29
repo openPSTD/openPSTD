@@ -32,7 +32,7 @@ namespace OpenPSTD
                                      std::string name, bool fullview, std::vector<int> domains, int startFrame,
                                      int endFrame)
         {
-            MockKernel k;
+            Kernel::MockKernel k;
             k.start_kernel(file->GetSceneConf());
             auto metadata = k.get_metadata();
 
@@ -54,7 +54,7 @@ namespace OpenPSTD
                 if (endFrame == -1) endFrame = file->GetFrameCount(domains[d]) - 1;
                 for (int f = startFrame; f <= endFrame; ++f)
                 {
-                    PSTD_FRAME_PTR frame = file->GetFrame(f, domains[d]);
+                    Kernel::PSTD_FRAME_PTR frame = file->GetFrame(f, domains[d]);
                     for (int i = 0; i < frame->size(); ++i)
                     {
                         min = std::min((*frame)[i], min);

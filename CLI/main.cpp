@@ -397,28 +397,28 @@ namespace OpenPSTD
                 //open file (and make a shared_ptr of the unique_ptr)
                 std::shared_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
                 //get conf for the kernel
-                std::shared_ptr<PSTDConfiguration> conf = file->GetSceneConf();
+                std::shared_ptr<Kernel::PSTDConfiguration> conf = file->GetSceneConf();
                 //initilize output in file
                 std::cout << "Delete old results(if any)" << std::endl;
                 file->DeleteSimulationResults();
                 std::cout << "initilize new results" << std::endl;
                 file->InitializeSimulationResults(conf->Domains.size());
                 //create kernel
-                std::unique_ptr<KernelInterface> kernel;
+                std::unique_ptr<Kernel::KernelInterface> kernel;
                 if (vm.count("mock") > 0)
                 {
                     //use the mocking
-                    kernel = std::unique_ptr<MockKernel>(new MockKernel());
+                    kernel = std::unique_ptr<Kernel::MockKernel>(new Kernel::MockKernel());
                 }
                 else
                 {
                     //use the real kernel
-                    kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
+                    kernel = std::unique_ptr<Kernel::PSTDKernel>(new Kernel::PSTDKernel());
                 }
                 //configure the kernel
                 kernel->start_kernel(conf);
                 //create output
-                std::shared_ptr<KernelCallback> output = std::make_shared<CLIOutput>(file);
+                std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file);
                 //run kernel
                 kernel->run(output.get());
                 return 0;

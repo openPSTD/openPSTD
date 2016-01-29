@@ -38,7 +38,7 @@
 #include "../../kernel/core/kernel_functions.h"
 #include <cmath>
 
-using namespace Kernel;
+using namespace OpenPSTD::Kernel;
 using namespace std;
 using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(kernel_functions)

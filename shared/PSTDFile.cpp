@@ -124,7 +124,7 @@ namespace OpenPSTD
                 result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_VERSION, {}), PSTD_FILE_VERSION);
 
                 //create basic geometry with default options
-                std::shared_ptr<PSTDConfiguration> SceneConf = PSTDConfiguration::CreateDefaultConf();
+                std::shared_ptr<Kernel::PSTDConfiguration> SceneConf = Kernel::PSTDConfiguration::CreateDefaultConf();
                 result->SetSceneConf(SceneConf);
 
                 //create PSTD conf
@@ -145,18 +145,18 @@ namespace OpenPSTD
 
         }
 
-        shared_ptr<PSTDConfiguration> PSTDFile::GetSceneConf()
+        shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf()
         {
-            shared_ptr<PSTDConfiguration> conf = make_shared<PSTDConfiguration>();
-            conf->Settings = this->GetValue<PSTDSettings>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}));
+            shared_ptr<Kernel::PSTDConfiguration> conf = make_shared<Kernel::PSTDConfiguration>();
+            conf->Settings = this->GetValue<Kernel::PSTDSettings>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}));
             conf->Speakers = this->GetArray<QVector3D>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}));
             conf->Receivers = this->GetArray<QVector3D>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_RECEIVERS, {}));
-            conf->Domains = this->GetArray<DomainConf>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}));
+            conf->Domains = this->GetArray<Kernel::DomainConf>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}));
 
             return conf;
         }
 
-        void PSTDFile::SetSceneConf(shared_ptr<PSTDConfiguration> scene)
+        void PSTDFile::SetSceneConf(shared_ptr<Kernel::PSTDConfiguration> scene)
         {
             this->SetValue(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}), scene->Settings);
             this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}), scene->Speakers);
@@ -174,18 +174,18 @@ namespace OpenPSTD
             return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {domain}));
         }
 
-        PSTD_FRAME_PTR PSTDFile::GetFrame(unsigned int frame, unsigned int domain)
+        Kernel::PSTD_FRAME_PTR PSTDFile::GetFrame(unsigned int frame, unsigned int domain)
         {
             unqlite_int64 size;
             float *result = (float *) this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
-            return shared_ptr<PSTD_FRAME>(new PSTD_FRAME(result, result + (size / 4)));
+            return shared_ptr<Kernel::PSTD_FRAME>(new Kernel::PSTD_FRAME(result, result + (size / 4)));
         }
 
-        void PSTDFile::SaveNextFrame(unsigned int domain, PSTD_FRAME_PTR frameData)
+        void PSTDFile::SaveNextFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frameData)
         {
             unsigned int frame = IncrementFrameCount(domain);
             this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}),
-                              frameData->size() * sizeof(PSTD_FRAME_UNIT), frameData->data());
+                              frameData->size() * sizeof(Kernel::PSTD_FRAME_UNIT), frameData->data());
         }
 
         void PSTDFile::InitializeSimulationResults(int domains)

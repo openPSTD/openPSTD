@@ -30,11 +30,16 @@
 //////////////////////////////////////////////////////////////////////////
 #include "Boundary.h"
 
-namespace Kernel{
+namespace OpenPSTD
+{
+    namespace Kernel
+    {
 
-    Boundary::Boundary(std::shared_ptr<Domain> domain1,std::shared_ptr<Domain> domain2, CalcDirection type) {
-        this->domain1 = domain1;
-        this->domain2 = domain2;
-        this->type = type;
+        Boundary::Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, CalcDirection type)
+        {
+            this->domain1 = domain1;
+            this->domain2 = domain2;
+            this->type = type;
+        }
     }
 }

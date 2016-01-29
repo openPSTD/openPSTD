@@ -38,7 +38,7 @@
 #include "../../kernel/core/Geometry.h"
 #include <cmath>
 
-using namespace Kernel;
+using namespace OpenPSTD::Kernel;
 using namespace std;
 BOOST_AUTO_TEST_SUITE(geometry)
 

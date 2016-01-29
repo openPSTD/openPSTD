@@ -33,22 +33,29 @@
 
 #include <ostream>
 #include <vector>
-namespace Kernel {
-    class Point {
-    public:
-        int x, y, z;
-        std::vector<int> array;
-        Point():x(0),y(0),z(0) {}; //todo:wtf
-        /**
-         * Constructor for a point in grid coordinates
-         */
-        Point(int x, int y, int z = 0);
+namespace OpenPSTD
+{
+    namespace Kernel
+    {
+        class Point
+        {
+        public:
+            int x, y, z;
+            std::vector<int> array;
 
-        friend Point operator+(Point a, Point b);
+            Point() : x(0), y(0), z(0)
+            { }; //todo:wtf
+            /**
+             * Constructor for a point in grid coordinates
+             */
+            Point(int x, int y, int z = 0);
 
-        friend Point operator-(Point a, Point b);
-    };
+            friend Point operator+(Point a, Point b);
 
-    std::ostream &operator<<(std::ostream &str, Point const &v);
+            friend Point operator-(Point a, Point b);
+        };
+
+        std::ostream &operator<<(std::ostream &str, Point const &v);
+    }
 }
 #endif //OPENPSTD_GEOMETRY_H

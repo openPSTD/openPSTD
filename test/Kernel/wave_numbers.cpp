@@ -39,7 +39,7 @@
 #include <cmath>
 #include <kernel/core/kernel_functions.h>
 
-using namespace Kernel;
+using namespace OpenPSTD::Kernel;
 using namespace std;
 using namespace Eigen;
 

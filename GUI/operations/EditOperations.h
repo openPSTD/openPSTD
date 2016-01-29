@@ -126,11 +126,11 @@ namespace OpenPSTD
         {
         private:
             int index;
-            PSTD_DOMAIN_SIDE Side;
+            Kernel::PSTD_DOMAIN_SIDE Side;
             float NewValue;
 
         public:
-            EditDomainEdgeAbsorptionOperation(int index, PSTD_DOMAIN_SIDE side, float newValue);
+            EditDomainEdgeAbsorptionOperation(int index, Kernel::PSTD_DOMAIN_SIDE side, float newValue);
 
             virtual void Run(const Reciever &reciever) override;
         };
@@ -139,11 +139,11 @@ namespace OpenPSTD
         {
         private:
             int index;
-            PSTD_DOMAIN_SIDE Side;
+            Kernel::PSTD_DOMAIN_SIDE Side;
             bool NewValue;
 
         public:
-            EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue);
+            EditDomainEdgeLrOperation(int index, Kernel::PSTD_DOMAIN_SIDE side, bool newValue);
 
             virtual void Run(const Reciever &reciever) override;
         };
@@ -169,9 +169,9 @@ namespace OpenPSTD
             EditDocumentSettingsOperation()
             { };
 
-            EditDocumentSettingsOperation(PSTDSettings settings);
+            EditDocumentSettingsOperation(Kernel::PSTDSettings settings);
 
-            PSTDSettings Settings;
+            Kernel::PSTDSettings Settings;
 
             virtual void Run(const Reciever &reciever) override;
         };

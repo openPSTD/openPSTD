@@ -85,12 +85,12 @@ namespace OpenPSTD
 
             void SetLRR(bool value);
 
-            void SetDomain(DomainConf d);
+            void SetDomain(Kernel::DomainConf d);
 
-            DomainConf GetDomain();
+            Kernel::DomainConf GetDomain();
 
         private:
-            DomainConf _d;
+            Kernel::DomainConf _d;
             std::unique_ptr<Ui_DomainProperties> ui;
         };
 

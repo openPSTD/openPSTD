@@ -45,7 +45,7 @@ namespace OpenPSTD
 
         void DocumentSettings::UpdateFromModel(std::shared_ptr<Model> const &model)
         {
-            PSTDSettings settings = model->d->GetSceneConf()->Settings;
+            Kernel::PSTDSettings settings = model->d->GetSceneConf()->Settings;
 
             ui->sbGridSpacing->setValue(settings.GetGridSpacing());
             ui->sbPatchError->setValue(settings.GetPatchError());
@@ -58,9 +58,9 @@ namespace OpenPSTD
             ui->sbSaveEveryNth->setValue(settings.GetSaveNth());
         }
 
-        PSTDSettings DocumentSettings::GetResult()
+        Kernel::PSTDSettings DocumentSettings::GetResult()
         {
-            PSTDSettings settings;
+            Kernel::PSTDSettings settings;
 
             settings.SetGridSpacing(ui->sbGridSpacing->value());
             settings.SetPatchError(ui->sbPatchError->value());

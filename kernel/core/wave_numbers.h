@@ -39,74 +39,81 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-namespace Kernel {
-    class WisdomCache {
-    public:
-        struct Discretization {
-            Eigen::ArrayXf wave_numbers;
-            Eigen::ArrayXcf complex_factors;
-            Eigen::ArrayXcf pressure_deriv_factors;
-            Eigen::ArrayXcf velocity_deriv_factors;
+namespace OpenPSTD
+{
+    namespace Kernel
+    {
+        class WisdomCache
+        {
+        public:
+            struct Discretization
+            {
+                Eigen::ArrayXf wave_numbers;
+                Eigen::ArrayXcf complex_factors;
+                Eigen::ArrayXcf pressure_deriv_factors;
+                Eigen::ArrayXcf velocity_deriv_factors;
+            };
+
+            struct Planset_FFTW
+            {
+                fftwf_plan plan;
+                fftwf_plan plan_inv;
+            };
+
+            /**
+             * Obtain the discretization for the given grid size and number of grid points.
+             * If discretization is unknown, it is computed and stored for future reference.
+             * @param dx: grid size
+             * @param N: number of grid points
+             * @return: Struct with wave discretization values.
+             */
+            Discretization get_discretization(float dx, int N); //Todo: should we include dx here?
+
+            /**
+             * Obtain an FFTW plan for the given fft length and batch size.
+             * If the plan does not exist yet, it is created and cached.
+             * @param fft_length: Length of the planned FFT
+             * @param fft_batch_size: Batch size of the planned FFT
+             */
+            Planset_FFTW get_fftw_planset(int fft_length, int fft_batch_size);
+
+            /**
+             * Initializer for the cache. Initialize only a single instance to optimize computations.
+             */
+            WisdomCache();
+
+            std::map<int, Discretization> computed_discretization; // Should be private! public for debugging purposes
+            std::map<std::string, Planset_FFTW> cached_fftw_plans; // Should be private! public for debugging purposes
+
+        private:
+
+            /**
+             * Compute discretization for the given grid size and number of grid points.
+             * @param dx: grid size
+             * @param N: number of grid points
+             * @return: Struct with wave discretization values.
+             */
+            Discretization discretize_wave_numbers(float dx, int N); //Todo: Needs a better name
+
+            /**
+             * Create new planset for given fftw length, batch size
+             * @param: fft_length: Length of the planned FFT
+             * @param fft_batch_size: Batch size of the planned FFT
+             */
+            Planset_FFTW create_fftw_planset(int fft_length, int fft_batch_size);
+
+            /**
+             * Internal storage of wave number discretizations.
+             */
+
+            /**
+             * Compute the rounded up 2log of the number of grid cells.
+             */
+            int match_number(int n);
         };
 
-        struct Planset_FFTW {
-            fftwf_plan plan;
-            fftwf_plan plan_inv;
-        };
-
-        /**
-         * Obtain the discretization for the given grid size and number of grid points.
-         * If discretization is unknown, it is computed and stored for future reference.
-         * @param dx: grid size
-         * @param N: number of grid points
-         * @return: Struct with wave discretization values.
-         */
-        Discretization get_discretization(float dx, int N); //Todo: should we include dx here?
-
-        /**
-         * Obtain an FFTW plan for the given fft length and batch size.
-         * If the plan does not exist yet, it is created and cached.
-         * @param fft_length: Length of the planned FFT
-         * @param fft_batch_size: Batch size of the planned FFT
-         */
-        Planset_FFTW get_fftw_planset(int fft_length, int fft_batch_size);
-
-        /**
-         * Initializer for the cache. Initialize only a single instance to optimize computations.
-         */
-        WisdomCache();
-
-        std::map<int, Discretization> computed_discretization; // Should be private! public for debugging purposes
-        std::map<std::string, Planset_FFTW> cached_fftw_plans; // Should be private! public for debugging purposes
-
-    private:
-
-        /**
-         * Compute discretization for the given grid size and number of grid points.
-         * @param dx: grid size
-         * @param N: number of grid points
-         * @return: Struct with wave discretization values.
-         */
-        Discretization discretize_wave_numbers(float dx, int N); //Todo: Needs a better name
-
-        /**
-         * Create new planset for given fftw length, batch size
-         * @param: fft_length: Length of the planned FFT
-         * @param fft_batch_size: Batch size of the planned FFT
-         */
-        Planset_FFTW create_fftw_planset(int fft_length, int fft_batch_size);
-
-        /**
-         * Internal storage of wave number discretizations.
-         */
-
-        /**
-         * Compute the rounded up 2log of the number of grid cells.
-         */
-        int match_number(int n);
-    };
-
-    std::ostream &operator<<(std::ostream &str, WisdomCache const &v);
+        std::ostream &operator<<(std::ostream &str, WisdomCache const &v);
+    }
 }
 
 #endif //OPENPSTD_WAVE_NUMBERS_H

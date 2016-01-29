@@ -196,21 +196,21 @@ namespace OpenPSTD
              * Reads the scene config out of the file
              * @return a shared ptr to a new object of scene configuration
              */
-            std::shared_ptr<PSTDConfiguration> GetSceneConf();
+            std::shared_ptr<Kernel::PSTDConfiguration> GetSceneConf();
 
             /**
              * Writes the scene config to the file
              * @param scene a shared ptr to an object of scene configuration
              */
-            void SetSceneConf(std::shared_ptr<PSTDConfiguration> scene);
+            void SetSceneConf(std::shared_ptr<Kernel::PSTDConfiguration> scene);
 
             int GetDomainCount();
 
             int GetFrameCount(unsigned int domain);
 
-            PSTD_FRAME_PTR GetFrame(unsigned int frame, unsigned int domain);
+            Kernel::PSTD_FRAME_PTR GetFrame(unsigned int frame, unsigned int domain);
 
-            void SaveNextFrame(unsigned int domain, PSTD_FRAME_PTR frame);
+            void SaveNextFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frame);
 
             void InitializeSimulationResults(int domains);
 

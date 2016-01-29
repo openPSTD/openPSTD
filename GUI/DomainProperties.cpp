@@ -121,7 +121,7 @@ namespace OpenPSTD
             ui->LRR->setChecked(value);
         }
 
-        void DomainProperties::SetDomain(DomainConf d)
+        void DomainProperties::SetDomain(Kernel::DomainConf d)
         {
             this->SetAbsorptionT(d.T.Absorption);
             this->SetAbsorptionB(d.B.Absorption);
@@ -136,9 +136,9 @@ namespace OpenPSTD
             this->_d = d;
         }
 
-        DomainConf DomainProperties::GetDomain()
+        Kernel::DomainConf DomainProperties::GetDomain()
         {
-            DomainConf result = this->_d;
+            Kernel::DomainConf result = this->_d;
 
             result.L.LR = this->LRL();
             result.R.LR = this->LRR();

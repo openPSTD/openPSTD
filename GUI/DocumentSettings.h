@@ -52,7 +52,7 @@ namespace OpenPSTD
 
             void UpdateFromModel(std::shared_ptr<Model> const &model);
 
-            PSTDSettings GetResult();
+            Kernel::PSTDSettings GetResult();
 
         private:
             std::unique_ptr<Ui_DocumentSettings> ui;

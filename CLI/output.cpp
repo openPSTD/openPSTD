@@ -9,6 +9,8 @@ namespace OpenPSTD
 {
     namespace CLI
     {
+        using namespace Kernel;
+
         void CLIOutput::Callback(CALLBACKSTATUS status, std::string message, int frame)
         {
             if (status == CALLBACKSTATUS::STARTING)

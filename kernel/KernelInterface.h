@@ -11,197 +11,225 @@
 #include <QVector3D>
 #include <Eigen/Core>
 
+
+namespace OpenPSTD
+{
+    namespace Kernel
+    {
 /**
  * The status of the kernel when the callback is called.
  */
-enum class CALLBACKSTATUS
-{
-    STARTING,
-    RUNNING,
-    FINISHED
-};
+        enum class CALLBACKSTATUS
+        {
+            STARTING,
+            RUNNING,
+            FINISHED
+        };
 
-enum PSTD_DOMAIN_SIDE {
-    PSTD_DOMAIN_SIDE_TOP = 1,
-    PSTD_DOMAIN_SIDE_BOTTOM = 2,
-    PSTD_DOMAIN_SIDE_LEFT = 4,
-    PSTD_DOMAIN_SIDE_RIGHT = 8,
-    PSTD_DOMAIN_SIDE_ALL = 8+4+2+1,
-    PSTD_DOMAIN_SIDE_NONE = 0
-};
+        enum PSTD_DOMAIN_SIDE
+        {
+            PSTD_DOMAIN_SIDE_TOP = 1,
+            PSTD_DOMAIN_SIDE_BOTTOM = 2,
+            PSTD_DOMAIN_SIDE_LEFT = 4,
+            PSTD_DOMAIN_SIDE_RIGHT = 8,
+            PSTD_DOMAIN_SIDE_ALL = 8 + 4 + 2 + 1,
+            PSTD_DOMAIN_SIDE_NONE = 0
+        };
 
-class PSTDSettings {
-private:
-    float calctime;
-    float c1;
-    float ampMax;
-    float freqMax;
-    float rho;
-    float patcherror;
-    float tfactRK;
-    float gridSpacing;
-    float band_width;
-    float wave_length;
-    std::vector<float> rk_coefficients;
-    bool spectral_interpolation;
-    int PMLCells;
-    int SaveNth;
-    bool gpu;
-    bool multithread;
-    Eigen::ArrayXf window;
-public:
-    float GetGridSpacing();
-    void SetGridSpacing(float value);
+        class PSTDSettings
+        {
+        private:
+            float calctime;
+            float c1;
+            float ampMax;
+            float freqMax;
+            float rho;
+            float patcherror;
+            float tfactRK;
+            float gridSpacing;
+            float band_width;
+            float wave_length;
+            std::vector<float> rk_coefficients;
+            bool spectral_interpolation;
+            int PMLCells;
+            int SaveNth;
+            bool gpu;
+            bool multithread;
+            Eigen::ArrayXf window;
+        public:
+            float GetGridSpacing();
 
-    float GetPatchError();
-    void SetPatchError(float value);
+            void SetGridSpacing(float value);
 
-    int GetWindowSize();
+            float GetPatchError();
 
-    float GetRenderTime();
-    void SetRenderTime(float value);
+            void SetPatchError(float value);
 
-    int GetPMLCells();
-    void SetPMLCells(int value);
+            int GetWindowSize();
 
-    float GetAttenuationOfPMLCells();
-    void SetAttenuationOfPMLCells(float value);
+            float GetRenderTime();
 
-    float GetDensityOfAir();
-    void SetDensityOfAir(float value);
+            void SetRenderTime(float value);
 
-    float GetMaxFrequency();
-    void SetMaxFrequency(float value);
+            int GetPMLCells();
 
-    float GetSoundSpeed();
-    void SetSoundSpeed(float value);
+            void SetPMLCells(int value);
 
-    float GetFactRK();
-    void SetFactRK(float value);
+            float GetAttenuationOfPMLCells();
 
-    int GetSaveNth();
-    void SetSaveNth(int value);
+            void SetAttenuationOfPMLCells(float value);
 
-    float GetBandWidth();
-    void SetBandWidth(float value);
+            float GetDensityOfAir();
 
-    bool GetSpectralInterpolation();
-    void SetSpectralInterpolation(bool value);
+            void SetDensityOfAir(float value);
 
-    float GetWaveLength();
-    void SetWaveLength(float value);
+            float GetMaxFrequency();
 
-    float GetTimeStep();
+            void SetMaxFrequency(float value);
 
-    bool GetGPUAccel();
-    void SetGPUAccel(bool value);
+            float GetSoundSpeed();
 
-    bool GetMultiThread();
-    void SetMultiThread(bool value);
+            void SetSoundSpeed(float value);
 
-    std::vector<float> GetRKCoefficients();
-    void SetRKCoefficients(std::vector<float> coef);
+            float GetFactRK();
 
-    Eigen::ArrayXf GetWindow();
-    void SetWindow(Eigen::ArrayXf A);
-};
+            void SetFactRK(float value);
 
-class DomainConfEdge {
-public:
-    float Absorption;
-    bool LR;
-};
+            int GetSaveNth();
 
-class DomainConf {
-public:
-    QVector2D TopLeft;
-    QVector2D Size;
-    DomainConfEdge T, L, B, R;
-};
+            void SetSaveNth(int value);
 
-class PSTDConfiguration {
-public:
-    PSTDSettings Settings;
-    std::vector<QVector3D> Speakers;
-    std::vector<QVector3D> Receivers;
-    std::vector<DomainConf> Domains;
+            float GetBandWidth();
 
-    /**
-     * Creates a default configuration
-     */
-    static std::shared_ptr<PSTDConfiguration> CreateDefaultConf();
-};
+            void SetBandWidth(float value);
 
-class KernelCallback
-{
-public:
-    /**
-     * This callback will be called with information how far the kernel is progressed.
-     * @param status: CALLBACKSTATUS enum, either one of starting/running/finishing/error.
-     * @param message: Message to pass to callback handler
-     * @param frame: either positive integer corresponding to time step of data or -1 when kernel is not running.
-     */
-    virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
+            bool GetSpectralInterpolation();
 
-    /**
-     * Return pressure data of scene to callback handler.
-     * @param frame: Positive integer corresponding to time step of data.
-     * @param domain: an identifier that identifies the domain
-     * @param data: 1D row-major vector of pressure data.
-     */
-    virtual void WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) = 0;
+            void SetSpectralInterpolation(bool value);
 
-    /**
-     * Return receiver data of scene to callback handler.
-     * @param startSample: Positive integer corresponding to time step of the first data point.
-     * @param receiver: an identifier that identifies the receiver
-     * @param data: a set of data points
-     */
-    virtual void WriteSample(int startSample, int receiver, std::vector<float> data) = 0;
-};
+            float GetWaveLength();
 
-class SimulationMetadata
-{
-public:
-    /**
-     * The discretization of the domains, in order they were passed to the kernel.
-     * A vector in which domain n is represented by a vector at the nth position.
-     * In the "inner" vectors, v[0],v[1],v[2] correspond to size x,y,z.
-     */
-    std::vector<std::vector<int>> DomainMetadata;
-    int Framecount;
-};
+            void SetWaveLength(float value);
+
+            float GetTimeStep();
+
+            bool GetGPUAccel();
+
+            void SetGPUAccel(bool value);
+
+            bool GetMultiThread();
+
+            void SetMultiThread(bool value);
+
+            std::vector<float> GetRKCoefficients();
+
+            void SetRKCoefficients(std::vector<float> coef);
+
+            Eigen::ArrayXf GetWindow();
+
+            void SetWindow(Eigen::ArrayXf A);
+        };
+
+        class DomainConfEdge
+        {
+        public:
+            float Absorption;
+            bool LR;
+        };
+
+        class DomainConf
+        {
+        public:
+            QVector2D TopLeft;
+            QVector2D Size;
+            DomainConfEdge T, L, B, R;
+        };
+
+        class PSTDConfiguration
+        {
+        public:
+            PSTDSettings Settings;
+            std::vector<QVector3D> Speakers;
+            std::vector<QVector3D> Receivers;
+            std::vector<DomainConf> Domains;
+
+            /**
+             * Creates a default configuration
+             */
+            static std::shared_ptr<PSTDConfiguration> CreateDefaultConf();
+        };
+
+        class KernelCallback
+        {
+        public:
+            /**
+             * This callback will be called with information how far the kernel is progressed.
+             * @param status: CALLBACKSTATUS enum, either one of starting/running/finishing/error.
+             * @param message: Message to pass to callback handler
+             * @param frame: either positive integer corresponding to time step of data or -1 when kernel is not running.
+             */
+            virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
+
+            /**
+             * Return pressure data of scene to callback handler.
+             * @param frame: Positive integer corresponding to time step of data.
+             * @param domain: an identifier that identifies the domain
+             * @param data: 1D row-major vector of pressure data.
+             */
+            virtual void WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) = 0;
+
+            /**
+             * Return receiver data of scene to callback handler.
+             * @param startSample: Positive integer corresponding to time step of the first data point.
+             * @param receiver: an identifier that identifies the receiver
+             * @param data: a set of data points
+             */
+            virtual void WriteSample(int startSample, int receiver, std::vector<float> data) = 0;
+        };
+
+        class SimulationMetadata
+        {
+        public:
+            /**
+             * The discretization of the domains, in order they were passed to the kernel.
+             * A vector in which domain n is represented by a vector at the nth position.
+             * In the "inner" vectors, v[0],v[1],v[2] correspond to size x,y,z.
+             */
+            std::vector<std::vector<int>> DomainMetadata;
+            int Framecount;
+        };
 
 /**
  * The kernel API. Contains one method for initialization and one for running the simulation.
  */
-class KernelInterface
-{
-public:
-    /**
-     * Sets the configuration.
-     */
-    virtual void start_kernel(std::shared_ptr<PSTDConfiguration> config) = 0;
+        class KernelInterface
+        {
+        public:
+            /**
+             * Sets the configuration.
+             */
+            virtual void start_kernel(std::shared_ptr<PSTDConfiguration> config) = 0;
 
-    /**
-     * Runs the kernel. The callback has a single function that informs the rest of the
-     * application of the progress of the kernel.
-     * Must first be configured, else a PSTDKernelNotConfiguredException is thrown.
-     */
-    virtual void run(KernelCallback *callback) = 0;
+            /**
+             * Runs the kernel. The callback has a single function that informs the rest of the
+             * application of the progress of the kernel.
+             * Must first be configured, else a PSTDKernelNotConfiguredException is thrown.
+             */
+            virtual void run(KernelCallback *callback) = 0;
 
-    /**
-     * Query the kernel for metadata about the simulation that is configured.
-     */
-    virtual SimulationMetadata get_metadata() = 0;
-};
+            /**
+             * Query the kernel for metadata about the simulation that is configured.
+             */
+            virtual SimulationMetadata get_metadata() = 0;
+        };
 
-class PSTDKernelNotConfiguredException : public std::exception
-{
-public:
-    const char* what() const noexcept override;
-};
-
+        class PSTDKernelNotConfiguredException : public std::exception
+        {
+        public:
+            const char *what() const noexcept override;
+        };
+    }
+}
 
 
 #endif //OPENPSTD_KERNELINTERFACE_H

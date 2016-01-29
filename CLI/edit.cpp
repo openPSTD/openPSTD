@@ -147,7 +147,7 @@ namespace OpenPSTD
                        "Add a domain, --domain-add <x,y,size-x,size-y>, eg --domain-add [0,0,10,10]");
         }
 
-        void AddDomainEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void AddDomainEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("domain-add") == 0)
                 return;
@@ -156,7 +156,7 @@ namespace OpenPSTD
 
             for (int i = 0; i < add.size(); ++i)
             {
-                DomainConf d;
+                Kernel::DomainConf d;
                 d.TopLeft = QVector2D(add[i].x1, add[i].y1);
                 d.Size = QVector2D(add[i].x2, add[i].y2);
                 d.T.Absorption = 1;
@@ -180,7 +180,7 @@ namespace OpenPSTD
                        "Remove a domain, domain id are always subsequent, --domain-remove id");
         }
 
-        void RemoveDomainEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void RemoveDomainEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (delIndex == -1)
                 return;
@@ -195,7 +195,7 @@ namespace OpenPSTD
                        "Change the positions of a domain, --domain-add (id,[x,y,size-x,size-y]), eg --domain-add (1,[0,0,10,10])");
         }
 
-        void ChangeDomainEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void ChangeDomainEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("domain-change") == 0)
                 return;
@@ -216,7 +216,7 @@ namespace OpenPSTD
                        "change the absorption of a speaker, --edge-absorption (id,t|b|l|r,value), eg --edge-absorption (1,t,0.5)");
         }
 
-        void ChangeEdgeAbsorptionEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void ChangeEdgeAbsorptionEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("edge-absorption") == 0)
                 return;
@@ -243,7 +243,7 @@ namespace OpenPSTD
                        "change the LR of a speaker, --edge-local-reacting (id,t|b|l|r,value), eg --edge-local-reacting (1,t,true)");
         }
 
-        void ChangeEdgeLREditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void ChangeEdgeLREditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("edge-local-reacting") == 0)
                 return;
@@ -270,7 +270,7 @@ namespace OpenPSTD
                        "Add a speaker, --speaker-add [x,y], eg --speaker-add [0,0]");
         }
 
-        void AddSpeakerEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void AddSpeakerEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("speaker-add") == 0)
                 return;
@@ -290,7 +290,7 @@ namespace OpenPSTD
                        "Remove a speaker, --speaker-remove id");
         }
 
-        void RemoveSpeakerEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void RemoveSpeakerEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (delIndex == -1)
                 return;
@@ -305,7 +305,7 @@ namespace OpenPSTD
                        "Add a receiver, --receiver-add [x,y], eg --receiver-add [0,0]");
         }
 
-        void AddReceiverEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void AddReceiverEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("receiver-add") == 0)
                 return;
@@ -325,7 +325,7 @@ namespace OpenPSTD
                        "Remove a receiver, --receiver-remove id");
         }
 
-        void RemoveReceiverEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void RemoveReceiverEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (delIndex == -1)
                 return;
@@ -356,7 +356,7 @@ namespace OpenPSTD
                     ;
         }
 
-        void SetOptionEditCommandPart::Execute(std::shared_ptr<PSTDConfiguration> model, variables_map input)
+        void SetOptionEditCommandPart::Execute(std::shared_ptr<Kernel::PSTDConfiguration> model, variables_map input)
         {
             if (input.count("grid-spacing") > 0) model->Settings.SetGridSpacing(input["grid-spacing"].as<float>());
             if (input.count("patch-error") > 0) model->Settings.SetPatchError(input["patch-error"].as<float>());

@@ -48,7 +48,7 @@ namespace OpenPSTD
             this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
             this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
 
-            DomainConf d;
+            Kernel::DomainConf d;
             d.TopLeft.setX(std::min(this->StartPoint[0], this->EndPoint[0]));
             d.TopLeft.setY(std::min(this->StartPoint[1], this->EndPoint[1]));
 
@@ -212,7 +212,7 @@ namespace OpenPSTD
             reciever.model->d->Change();
         }
 
-        EditDomainEdgeAbsorptionOperation::EditDomainEdgeAbsorptionOperation(int index, PSTD_DOMAIN_SIDE side,
+        EditDomainEdgeAbsorptionOperation::EditDomainEdgeAbsorptionOperation(int index, Kernel::PSTD_DOMAIN_SIDE side,
                                                                              float newValue) :
                 index(index), Side(side), NewValue(newValue)
         {
@@ -225,16 +225,16 @@ namespace OpenPSTD
 
             switch (this->Side)
             {
-                case PSTD_DOMAIN_SIDE_BOTTOM:
+                case Kernel::PSTD_DOMAIN_SIDE_BOTTOM:
                     conf->Domains[index].B.Absorption = this->NewValue;
                     break;
-                case PSTD_DOMAIN_SIDE_LEFT:
+                case Kernel::PSTD_DOMAIN_SIDE_LEFT:
                     conf->Domains[index].L.Absorption = this->NewValue;
                     break;
-                case PSTD_DOMAIN_SIDE_RIGHT:
+                case Kernel::PSTD_DOMAIN_SIDE_RIGHT:
                     conf->Domains[index].R.Absorption = this->NewValue;
                     break;
-                case PSTD_DOMAIN_SIDE_TOP:
+                case Kernel::PSTD_DOMAIN_SIDE_TOP:
                     conf->Domains[index].T.Absorption = this->NewValue;
                     break;
             }
@@ -243,7 +243,7 @@ namespace OpenPSTD
             reciever.model->d->Change();
         }
 
-        EditDomainEdgeLrOperation::EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue) :
+        EditDomainEdgeLrOperation::EditDomainEdgeLrOperation(int index, Kernel::PSTD_DOMAIN_SIDE side, bool newValue) :
                 index(index), Side(side), NewValue(newValue)
         {
         }
@@ -255,16 +255,16 @@ namespace OpenPSTD
 
             switch (this->Side)
             {
-                case PSTD_DOMAIN_SIDE_BOTTOM:
+                case Kernel::PSTD_DOMAIN_SIDE_BOTTOM:
                     conf->Domains[index].B.LR = this->NewValue;
                     break;
-                case PSTD_DOMAIN_SIDE_LEFT:
+                case Kernel::PSTD_DOMAIN_SIDE_LEFT:
                     conf->Domains[index].L.LR = this->NewValue;
                     break;
-                case PSTD_DOMAIN_SIDE_RIGHT:
+                case Kernel::PSTD_DOMAIN_SIDE_RIGHT:
                     conf->Domains[index].R.LR = this->NewValue;
                     break;
-                case PSTD_DOMAIN_SIDE_TOP:
+                case Kernel::PSTD_DOMAIN_SIDE_TOP:
                     conf->Domains[index].T.LR = this->NewValue;
                     break;
             }
@@ -292,7 +292,7 @@ namespace OpenPSTD
             reciever.model->d->Change();
         }
 
-        EditDocumentSettingsOperation::EditDocumentSettingsOperation(PSTDSettings settings) : Settings(settings)
+        EditDocumentSettingsOperation::EditDocumentSettingsOperation(Kernel::PSTDSettings settings) : Settings(settings)
         {
 
         }

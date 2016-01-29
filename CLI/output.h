@@ -10,7 +10,7 @@ namespace OpenPSTD
 {
     namespace CLI
     {
-        class CLIOutput : public KernelCallback
+        class CLIOutput : public Kernel::KernelCallback
         {
         private:
             std::shared_ptr<Shared::PSTDFile> _file;
@@ -18,9 +18,9 @@ namespace OpenPSTD
             CLIOutput(std::shared_ptr<Shared::PSTDFile> file) : _file(file)
             { };
 
-            virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) override;
+            virtual void Callback(Kernel::CALLBACKSTATUS status, std::string message, int frame) override;
 
-            virtual void WriteFrame(int frame, int domain, PSTD_FRAME_PTR data) override;
+            virtual void WriteFrame(int frame, int domain, Kernel::PSTD_FRAME_PTR data) override;
 
             virtual void WriteSample(int startSample, int receiver, std::vector<float> data) override;
         };

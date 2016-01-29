@@ -39,14 +39,14 @@
 #include <cmath>
 #include <kernel/PSTDKernel.h>
 
-
+using namespace OpenPSTD;
 using namespace std;
 using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(domain)
 
     shared_ptr<Kernel::Scene> create_a_scene() {
-        shared_ptr<PSTDConfiguration> config = PSTDConfiguration::CreateDefaultConf();
-        DomainConf domain1;
+        shared_ptr<Kernel::PSTDConfiguration> config = Kernel::PSTDConfiguration::CreateDefaultConf();
+        Kernel::DomainConf domain1;
         domain1.TopLeft = QVector2D(0, 0);
         domain1.Size = QVector2D(50, 60);
         domain1.T.Absorption = 0;
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Domains.clear();
         config->Domains.push_back(domain1);
         BOOST_CHECK(config->Domains.size() == 1);
-        PSTDKernel kernel = PSTDKernel();
+        Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
 
         kernel.start_kernel(config);
         auto scene = kernel.get_scene();

@@ -44,125 +44,130 @@
 #include "Boundary.h"
 #include "../KernelInterface.h"
 
-namespace Kernel {
-    class Scene {
-    public:
-        std::vector<std::shared_ptr<Domain>> domain_list;
-        std::shared_ptr<PSTDSettings> settings; // Derived from config
-        Point top_left;
-        Point bottom_right;
-        Point size;
+namespace OpenPSTD
+{
+    namespace Kernel
+    {
+        class Scene
+        {
+        public:
+            std::vector<std::shared_ptr<Domain>> domain_list;
+            std::shared_ptr<PSTDSettings> settings; // Derived from config
+            Point top_left;
+            Point bottom_right;
+            Point size;
 
-        std::vector<std::shared_ptr<Boundary>> boundary_list;
-        std::vector<std::shared_ptr<Receiver>> receiver_list;
-        std::vector<std::shared_ptr<Speaker>> speaker_list;
-    private:
-        std::map<Direction, EdgeParameters> default_edge_parameters; // Uninitialized
-        std::vector<int> ids = {3, 5};
-    public:
+            std::vector<std::shared_ptr<Boundary>> boundary_list;
+            std::vector<std::shared_ptr<Receiver>> receiver_list;
+            std::vector<std::shared_ptr<Speaker>> speaker_list;
+        private:
+            std::map<Direction, EdgeParameters> default_edge_parameters; // Uninitialized
+            std::vector<int> ids = {3, 5};
+        public:
 
-        /**
-         * Constructor of Scene object
-         * @param config: pointer to configuration settings
-         */
-        Scene(std::shared_ptr<PSTDSettings> settings);
+            /**
+             * Constructor of Scene object
+             * @param config: pointer to configuration settings
+             */
+            Scene(std::shared_ptr<PSTDSettings> settings);
 
-        /**
-         * Adds a receiver to the scene.
-         * A receiver logs the sound perceived in that location each time step.
-         * The coordinates have to correspond to the (integer) grid points from the scene descriptor file,
-         * but need not be integer.
-         * @param x coordinate on grid in x dimension
-         * @param y coordinate on grid in y dimension
-         * @param x coordinate on grid in z dimension
-         */
-        void add_receiver(const float x, const float y, const float z);
+            /**
+             * Adds a receiver to the scene.
+             * A receiver logs the sound perceived in that location each time step.
+             * The coordinates have to correspond to the (integer) grid points from the scene descriptor file,
+             * but need not be integer.
+             * @param x coordinate on grid in x dimension
+             * @param y coordinate on grid in y dimension
+             * @param x coordinate on grid in z dimension
+             */
+            void add_receiver(const float x, const float y, const float z);
 
-        /**
-         * Adds a speaker to the scene.
-         * A speaker emits the sound that is modelled by the PSTD method.
-         * The coordinates have to correspond to the (integer) grid points from the scene descriptor file,
-         * but need not be integer.
-         * @param x coordinate on grid in x dimension
-         * @param y coordinate on grid in y dimension
-         * @param x coordinate on grid in z dimension
-         */
-        void add_speaker(const float x, const float y, const float z);
+            /**
+             * Adds a speaker to the scene.
+             * A speaker emits the sound that is modelled by the PSTD method.
+             * The coordinates have to correspond to the (integer) grid points from the scene descriptor file,
+             * but need not be integer.
+             * @param x coordinate on grid in x dimension
+             * @param y coordinate on grid in y dimension
+             * @param x coordinate on grid in z dimension
+             */
+            void add_speaker(const float x, const float y, const float z);
 
-        /**
-         * Add domain to the scene. Checks for every other domain
-         * whether they share a boundary and processes pml domains correctly
-         * @param domain: pointer to domain object to be added.
-         */
-        void add_domain(std::shared_ptr<Domain> domain);
+            /**
+             * Add domain to the scene. Checks for every other domain
+             * whether they share a boundary and processes pml domains correctly
+             * @param domain: pointer to domain object to be added.
+             */
+            void add_domain(std::shared_ptr<Domain> domain);
 
-        /**
-         * Computes the reflection and transmission coordinates for each domain in the scene.
-         */
-        void compute_rho_arrays();
+            /**
+             * Computes the reflection and transmission coordinates for each domain in the scene.
+             */
+            void compute_rho_arrays();
 
-        /**
-         * Computes the perfectly matched layer matrix coefficients for each domain in the scene.
-         */
-        void compute_pml_matrices();
+            /**
+             * Computes the perfectly matched layer matrix coefficients for each domain in the scene.
+             */
+            void compute_pml_matrices();
 
-        /**
-         * Add the necessary perfectly matched layer domain to the current scene,
-         * checks which layers belong to which domains, and checks which layers can be merged.
-         */
-        void add_pml_domains();
+            /**
+             * Add the necessary perfectly matched layer domain to the current scene,
+             * checks which layers belong to which domains, and checks which layers can be merged.
+             */
+            void add_pml_domains();
 
-        /**
-         * Applies the layer coefficients for each domain in the scene.
-         */
-        void apply_pml_matrices();
+            /**
+             * Applies the layer coefficients for each domain in the scene.
+             */
+            void apply_pml_matrices();
 
-        /**
-         * Obtains the global pressure field by summing the pressure in each domain.
-         * @return: Array with pressure values
-         */
-        Eigen::ArrayXXf get_pressure_field();
+            /**
+             * Obtains the global pressure field by summing the pressure in each domain.
+             * @return: Array with pressure values
+             */
+            Eigen::ArrayXXf get_pressure_field();
 
-        /**
-         * Fetch a domain with specified ID, if existing.
-         * @param id: string ID of domain.
-         * @return: domain pointer if domain with id exists, else nullptr.
-         */
-        std::shared_ptr<Domain> get_domain(int id);
+            /**
+             * Fetch a domain with specified ID, if existing.
+             * @param id: string ID of domain.
+             * @return: domain pointer if domain with id exists, else nullptr.
+             */
+            std::shared_ptr<Domain> get_domain(int id);
 
-        /**
-        * Returns a new domain ID integer
-        */
-        int get_new_id();
+            /**
+            * Returns a new domain ID integer
+            */
+            int get_new_id();
 
-    private:
+        private:
 
-        /**
-         * General field obtainer function, extensible if necessary
-         */
-        Eigen::ArrayXXf get_field(char field_type);
+            /**
+             * General field obtainer function, extensible if necessary
+             */
+            Eigen::ArrayXXf get_field(char field_type);
 
-        /**
-         * Helper function for add_pml_domains.
-         * Collects the topleft and bottom right points of a domain.
-         */
-        std::vector<int> get_corner_points(std::shared_ptr<Domain> domain);
+            /**
+             * Helper function for add_pml_domains.
+             * Collects the topleft and bottom right points of a domain.
+             */
+            std::vector<int> get_corner_points(std::shared_ptr<Domain> domain);
 
-        /**
-         * Helper function for add_pml_domains
-         * Checks if two pml domains can (and should) be merged.
-         */
+            /**
+             * Helper function for add_pml_domains
+             * Checks if two pml domains can (and should) be merged.
+             */
 
-        bool should_merge_domains(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
+            bool should_merge_domains(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
 
-        /**
-         * Helper function for add_pml_domains
-         * Finds the common parent of two pml domains.
-         */
-        std::shared_ptr<Domain> get_singular_parent_domain(std::shared_ptr<Domain> domain);
-    };
+            /**
+             * Helper function for add_pml_domains
+             * Finds the common parent of two pml domains.
+             */
+            std::shared_ptr<Domain> get_singular_parent_domain(std::shared_ptr<Domain> domain);
+        };
 
-    std::ostream &operator<<(std::ostream &str, Scene const &v);
+        std::ostream &operator<<(std::ostream &str, Scene const &v);
+    }
 }
 
 #endif //OPENPSTD_KERNELSCENE_H
