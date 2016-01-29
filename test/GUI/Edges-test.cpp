@@ -34,7 +34,9 @@
 #   define BOOST_TEST_MODULE Main
 #endif
 #include <boost/test/unit_test.hpp>
-#include "../../GUI/Edges.h"
+#include <GUI/Edges.h>
+
+using namespace OpenPSTD::GUI;
 
 BOOST_AUTO_TEST_SUITE(GUI_Edges)
 

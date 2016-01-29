@@ -33,17 +33,22 @@
 #define OPENPSTD_NOUNICONSCREDIT_H
 
 #include <string>
+namespace OpenPSTD
+{
+    namespace GUI
+    {
+        const std::string ABOUT_OPENPSTD = "OpenPSTD Application\n"
+                "Website: http://www.openpstd.org/\n"
+                "Development: https://github.com/openPSTD/openPSTD";
 
-const std::string ABOUT_OPENPSTD = "OpenPSTD Application\n"
-        "Website: http://www.openpstd.org/\n"
-        "Development: https://github.com/openPSTD/openPSTD";
+        const std::string ABOUT_NOUN_ICONS = "Speaker by Edward Boatman from the Noun Project\n"
+                "Microphone by Alex Auda Samora from the Noun Project\n"
+                "Add by Leonides Delgado from the Noun Project\n"
+                "Full Screen by iconsmind.com from the Noun Project\n"
+                "Selection Square by Thomas Helbig from the Noun Project\n"
+                "https://thenounproject.com/";
 
-const std::string ABOUT_NOUN_ICONS = "Speaker by Edward Boatman from the Noun Project\n"
-        "Microphone by Alex Auda Samora from the Noun Project\n"
-        "Add by Leonides Delgado from the Noun Project\n"
-        "Full Screen by iconsmind.com from the Noun Project\n"
-        "Selection Square by Thomas Helbig from the Noun Project\n"
-        "https://thenounproject.com/";
-
+    }
+}
 
 #endif //OPENPSTD_NOUNICONSCREDIT_H

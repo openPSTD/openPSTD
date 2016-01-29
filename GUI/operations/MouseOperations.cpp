@@ -32,15 +32,21 @@
 
 #include "MouseOperations.h"
 
-ChangeMouseHandlerOperations::ChangeMouseHandlerOperations(std::unique_ptr<MouseStrategy> mouseHandler) :
-        mouseHandler(std::move(mouseHandler))
+namespace OpenPSTD
 {
+    namespace GUI
+    {
+        ChangeMouseHandlerOperations::ChangeMouseHandlerOperations(std::unique_ptr<MouseStrategy> mouseHandler) :
+                mouseHandler(std::move(mouseHandler))
+        {
 
+        }
+
+        void ChangeMouseHandlerOperations::Run(const Reciever &reciever)
+        {
+            reciever.model->mouseHandler = std::move(this->mouseHandler);
+            reciever.model->mouseHandler->SetOperationRunner(reciever.operationRunner);
+        }
+
+    }
 }
-
-void ChangeMouseHandlerOperations::Run(const Reciever &reciever)
-{
-    reciever.model->mouseHandler = std::move(this->mouseHandler);
-    reciever.model->mouseHandler->SetOperationRunner(reciever.operationRunner);
-}
-

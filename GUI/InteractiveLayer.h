@@ -37,28 +37,34 @@
 #define OPENPSTD_INTERACTIVELAYER_H
 
 #include "Viewer2D.h"
-
-class InteractiveLayer : public Layer
+namespace OpenPSTD
 {
-private:
-    std::unique_ptr<QOpenGLShaderProgram> program;
-    bool addDomainVisible;
-    bool selectionVisible;
-    unsigned int newDomainBuffer;
-    unsigned int selectionBuffer;
-    QColor newDomainColor;
-    QColor selectionColor;
-public:
-    InteractiveLayer();
+    namespace GUI
+    {
+        class InteractiveLayer : public Layer
+        {
+        private:
+            std::unique_ptr<QOpenGLShaderProgram> program;
+            bool addDomainVisible;
+            bool selectionVisible;
+            unsigned int newDomainBuffer;
+            unsigned int selectionBuffer;
+            QColor newDomainColor;
+            QColor selectionColor;
+        public:
+            InteractiveLayer();
 
-    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            virtual void UpdateScene(std::shared_ptr<Model> const &m,
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-    virtual MinMaxValue GetMinMax();
-};
+            virtual MinMaxValue GetMinMax();
+        };
 
+    }
+}
 
 #endif //OPENPSTD_INTERACTIVELAYER_H

@@ -38,30 +38,38 @@
 
 #include "Viewer2D.h"
 
-class GridLayer: public Layer
+namespace OpenPSTD
 {
-private:
-    std::unique_ptr<QOpenGLShaderProgram> program;
-    void UpdateLines();
-    std::unique_ptr<std::vector<float>> positions;
-    unsigned int positionsBuffer;
-    int lines;
-    float gridSpacing;
-    QMatrix4x4 viewMatrix;
+    namespace GUI
+    {
+        class GridLayer : public Layer
+        {
+        private:
+            std::unique_ptr<QOpenGLShaderProgram> program;
 
-public:
-    GridLayer();
+            void UpdateLines();
 
-    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            std::unique_ptr<std::vector<float>> positions;
+            unsigned int positionsBuffer;
+            int lines;
+            float gridSpacing;
+            QMatrix4x4 viewMatrix;
 
-    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+        public:
+            GridLayer();
 
-    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-    virtual MinMaxValue GetMinMax();
+            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-    float CalcIdealSpacing();
-};
+            virtual void UpdateScene(std::shared_ptr<Model> const &m,
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
+            virtual MinMaxValue GetMinMax();
 
+            float CalcIdealSpacing();
+        };
+
+    }
+}
 #endif //OPENPSTD_GRIDLAYER_H

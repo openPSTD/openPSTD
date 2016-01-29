@@ -41,37 +41,60 @@
 #include <memory>
 #include <kernel/KernelInterface.h>
 
-class DomainProperties: public QDialog
+namespace OpenPSTD
 {
-    Q_OBJECT
+    namespace GUI
+    {
 
-public:
-    explicit DomainProperties(QWidget *parent = 0);
-    float AbsorptionT();
-    float AbsorptionB();
-    float AbsorptionL();
-    float AbsorptionR();
-    bool LRT();
-    bool LRB();
-    bool LRL();
-    bool LRR();
+        class DomainProperties : public QDialog
+        {
+        Q_OBJECT
 
-    void SetAbsorptionT(float value);
-    void SetAbsorptionB(float value);
-    void SetAbsorptionL(float value);
-    void SetAbsorptionR(float value);
-    void SetLRT(bool value);
-    void SetLRB(bool value);
-    void SetLRL(bool value);
-    void SetLRR(bool value);
+        public:
+            explicit DomainProperties(QWidget *parent = 0);
 
-    void SetDomain(DomainConf d);
-    DomainConf GetDomain();
+            float AbsorptionT();
 
-private:
-    DomainConf _d;
-    std::unique_ptr<Ui_DomainProperties> ui;
-};
+            float AbsorptionB();
 
+            float AbsorptionL();
+
+            float AbsorptionR();
+
+            bool LRT();
+
+            bool LRB();
+
+            bool LRL();
+
+            bool LRR();
+
+            void SetAbsorptionT(float value);
+
+            void SetAbsorptionB(float value);
+
+            void SetAbsorptionL(float value);
+
+            void SetAbsorptionR(float value);
+
+            void SetLRT(bool value);
+
+            void SetLRB(bool value);
+
+            void SetLRL(bool value);
+
+            void SetLRR(bool value);
+
+            void SetDomain(DomainConf d);
+
+            DomainConf GetDomain();
+
+        private:
+            DomainConf _d;
+            std::unique_ptr<Ui_DomainProperties> ui;
+        };
+
+    }
+}
 
 #endif //OPENPSTD_DOMAINPROPERTIES_H

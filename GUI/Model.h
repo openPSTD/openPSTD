@@ -33,24 +33,29 @@
 #ifndef OPENPSTD_MODEL_H
 #define OPENPSTD_MODEL_H
 
-class Model;
-
-enum SelectionType
+namespace OpenPSTD
 {
-    SELECTION_NONE,
-    SELECTION_DOMAIN,
-    SELECTION_RECEIVER,
-    SELECTION_SPEAKER
-};
+    namespace GUI
+    {
+        class Model;
 
-enum PstdObjectType
-{
-    OBJECT_NONE,
-    OBJECT_DOMAIN,
-    OBJECT_RECEIVER,
-    OBJECT_SPEAKER
-};
+        enum SelectionType
+        {
+            SELECTION_NONE,
+            SELECTION_DOMAIN,
+            SELECTION_RECEIVER,
+            SELECTION_SPEAKER
+        };
 
+        enum PstdObjectType
+        {
+            OBJECT_NONE,
+            OBJECT_DOMAIN,
+            OBJECT_RECEIVER,
+            OBJECT_SPEAKER
+        };
+    }
+}
 #include <memory>
 #include <vector>
 #include <QtGui/qmatrix4x4.h>
@@ -61,63 +66,71 @@ enum PstdObjectType
 #include <shared/Colors.h>
 #include <shared/InvalidationData.h>
 
-class InteractiveModel: public InvalidationData
+namespace OpenPSTD
 {
-public:
-    struct {
-    public:
-        bool visible;
-        QVector2D start;
-        QVector2D currentEnd;
-    } CreateDomain;
+    namespace GUI
+    {
+        class InteractiveModel : public InvalidationData
+        {
+        public:
+            struct
+            {
+            public:
+                bool visible;
+                QVector2D start;
+                QVector2D currentEnd;
+            } CreateDomain;
 
-    struct {
-        int SelectedIndex;
-        SelectionType Type;
-    } Selection;
-};
+            struct
+            {
+                int SelectedIndex;
+                SelectionType Type;
+            } Selection;
+        };
 
-class SnappingSettings
-{
-public:
-    bool SnapToGrid = true;
-    bool SnapToDomainEdges = true;
-    float SnapToDomainEdgesDistance = 0.4f;
-};
+        class SnappingSettings
+        {
+        public:
+            bool SnapToGrid = true;
+            bool SnapToDomainEdges = true;
+            float SnapToDomainEdgesDistance = 0.4f;
+        };
 
-class VisualSettings
-{
-public:
-    float EdgeSize = 5.0f;
-    std::unique_ptr<BaseColorScheme> colorScheme;
-};
+        class VisualSettings
+        {
+        public:
+            float EdgeSize = 5.0f;
+            std::unique_ptr<BaseColorScheme> colorScheme;
+        };
 
-class Settings: public InvalidationData
-{
-public:
-    SnappingSettings snapping;
-    VisualSettings visual;
-};
+        class Settings : public InvalidationData
+        {
+        public:
+            SnappingSettings snapping;
+            VisualSettings visual;
+        };
 
-class View: public InvalidationData
-{
-public:
-    QMatrix4x4 viewMatrix;
-    QMatrix4x4 worldMatrix;
-    QMatrix4x4 aspectMatrix;
-};
+        class View : public InvalidationData
+        {
+        public:
+            QMatrix4x4 viewMatrix;
+            QMatrix4x4 worldMatrix;
+            QMatrix4x4 aspectMatrix;
+        };
 
-class Model: public InvalidationData
-{
-public:
-    Model();
+        class Model : public InvalidationData
+        {
+        public:
+            Model();
 
-    std::shared_ptr<PSTDFile> d;
-    std::shared_ptr<View> view;
-    std::unique_ptr<MouseStrategy> mouseHandler;
-    std::shared_ptr<InteractiveModel> interactive;
-    std::shared_ptr<Settings> settings;
-};
+            std::shared_ptr<PSTDFile> d;
+            std::shared_ptr<View> view;
+            std::unique_ptr<MouseStrategy> mouseHandler;
+            std::shared_ptr<InteractiveModel> interactive;
+            std::shared_ptr<Settings> settings;
+        };
 
+    }
+}
 
 #endif //OPENPSTD_MODEL_H

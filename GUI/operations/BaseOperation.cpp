@@ -32,12 +32,19 @@
 
 #include "BaseOperation.h"
 
-
-void LambdaOperation::Run(const Reciever &reciever)
+namespace OpenPSTD
 {
-    this->_func(reciever);
-}
+    namespace GUI
+    {
 
-LambdaOperation::LambdaOperation(std::function<void(const Reciever &)> func): _func(func)
-{
+        void LambdaOperation::Run(const Reciever &reciever)
+        {
+            this->_func(reciever);
+        }
+
+        LambdaOperation::LambdaOperation(std::function<void(const Reciever &)> func) : _func(func)
+        {
+        }
+
+    }
 }

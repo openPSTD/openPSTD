@@ -36,41 +36,53 @@
 #ifndef OPENPSTD_BASEOPERATION_H
 #define OPENPSTD_BASEOPERATION_H
 
-class OperationRunner;
-class Reciever;
-class BaseOperation;
-
+namespace OpenPSTD
+{
+    namespace GUI
+    {
+        class OperationRunner;
+        class Reciever;
+        class BaseOperation;
+    }
+}
 #include "../Model.h"
 #include <memory>
 
-class OperationRunner
+namespace OpenPSTD
 {
-public:
-    virtual void RunOperation(std::shared_ptr<BaseOperation> operation) = 0;
-};
+    namespace GUI
+    {
+        class OperationRunner
+        {
+        public:
+            virtual void RunOperation(std::shared_ptr<BaseOperation> operation) = 0;
+        };
 
-class Reciever
-{
-public:
-    std::shared_ptr<Model> model;
-    std::shared_ptr<OperationRunner> operationRunner;
-};
+        class Reciever
+        {
+        public:
+            std::shared_ptr<Model> model;
+            std::shared_ptr<OperationRunner> operationRunner;
+        };
 
-class BaseOperation
-{
-public:
-    virtual void Run(const Reciever &reciever) = 0;
-};
+        class BaseOperation
+        {
+        public:
+            virtual void Run(const Reciever &reciever) = 0;
+        };
 
-class LambdaOperation: public BaseOperation
-{
-private:
-    std::function<void (const Reciever &)> _func;
+        class LambdaOperation : public BaseOperation
+        {
+        private:
+            std::function<void(const Reciever &)> _func;
 
-public:
-    LambdaOperation(std::function<void (const Reciever &)> func);
-    virtual void Run(const Reciever &reciever) override;
-};
+        public:
+            LambdaOperation(std::function<void(const Reciever &)> func);
 
+            virtual void Run(const Reciever &reciever) override;
+        };
+
+    }
+}
 
 #endif //OPENPSTD_BASEOPERATION_H

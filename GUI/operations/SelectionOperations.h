@@ -34,38 +34,44 @@
 
 #include "BaseOperation.h"
 
-class SelectIndexedObjectOperation : public BaseOperation
+namespace OpenPSTD
 {
-private:
-    SelectionType type;
-    int index;
-public:
-    SelectIndexedObjectOperation(SelectionType type, int index);
+    namespace GUI
+    {
+        class SelectIndexedObjectOperation : public BaseOperation
+        {
+        private:
+            SelectionType type;
+            int index;
+        public:
+            SelectIndexedObjectOperation(SelectionType type, int index);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class SelectDomainOperation : public SelectIndexedObjectOperation
-{
-public:
-    SelectDomainOperation(int selectDomainIndex);
-};
+        class SelectDomainOperation : public SelectIndexedObjectOperation
+        {
+        public:
+            SelectDomainOperation(int selectDomainIndex);
+        };
 
-class DeselectOperation : public SelectIndexedObjectOperation
-{
-public:
-    DeselectOperation();
-};
+        class DeselectOperation : public SelectIndexedObjectOperation
+        {
+        public:
+            DeselectOperation();
+        };
 
-class SelectObjectOperation: public BaseOperation
-{
-private:
-    QVector2D ScreenPosition;
-public:
-    SelectObjectOperation(QVector2D ScreenPosition);
+        class SelectObjectOperation : public BaseOperation
+        {
+        private:
+            QVector2D ScreenPosition;
+        public:
+            SelectObjectOperation(QVector2D ScreenPosition);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
+    }
+}
 
 #endif //OPENPSTD_SELECTDOMAINOPERATION_H

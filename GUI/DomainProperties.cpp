@@ -32,104 +32,125 @@
 
 #include "DomainProperties.h"
 
-DomainProperties::DomainProperties(QWidget *parent):QDialog(parent), ui(new Ui_DomainProperties())
+namespace OpenPSTD
 {
-    ui->setupUi(this);
-}
-float DomainProperties::AbsorptionT()
-{
-    return ui->absorptionRateT->value();
-}
-float DomainProperties::AbsorptionB()
-{
-    return ui->absorptionRateB->value();
-}
-float DomainProperties::AbsorptionL()
-{
-    return ui->absorptionRateL->value();
-}
-float DomainProperties::AbsorptionR()
-{
-    return ui->absorptionRateR->value();
-}
-bool DomainProperties::LRT()
-{
-    return ui->LRT->isChecked();
-}
-bool DomainProperties::LRB()
-{
-    return ui->LRB->isChecked();
-}
-bool DomainProperties::LRL()
-{
-    return ui->LRL->isChecked();
-}
-bool DomainProperties::LRR()
-{
-    return ui->LRR->isChecked();
-}
+    namespace GUI
+    {
+        DomainProperties::DomainProperties(QWidget *parent) : QDialog(parent), ui(new Ui_DomainProperties())
+        {
+            ui->setupUi(this);
+        }
 
-void DomainProperties::SetAbsorptionT(float value)
-{
-    ui->absorptionRateT->setValue(value);
-}
-void DomainProperties::SetAbsorptionB(float value)
-{
-    ui->absorptionRateB->setValue(value);
-}
-void DomainProperties::SetAbsorptionL(float value)
-{
-    ui->absorptionRateL->setValue(value);
-}
-void DomainProperties::SetAbsorptionR(float value)
-{
-    ui->absorptionRateR->setValue(value);
-}
-void DomainProperties::SetLRT(bool value)
-{
-    ui->LRT->setChecked(value);
-}
-void DomainProperties::SetLRB(bool value)
-{
-    ui->LRB->setChecked(value);
-}
-void DomainProperties::SetLRL(bool value)
-{
-    ui->LRL->setChecked(value);
-}
-void DomainProperties::SetLRR(bool value)
-{
-    ui->LRR->setChecked(value);
-}
+        float DomainProperties::AbsorptionT()
+        {
+            return ui->absorptionRateT->value();
+        }
 
-void DomainProperties::SetDomain(DomainConf d)
-{
-    this->SetAbsorptionT(d.T.Absorption);
-    this->SetAbsorptionB(d.B.Absorption);
-    this->SetAbsorptionL(d.L.Absorption);
-    this->SetAbsorptionR(d.R.Absorption);
+        float DomainProperties::AbsorptionB()
+        {
+            return ui->absorptionRateB->value();
+        }
 
-    this->SetLRT(d.T.LR);
-    this->SetLRB(d.B.LR);
-    this->SetLRL(d.L.LR);
-    this->SetLRR(d.R.LR);
+        float DomainProperties::AbsorptionL()
+        {
+            return ui->absorptionRateL->value();
+        }
 
-    this->_d = d;
-}
+        float DomainProperties::AbsorptionR()
+        {
+            return ui->absorptionRateR->value();
+        }
 
-DomainConf DomainProperties::GetDomain()
-{
-    DomainConf result = this->_d;
+        bool DomainProperties::LRT()
+        {
+            return ui->LRT->isChecked();
+        }
 
-    result.L.LR = this->LRL();
-    result.R.LR = this->LRR();
-    result.B.LR = this->LRB();
-    result.T.LR = this->LRT();
+        bool DomainProperties::LRB()
+        {
+            return ui->LRB->isChecked();
+        }
 
-    result.L.Absorption = this->AbsorptionL();
-    result.R.Absorption = this->AbsorptionR();
-    result.B.Absorption = this->AbsorptionB();
-    result.T.Absorption = this->AbsorptionT();
+        bool DomainProperties::LRL()
+        {
+            return ui->LRL->isChecked();
+        }
 
-    return result;
+        bool DomainProperties::LRR()
+        {
+            return ui->LRR->isChecked();
+        }
+
+        void DomainProperties::SetAbsorptionT(float value)
+        {
+            ui->absorptionRateT->setValue(value);
+        }
+
+        void DomainProperties::SetAbsorptionB(float value)
+        {
+            ui->absorptionRateB->setValue(value);
+        }
+
+        void DomainProperties::SetAbsorptionL(float value)
+        {
+            ui->absorptionRateL->setValue(value);
+        }
+
+        void DomainProperties::SetAbsorptionR(float value)
+        {
+            ui->absorptionRateR->setValue(value);
+        }
+
+        void DomainProperties::SetLRT(bool value)
+        {
+            ui->LRT->setChecked(value);
+        }
+
+        void DomainProperties::SetLRB(bool value)
+        {
+            ui->LRB->setChecked(value);
+        }
+
+        void DomainProperties::SetLRL(bool value)
+        {
+            ui->LRL->setChecked(value);
+        }
+
+        void DomainProperties::SetLRR(bool value)
+        {
+            ui->LRR->setChecked(value);
+        }
+
+        void DomainProperties::SetDomain(DomainConf d)
+        {
+            this->SetAbsorptionT(d.T.Absorption);
+            this->SetAbsorptionB(d.B.Absorption);
+            this->SetAbsorptionL(d.L.Absorption);
+            this->SetAbsorptionR(d.R.Absorption);
+
+            this->SetLRT(d.T.LR);
+            this->SetLRB(d.B.LR);
+            this->SetLRL(d.L.LR);
+            this->SetLRR(d.R.LR);
+
+            this->_d = d;
+        }
+
+        DomainConf DomainProperties::GetDomain()
+        {
+            DomainConf result = this->_d;
+
+            result.L.LR = this->LRL();
+            result.R.LR = this->LRR();
+            result.B.LR = this->LRB();
+            result.T.LR = this->LRT();
+
+            result.L.Absorption = this->AbsorptionL();
+            result.R.Absorption = this->AbsorptionR();
+            result.B.Absorption = this->AbsorptionB();
+            result.T.Absorption = this->AbsorptionT();
+
+            return result;
+        }
+    }
 }

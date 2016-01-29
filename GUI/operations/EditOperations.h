@@ -36,138 +36,148 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <QVector2D>
 
-class CreateDomainOperation: public BaseOperation
+namespace OpenPSTD
 {
-private:
-    QVector2D StartPoint;
-    QVector2D EndPoint;
+    namespace GUI
+    {
+        class CreateDomainOperation : public BaseOperation
+        {
+        private:
+            QVector2D StartPoint;
+            QVector2D EndPoint;
 
-public:
-    CreateDomainOperation(QVector2D StartPoint, QVector2D EndPoint);
+        public:
+            CreateDomainOperation(QVector2D StartPoint, QVector2D EndPoint);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class CreateReceiverSpeakerOperation: public BaseOperation
-{
-private:
-    PstdObjectType _type;
-    QVector3D _position;
+        class CreateReceiverSpeakerOperation : public BaseOperation
+        {
+        private:
+            PstdObjectType _type;
+            QVector3D _position;
 
-public:
-    CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position);
+        public:
+            CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class RemoveSelectedDomainOperation: public BaseOperation
-{
-public:
-    virtual void Run(const Reciever &reciever) override;
-};
+        class RemoveSelectedDomainOperation : public BaseOperation
+        {
+        public:
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class RemoveSelectedObjectOperation: public BaseOperation
-{
-public:
-    virtual void Run(const Reciever &reciever) override;
-};
+        class RemoveSelectedObjectOperation : public BaseOperation
+        {
+        public:
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class RemoveDomainOperation: public BaseOperation
-{
-private:
-    int index;
+        class RemoveDomainOperation : public BaseOperation
+        {
+        private:
+            int index;
 
-public:
-    RemoveDomainOperation(int index);
+        public:
+            RemoveDomainOperation(int index);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class RemoveSpeakerOperation: public BaseOperation
-{
-private:
-    int index;
+        class RemoveSpeakerOperation : public BaseOperation
+        {
+        private:
+            int index;
 
-public:
-    RemoveSpeakerOperation(int index);
+        public:
+            RemoveSpeakerOperation(int index);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class RemoveReceiverOperation: public BaseOperation
-{
-private:
-    int index;
+        class RemoveReceiverOperation : public BaseOperation
+        {
+        private:
+            int index;
 
-public:
-    RemoveReceiverOperation(int index);
+        public:
+            RemoveReceiverOperation(int index);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class EditDomainPositionsOperation: public BaseOperation
-{
-private:
-    int index;
-    QVector2D StartPoint;
-    QVector2D EndPoint;
+        class EditDomainPositionsOperation : public BaseOperation
+        {
+        private:
+            int index;
+            QVector2D StartPoint;
+            QVector2D EndPoint;
 
-public:
-    EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint);
+        public:
+            EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class EditDomainEdgeAbsorptionOperation: public BaseOperation
-{
-private:
-    int index;
-    PSTD_DOMAIN_SIDE Side;
-    float NewValue;
+        class EditDomainEdgeAbsorptionOperation : public BaseOperation
+        {
+        private:
+            int index;
+            PSTD_DOMAIN_SIDE Side;
+            float NewValue;
 
-public:
-    EditDomainEdgeAbsorptionOperation(int index, PSTD_DOMAIN_SIDE side, float newValue);
+        public:
+            EditDomainEdgeAbsorptionOperation(int index, PSTD_DOMAIN_SIDE side, float newValue);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class EditDomainEdgeLrOperation: public BaseOperation
-{
-private:
-    int index;
-    PSTD_DOMAIN_SIDE Side;
-    bool NewValue;
+        class EditDomainEdgeLrOperation : public BaseOperation
+        {
+        private:
+            int index;
+            PSTD_DOMAIN_SIDE Side;
+            bool NewValue;
 
-public:
-    EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue);
+        public:
+            EditDomainEdgeLrOperation(int index, PSTD_DOMAIN_SIDE side, bool newValue);
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class EditSelectedDomainEdgesOperation: public BaseOperation
-{
-public:
-    float AbsorptionT;
-    float AbsorptionB;
-    float AbsorptionL;
-    float AbsorptionR;
-    bool LRT;
-    bool LRB;
-    bool LRL;
-    bool LRR;
+        class EditSelectedDomainEdgesOperation : public BaseOperation
+        {
+        public:
+            float AbsorptionT;
+            float AbsorptionB;
+            float AbsorptionL;
+            float AbsorptionR;
+            bool LRT;
+            bool LRB;
+            bool LRL;
+            bool LRR;
 
-    virtual void Run(const Reciever &reciever) override;
-};
+            virtual void Run(const Reciever &reciever) override;
+        };
 
-class EditDocumentSettingsOperation: public BaseOperation
-{
-public:
-    EditDocumentSettingsOperation(){};
-    EditDocumentSettingsOperation(PSTDSettings settings);
-    PSTDSettings Settings;
-    virtual void Run(const Reciever &reciever) override;
-};
+        class EditDocumentSettingsOperation : public BaseOperation
+        {
+        public:
+            EditDocumentSettingsOperation()
+            { };
 
+            EditDocumentSettingsOperation(PSTDSettings settings);
+
+            PSTDSettings Settings;
+
+            virtual void Run(const Reciever &reciever) override;
+        };
+
+    }
+}
 
 #endif //OPENPSTD_EDITOPERATIONS_H
 

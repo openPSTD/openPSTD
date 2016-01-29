@@ -32,11 +32,17 @@
 
 #include "Model.h"
 
-Model::Model() : interactive(new InteractiveModel()), view(new View()),
-                 settings(new Settings())
+namespace OpenPSTD
 {
-    this->Register(interactive);
-    this->Register(view);
-    this->Register(settings);
-}
+    namespace GUI
+    {
+        Model::Model() : interactive(new InteractiveModel()), view(new View()),
+                         settings(new Settings())
+        {
+            this->Register(interactive);
+            this->Register(view);
+            this->Register(settings);
+        }
 
+    }
+}

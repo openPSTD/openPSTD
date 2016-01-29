@@ -35,47 +35,68 @@
 #include <vector>
 #include <QVector2D>
 
+namespace OpenPSTD
+{
+    namespace GUI
+    {
 /**
  * This class is specificaly for horizontal edges and vertical edges.
  * No fields are added to this class. It is possible to send an object of this type directly to the GPU and draw lines.
  */
-class Edge
-{
-private:
-    QVector2D _start, _end;
-    float _absorption;
-    bool _localReacting;
+        class Edge
+        {
+        private:
+            QVector2D _start, _end;
+            float _absorption;
+            bool _localReacting;
 
-    float StartInDim() const;
-    float EndInDim() const;
-    Edge CreateInSameDim(float start, float end) const;
-    float PosInDim(int dim) const;
+            float StartInDim() const;
 
-public:
-    Edge(float PosInDim, int dim, float start, float end, float absorption, bool localReacting);
-    Edge(QVector2D start, QVector2D end, float absorption, bool localReacting);
+            float EndInDim() const;
 
-    bool IsOnlyInDim(int dim) const;
-    bool IsVertical() const;
-    bool IsHorizontal() const;
+            Edge CreateInSameDim(float start, float end) const;
 
-    QVector2D GetStart() const;
-    QVector2D GetEnd() const;
-    float GetAbsorption() const;
-    float GetLocalReacting() const;
+            float PosInDim(int dim) const;
 
-    /**
-     * Tests if the 2 edges are on the same line. This only works if they are on horizontal of vertical.
-     */
-    bool OnSameLine(const Edge& edge) const;
-    static bool OnSameLine(const Edge& edge1, const Edge& edge2);
-    std::vector<Edge> Substract(const Edge& edge) const;
+        public:
+            Edge(float PosInDim, int dim, float start, float end, float absorption, bool localReacting);
 
-    static std::vector<Edge> SubstractEdgeFromList(std::vector<Edge> edges, Edge rhs);
-    static std::vector<Edge> SubstractListFromList(std::vector<Edge> lhs, std::vector<Edge> rhs);
-    static std::vector<Edge> SubstractListFromEdge(Edge lhs, std::vector<Edge> rhs);
-    static std::vector<Edge> SubstractListFromEdge(Edge lhs, std::vector<Edge> rhs, std::vector<int> exceptIndices);
-};
+            Edge(QVector2D start, QVector2D end, float absorption, bool localReacting);
 
+            bool IsOnlyInDim(int dim) const;
+
+            bool IsVertical() const;
+
+            bool IsHorizontal() const;
+
+            QVector2D GetStart() const;
+
+            QVector2D GetEnd() const;
+
+            float GetAbsorption() const;
+
+            float GetLocalReacting() const;
+
+            /**
+             * Tests if the 2 edges are on the same line. This only works if they are on horizontal of vertical.
+             */
+            bool OnSameLine(const Edge &edge) const;
+
+            static bool OnSameLine(const Edge &edge1, const Edge &edge2);
+
+            std::vector<Edge> Substract(const Edge &edge) const;
+
+            static std::vector<Edge> SubstractEdgeFromList(std::vector<Edge> edges, Edge rhs);
+
+            static std::vector<Edge> SubstractListFromList(std::vector<Edge> lhs, std::vector<Edge> rhs);
+
+            static std::vector<Edge> SubstractListFromEdge(Edge lhs, std::vector<Edge> rhs);
+
+            static std::vector<Edge> SubstractListFromEdge(Edge lhs, std::vector<Edge> rhs,
+                                                           std::vector<int> exceptIndices);
+        };
+
+    }
+}
 
 #endif //OPENPSTD_EDGES_H

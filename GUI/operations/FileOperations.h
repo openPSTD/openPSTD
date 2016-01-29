@@ -39,33 +39,39 @@
 #include "BaseOperation.h"
 #include <string>
 
-class OpenFileOperation: public BaseOperation
+namespace OpenPSTD
 {
-public:
-    OpenFileOperation(std::string filename);
+    namespace GUI
+    {
+        class OpenFileOperation : public BaseOperation
+        {
+        public:
+            OpenFileOperation(std::string filename);
 
-    virtual void Run(const Reciever &reciever) override;
+            virtual void Run(const Reciever &reciever) override;
 
-private:
-    std::string filename;
-};
+        private:
+            std::string filename;
+        };
 
-class NewFileOperation: public BaseOperation
-{
-public:
-    NewFileOperation(std::string filename);
+        class NewFileOperation : public BaseOperation
+        {
+        public:
+            NewFileOperation(std::string filename);
 
-    virtual void Run(const Reciever &reciever) override;
+            virtual void Run(const Reciever &reciever) override;
 
-private:
-    std::string filename;
-};
+        private:
+            std::string filename;
+        };
 
-class SaveFileOperation: public BaseOperation
-{
-public:
-    virtual void Run(const Reciever &reciever) override;
-};
+        class SaveFileOperation : public BaseOperation
+        {
+        public:
+            virtual void Run(const Reciever &reciever) override;
+        };
 
+    }
+}
 
 #endif //OPENPSTD_FILEOPERATIONS_H

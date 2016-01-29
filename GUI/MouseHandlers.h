@@ -31,79 +31,108 @@
 
 #ifndef OPENPSTD_MOUSEHANDLERS_H
 #define OPENPSTD_MOUSEHANDLERS_H
+namespace OpenPSTD
+{
+    namespace GUI
+    {
+        class MouseStrategy;
 
-class MouseStrategy;
-class MouseVoidStrategy;
-class MouseMoveSceneStrategy;
-class MouseCreateDomainStrategy;
-class MouseCreateSpeakerReceiverStrategy;
+        class MouseVoidStrategy;
+
+        class MouseMoveSceneStrategy;
+
+        class MouseCreateDomainStrategy;
+
+        class MouseCreateSpeakerReceiverStrategy;
+    }
+}
 
 #include <memory>
 #include "operations/BaseOperation.h"
 #include <QVector2D>
 #include <QtGui/qevent.h>
 
-class MouseStrategy
+namespace OpenPSTD
 {
-protected:
-    std::shared_ptr<OperationRunner> operationRunner;
+    namespace GUI
+    {
+        class MouseStrategy
+        {
+        protected:
+            std::shared_ptr<OperationRunner> operationRunner;
 
-public:
-    void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
+        public:
+            void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
 
-    virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos){};
-    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos){};
-    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos){};
-    virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos){};
-};
+            virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos)
+            { };
 
-class MouseVoidStrategy : public MouseStrategy
-{
-};
+            virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
+            { };
 
-class MouseSelectStrategy : public MouseStrategy
-{
-public:
-    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
-};
+            virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos)
+            { };
 
-class MouseMoveSceneStrategy : public MouseStrategy
-{
-private:
-    QVector2D mousePos;
-public:
-    virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos) override;
+            virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos)
+            { };
+        };
 
-    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
+        class MouseVoidStrategy : public MouseStrategy
+        {
+        };
 
-    virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent, QVector2D pos) override;
-};
+        class MouseSelectStrategy : public MouseStrategy
+        {
+        public:
+            virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                           QVector2D pos) override;
+        };
 
-class MouseCreateDomainStrategy : public MouseStrategy
-{
-private:
-    QVector2D _start;
-    QVector2D _end;
-public:
-    virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos) override;
+        class MouseMoveSceneStrategy : public MouseStrategy
+        {
+        private:
+            QVector2D mousePos;
+        public:
+            virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos) override;
 
-    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
+            virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                        QVector2D pos) override;
 
-    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
-};
+            virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent,
+                                    QVector2D pos) override;
+        };
 
-class MouseCreateSpeakerReceiverStrategy : public MouseStrategy
-{
-private:
-    PstdObjectType _type;
-public:
-    MouseCreateSpeakerReceiverStrategy(PstdObjectType type);
+        class MouseCreateDomainStrategy : public MouseStrategy
+        {
+        private:
+            QVector2D _start;
+            QVector2D _end;
+        public:
+            virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos) override;
 
-    virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
+            virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                        QVector2D pos) override;
 
-    virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent, QVector2D pos) override;
-};
+            virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                           QVector2D pos) override;
+        };
 
+        class MouseCreateSpeakerReceiverStrategy : public MouseStrategy
+        {
+        private:
+            PstdObjectType _type;
+        public:
+            MouseCreateSpeakerReceiverStrategy(PstdObjectType type);
+
+            virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                        QVector2D pos) override;
+
+            virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                           QVector2D pos) override;
+        };
+
+    }
+}
 
 #endif //OPENPSTD_MOUSEHANDLERS_H
 

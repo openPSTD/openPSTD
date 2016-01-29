@@ -39,31 +39,35 @@
 #include <memory>
 #include "operations/BaseOperation.h"
 
-int main(int argc, char *argv[]);
-
-class Controller: public OperationRunner
+namespace OpenPSTD
 {
-public:
-    Controller();
+    namespace GUI
+    {
+        class Controller: public OperationRunner
+        {
+        public:
+            Controller();
 
-    void SetArguments(int argc, char *argv[]);
-    int RunApplication();
-    void SetOperationRunner(std::shared_ptr<OperationRunner> runner);
+            void SetArguments(int argc, char *argv[]);
+            int RunApplication();
+            void SetOperationRunner(std::shared_ptr<OperationRunner> runner);
 
-    virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
+            virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
 
-private:
-    void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
-    void UpdateWithoutOperation();
+        private:
+            void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
+            void UpdateWithoutOperation();
 
-    bool runningOp;
-    std::shared_ptr<OperationRunner> operationRunner;
-    std::shared_ptr<Model> model;
-    std::unique_ptr<QApplication> a;
-    std::unique_ptr<MainWindow> w;
+            bool runningOp;
+            std::shared_ptr<OperationRunner> operationRunner;
+            std::shared_ptr<Model> model;
+            std::unique_ptr<QApplication> a;
+            std::unique_ptr<MainWindow> w;
 
-    int argc;
-    char **argv;
-};
+            int argc;
+            char **argv;
+        };
+    }
+}
 
 #endif //OPENPSTD_MAIN_GUI_H

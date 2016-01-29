@@ -32,34 +32,40 @@
 
 #include "FileOperations.h"
 
-
-OpenFileOperation::OpenFileOperation(std::string filename): filename(filename)
+namespace OpenPSTD
 {
-}
+    namespace GUI
+    {
 
-void OpenFileOperation::Run(const Reciever &reciever)
-{
-    reciever.model->d = PSTDFile::Open(this->filename);
-    reciever.model->d->Change();
-    reciever.model->Register(reciever.model->d);
-}
+        OpenFileOperation::OpenFileOperation(std::string filename) : filename(filename)
+        {
+        }
+
+        void OpenFileOperation::Run(const Reciever &reciever)
+        {
+            reciever.model->d = PSTDFile::Open(this->filename);
+            reciever.model->d->Change();
+            reciever.model->Register(reciever.model->d);
+        }
 
 
-NewFileOperation::NewFileOperation(std::string filename): filename(filename)
-{
-}
+        NewFileOperation::NewFileOperation(std::string filename) : filename(filename)
+        {
+        }
 
-void NewFileOperation::Run(const Reciever &reciever)
-{
-    reciever.model->d = PSTDFile::New(this->filename);
-    reciever.model->d->Change();
-    reciever.model->Register(reciever.model->d);
-}
+        void NewFileOperation::Run(const Reciever &reciever)
+        {
+            reciever.model->d = PSTDFile::New(this->filename);
+            reciever.model->d->Change();
+            reciever.model->Register(reciever.model->d);
+        }
 
-void SaveFileOperation::Run(const Reciever &reciever)
-{
-    //todo fix this command
-    /*reciever.model->d->Commit();
-    reciever.model->d->Change();
-    reciever.model->Register(reciever.model->d);*/
+        void SaveFileOperation::Run(const Reciever &reciever)
+        {
+            //todo fix this command
+            /*reciever.model->d->Commit();
+            reciever.model->d->Change();
+            reciever.model->Register(reciever.model->d);*/
+        }
+    }
 }

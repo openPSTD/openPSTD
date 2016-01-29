@@ -38,140 +38,175 @@
 #include "AboutBoxesText.h"
 #include <QMessageBox>
 
-MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui_MainWindow()),
-    operationRunner(operationRunner),
-    domainProperties(new DomainProperties()),
-    documentSettings(new DocumentSettings())
+namespace OpenPSTD
 {
-    ui->setupUi(this);
-
-    ui->mainView->SetOperationRunner(this->operationRunner);
-
-    MouseHandlersActions.push_back(ui->actionMove_scene);
-    MouseHandlersActions.push_back(ui->actionAdd_Domain);
-    MouseHandlersActions.push_back(ui->actionSelect);
-    MouseHandlersActions.push_back(ui->actionAdd_Receiver);
-    MouseHandlersActions.push_back(ui->actionAdd_speaker);
-
-    QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::ShowAbout);
-    QObject::connect(ui->actionAbout_icons, &QAction::triggered, this, &MainWindow::ShowAboutIcons);
-
-    QObject::connect(ui->actionNew, &QAction::triggered, this, &MainWindow::New);
-    QObject::connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::Open);
-    QObject::connect(ui->actionSave, &QAction::triggered, this, &MainWindow::Save);
-    QObject::connect(ui->actionMove_scene, &QAction::triggered, this,
-                     [&](bool checked){ChangeMouseHandler(ui->actionMove_scene, std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy()));});
-    QObject::connect(ui->actionAdd_Domain, &QAction::triggered, this,
-                     [&](bool checked){ChangeMouseHandler(ui->actionAdd_Domain, std::unique_ptr<MouseCreateDomainStrategy>(new MouseCreateDomainStrategy()));});
-    QObject::connect(ui->actionSelect, &QAction::triggered, this,
-                     [&](bool checked){ChangeMouseHandler(ui->actionSelect, std::unique_ptr<MouseSelectStrategy>(new MouseSelectStrategy()));});
-    QObject::connect(ui->actionAdd_Receiver, &QAction::triggered, this,
-                     [&](bool checked){ChangeMouseHandler(ui->actionAdd_Receiver, std::unique_ptr<MouseCreateSpeakerReceiverStrategy>(new MouseCreateSpeakerReceiverStrategy(OBJECT_RECEIVER)));});
-    QObject::connect(ui->actionAdd_speaker, &QAction::triggered, this,
-                     [&](bool checked){ChangeMouseHandler(ui->actionAdd_speaker, std::unique_ptr<MouseCreateSpeakerReceiverStrategy>(new MouseCreateSpeakerReceiverStrategy(OBJECT_SPEAKER)));});
-
-    QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
-                     [&](bool checked){this->operationRunner->RunOperation(std::shared_ptr<RemoveSelectedObjectOperation>(new RemoveSelectedObjectOperation()));});
-    QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this, &MainWindow::EditSelectedDomain);
-    QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
-}
-
-void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
-{
-    ui->mainView->UpdateFromModel(model);
-    ui->mainView->update();
-
-    this->UpdateDisableWidgets(model);
-
-    documentSettings->UpdateFromModel(model);
-
-    if(model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
+    namespace GUI
     {
-        auto conf = model->d->GetSceneConf();
-        int i = model->interactive->Selection.SelectedIndex;
-        domainProperties->SetDomain(conf->Domains[i]);
+        MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent) :
+                QMainWindow(parent),
+                ui(new Ui_MainWindow()),
+                operationRunner(operationRunner),
+                domainProperties(new DomainProperties()),
+                documentSettings(new DocumentSettings())
+        {
+            ui->setupUi(this);
+
+            ui->mainView->SetOperationRunner(this->operationRunner);
+
+            MouseHandlersActions.push_back(ui->actionMove_scene);
+            MouseHandlersActions.push_back(ui->actionAdd_Domain);
+            MouseHandlersActions.push_back(ui->actionSelect);
+            MouseHandlersActions.push_back(ui->actionAdd_Receiver);
+            MouseHandlersActions.push_back(ui->actionAdd_speaker);
+
+            QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::ShowAbout);
+            QObject::connect(ui->actionAbout_icons, &QAction::triggered, this, &MainWindow::ShowAboutIcons);
+
+            QObject::connect(ui->actionNew, &QAction::triggered, this, &MainWindow::New);
+            QObject::connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::Open);
+            QObject::connect(ui->actionSave, &QAction::triggered, this, &MainWindow::Save);
+            QObject::connect(ui->actionMove_scene, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 ChangeMouseHandler(ui->actionMove_scene,
+                                                    std::unique_ptr<MouseMoveSceneStrategy>(
+                                                            new MouseMoveSceneStrategy()));
+                             });
+            QObject::connect(ui->actionAdd_Domain, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 ChangeMouseHandler(ui->actionAdd_Domain,
+                                                    std::unique_ptr<MouseCreateDomainStrategy>(
+                                                            new MouseCreateDomainStrategy()));
+                             });
+            QObject::connect(ui->actionSelect, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 ChangeMouseHandler(ui->actionSelect,
+                                                    std::unique_ptr<MouseSelectStrategy>(
+                                                            new MouseSelectStrategy()));
+                             });
+            QObject::connect(ui->actionAdd_Receiver, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 ChangeMouseHandler(ui->actionAdd_Receiver,
+                                                    std::unique_ptr<MouseCreateSpeakerReceiverStrategy>(
+                                                            new MouseCreateSpeakerReceiverStrategy(
+                                                                    OBJECT_RECEIVER)));
+                             });
+            QObject::connect(ui->actionAdd_speaker, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 ChangeMouseHandler(ui->actionAdd_speaker,
+                                                    std::unique_ptr<MouseCreateSpeakerReceiverStrategy>(
+                                                            new MouseCreateSpeakerReceiverStrategy(
+                                                                    OBJECT_SPEAKER)));
+                             });
+
+            QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 this->operationRunner->RunOperation(
+                                         std::shared_ptr<RemoveSelectedObjectOperation>(
+                                                 new RemoveSelectedObjectOperation()));
+                             });
+            QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
+                             &MainWindow::EditSelectedDomain);
+            QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
+        }
+
+        void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
+        {
+            ui->mainView->UpdateFromModel(model);
+            ui->mainView->update();
+
+            this->UpdateDisableWidgets(model);
+
+            documentSettings->UpdateFromModel(model);
+
+            if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
+            {
+                auto conf = model->d->GetSceneConf();
+                int i = model->interactive->Selection.SelectedIndex;
+                domainProperties->SetDomain(conf->Domains[i]);
+            }
+        }
+
+        void MainWindow::New()
+        {
+            QString fileName = QFileDialog::getSaveFileName(this, tr("Create PSTD file"), QString(),
+                                                            tr("PSTD file (*.pstd)"));
+            if (!fileName.isNull())
+            {
+                std::shared_ptr<NewFileOperation> op(new NewFileOperation(fileName.toStdString()));
+                this->operationRunner->RunOperation(op);
+            }
+        }
+
+        void MainWindow::Open()
+        {
+            QString fileName = QFileDialog::getOpenFileName(this, tr("Open PSTD file"), QString(),
+                                                            tr("PSTD file (*.pstd)"));
+            if (!fileName.isNull())
+            {
+                std::shared_ptr<OpenFileOperation> op(new OpenFileOperation(fileName.toStdString()));
+                this->operationRunner->RunOperation(op);
+            }
+        }
+
+        void MainWindow::Save()
+        {
+            std::shared_ptr<SaveFileOperation> op(new SaveFileOperation());
+            this->operationRunner->RunOperation(op);
+        }
+
+        void MainWindow::ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler)
+        {
+            for (int i = 0; i < this->MouseHandlersActions.size(); i++)
+            {
+                this->MouseHandlersActions[i]->setChecked(false);
+            }
+            action->setChecked(true);
+
+            std::shared_ptr<ChangeMouseHandlerOperations> op(new ChangeMouseHandlerOperations(std::move(mouseHandler)));
+            this->operationRunner->RunOperation(op);
+        }
+
+        void MainWindow::EditSelectedDomain()
+        {
+            if (this->domainProperties->exec() == QDialog::Accepted)
+            {
+                std::shared_ptr<EditSelectedDomainEdgesOperation> op(new EditSelectedDomainEdgesOperation());
+                op->AbsorptionT = this->domainProperties->AbsorptionT();
+                op->AbsorptionB = this->domainProperties->AbsorptionB();
+                op->AbsorptionL = this->domainProperties->AbsorptionL();
+                op->AbsorptionR = this->domainProperties->AbsorptionR();
+                op->LRT = this->domainProperties->LRT();
+                op->LRB = this->domainProperties->LRB();
+                op->LRL = this->domainProperties->LRL();
+                op->LRR = this->domainProperties->LRR();
+                this->operationRunner->RunOperation(op);
+            }
+        }
+
+        void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
+        {
+            ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
+            ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
+            ui->actionResize_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
+        }
+
+        void MainWindow::EditDocumentSettings()
+        {
+            if (this->documentSettings->exec() == QDialog::Accepted)
+            {
+                this->operationRunner->RunOperation(std::shared_ptr<EditDocumentSettingsOperation>(
+                        new EditDocumentSettingsOperation(this->documentSettings->GetResult())));
+            }
+        }
+
+        void MainWindow::ShowAbout()
+        {
+            QMessageBox::about(this, "About OpenPSTD", QString::fromStdString(ABOUT_OPENPSTD));
+        }
+
+        void MainWindow::ShowAboutIcons()
+        {
+            QMessageBox::about(this, "About icons", QString::fromStdString(ABOUT_NOUN_ICONS));
+        }
     }
-}
-
-void MainWindow::New()
-{
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Create PSTD file"), QString(), tr("PSTD file (*.pstd)"));
-    if(!fileName.isNull())
-    {
-        std::shared_ptr<NewFileOperation> op(new NewFileOperation(fileName.toStdString()));
-        this->operationRunner->RunOperation(op);
-    }
-}
-
-void MainWindow::Open()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open PSTD file"), QString(), tr("PSTD file (*.pstd)"));
-    if(!fileName.isNull())
-    {
-        std::shared_ptr<OpenFileOperation> op(new OpenFileOperation(fileName.toStdString()));
-        this->operationRunner->RunOperation(op);
-    }
-}
-
-void MainWindow::Save()
-{
-    std::shared_ptr<SaveFileOperation> op(new SaveFileOperation());
-    this->operationRunner->RunOperation(op);
-}
-
-void MainWindow::ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler)
-{
-    for (int i = 0; i < this->MouseHandlersActions.size(); i++)
-    {
-        this->MouseHandlersActions[i]->setChecked(false);
-    }
-    action->setChecked(true);
-
-    std::shared_ptr<ChangeMouseHandlerOperations> op(new ChangeMouseHandlerOperations(std::move(mouseHandler)));
-    this->operationRunner->RunOperation(op);
-}
-
-void MainWindow::EditSelectedDomain()
-{
-    if(this->domainProperties->exec() == QDialog::Accepted)
-    {
-        std::shared_ptr<EditSelectedDomainEdgesOperation> op(new EditSelectedDomainEdgesOperation());
-        op->AbsorptionT = this->domainProperties->AbsorptionT();
-        op->AbsorptionB = this->domainProperties->AbsorptionB();
-        op->AbsorptionL = this->domainProperties->AbsorptionL();
-        op->AbsorptionR = this->domainProperties->AbsorptionR();
-        op->LRT = this->domainProperties->LRT();
-        op->LRB = this->domainProperties->LRB();
-        op->LRL = this->domainProperties->LRL();
-        op->LRR = this->domainProperties->LRR();
-        this->operationRunner->RunOperation(op);
-    }
-}
-
-void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
-{
-    ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
-    ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
-    ui->actionResize_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
-}
-
-void MainWindow::EditDocumentSettings()
-{
-    if (this->documentSettings->exec() == QDialog::Accepted)
-    {
-        this->operationRunner->RunOperation(std::shared_ptr<EditDocumentSettingsOperation>(
-                new EditDocumentSettingsOperation(this->documentSettings->GetResult())));
-    }
-}
-
-void MainWindow::ShowAbout()
-{
-    QMessageBox::about(this, "About OpenPSTD", QString::fromStdString(ABOUT_OPENPSTD));
-}
-
-void MainWindow::ShowAboutIcons()
-{
-    QMessageBox::about(this, "About icons", QString::fromStdString(ABOUT_NOUN_ICONS));
 }

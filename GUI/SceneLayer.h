@@ -37,32 +37,42 @@
 #include <tuple>
 #include "Edges.h"
 
-class SceneLayer: public Layer
+namespace OpenPSTD
 {
-private:
-    std::unique_ptr<QOpenGLShaderProgram> program;
-    unsigned int positionsBuffer;
-    unsigned int valuesBuffer;
-    GLuint textureID;
-    int lines;
-    float lineWidth;
+    namespace GUI
+    {
 
-    void CreateColormap(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+        class SceneLayer : public Layer
+        {
+        private:
+            std::unique_ptr<QOpenGLShaderProgram> program;
+            unsigned int positionsBuffer;
+            unsigned int valuesBuffer;
+            GLuint textureID;
+            int lines;
+            float lineWidth;
 
-    std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
-    std::unique_ptr<std::vector<Edge>> RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges);
+            void CreateColormap(std::shared_ptr<Model> const &m,
+                                std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-public:
-    SceneLayer();
+            std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
 
-    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            std::unique_ptr<std::vector<Edge>> RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges);
 
-    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+        public:
+            SceneLayer();
 
-    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f);
+            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-    virtual MinMaxValue GetMinMax();
-};
+            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
+            virtual void UpdateScene(std::shared_ptr<Model> const &m,
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual MinMaxValue GetMinMax();
+        };
+
+    }
+}
 
 #endif //OPENPSTD_SCENELAYER_H

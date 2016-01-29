@@ -38,12 +38,18 @@
 
 #include "BaseOperation.h"
 
-class InitializationOperation: public BaseOperation
+namespace OpenPSTD
 {
-public:
-    virtual void Run(const Reciever &reciever);
+    namespace GUI
+    {
+        class InitializationOperation : public BaseOperation
+        {
+        public:
+            virtual void Run(const Reciever &reciever);
 
-};
+        };
+    }
+}
 
 
 #endif //OPENPSTD_INITIALIZATIONOPERATION_H

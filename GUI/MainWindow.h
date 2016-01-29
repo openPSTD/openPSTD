@@ -37,44 +37,59 @@
 #define OPENPSTD_MAINWINDOW_H
 
 #include <QMainWindow>
-#include <ui_MainWindow.h>
 #include <memory>
 #include "operations/BaseOperation.h"
 #include "MouseHandlers.h"
 #include "DomainProperties.h"
 #include "DocumentSettings.h"
+#include <ui_MainWindow.h>
 
-class MainWindow: public QMainWindow
+namespace OpenPSTD
 {
-Q_OBJECT
+    namespace GUI
+    {
 
-public:
-    explicit MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
+        class MainWindow : public QMainWindow
+        {
+        Q_OBJECT
 
-    void UpdateFromModel(std::shared_ptr<Model> const &model);
+        public:
+            explicit MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
 
-private:
-    std::unique_ptr<Ui_MainWindow> ui;
-    std::unique_ptr<DomainProperties> domainProperties;
-    std::unique_ptr<DocumentSettings> documentSettings;
-    std::shared_ptr<OperationRunner> operationRunner;
-    std::vector<QAction*> MouseHandlersActions;
+            void UpdateFromModel(std::shared_ptr<Model> const &model);
 
-    void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
-    void EditSelectedDomain();
-    void EditDocumentSettings();
-    void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
+        private:
+            std::unique_ptr<Ui_MainWindow> ui;
+            std::unique_ptr<DomainProperties> domainProperties;
+            std::unique_ptr<DocumentSettings> documentSettings;
+            std::shared_ptr<OperationRunner> operationRunner;
+            std::vector<QAction *> MouseHandlersActions;
 
-    void ShowAbout();
-    void ShowAboutIcons();
+            void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
 
-public slots:
-    void New();
-    void Open();
-    void Save();
+            void EditSelectedDomain();
+
+            void EditDocumentSettings();
+
+            void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
+
+            void ShowAbout();
+
+            void ShowAboutIcons();
+
+        public slots:
+
+            void New();
+
+            void Open();
+
+            void Save();
 
 
-};
+        };
+
+    }
+}
 
 
 #endif //OPENPSTD_MAINWINDOW_H

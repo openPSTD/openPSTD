@@ -36,21 +36,32 @@
 #ifndef OPENPSTD_MOUSEOPERATIONS_H
 #define OPENPSTD_MOUSEOPERATIONS_H
 
-class ChangeMouseHandlerOperations;
+namespace OpenPSTD
+{
+    namespace GUI
+    {
+        class ChangeMouseHandlerOperations;
+    }
+}
 
 #include "BaseOperation.h"
 #include "../MouseHandlers.h"
 
-class ChangeMouseHandlerOperations: public BaseOperation
+namespace OpenPSTD
 {
-private:
-    std::unique_ptr<MouseStrategy> mouseHandler;
+    namespace GUI
+    {
+        class ChangeMouseHandlerOperations : public BaseOperation
+        {
+        private:
+            std::unique_ptr<MouseStrategy> mouseHandler;
 
-public:
-    ChangeMouseHandlerOperations(std::unique_ptr<MouseStrategy> mouseHandler);
+        public:
+            ChangeMouseHandlerOperations(std::unique_ptr<MouseStrategy> mouseHandler);
 
-    virtual void Run(const Reciever &reciever) override;
-};
-
+            virtual void Run(const Reciever &reciever) override;
+        };
+    }
+}
 
 #endif //OPENPSTD_MOUSEOPERATIONS_H

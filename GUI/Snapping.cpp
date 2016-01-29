@@ -34,56 +34,69 @@
 #include <algorithm>
 #include <cmath>
 
-QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
+namespace OpenPSTD
 {
-    bool snap0 = false;
-    bool snap1 = false;
-    if(model->settings->snapping.SnapToDomainEdges)
+    namespace GUI
     {
-        std::unique_ptr<std::vector<float>> edges0 = GetEdges(model, 0);
-        std::unique_ptr<std::vector<float>> edges1 = GetEdges(model, 1);
-        if(edges0->size() > 0 && edges1->size() > 0)
+
+        QVector2D Snapping::Snap(std::shared_ptr<Model> const &model, QVector2D vector)
         {
-            float min0 = *std::min_element(edges0->begin(), edges0->end(), [&vector](const float& x, const float& y){return abs(x-vector[0]) < abs(y-vector[0]);});
-            float min1 = *std::min_element(edges1->begin(), edges1->end(), [&vector](const float& x, const float& y){return abs(x-vector[1]) < abs(y-vector[1]);});
-            if(abs(min0 - vector[0]) < model->settings->snapping.SnapToDomainEdgesDistance)
+            bool snap0 = false;
+            bool snap1 = false;
+            if (model->settings->snapping.SnapToDomainEdges)
             {
-                vector[0] = min0;
-                snap0 = true;
+                std::unique_ptr<std::vector<float>> edges0 = GetEdges(model, 0);
+                std::unique_ptr<std::vector<float>> edges1 = GetEdges(model, 1);
+                if (edges0->size() > 0 && edges1->size() > 0)
+                {
+                    float min0 = *std::min_element(edges0->begin(), edges0->end(),
+                                                   [&vector](const float &x, const float &y) {
+                                                       return abs(x - vector[0]) < abs(y - vector[0]);
+                                                   });
+                    float min1 = *std::min_element(edges1->begin(), edges1->end(),
+                                                   [&vector](const float &x, const float &y) {
+                                                       return abs(x - vector[1]) < abs(y - vector[1]);
+                                                   });
+                    if (abs(min0 - vector[0]) < model->settings->snapping.SnapToDomainEdgesDistance)
+                    {
+                        vector[0] = min0;
+                        snap0 = true;
+                    }
+                    if (abs(min1 - vector[1]) < model->settings->snapping.SnapToDomainEdgesDistance)
+                    {
+                        vector[1] = min1;
+                        snap1 = true;
+                    }
+                }
             }
-            if(abs(min1 - vector[1]) < model->settings->snapping.SnapToDomainEdgesDistance)
+            if (model->settings->snapping.SnapToGrid)
             {
-                vector[1] = min1;
-                snap1 = true;
+                auto conf = model->d->GetSceneConf();
+                float gridSpacing = conf->Settings.GetGridSpacing();
+
+                if (!snap0)
+                    vector[0] = round(vector[0] / gridSpacing) * gridSpacing;
+                if (!snap1)
+                    vector[1] = round(vector[1] / gridSpacing) * gridSpacing;
             }
+
+            return vector;
+        }
+
+        std::unique_ptr<std::vector<float>> Snapping::GetEdges(std::shared_ptr<Model> const &model, int dimension)
+        {
+            std::unique_ptr<std::vector<float>> result(new std::vector<float>());
+            auto conf = model->d->GetSceneConf();
+
+            for (int i = 0; i < conf->Domains.size(); i++)
+            {
+                float first = conf->Domains[i].TopLeft[dimension];
+                float second = first + conf->Domains[i].Size[dimension];
+
+                result->push_back(first);
+                result->push_back(second);
+            }
+            return std::move(result);
         }
     }
-    if(model->settings->snapping.SnapToGrid)
-    {
-        auto conf = model->d->GetSceneConf();
-        float gridSpacing = conf->Settings.GetGridSpacing();
-
-        if(!snap0)
-            vector[0] = round(vector[0] / gridSpacing) * gridSpacing;
-        if(!snap1)
-            vector[1] = round(vector[1] / gridSpacing) * gridSpacing;
-    }
-
-    return vector;
-}
-
-std::unique_ptr<std::vector<float>> Snapping::GetEdges(std::shared_ptr<Model> const &model, int dimension)
-{
-    std::unique_ptr<std::vector<float>> result(new std::vector<float>());
-    auto conf = model->d->GetSceneConf();
-
-    for(int i = 0; i < conf->Domains.size(); i++)
-    {
-        float first = conf->Domains[i].TopLeft[dimension];
-        float second = first + conf->Domains[i].Size[dimension];
-
-        result->push_back(first);
-        result->push_back(second);
-    }
-    return std::move(result);
 }

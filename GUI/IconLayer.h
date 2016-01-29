@@ -37,28 +37,37 @@
 #define OPENPSTD_ICONLAYER_H
 
 #include "Viewer2D.h"
-
-class IconLayer: public Layer
+namespace OpenPSTD
 {
-private:
-    std::unique_ptr<QOpenGLShaderProgram> program;
-    unsigned int LineBuffers;
-    unsigned int ColorBuffer;
-    unsigned int lines;
+    namespace GUI
+    {
+        class IconLayer : public Layer
+        {
+        private:
+            std::unique_ptr<QOpenGLShaderProgram> program;
+            unsigned int LineBuffers;
+            unsigned int ColorBuffer;
+            unsigned int lines;
 
-    std::vector<QVector2D> GetSpeakers(std::shared_ptr<Model> const &m);
-    std::vector<QVector2D> GetReceivers(std::shared_ptr<Model> const &m);
+            std::vector<QVector2D> GetSpeakers(std::shared_ptr<Model> const &m);
 
-public:
-    IconLayer();
-    virtual void InitializeGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) override;
+            std::vector<QVector2D> GetReceivers(std::shared_ptr<Model> const &m);
 
-    virtual void PaintGL(QObject* context, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) override;
+        public:
+            IconLayer();
 
-    virtual void UpdateScene(std::shared_ptr<Model> const &m, std::unique_ptr<QOpenGLFunctions, void(*)(void*)> const &f) override;
+            virtual void InitializeGL(QObject *context,
+                                      std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) override;
 
-    virtual MinMaxValue GetMinMax() override;
-};
+            virtual void PaintGL(QObject *context,
+                                 std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) override;
 
+            virtual void UpdateScene(std::shared_ptr<Model> const &m,
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) override;
 
+            virtual MinMaxValue GetMinMax() override;
+        };
+
+    }
+}
 #endif //OPENPSTD_ICONLAYER_H

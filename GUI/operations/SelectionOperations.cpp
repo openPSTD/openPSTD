@@ -31,71 +31,80 @@
 #include <iostream>
 #include "../PstdAlgorithm.h"
 
-SelectIndexedObjectOperation::SelectIndexedObjectOperation(SelectionType type, int index):
-    type(type), index(index)
+namespace OpenPSTD
 {
-
-}
-
-void SelectIndexedObjectOperation::Run(const Reciever &reciever)
-{
-    reciever.model->interactive->Selection.Type = type;
-    reciever.model->interactive->Selection.SelectedIndex = index;
-    reciever.model->interactive->Change();
-}
-
-DeselectOperation::DeselectOperation(): SelectIndexedObjectOperation(SELECTION_NONE, -1)
-{ }
-
-SelectDomainOperation::SelectDomainOperation(int selectDomainIndex) : SelectIndexedObjectOperation(SELECTION_DOMAIN,
-                                                                                                   selectDomainIndex)
-{ }
-
-SelectObjectOperation::SelectObjectOperation(QVector2D ScreenPosition): ScreenPosition(ScreenPosition)
-{ }
-
-void SelectObjectOperation::Run(const Reciever &reciever)
-{
-    QVector2D mousePos = (reciever.model->view->viewMatrix.inverted() * this->ScreenPosition.toVector3D()).toVector2D();
-    auto conf = reciever.model->d->GetSceneConf();
-
-    for (int i = 0; i < conf->Receivers.size(); i++)
+    namespace GUI
     {
-        QVector2D receiverPos(conf->Receivers[i][0], conf->Receivers[i][1]);
-        if(receiverPos.distanceToPoint(mousePos) < 0.4f)
+
+        SelectIndexedObjectOperation::SelectIndexedObjectOperation(SelectionType type, int index) :
+                type(type), index(index)
         {
-            reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
-                    new SelectIndexedObjectOperation(SELECTION_RECEIVER, i)));
-            return;
+
+        }
+
+        void SelectIndexedObjectOperation::Run(const Reciever &reciever)
+        {
+            reciever.model->interactive->Selection.Type = type;
+            reciever.model->interactive->Selection.SelectedIndex = index;
+            reciever.model->interactive->Change();
+        }
+
+        DeselectOperation::DeselectOperation() : SelectIndexedObjectOperation(SELECTION_NONE, -1)
+        { }
+
+        SelectDomainOperation::SelectDomainOperation(int selectDomainIndex) : SelectIndexedObjectOperation(
+                SELECTION_DOMAIN,
+                selectDomainIndex)
+        { }
+
+        SelectObjectOperation::SelectObjectOperation(QVector2D ScreenPosition) : ScreenPosition(ScreenPosition)
+        { }
+
+        void SelectObjectOperation::Run(const Reciever &reciever)
+        {
+            QVector2D mousePos = (reciever.model->view->viewMatrix.inverted() *
+                                  this->ScreenPosition.toVector3D()).toVector2D();
+            auto conf = reciever.model->d->GetSceneConf();
+
+            for (int i = 0; i < conf->Receivers.size(); i++)
+            {
+                QVector2D receiverPos(conf->Receivers[i][0], conf->Receivers[i][1]);
+                if (receiverPos.distanceToPoint(mousePos) < 0.4f)
+                {
+                    reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
+                            new SelectIndexedObjectOperation(SELECTION_RECEIVER, i)));
+                    return;
+                }
+            }
+
+
+            for (int i = 0; i < conf->Speakers.size(); i++)
+            {
+                QVector2D speakersPos(conf->Speakers[i][0], conf->Speakers[i][1]);
+                if (speakersPos.distanceToPoint(mousePos) < 0.4f)
+                {
+                    reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
+                            new SelectIndexedObjectOperation(SELECTION_SPEAKER, i)));
+                    return;
+                }
+            }
+
+            for (int i = 0; i < conf->Domains.size(); i++)
+            {
+                QVector2D tl = conf->Domains[i].TopLeft;
+                QVector2D size = conf->Domains[i].Size;
+
+                if (PointInSquare(tl, size, mousePos))
+                {
+                    //execute operation that selects the correct index
+                    reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
+                            new SelectIndexedObjectOperation(SELECTION_DOMAIN, i)));
+                    return;
+                }
+            }
+            //deselects the domain
+            std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
+            reciever.operationRunner->RunOperation(op1);
         }
     }
-
-
-    for (int i = 0; i < conf->Speakers.size(); i++)
-    {
-        QVector2D speakersPos(conf->Speakers[i][0], conf->Speakers[i][1]);
-        if(speakersPos.distanceToPoint(mousePos) < 0.4f)
-        {
-            reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
-                    new SelectIndexedObjectOperation(SELECTION_SPEAKER, i)));
-            return;
-        }
-    }
-
-    for (int i = 0; i < conf->Domains.size(); i++)
-    {
-        QVector2D tl = conf->Domains[i].TopLeft;
-        QVector2D size = conf->Domains[i].Size;
-
-        if (PointInSquare(tl, size, mousePos))
-        {
-            //execute operation that selects the correct index
-            reciever.operationRunner->RunOperation(std::shared_ptr<SelectIndexedObjectOperation>(
-                    new SelectIndexedObjectOperation(SELECTION_DOMAIN, i)));
-            return;
-        }
-    }
-    //deselects the domain
-    std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
-    reciever.operationRunner->RunOperation(op1);
 }
