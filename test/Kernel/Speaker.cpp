@@ -35,47 +35,39 @@
 #endif
 
 #include <boost/test/unit_test.hpp>
-#include "../core/kernel_functions.h"
+#include "../../kernel/core/Speaker.h"
 #include <cmath>
 
 using namespace Kernel;
 using namespace std;
 using namespace Eigen;
-BOOST_AUTO_TEST_SUITE(kernel_functions)
+BOOST_AUTO_TEST_SUITE(speaker)
 
-    BOOST_AUTO_TEST_CASE(test_next_2_power) {
-        BOOST_CHECK_EQUAL(next_2_power(42), 64);
-        BOOST_CHECK_EQUAL(next_2_power(3.4), 4);
-        BOOST_CHECK_EQUAL(next_2_power(0.1), 1);
+    BOOST_AUTO_TEST_CASE(test_speaker_contribution_in_bounds) {
+//        shared_ptr<Point> top_left(new Point(0, 0));
+//        shared_ptr<Point> size(new Point(100, 150));
+//        shared_ptr<WisdomCache> wnd(new WisdomCache());
+//        EdgeParameters standard = {};
+//        standard.locally_reacting = true;
+//        standard.alpha = 1;
+//        map<Direction, EdgeParameters> edge_param_map = {{Direction::LEFT,   standard},
+//                                                         {Direction::RIGHT,  standard},
+//                                                         {Direction::TOP,    standard},
+//                                                         {Direction::BOTTOM, standard}};
+//        shared_ptr<Kernel::Domain> test_domain(new Kernel::Domain(nullptr, "test_domain", 1, top_left, size, false, wnd,
+//                                                                  edge_param_map, nullptr));
+        BOOST_CHECK(true);
+
     }
 
-    BOOST_AUTO_TEST_CASE(test_rho_array_one_neighbour) {
-        float air_dens = 1.2;
-        float max_rho = 1E10;
-        Array<float, 4, 2> velocity;
-        Array<float, 4, 2> pressure;
-        velocity << -1, 1, 0, 0, 2, 0, 1, 1;
-        pressure << 1, -1, 0, 0, 2, 0, 1, 1;
-        RhoArray rhoArray = get_rho_array(max_rho, air_dens, air_dens);
-        BOOST_CHECK(rhoArray.pressure.isApprox(pressure));
-        BOOST_CHECK(rhoArray.velocity.isApprox(velocity));
-    }
-
-    BOOST_AUTO_TEST_CASE(test_rho_array_two_neighbour) {
-        float air_dens = 1.2;
-        Array<float, 4, 2> velocity;
-        Array<float, 4, 2> pressure;
-        velocity << 0, 0, 0, 0, 1, 1, 1, 1;
-        pressure << 0, 0, 0, 0, 1, 1, 1, 1;
-        RhoArray rhoArray = get_rho_array(air_dens, air_dens, air_dens);
-        BOOST_CHECK(rhoArray.pressure.isApprox(pressure));
-        BOOST_CHECK(rhoArray.velocity.isApprox(velocity));
-    }
-
-    BOOST_AUTO_TEST_CASE(test_get_grid_spacing) {
-        //Todo: Implement when PSTDFILESettings cnf is implemented
+    BOOST_AUTO_TEST_CASE(test_values_case1) {
+        //Implement when domains can be initialized
         BOOST_CHECK(true);
     }
 
+    BOOST_AUTO_TEST_CASE(test_values_case2) {
+        //Implement when domains can be initialized
+        BOOST_CHECK(true);
+    }
 
 BOOST_AUTO_TEST_SUITE_END()

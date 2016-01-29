@@ -35,7 +35,7 @@
 #endif
 
 #include <boost/test/unit_test.hpp>
-#include "../core/Domain.h"
+#include "../../kernel/core/Domain.h"
 #include <cmath>
 #include <kernel/PSTDKernel.h>
 

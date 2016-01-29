@@ -35,7 +35,7 @@
 #endif
 
 #include <boost/test/unit_test.hpp>
-#include "../core/wave_numbers.h"
+#include "../../kernel/core/wave_numbers.h"
 #include <cmath>
 #include <kernel/core/kernel_functions.h>
 

@@ -34,7 +34,7 @@
 #   define BOOST_TEST_MODULE Main
 #endif
 #include <boost/test/unit_test.hpp>
-#include "Edges.h"
+#include "../../GUI/Edges.h"
 
 BOOST_AUTO_TEST_SUITE(GUI_Edges)
 

@@ -35,39 +35,51 @@
 #endif
 
 #include <boost/test/unit_test.hpp>
-#include "../core/Speaker.h"
+#include "../../kernel/core/Scene.h"
 #include <cmath>
+#include <kernel/core/kernel_functions.h>
 
 using namespace Kernel;
 using namespace std;
 using namespace Eigen;
-BOOST_AUTO_TEST_SUITE(speaker)
 
-    BOOST_AUTO_TEST_CASE(test_speaker_contribution_in_bounds) {
-//        shared_ptr<Point> top_left(new Point(0, 0));
-//        shared_ptr<Point> size(new Point(100, 150));
-//        shared_ptr<WisdomCache> wnd(new WisdomCache());
-//        EdgeParameters standard = {};
-//        standard.locally_reacting = true;
-//        standard.alpha = 1;
-//        map<Direction, EdgeParameters> edge_param_map = {{Direction::LEFT,   standard},
-//                                                         {Direction::RIGHT,  standard},
-//                                                         {Direction::TOP,    standard},
-//                                                         {Direction::BOTTOM, standard}};
-//        shared_ptr<Kernel::Domain> test_domain(new Kernel::Domain(nullptr, "test_domain", 1, top_left, size, false, wnd,
-//                                                                  edge_param_map, nullptr));
-        BOOST_CHECK(true);
+BOOST_AUTO_TEST_SUITE(wave_numbers)
 
+    shared_ptr<Kernel::Scene> create_a_scene() {
+        shared_ptr<PSTDFileConfiguration> config = PSTDFile::CreateDefaultConf();
+        Domain domain1;
+        domain1.TopLeft = QVector2D(0, 0);
+        domain1.Size = QVector2D(50, 60);
+        domain1.T.Absorption = 0;
+        domain1.B.Absorption = 0.25;
+        domain1.L.Absorption = 0.35;
+        domain1.R.Absorption = 0.7;
+        domain1.T.LR = false;
+        domain1.B.LR = false;
+        domain1.L.LR = true;
+        domain1.R.LR = false;
+        config->Domains.clear();
+        config->Domains.push_back(domain1);
+        BOOST_CHECK(config->Domains.size() == 1);
+        PSTDKernel kernel = PSTDKernel();
+
+        kernel.start_kernel(config);
+        auto scene = kernel.get_scene();
+        return scene;
     }
 
-    BOOST_AUTO_TEST_CASE(test_values_case1) {
-        //Implement when domains can be initialized
+    BOOST_AUTO_TEST_CASE(scene_test_prime_numbers) {
+        BOOST_CHECK(!domain->is_pml);
+    }
+
+
+    BOOST_AUTO_TEST_CASE(scene_test_scene_dimensions) {
         BOOST_CHECK(true);
     }
 
-    BOOST_AUTO_TEST_CASE(test_values_case2) {
-        //Implement when domains can be initialized
+    BOOST_AUTO_TEST_CASE(connected_domains) {
         BOOST_CHECK(true);
     }
+
 
 BOOST_AUTO_TEST_SUITE_END()
