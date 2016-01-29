@@ -18,20 +18,17 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 29-1-2016
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
-// Purpose:
+// Purpose: General types that can be used throughout the application.
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-//
-// Created by michiel on 30-7-2015.
-//
 
 #ifndef OPENPSTD_GENERALTYPES_H
 #define OPENPSTD_GENERALTYPES_H
