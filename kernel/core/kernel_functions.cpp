@@ -47,7 +47,9 @@ namespace OpenPSTD
             float rrw2 = (inv_zn2 - 1) / (inv_zn2 + 1);
             float trw1 = (2 * zn2) / (zn2 + 1);
             float trw2 = (2 * inv_zn2) / (inv_zn2 + 1);
-            RhoArray result;
+            RhoArray result = {};
+            result.pressure = Eigen::ArrayXXf(4, 2);
+            result.velocity = Eigen::ArrayXXf(4, 2);;
             result.pressure << rlw1, rlw2, rrw1, rrw2,
                     tlw1, tlw2, trw1, trw2;
             result.velocity << -rlw1, -rlw2, -rrw1, -rrw2,
