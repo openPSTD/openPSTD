@@ -38,12 +38,15 @@ set(FFTWF_LIBRARY "" CACHE PATH "The lib of fftw3f")
 set(FFTWF_INCLUDE_DIR "" CACHE PATH "The include dirs of fftw3f")
 set(FFTWF_SHARED_OBJECT "" CACHE PATH "The dll/so file of fftw3f")
 
+
 SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")
 SET(OPENPSTD_VERSION_MINOR 0 CACHE STRING "Minor version number")
 SET(OPENPSTD_VERSION_PATCH 0 CACHE STRING "Patch version number")
 SET(OPENPSTD_SYSTEM_NAME "linux" CACHE STRING "platform in the packaged filename")
 
 set(OPENPSTD_DEPENDENCIES_SEARCH_PATH "" CACHE STRING "(ADVANCED) List of paths (delimiter ;) where the prerequisites can be found")
+
+set(OPENPSTD_TEST_FILE "" CACHE PATH "The single cpp file that has to run when tested(all test files when empty)")
 
 #------------------------------------
 # Version numbering
