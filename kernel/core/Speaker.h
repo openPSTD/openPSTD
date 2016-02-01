@@ -45,7 +45,7 @@ namespace OpenPSTD
     {
         class Speaker
         {
-            /*
+            /**
              * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
              * Note that speaker locations (just like receiver locations) are defined on the grid,
              * but don't need to lie on grid points; their coordinates are not rounded off.
@@ -55,7 +55,7 @@ namespace OpenPSTD
             const float y;
             const float z;
             std::vector<float> location;
-            Point grid_point = Point((int) x, (int) y, (int) z); // Todo: Allowed? Other init seems difficult.
+            Point grid_point = Point((int) x, (int) y, (int) z);
             std::vector<float> grid_offset;
 
             /*

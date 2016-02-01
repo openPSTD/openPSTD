@@ -35,10 +35,7 @@ namespace OpenPSTD
     {
 
 
-        WisdomCache::WisdomCache()
-        {
-            //I believe this does not need any init
-        }
+        WisdomCache::WisdomCache() { }; //Todo: Rename file to wisdom_cache
 
         WisdomCache::Discretization WisdomCache::get_discretization(float dx, int N)
         {

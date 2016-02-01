@@ -33,7 +33,7 @@ namespace OpenPSTD
             /**
              * Sets the configuration.
              */
-            virtual void start_kernel(std::shared_ptr<PSTDConfiguration> config) override;
+            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) override;
 
             /**
              * Runs the kernel. The callback has a single function that informs the rest of the

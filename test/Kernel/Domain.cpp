@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         BOOST_CHECK(config->Domains.size() == 1);
         Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
 
-        kernel.start_kernel(config);
+        kernel.initialize_kernel(config);
         auto scene = kernel.get_scene();
         return scene;
     }
@@ -168,8 +168,15 @@ BOOST_AUTO_TEST_SUITE(domain)
         BOOST_CHECK(true);
     }
 
-    BOOST_AUTO_TEST_CASE(domain_pml_matrices) {
-        //Test the computation and application of pmlmatrices
+    BOOST_AUTO_TEST_CASE(compute_pml_matrices) {
+        auto domain = create_a_domain(0, 0, 50, 60);
+        domain->compute_pml_matrices();
+        BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(apply_pml_matrices) {
+        auto domain = create_a_domain(0, 0, 50, 60);
+        domain->compute_pml_matrices(); // Finish
         BOOST_CHECK(true);
     }
 
@@ -196,6 +203,14 @@ BOOST_AUTO_TEST_SUITE(domain)
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);
         BOOST_CHECK(true);
+    }
+
+    BOOST_AUTO_TEST_CASE(test_initial_values) {
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
+        cout << (domain->current_values.p0.sum()) << endl;
+        BOOST_CHECK(true);
+
     }
 
 BOOST_AUTO_TEST_SUITE_END()

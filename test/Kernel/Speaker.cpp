@@ -44,8 +44,8 @@ using namespace Eigen;
 BOOST_AUTO_TEST_SUITE(speaker)
 
     BOOST_AUTO_TEST_CASE(test_speaker_contribution_in_bounds) {
-//        shared_ptr<Point> top_left(new Point(0, 0));
-//        shared_ptr<Point> size(new Point(100, 150));
+//        Point top_left(0, 0);
+//        Point size(100, 150);
 //        shared_ptr<WisdomCache> wnd(new WisdomCache());
 //        EdgeParameters standard = {};
 //        standard.locally_reacting = true;
@@ -54,8 +54,8 @@ BOOST_AUTO_TEST_SUITE(speaker)
 //                                                         {Direction::RIGHT,  standard},
 //                                                         {Direction::TOP,    standard},
 //                                                         {Direction::BOTTOM, standard}};
-//        shared_ptr<Kernel::Domain> test_domain(new Kernel::Domain(nullptr, "test_domain", 1, top_left, size, false, wnd,
-//                                                                  edge_param_map, nullptr));
+//        shared_ptr<Domain> test_domain = make_shared<Domain>(nullptr, "test_domain", 1, top_left, size, false, wnd,
+//                                                                  edge_param_map, nullptr);
         BOOST_CHECK(true);
 
     }

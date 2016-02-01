@@ -29,16 +29,13 @@
 
 using namespace std;
 using namespace Eigen;
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
         Domain::Domain(shared_ptr<PSTDSettings> settings, int id, const float alpha,
                        Point top_left, Point size, const bool is_pml,
                        shared_ptr<WisdomCache> wnd, map<Direction, EdgeParameters> edge_param_map,
-                       const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr))
-        {
+                       const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
 
             this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
         }
@@ -46,8 +43,7 @@ namespace OpenPSTD
         Domain::Domain(shared_ptr<PSTDSettings> settings, int id, const float alpha,
                        vector<float> top_left_vector, vector<float> size_vector, const bool is_pml,
                        shared_ptr<WisdomCache> wnd, map<Direction, EdgeParameters> edge_param_map,
-                       const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr))
-        {
+                       const shared_ptr<Domain> pml_for_domain = shared_ptr<Domain>(nullptr)) {
             Point top_left((int) top_left_vector.at(0), (int) top_left_vector.at(1));
             Point size((int) size_vector.at(0), (int) size_vector.at(1));
             this->initialize_domain(settings, id, alpha, top_left, size, is_pml, wnd, edge_param_map, pml_for_domain);
@@ -57,8 +53,7 @@ namespace OpenPSTD
                                        Point top_left, Point size, const bool is_pml,
                                        shared_ptr<WisdomCache> wnd,
                                        map<Direction, EdgeParameters> edge_param_map,
-                                       const shared_ptr<Domain> pml_for_domain)
-        {
+                                       const shared_ptr<Domain> pml_for_domain) {
             this->settings = settings;
             this->top_left = top_left;
             this->size = size; // Remember PML domains have a fixed size.
@@ -69,24 +64,19 @@ namespace OpenPSTD
             this->alpha = alpha; // Todo: Usually 1, and barely used. Push to settings when PML domain becomes subclass
             //Todo: (TK): Probably wrong, especially with two neighbouring PML domains
             this->impedance = -((sqrt(1 - alpha) + 1) / (sqrt(1 - alpha) - 1));
-            if (is_pml)
-            { // Ugly... Fix when possible
+            if (is_pml) { // Ugly... Fix when possible
                 this->pml_for_domain_list.push_back(pml_for_domain);
             }
-            if (this->is_rigid())
-            {
+            if (this->is_rigid()) {
                 this->rho = 1E200;
             }
-            else
-            {
+            else {
                 this->rho = this->settings->GetDensityOfAir();
             }
             this->is_pml = is_pml;
             this->is_secondary_pml = false;
-            for (auto domain:this->pml_for_domain_list)
-            {
-                if (domain->is_pml)
-                {
+            for (auto domain:this->pml_for_domain_list) {
+                if (domain->is_pml) {
                     is_secondary_pml = true;
                     // TK: Assert there is only one primary pml domain.
                 }
@@ -102,16 +92,13 @@ namespace OpenPSTD
         }
 
         // version of calc that would have a return value.
-        ArrayXXf Domain::calc(CalcDirection cd, CalculationType ct, ArrayXcf dest)
-        {
+        ArrayXXf Domain::calc(CalcDirection cd, CalculationType ct, ArrayXcf dest) {
             vector<shared_ptr<Domain>> domains1, domains2;
-            if (cd == CalcDirection::X)
-            {
+            if (cd == CalcDirection::X) {
                 domains1 = left;
                 domains2 = right;
             }
-            else
-            {
+            else {
                 domains1 = bottom;
                 domains2 = top;
             }
@@ -120,38 +107,28 @@ namespace OpenPSTD
 
             ArrayXXf source;
 
-            if (dest.cols() == 0)
-            {
-                if (ct == CalculationType::VELOCITY)
-                {
-                    if (cd == CalcDirection::X)
-                    {
+            if (dest.cols() == 0) {
+                if (ct == CalculationType::VELOCITY) {
+                    if (cd == CalcDirection::X) {
                         source = extended_zeros(0, 1);
                     }
-                    else
-                    {
+                    else {
                         source = extended_zeros(1, 0);
                     }
                 }
-                else
-                {
+                else {
                     source = extended_zeros(0, 0);
                 }
             }
-            else
-            {
-                if (ct == CalculationType::PRESSURE)
-                {
+            else {
+                if (ct == CalculationType::PRESSURE) {
                     source = this->current_values.p0;
                 }
-                else
-                {
-                    if (cd == CalcDirection::X)
-                    {
+                else {
+                    if (cd == CalcDirection::X) {
                         source = this->current_values.u0;
                     }
-                    else
-                    {
+                    else {
                         source = this->current_values.w0;
                     }
                 }
@@ -159,11 +136,9 @@ namespace OpenPSTD
 
             // loop over all possible combinations of neighbours for this domain (including null on one side)
             shared_ptr<Domain> d1, d2;
-            for (int i = 0; i != domains1.size() + 1; i++)
-            { //the +1 because a null pointer is also needed
+            for (int i = 0; i != domains1.size() + 1; i++) { //the +1 because a null pointer is also needed
                 d1 = (i != domains1.size()) ? domains1[i] : nullptr;
-                for (int j = 0; i != domains2.size() + 1; j++)
-                {
+                for (int j = 0; i != domains2.size() + 1; j++) {
                     d2 = (i != domains2.size()) ? domains2[i] : nullptr;
                     vector<int> rho_matrix_key;
                     rho_matrix_key.push_back(d1->id);
@@ -172,15 +147,13 @@ namespace OpenPSTD
                     //The range is determined and clipped to the neighbour domain ranges
                     vector<int> range_intersection = own_range;
 
-                    if (d1 != nullptr)
-                    {
+                    if (d1 != nullptr) {
                         vector<int> range1 = d1->get_range(cd);
                         set_intersection(range1.begin(), range1.end(),
                                          range_intersection.begin(), range_intersection.end(),
                                          back_inserter(range_intersection));
                     }
-                    if (d2 != nullptr)
-                    {
+                    if (d2 != nullptr) {
                         vector<int> range2 = d1->get_range(cd);
                         set_intersection(range2.begin(), range2.end(),
                                          range_intersection.begin(), range_intersection.end(),
@@ -188,8 +161,7 @@ namespace OpenPSTD
                     }
 
                     // If there is nothing left after clipping to domains, continue with a different set of domains
-                    if (range_intersection.size() == 0)
-                    {
+                    if (range_intersection.size() == 0) {
                         continue;
                     }
 
@@ -201,18 +173,15 @@ namespace OpenPSTD
                     int wlen = this->settings->GetWindowSize();
                     Eigen::ArrayXf wind = this->settings->GetWindow();
 
-                    if (ct == CalculationType::PRESSURE)
-                    {
+                    if (ct == CalculationType::PRESSURE) {
                         N_total++;
                     }
-                    else
-                    {
+                    else {
                         primary_dimension++;
                     }
 
                     ArrayXXf matrix_main, matrix_side1, matrix_side2;
-                    if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr)
-                    {
+                    if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                         // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
                         // TODO Louis: Why only zeroes for ct==velocity? Should zeroes also be added in the else{} block?
                         // a PML domain can also have a neighbour, see:
@@ -221,94 +190,72 @@ namespace OpenPSTD
                         //   |     PML     |
                         //  <--------------->
                         d1 = d2 = shared_from_this();
-                        if (cd == CalcDirection::X)
-                        {
+                        if (cd == CalcDirection::X) {
                             matrix_side1 = extended_zeros(0, 1);
                             matrix_side2 = extended_zeros(0, 1);
                         }
-                        else
-                        {
+                        else {
                             matrix_side1 = extended_zeros(1, 0);
                             matrix_side2 = extended_zeros(1, 0);
                         }
                     }
-                    else
-                    {
-                        if (d1 == nullptr)
-                        {
+                    else {
+                        if (d1 == nullptr) {
                             d1 = shared_from_this();
                         }
-                        if (d2 == nullptr)
-                        {
+                        if (d2 == nullptr) {
                             d2 = shared_from_this();
                         }
                     }
 
-                    if (ct == CalculationType::PRESSURE)
-                    {
+                    if (ct == CalculationType::PRESSURE) {
                         matrix_main = current_values.p0;
                     }
-                    else if (cd == CalcDirection::X)
-                    {
+                    else if (cd == CalcDirection::X) {
                         matrix_main = current_values.u0;
                     }
-                    else
-                    {
+                    else {
                         matrix_main = current_values.w0;
                     }
 
                     // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
-                    if (matrix_side1.cols() == 0)
-                    {
-                        if (ct == CalculationType::PRESSURE)
-                        {
+                    if (matrix_side1.cols() == 0) {
+                        if (ct == CalculationType::PRESSURE) {
                             matrix_side1 = d1->current_values.p0;
                         }
-                        else
-                        {
-                            if (cd == CalcDirection::X)
-                            {
+                        else {
+                            if (cd == CalcDirection::X) {
                                 matrix_side1 = d1->current_values.u0;
                             }
-                            else
-                            {
+                            else {
                                 matrix_side1 = d1->current_values.w0;
                             }
                         }
                     }
-                    if (matrix_side2.cols() == 0)
-                    {
-                        if (ct == CalculationType::PRESSURE)
-                        {
+                    if (matrix_side2.cols() == 0) {
+                        if (ct == CalculationType::PRESSURE) {
                             matrix_side2 = d2->current_values.p0;
                         }
-                        else
-                        {
-                            if (cd == CalcDirection::X)
-                            {
+                        else {
+                            if (cd == CalcDirection::X) {
                                 matrix_side2 = d2->current_values.u0;
                             }
-                            else
-                            {
+                            else {
                                 matrix_side2 = d2->current_values.w0;
                             }
                         }
                     }
 
                     ArrayXcf derfact;
-                    if (dest.cols() == 0)
-                    {
+                    if (dest.cols() == 0) {
                         derfact = dest;
                     }
-                    else
-                    {
-                        if (ct == CalculationType::PRESSURE)
-                        {
+                    else {
+                        if (ct == CalculationType::PRESSURE) {
                             derfact = wnd->get_discretization(settings->GetGridSpacing(),
                                                               N_total).pressure_deriv_factors;
                         }
-                        else
-                        {
+                        else {
                             derfact = wnd->get_discretization(settings->GetGridSpacing(),
                                                               N_total).velocity_deriv_factors;
                         }
@@ -316,43 +263,34 @@ namespace OpenPSTD
 
                     // Determine which rho matrix instance to use
                     int rho_array_id;
-                    if (d1 != nullptr)
-                    {
-                        if (d2 != nullptr)
-                        {
+                    if (d1 != nullptr) {
+                        if (d2 != nullptr) {
                             rho_array_id = d1->id * id * d2->id;
                         }
-                        else
-                        {
+                        else {
                             rho_array_id = d1->id * id;
                         }
                     }
-                    else
-                    {
-                        if (d2 != nullptr)
-                        {
+                    else {
+                        if (d2 != nullptr) {
                             rho_array_id = id * d2->id;
                         }
-                        else
-                        {
+                        else {
                             rho_array_id = id;
                         }
                     }
                     RhoArray rho_array;
-                    if (ct == CalculationType::PRESSURE)
-                    {
+                    if (ct == CalculationType::PRESSURE) {
                         rho_array = rho_arrays[rho_array_id];
                     }
-                    else
-                    {
+                    else {
                         rho_array = rho_arrays[rho_array_id];
                     }
 
                     // Calculate the spatial derivatives for the current intersection range and store
                     int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
                     Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
-                    if (cd == CalcDirection::X)
-                    {
+                    if (cd == CalcDirection::X) {
                         matrix_main_offset = this->top_left.y;
                         matrix_side1_offset = d1->top_left.y;
                         matrix_side2_offset = d2->top_left.y;
@@ -371,8 +309,7 @@ namespace OpenPSTD
                                           cd);
 
                     }
-                    else
-                    {
+                    else {
                         matrix_main_offset = this->top_left.x;
                         matrix_side1_offset = d1->top_left.x;
                         matrix_side2_offset = d2->top_left.x;
@@ -393,20 +330,15 @@ namespace OpenPSTD
                 }
             }
 
-            if (dest.cols() != 0)
-            {
-                if (ct == CalculationType::PRESSURE)
-                {
+            if (dest.cols() != 0) {
+                if (ct == CalculationType::PRESSURE) {
                     this->current_values.p0 = source;
                 }
-                else
-                {
-                    if (cd == CalcDirection::X)
-                    {
+                else {
+                    if (cd == CalcDirection::X) {
                         this->current_values.u0 = source;
                     }
-                    else
-                    {
+                    else {
                         this->current_values.w0 = source;
                     }
                 }
@@ -418,64 +350,51 @@ namespace OpenPSTD
          * Near-alias to calc(CalcDirection cd, CalculationType ct, vector<float> dest), but with
          * a default empty vector as dest.
          */
-        void Domain::calc(CalcDirection cd, CalculationType ct)
-        {
+        void Domain::calc(CalcDirection cd, CalculationType ct) {
             Eigen::ArrayXcf nulldest;
             Domain::calc(cd, ct, nulldest);
         }
 
-        bool Domain::contains_point(Point point)
-        {
+        bool Domain::contains_point(Point point) {
             vector<float> location = {(float) point.x, (float) point.y, (float) point.z};
             return contains_location(location);
         }
 
-        bool Domain::contains_location(vector<float> location)
-        {
-            for (unsigned long dim = 0; dim < location.size(); dim++)
-            {
+        bool Domain::contains_location(vector<float> location) {
+            for (unsigned long dim = 0; dim < location.size(); dim++) {
                 if (top_left.array.at(dim) > location.at(dim) or
-                    location.at(dim) > bottom_right.array.at(dim))
-                {
+                    location.at(dim) > bottom_right.array.at(dim)) {
                     return false;
                 }
             }
             return true;
         }
 
-        bool Domain::is_neighbour_of(shared_ptr<Domain> domain)
-        {
-            for (Direction direction :all_directions)
-            {
+        bool Domain::is_neighbour_of(shared_ptr<Domain> domain) {
+            for (Direction direction :all_directions) {
                 auto dir_nb = get_neighbours_at(direction);
-                if (find(dir_nb.begin(), dir_nb.end(), domain) != dir_nb.end())
-                {
+                if (find(dir_nb.begin(), dir_nb.end(), domain) != dir_nb.end()) {
                     return true;
                 }
             }
             return false;
         }
 
-        bool Domain::is_pml_for(shared_ptr<Domain> domain)
-        {
+        bool Domain::is_pml_for(shared_ptr<Domain> domain) {
             return (find(pml_for_domain_list.begin(), pml_for_domain_list.end(), domain) != pml_for_domain_list.end());
         }
 
-        bool Domain::is_rigid()
-        {
+        bool Domain::is_rigid() {
             return impedance > 1000; //Why this exact value?
         }
 
-        vector<int> Domain::get_range(CalcDirection cd)
-        {
+        vector<int> Domain::get_range(CalcDirection cd) {
             int a_l, b_l;
-            if (cd == CalcDirection::X)
-            {
+            if (cd == CalcDirection::X) {
                 a_l = top_left.x;
                 b_l = bottom_right.x;
             }
-            else
-            {
+            else {
                 a_l = top_left.y;
                 b_l = bottom_right.y;
             }
@@ -484,12 +403,10 @@ namespace OpenPSTD
             return tmp;
         }
 
-        vector<int> Domain::get_intersection_with(shared_ptr<Domain> other_domain, Direction direction)
-        {
+        vector<int> Domain::get_intersection_with(shared_ptr<Domain> other_domain, Direction direction) {
             vector<int> own_range;
             vector<int> other_range;
-            switch (direction)
-            {
+            switch (direction) {
                 case Direction::LEFT:
                 case Direction::RIGHT:
                     own_range = get_range(CalcDirection::X);
@@ -508,15 +425,12 @@ namespace OpenPSTD
             return range_intersection;
         }
 
-        ArrayXXf Domain::extended_zeros(int x, int y, int z)
-        {
+        ArrayXXf Domain::extended_zeros(int x, int y, int z) {
             return ArrayXXf::Zero(size.x + x, size.y + y);
         }
 
-        vector<shared_ptr<Domain>> Domain::get_neighbours_at(Direction direction)
-        {
-            switch (direction)
-            {
+        vector<shared_ptr<Domain>> Domain::get_neighbours_at(Direction direction) {
+            switch (direction) {
                 case Direction::LEFT:
                     return left;
                 case Direction::RIGHT:
@@ -528,14 +442,11 @@ namespace OpenPSTD
             }
         }
 
-        shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, vector<float> location)
-        {
+        shared_ptr<Domain> Domain::get_neighbour_at(Direction direction, vector<float> location) {
             shared_ptr<Domain> correct_domain = nullptr;
             auto dir_neighbours = get_neighbours_at(direction);
-            for (shared_ptr<Domain> domain:dir_neighbours)
-            {
-                if (domain->contains_location(location))
-                {
+            for (shared_ptr<Domain> domain:dir_neighbours) {
+                if (domain->contains_location(location)) {
                     assert(correct_domain == nullptr);
                     correct_domain = domain;
                 }
@@ -544,39 +455,30 @@ namespace OpenPSTD
         }
 
 
-        void Domain::compute_number_of_neighbours()
-        {
+        void Domain::compute_number_of_neighbours() {
             num_neighbour_domains = 0;
             num_pml_neighbour_domains = 0;
-            for (Direction direction: all_directions)
-            {
-                for (auto domain: get_neighbours_at(direction))
-                {
+            for (Direction direction: all_directions) {
+                for (auto domain: get_neighbours_at(direction)) {
                     num_neighbour_domains++;
-                    if (domain->is_pml)
-                    {
+                    if (domain->is_pml) {
                         num_pml_neighbour_domains++;
                     }
                 }
             }
         }
 
-        int Domain::number_of_neighbours(bool count_pml)
-        {
-            if (count_pml)
-            {
+        int Domain::number_of_neighbours(bool count_pml) {
+            if (count_pml) {
                 return num_neighbour_domains;
             }
-            else
-            {
+            else {
                 return num_neighbour_domains - num_pml_neighbour_domains;
             }
         }
 
-        void Domain::add_neighbour_at(shared_ptr<Domain> domain, Direction direction)
-        {
-            switch (direction)
-            {
+        void Domain::add_neighbour_at(shared_ptr<Domain> domain, Direction direction) {
+            switch (direction) {
                 case Direction::LEFT:
                     left.push_back(domain);
                     break;
@@ -592,28 +494,22 @@ namespace OpenPSTD
             }
         }
 
-        void Domain::compute_rho_arrays()
-        {
+        void Domain::compute_rho_arrays() {
             //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
-            struct index_strings
-            {
-                int id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2)
-                {
+            struct index_strings {
+                int id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
                     return d1->id * dm->id * d2->id;
                 }
 
-                int id(shared_ptr<Domain> d1, Domain *dm)
-                {
+                int id(shared_ptr<Domain> d1, Domain *dm) {
                     return d1->id * dm->id;
                 }
 
-                int id(Domain *dm, shared_ptr<Domain> d2)
-                {
+                int id(Domain *dm, shared_ptr<Domain> d2) {
                     return dm->id * d2->id;
                 }
 
-                int id(Domain *dm)
-                {
+                int id(Domain *dm) {
                     return dm->id;
                 }
             };
@@ -628,87 +524,67 @@ namespace OpenPSTD
             // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
             // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
             // Todo: Now you are computing rho's for any possible combination. I think that's overdoing it...
-            if (left_domains.size())
-            {
-                for (shared_ptr<Domain> d1 : left_domains)
-                {
-                    if (right_domains.size())
-                    {
-                        for (shared_ptr<Domain> d2 : right_domains)
-                        {
+            if (left_domains.size()) {
+                for (shared_ptr<Domain> d1 : left_domains) {
+                    if (right_domains.size()) {
+                        for (shared_ptr<Domain> d2 : right_domains) {
                             vector<float> rhos = {d1->rho, d2->rho};
                             rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                         }
                     }
-                    else
-                    {
+                    else {
                         vector<float> rhos = {d1->rho, max_rho};
                         rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], rho, rhos[1]);
                     }
                 }
             }
-            else
-            {
-                if (right_domains.size())
-                {
-                    for (shared_ptr<Domain> d2 : right_domains)
-                    {
+            else {
+                if (right_domains.size()) {
+                    for (shared_ptr<Domain> d2 : right_domains) {
                         vector<float> rhos = {max_rho, d2->rho};
                         rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                     }
                 }
-                else
-                {
+                else {
                     vector<float> rhos = {max_rho, max_rho};
                     rho_arrays[x.id(this)] = get_rho_array(rhos[0], rho, rhos[1]);
                 }
             }
 
-            if (bottom_domains.size())
-            {
-                for (shared_ptr<Domain> d1 : bottom_domains)
-                {
-                    if (top_domains.size())
-                    {
-                        for (shared_ptr<Domain> d2 : top_domains)
-                        {
+            if (bottom_domains.size()) {
+                for (shared_ptr<Domain> d1 : bottom_domains) {
+                    if (top_domains.size()) {
+                        for (shared_ptr<Domain> d2 : top_domains) {
                             vector<float> rhos = {d1->rho, d2->rho};
                             rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                         }
                     }
-                    else
-                    {
+                    else {
                         vector<float> rhos = {d1->rho, max_rho};
                         rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], rho, rhos[1]);
                     }
                 }
             }
-            else
-            {
-                if (top_domains.size())
-                {
-                    for (shared_ptr<Domain> d2 : top_domains)
-                    {
+            else {
+                if (top_domains.size()) {
+                    for (shared_ptr<Domain> d2 : top_domains) {
                         vector<float> rhos = {max_rho, d2->rho};
                         rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
                     }
                 }
-                else
-                {
+                else {
                     vector<float> rhos = {max_rho, max_rho};
                     rho_arrays[x.id(this)] = get_rho_array(rhos[0], rho, rhos[1]);
                 }
             }
         }
 
-        ArrayXXi Domain::get_vacant_range(Direction direction)
-        {
+        ArrayXXi Domain::get_vacant_range(Direction direction) {
             vector<shared_ptr<Domain>> neighbour_list;
             CalcDirection calc_dir = direction_to_calc_direction(direction);
             vector<int> range = get_range(calc_dir);
             set<int> range_set(range.begin(), range.end());
-            switch (direction)
-            {
+            switch (direction) {
                 case Direction::LEFT:
                     neighbour_list = left;
                     break;
@@ -722,8 +598,7 @@ namespace OpenPSTD
                     neighbour_list = bottom;
                     break;
             }
-            for (shared_ptr<Domain> domain: neighbour_list)
-            {
+            for (shared_ptr<Domain> domain: neighbour_list) {
                 vector<int> neighbour_range = domain->get_range(calc_dir);
                 set<int> neighbour_range_set(neighbour_range.begin(), neighbour_range.end());
                 set<int> set_diff;
@@ -734,16 +609,13 @@ namespace OpenPSTD
             ArrayXXi vacant_range(range_set.size(), 2);
             range.assign(range_set.begin(), range_set.end());
             int iterator = 0;
-            for (unsigned long i = 0; i < range.size(); i++)
-            {
-                if (i == 0 || range.at(i - 1) + 1 < range.at(i))
-                {
+            for (unsigned long i = 0; i < range.size(); i++) {
+                if (i == 0 || range.at(i - 1) + 1 < range.at(i)) {
                     vacant_range(0, 0) = range.at(i);
                     vacant_range(0, 1) = range.at(i);
                     iterator++;
                 }
-                if (i == range.size() - 1 || range.at(i + 1) - 1 > range.at(i))
-                {
+                if (i == range.size() - 1 || range.at(i + 1) - 1 > range.at(i)) {
                     vacant_range(iterator - 1, 1) = range.at(i) + 1;
                 }
             }
@@ -751,35 +623,26 @@ namespace OpenPSTD
         }
 
 
-        void Domain::find_update_directions()
-        {
+        void Domain::find_update_directions() {
             vector<CalcDirection> calc_directions = {CalcDirection::X, CalcDirection::Y};
             vector<Direction> directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
-            for (CalcDirection calc_dir: calc_directions)
-            {
+            for (CalcDirection calc_dir: calc_directions) {
                 bool should_update = false;
-                if (number_of_neighbours(false) == 1 and is_pml)
-                {
-                    if (has_horizontal_attenuation and calc_dir == CalcDirection::X)
-                    {
+                if (number_of_neighbours(false) == 1 and is_pml) {
+                    if (has_horizontal_attenuation and calc_dir == CalcDirection::X) {
                         // Todo: make sure we calculate in direction orthogonal to boundary
                         should_update = true;
                     }
-                    else if (!has_horizontal_attenuation and calc_dir == CalcDirection::Y)
-                    {
+                    else if (!has_horizontal_attenuation and calc_dir == CalcDirection::Y) {
                         should_update = true;
                     }
-                    else if (local)
-                    {
+                    else if (local) {
                         should_update = false;
                     }
-                    else
-                    {
-                        for (Direction direction: directions)
-                        {
+                    else {
+                        for (Direction direction: directions) {
                             vector<shared_ptr<Domain>> dir_neighbours = get_neighbours_at(direction);
-                            if (dir_neighbours.size() == 1 and !dir_neighbours.at(0)->is_pml)
-                            {
+                            if (dir_neighbours.size() == 1 and !dir_neighbours.at(0)->is_pml) {
                                 vector<shared_ptr<Domain>> opp_neighbours =
                                         dir_neighbours.at(0)->get_neighbours_at(get_opposite(direction));
                                 assert(opp_neighbours.size() == 1 and id == opp_neighbours.at(0)->id);
@@ -792,16 +655,14 @@ namespace OpenPSTD
             }
         }
 
-        void Domain::clear_matrices()
-        {
+        void Domain::clear_matrices() {
             l_values.Lpx = extended_zeros(0, 1);
             l_values.Lpy = extended_zeros(1, 0);
             l_values.Lvx = extended_zeros(0, 0);
             l_values.Lvy = extended_zeros(0, 0);
         }
 
-        void Domain::clear_fields()
-        {
+        void Domain::clear_fields() {
             current_values.p0 = extended_zeros(0, 0);
             current_values.px0 = extended_zeros(0, 0);
             current_values.py0 = extended_zeros(0, 0);
@@ -812,8 +673,7 @@ namespace OpenPSTD
         }
 
 
-        void Domain::clear_pml_arrays()
-        {
+        void Domain::clear_pml_arrays() {
             pml_arrays.px = extended_zeros(0, 0);
             pml_arrays.py = extended_zeros(0, 0);
             pml_arrays.u = extended_zeros(0, 1);
@@ -821,24 +681,21 @@ namespace OpenPSTD
 
         }
 
-        void Domain::compute_pml_matrices()
-        {
+        void Domain::compute_pml_matrices() {
             //Todo (0mar): Refactor this method? It's asymmetric and spaghetty
             /*
              * TK: Only calculate PML matrices for PML domains with a single non-pml neighbour
              * or for secondary PML domains with a single PML neighbour.
              */
             int number_normal_neighbour_domains = num_neighbour_domains - num_pml_neighbour_domains;
-            if (is_secondary_pml)
-            {
+            if (is_secondary_pml) {
                 is_corner_domain = num_neighbour_domains == 2;
                 /*
                  * TK: If this domain has its neighbour to the left or to the right,
                  * a PML matrix is obtained for horizontal attenuation.
                  */
                 has_horizontal_attenuation = !left.empty() or !right.empty();
-                if (is_corner_domain)
-                {
+                if (is_corner_domain) {
                     /**
                      * TK: Corner PML domains should have a horizontal as well as a vertical component.
                      * In particular: not to neighbours in the same direction.
@@ -848,14 +705,12 @@ namespace OpenPSTD
                     needs_reversed_attenuation.push_back(!left.empty());
                     needs_reversed_attenuation.push_back(!bottom.empty());
                 }
-                else
-                {
+                else {
                     //TK: If this neighbour is located to the left or bottom, the attenuation is reversed.
                     needs_reversed_attenuation.push_back(!left.empty() or !bottom.empty());
                 }
             }
-            else
-            {
+            else {
                 is_corner_domain = false;
                 /*
                  * TK: If this domain has a neighbour to the left or right
@@ -868,23 +723,19 @@ namespace OpenPSTD
 
                 has_horizontal_attenuation = all_air_left or all_air_right;
                 needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
-                if (is_secondary_pml and is_corner_domain)
-                {
+                if (is_secondary_pml and is_corner_domain) {
                     // TK: PML is the product of horizontal and vertical attenuation.
                     create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
                                              pml_arrays.px, pml_arrays.u);
                     create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
                                              pml_arrays.py, pml_arrays.u);
                 }
-                else
-                {
+                else {
                     CalcDirection calc_dir = CalcDirection::Y;
-                    if (has_horizontal_attenuation)
-                    {
+                    if (has_horizontal_attenuation) {
                         calc_dir = CalcDirection::X;
                     }
-                    switch (calc_dir)
-                    {
+                    switch (calc_dir) {
                         case CalcDirection::X:
                             create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
                                                      pml_arrays.px, pml_arrays.u);
@@ -914,19 +765,15 @@ namespace OpenPSTD
         }
 
 
-        void Domain::push_values()
-        {
+        void Domain::push_values() {
             previous_values = current_values;
         }
 
 
-        int Domain::get_num_pmls_in_direction(Direction direction)
-        {
+        int Domain::get_num_pmls_in_direction(Direction direction) {
             int num_pml_doms = 0;
-            for (auto domain: get_neighbours_at(direction))
-            {
-                if (domain->is_pml)
-                {
+            for (auto domain: get_neighbours_at(direction)) {
+                if (domain->is_pml) {
                     num_pml_doms++;
                 }
             }
@@ -934,8 +781,7 @@ namespace OpenPSTD
         }
 
         void Domain::create_attenuation_array(CalcDirection calc_dir, bool ascending, ArrayXXf &pml_pressure,
-                                              ArrayXXf &pml_velocity)
-        {
+                                              ArrayXXf &pml_velocity) {
             /*
              * 0mar: Most of this method only needs to be computed once for all domains.
              * However, the computations are not that big and only executed in the initialization phase.
@@ -955,14 +801,12 @@ namespace OpenPSTD
             ArrayXXf pressure_pml_factors = (-alpha_pml_pressure * settings->GetTimeStep() /
                                              settings->GetDensityOfAir()).exp();
             ArrayXXf velocity_pml_factors = (-alpha_pml_velocity * settings->GetTimeStep()).exp();
-            if (!ascending)
-            {
+            if (!ascending) {
                 //Reverse if the attenuation takes place in the other direction
                 pressure_pml_factors.reverseInPlace();
                 velocity_pml_factors.reverseInPlace();
             }
-            switch (calc_dir)
-            {
+            switch (calc_dir) {
                 //Replicate matrices to size of domain
                 case CalcDirection::X:
                     pml_pressure = pressure_pml_factors.transpose().replicate(1, size.x);
@@ -975,32 +819,26 @@ namespace OpenPSTD
             }
         }
 
-        ostream &operator<<(ostream &str, Domain const &v)
-        {
+        ostream &operator<<(ostream &str, Domain const &v) {
             str << "Domain " << v.id;
-            if (v.is_pml)
-            {
+            if (v.is_pml) {
                 str << " (pml)";
             }
             str << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
             return str;
         }
 
-        void Domain::post_initialization()
-        {
+        void Domain::post_initialization() {
             compute_number_of_neighbours();
             find_update_directions();
         }
 
-        int Domain::get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2)
-        {
+        int Domain::get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2) {
             int key = this->id;
-            if (domain1 != nullptr)
-            {
+            if (domain1 != nullptr) {
                 key *= domain1->id;
             }
-            if (domain2 != nullptr)
-            {
+            if (domain2 != nullptr) {
                 key *= domain2->id;
             }
             return key;

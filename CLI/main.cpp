@@ -416,7 +416,7 @@ namespace OpenPSTD
                     kernel = std::unique_ptr<Kernel::PSTDKernel>(new Kernel::PSTDKernel());
                 }
                 //configure the kernel
-                kernel->start_kernel(conf);
+                kernel->initialize_kernel(conf);
                 //create output
                 std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file);
                 //run kernel

@@ -9,7 +9,7 @@ namespace OpenPSTD
 {
     namespace Kernel
     {
-        void MockKernel::start_kernel(std::shared_ptr<PSTDConfiguration> config)
+        void MockKernel::initialize_kernel(std::shared_ptr<PSTDConfiguration> config)
         {
             _conf = config;
         }

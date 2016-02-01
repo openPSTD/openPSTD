@@ -116,7 +116,7 @@ namespace OpenPSTD
              * Sets the configuration,
              * also initializes the kernel and the scene, constructs the domains and sets the parameters.
              */
-            void start_kernel(std::shared_ptr<PSTDConfiguration> config) override;
+            void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) override;
 
             /**
              * Runs the kernel. The callback has a single function that informs the rest of the
