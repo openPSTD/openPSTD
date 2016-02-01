@@ -68,9 +68,6 @@ namespace OpenPSTD
 
         class ExportCommand : public Command
         {
-        private:
-            std::unique_ptr<Shared::ExportDomain> GetExport(std::string format);
-
         public:
             std::string GetName() override;
 

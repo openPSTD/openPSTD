@@ -26,27 +26,29 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include <boost/program_options.hpp>
+
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <algorithm>
+
+#include <boost/program_options.hpp>
+#include <boost/regex.hpp>
 
 #include <kernel/PSTDKernel.h>
 #include <kernel/MockKernel.h>
 
-#include <boost/regex.hpp>
 #include <shared/PSTDFile.h>
-#include <shared/export/Image.h>
 
 #include "edit.h"
 #include "output.h"
 #include "main.h"
+#include "exportCLI.h"
 
 namespace OpenPSTD
 {
     namespace CLI
     {
-
         namespace po = boost::program_options;
         using namespace boost;
         using namespace boost::program_options;
@@ -435,23 +437,6 @@ namespace OpenPSTD
             }
         }
 
-        std::unique_ptr<Shared::ExportDomain> ExportCommand::GetExport(std::string format)
-        {
-            std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
-            exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
-
-            for (int i = 0; i < exports.size(); ++i)
-            {
-                auto f = exports[i]->GetFormats();
-                for (int j = 0; j < f.size(); ++j)
-                {
-                    if (f[j].compare(format) == 0)
-                        return std::move(exports[i]);
-                }
-            }
-            throw Shared::ExportFormatNotSupported(format, std::vector<std::string>());
-        }
-
         std::string ExportCommand::GetName()
         {
             return "export";
@@ -465,8 +450,8 @@ namespace OpenPSTD
         int ExportCommand::execute(int argc, const char **argv)
         {
             po::variables_map vm;
-            std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
-            exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
+            std::vector<std::shared_ptr<OpenPSTD::CLI::CLIExport>> exports;
+            exports.push_back(std::make_shared<OpenPSTD::CLI::CLIImageExport>());
 
             try
             {
@@ -484,6 +469,11 @@ namespace OpenPSTD
                          "The end frame that has to be exported(included), -1 for the last frame.")
                         ("domains,D", po::value<std::vector<int> >(),
                          "Domain that should be exported. By default it exports all domains. Can be used multiple times.");
+
+                for (int i = 0; i < exports.size(); ++i)
+                {
+                    exports[i]->AddOptions(desc.add_options());
+                }
 
                 po::positional_options_description p;
                 p.add("scene-file", 1);
@@ -531,7 +521,16 @@ namespace OpenPSTD
                 std::shared_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
 
                 std::string format = vm["format"].as<std::string>();
-                std::unique_ptr<Shared::ExportDomain> e = GetExport(format);
+                std::shared_ptr<CLIExport> e;
+                for (int i = 0; i < exports.size(); ++i)
+                {
+                    auto f = exports[i]->GetFormats();
+                    if(std::any_of(f.begin(), f.end(), [&format](std::string s){return s.compare(format) == 0; }))
+                    {
+                        e = exports[i];
+                        break;
+                    }
+                }
 
                 std::vector<int> domains;
                 if (vm.count("domains") > 0)
@@ -539,8 +538,8 @@ namespace OpenPSTD
                     domains = vm["domains"].as<std::vector<int>>();
                 }
 
-                e->ExportData(format, file, vm["output-dir"].as<std::string>(), vm["output-name"].as<std::string>(),
-                              false, domains, vm["start-frame"].as<int>(), vm["end-frame"].as<int>());
+                e->Execute(format, file, vm["output-dir"].as<std::string>(), vm["output-name"].as<std::string>(),
+                              domains, vm["start-frame"].as<int>(), vm["end-frame"].as<int>(), vm);
 
                 return 0;
             }

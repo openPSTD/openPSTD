@@ -1,6 +1,6 @@
 #------------------------------------
 # UI CLI
-set(SOURCE_FILES_CLI CLI/edit.cpp CLI/output.cpp)
+set(SOURCE_FILES_CLI CLI/edit.cpp CLI/output.cpp CLI/exportCLI.cpp)
 add_executable(OpenPSTD-cli CLI/main.cpp ${SOURCE_FILES_CLI})
 
 target_include_directories(OpenPSTD PUBLIC ${Qt5_INCLUDE_DIRS})

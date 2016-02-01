@@ -74,6 +74,13 @@ namespace OpenPSTD
                 d.push_back(1);
 
                 result.DomainMetadata.push_back(d);
+
+                std::vector<int> d2;
+                d2.push_back(roundf(_conf->Domains[i].TopLeft.x() / grid));
+                d2.push_back(roundf(_conf->Domains[i].TopLeft.y() / grid));
+                d2.push_back(1);
+
+                result.DomainPositions.push_back(d2);
             }
 
             result.Framecount = (int) (_conf->Settings.GetRenderTime() / _conf->Settings.GetTimeStep());
