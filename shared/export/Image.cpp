@@ -33,7 +33,7 @@ namespace OpenPSTD
         }
 
         void ExportImage::ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
-                                     std::string name, bool fullview, std::vector<int> domains, int startFrame,
+                                     std::string name, std::vector<int> domains, int startFrame,
                                      int endFrame)
         {
             Kernel::MockKernel k;

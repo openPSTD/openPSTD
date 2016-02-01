@@ -15,7 +15,6 @@ namespace OpenPSTD
 {
     namespace Shared
     {
-
         class ExportImage
         {
         private:
@@ -39,8 +38,16 @@ namespace OpenPSTD
             virtual std::vector<std::string> GetFormats();
 
 
+            /**
+             * This is where every domain is written to a single frame.
+             * The result is that in a single image all the domains are shown
+             */
             bool GetFullView();
 
+            /**
+             * This is where every domain is written to a single frame.
+             * The result is that in a single image all the domains are shown
+             */
             void SetFullView(bool value);
 
             /**
@@ -51,15 +58,12 @@ namespace OpenPSTD
              * @param name: The name that must be used for the output file(s). This should be without extension, the extension is
              *              added automatically. This is that a postfix can be used when multiple frames/domains can't be
              *              contained in a single file.
-             * @param fullview: A function named fullview is enabled. This is where every domain is written to a single frame.
-             *              The result is that in a single image all the domains are shown.
              * @param domains: A list of domains that has to be exported. With an empty list, all the domains are exported.
              * @param startFrame: The first frame that must be exported (included). -1 when it should start with the first frame.
              * @param endFrame: The last frame that must be exported (included). -1 when it should should finish with the last frame.
              */
             virtual void ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
-                                    std::string name,
-                                    bool fullview, std::vector<int> domains, int startFrame, int endFrame);
+                                    std::string name, std::vector<int> domains, int startFrame, int endFrame);
         };
 
     }
