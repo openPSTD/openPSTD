@@ -178,7 +178,7 @@ namespace OpenPSTD
         {
             unqlite_int64 size;
             float *result = (float *) this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
-            return shared_ptr<Kernel::PSTD_FRAME>(new Kernel::PSTD_FRAME(result, result + (size / 4)));
+            return make_shared<Kernel::PSTD_FRAME>(result, result + (size / 4));
         }
 
         void PSTDFile::SaveNextFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frameData)

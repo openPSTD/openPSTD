@@ -46,7 +46,7 @@ namespace OpenPSTD
         void MouseSelectStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
                                                     QVector2D pos)
         {
-            std::shared_ptr<SelectObjectOperation> op(new SelectObjectOperation(pos));
+            std::shared_ptr<SelectObjectOperation> op = std::make_shared<SelectObjectOperation>(pos);
             operationRunner->RunOperation(op);
         }
 
@@ -60,7 +60,7 @@ namespace OpenPSTD
             auto buttons = mouseEvent->buttons();
             if (buttons & Qt::LeftButton)
             {
-                std::shared_ptr<TranslateScene> op(new TranslateScene(offset));
+                std::shared_ptr<TranslateScene> op = std::make_shared<TranslateScene>(offset);
                 operationRunner->RunOperation(op);
             }
         }
@@ -72,7 +72,7 @@ namespace OpenPSTD
             float delta = mouseEvent->delta();
             float delta2 = powf(2, delta / 120);
 
-            std::shared_ptr<ResizeScene> op(new ResizeScene(delta2, pos));
+            std::shared_ptr<ResizeScene> op = std::make_shared<ResizeScene>(delta2, pos);
             operationRunner->RunOperation(op);
         }
 
@@ -119,8 +119,9 @@ namespace OpenPSTD
 
             model->interactive->CreateDomain.visible = false;
             model->interactive->Change();
-            std::shared_ptr<CreateDomainOperation> op(new CreateDomainOperation(model->interactive->CreateDomain.start,
-                                                                                model->interactive->CreateDomain.currentEnd));
+            std::shared_ptr<CreateDomainOperation> op = std::make_shared<CreateDomainOperation>(
+                    model->interactive->CreateDomain.start,
+                    model->interactive->CreateDomain.currentEnd);
             this->operationRunner->RunOperation(op);
         }
 
@@ -140,9 +141,8 @@ namespace OpenPSTD
                                                                    QMouseEvent *mouseEvent,
                                                                    QVector2D pos)
         {
-            std::shared_ptr<CreateReceiverSpeakerOperation> op(new CreateReceiverSpeakerOperation(this->_type,
-                                                                                                  (model->view->viewMatrix.inverted() *
-                                                                                                   pos.toVector3D()).toVector2D()));
+            std::shared_ptr<CreateReceiverSpeakerOperation> op = std::make_shared<CreateReceiverSpeakerOperation>(
+                    this->_type, (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D());
             this->operationRunner->RunOperation(op);
         }
     }

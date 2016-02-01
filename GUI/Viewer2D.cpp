@@ -85,10 +85,10 @@ namespace OpenPSTD
         Viewer2D::Viewer2D(QWidget *parent)
                 : QOpenGLWidget(parent), layers()
         {
-            this->layers.push_back(std::shared_ptr<GridLayer>(new GridLayer()));
-            this->layers.push_back(std::shared_ptr<SceneLayer>(new SceneLayer()));
-            this->layers.push_back(std::shared_ptr<IconLayer>(new IconLayer()));
-            this->layers.push_back(std::shared_ptr<InteractiveLayer>(new InteractiveLayer()));
+            this->layers.push_back(std::make_shared<GridLayer>());
+            this->layers.push_back(std::make_shared<SceneLayer>());
+            this->layers.push_back(std::make_shared<IconLayer>());
+            this->layers.push_back(std::make_shared<InteractiveLayer>());
         }
 
         void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
@@ -130,7 +130,7 @@ namespace OpenPSTD
         {
             if (this->operationRunner)
             {
-                this->operationRunner->RunOperation(std::shared_ptr<ChangeAspectMatrix>(new ChangeAspectMatrix(w, h)));
+                this->operationRunner->RunOperation(std::make_shared<ChangeAspectMatrix>(w, h));
             }
 
             std::unique_ptr<QOpenGLFunctions, void (*)(void *)> f(QOpenGLContext::currentContext()->functions(),
@@ -230,9 +230,9 @@ namespace OpenPSTD
             QVector2D pos = QVector2D(ScreenPos.x() / ((float) this->width()) * 2 - 1,
                                       -1 * (ScreenPos.y() / ((float) this->height()) * 2 - 1));
 
-            std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever) {
+            std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->mousePressEvent(reciever.model, event, pos);
-            }));
+            });
             this->operationRunner->RunOperation(op);
         }
 
@@ -242,9 +242,9 @@ namespace OpenPSTD
             QVector2D pos = QVector2D(ScreenPos.x() / ((float) this->width()) * 2 - 1,
                                       -1 * (ScreenPos.y() / ((float) this->height()) * 2 - 1));
 
-            std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever) {
+            std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->mouseReleaseEvent(reciever.model, event, pos);
-            }));
+            });
             this->operationRunner->RunOperation(op);
         }
 
@@ -254,9 +254,9 @@ namespace OpenPSTD
             QVector2D pos = QVector2D(ScreenPos.x() / ((float) this->width()) * 2 - 1,
                                       -1 * (ScreenPos.y() / ((float) this->height()) * 2 - 1));
 
-            std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever) {
+            std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->mouseMoveEvent(reciever.model, event, pos);
-            }));
+            });
             this->operationRunner->RunOperation(op);
         }
 
@@ -266,9 +266,9 @@ namespace OpenPSTD
             QVector2D pos = QVector2D(ScreenPos.x() / ((float) this->width()) * 2 - 1,
                                       -1 * (ScreenPos.y() / ((float) this->height()) * 2 - 1));
 
-            std::shared_ptr<LambdaOperation> op(new LambdaOperation([&](const Reciever &reciever) {
+            std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->wheelEvent(reciever.model, event, pos);
-            }));
+            });
             this->operationRunner->RunOperation(op);
         }
 

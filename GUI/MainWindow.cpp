@@ -101,8 +101,7 @@ namespace OpenPSTD
             QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
                              [&](bool checked) {
                                  this->operationRunner->RunOperation(
-                                         std::shared_ptr<RemoveSelectedObjectOperation>(
-                                                 new RemoveSelectedObjectOperation()));
+                                         std::make_shared<RemoveSelectedObjectOperation>());
                              });
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
                              &MainWindow::EditSelectedDomain);
@@ -132,7 +131,7 @@ namespace OpenPSTD
                                                             tr("PSTD file (*.pstd)"));
             if (!fileName.isNull())
             {
-                std::shared_ptr<NewFileOperation> op(new NewFileOperation(fileName.toStdString()));
+                auto op = std::make_shared<NewFileOperation>(fileName.toStdString());
                 this->operationRunner->RunOperation(op);
             }
         }
@@ -143,14 +142,14 @@ namespace OpenPSTD
                                                             tr("PSTD file (*.pstd)"));
             if (!fileName.isNull())
             {
-                std::shared_ptr<OpenFileOperation> op(new OpenFileOperation(fileName.toStdString()));
+                auto op = std::make_shared<OpenFileOperation>(fileName.toStdString());
                 this->operationRunner->RunOperation(op);
             }
         }
 
         void MainWindow::Save()
         {
-            std::shared_ptr<SaveFileOperation> op(new SaveFileOperation());
+            auto op = std::make_shared<SaveFileOperation>();
             this->operationRunner->RunOperation(op);
         }
 
@@ -162,7 +161,7 @@ namespace OpenPSTD
             }
             action->setChecked(true);
 
-            std::shared_ptr<ChangeMouseHandlerOperations> op(new ChangeMouseHandlerOperations(std::move(mouseHandler)));
+            auto op = std::make_shared<ChangeMouseHandlerOperations>(std::move(mouseHandler));
             this->operationRunner->RunOperation(op);
         }
 
@@ -170,7 +169,7 @@ namespace OpenPSTD
         {
             if (this->domainProperties->exec() == QDialog::Accepted)
             {
-                std::shared_ptr<EditSelectedDomainEdgesOperation> op(new EditSelectedDomainEdgesOperation());
+                auto op = std::make_shared<EditSelectedDomainEdgesOperation>();
                 op->AbsorptionT = this->domainProperties->AbsorptionT();
                 op->AbsorptionB = this->domainProperties->AbsorptionB();
                 op->AbsorptionL = this->domainProperties->AbsorptionL();
@@ -194,8 +193,8 @@ namespace OpenPSTD
         {
             if (this->documentSettings->exec() == QDialog::Accepted)
             {
-                this->operationRunner->RunOperation(std::shared_ptr<EditDocumentSettingsOperation>(
-                        new EditDocumentSettingsOperation(this->documentSettings->GetResult())));
+                this->operationRunner->RunOperation(
+                        std::make_shared<EditDocumentSettingsOperation>(this->documentSettings->GetResult()));
             }
         }
 

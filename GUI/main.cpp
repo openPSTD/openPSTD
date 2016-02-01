@@ -39,7 +39,7 @@
 int main(int argc, char *argv[])
 {
     using namespace OpenPSTD::GUI;
-    std::shared_ptr<Controller> c(new Controller());
+    std::shared_ptr<Controller> c = std::make_shared<Controller>();
 
     c->SetArguments(argc, argv);
     c->SetOperationRunner(c);
@@ -109,8 +109,8 @@ namespace OpenPSTD
 
         int Controller::RunApplication()
         {
-            this->model = std::shared_ptr<Model>(new Model());
-            this->RunOperationWithoutUpdate(std::shared_ptr<BaseOperation>(new InitializationOperation()));
+            this->model = std::make_shared<Model>();
+            this->RunOperationWithoutUpdate(std::make_shared<InitializationOperation>());
 
             this->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
             this->w = std::unique_ptr<MainWindow>(new MainWindow(this->operationRunner));
