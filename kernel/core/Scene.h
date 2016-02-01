@@ -52,7 +52,7 @@ namespace OpenPSTD
         {
         public:
             std::vector<std::shared_ptr<Domain>> domain_list;
-            std::shared_ptr<PSTDSettings> settings; // Derived from config
+            std::shared_ptr<PSTDSettings> settings;
             Point top_left;
             Point bottom_right;
             Point size;
