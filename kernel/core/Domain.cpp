@@ -902,7 +902,7 @@ namespace OpenPSTD
             }
         }
 
-        void Domain::apply_pml_matrices()
+        void Domain::apply_pml_matrices() //Todo: Rename to pml_arrays
         {
             assert(number_of_neighbours(false) == 1 and is_pml or number_of_neighbours(true) <= 2 and
                    is_secondary_pml);

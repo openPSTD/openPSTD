@@ -49,7 +49,11 @@
 namespace OpenPSTD {
     namespace Kernel {
 
-
+        /**
+         * The observed state variables.
+         * We simulate pressure and velocity, decomposed in x and y direction, as well as the combined pressure.
+         * These values represent the state of the system for a fixed time.
+         */
         struct FieldValues {
             Eigen::ArrayXXf u0; //TODO (do we want to do this?): change float to T, derive a float and a double class
             Eigen::ArrayXXf w0;
@@ -58,6 +62,9 @@ namespace OpenPSTD {
             Eigen::ArrayXXf py0;
         };
 
+        /**
+         * The spatial derivates of the pressure and velocity in x and y direction
+         */
         struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
             Eigen::ArrayXXf Lpx;
             Eigen::ArrayXXf Lpy;
@@ -66,6 +73,12 @@ namespace OpenPSTD {
 
         };
 
+        /**
+         * The arrays used for attenuating the pressure and velocities at the boundaries of the domain.
+         * These are only effective for PML domains.
+         * A (2D) PML domain is able to attenuate sound in up to two directions.
+         * @see apply_pml_matrices()
+         */
         struct PMLArrays {
             Eigen::ArrayXXf px;
             Eigen::ArrayXXf py;
@@ -88,7 +101,6 @@ namespace OpenPSTD {
          */
         class Domain : public std::enable_shared_from_this<Domain> {
         public:
-            /*! Settings from the PSTDFile */
             std::shared_ptr<PSTDSettings> settings;
             int id;
             float alpha;
@@ -120,12 +132,6 @@ namespace OpenPSTD {
             PMLArrays pml_arrays;
         public:
 
-            /**
-             *
-             *
-             */
-
-            //Domain() { };
             /**
              * Default constructor
              * @param settings: pointer to PSTDFile settings
