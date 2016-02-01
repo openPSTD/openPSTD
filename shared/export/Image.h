@@ -19,8 +19,14 @@ namespace OpenPSTD
         class ExportImage
         {
         private:
+            bool _fullView;
+
             void saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
                            int domain, int frame, std::vector<int> size, float min, float max);
+
+            void saveFullImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
+                               std::vector<int> domains, int frame, std::vector<std::vector<int>> positions,
+                               std::vector<std::vector<int>> sizes, float min, float max);
 
             void drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max,
                           int colormapSize, std::vector<int> position, std::vector<int> size);
@@ -35,7 +41,7 @@ namespace OpenPSTD
 
             bool GetFullView();
 
-            void SetFullView();
+            void SetFullView(bool value);
 
             /**
              * Exports a number of frames.

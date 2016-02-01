@@ -533,6 +533,7 @@ namespace OpenPSTD
                 std::string format = vm["format"].as<std::string>();
                 //std::unique_ptr<Shared::ExportDomain> e = GetExport(format);
                 std::unique_ptr<Shared::ExportImage> e(new Shared::ExportImage());
+                e->SetFullView(true);
 
                 std::vector<int> domains;
                 if (vm.count("domains") > 0)
