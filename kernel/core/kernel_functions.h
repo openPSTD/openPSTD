@@ -45,17 +45,14 @@
 #include "../KernelInterface.h"
 #include "Geometry.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
         /**
          * Helper function equivalent to numpy.arange()
          */
         template<typename T>
-        std::vector<T> arange(T start, T stop, T step = 1)
-        {
+        std::vector<T> arange(T start, T stop, T step = 1) {
             std::vector<T> list;
             for (T i = start; i < stop; i += step)
                 list.push_back(i);
@@ -71,24 +68,21 @@ namespace OpenPSTD
         /**
          * Helper enums - used to distinguish horizontal boundaries from vertical boundaries
          */
-        enum class CalcDirection
-        {
+        enum class CalcDirection {
             X = 0, Y = 1
         };
 
         /**
          * Helper enums - used to distinguish pressure computations from velocity computations
          */
-        enum class CalculationType
-        {
+        enum class CalculationType {
             PRESSURE, VELOCITY
         };
 
         /**
          * Enum representing directions among domains.
          */
-        enum class Direction
-        {
+        enum class Direction {
             LEFT, RIGHT, TOP, BOTTOM
         };
 
@@ -125,10 +119,9 @@ namespace OpenPSTD
          * Struct with arrays containing the reflection and transmission
          * coefficients of the pressure and the velocity
          */
-        struct RhoArray
-        {
-            Eigen::Array<float, 4, 2> pressure;
-            Eigen::Array<float, 4, 2> velocity;
+        struct RhoArray {
+            Eigen::ArrayXXf pressure;
+            Eigen::ArrayXXf velocity;
         };
 
         /**
