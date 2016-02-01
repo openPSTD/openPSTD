@@ -46,14 +46,11 @@
 #include "Geometry.h"
 #include "wave_numbers.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
 
-        struct FieldValues
-        {
+        struct FieldValues {
             Eigen::ArrayXXf u0; //TODO (do we want to do this?): change float to T, derive a float and a double class
             Eigen::ArrayXXf w0;
             Eigen::ArrayXXf p0;
@@ -61,8 +58,7 @@ namespace OpenPSTD
             Eigen::ArrayXXf py0;
         };
 
-        struct FieldLValues
-        { // Todo (0mar): Rename, these are spatial derivatives
+        struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
             Eigen::ArrayXXf Lpx;
             Eigen::ArrayXXf Lpy;
             Eigen::ArrayXXf Lvx;
@@ -70,26 +66,29 @@ namespace OpenPSTD
 
         };
 
-        struct PMLArrays
-        { // Todo: Change to unique pointers.
+        struct PMLArrays {
             Eigen::ArrayXXf px;
             Eigen::ArrayXXf py;
             Eigen::ArrayXXf u;
             Eigen::ArrayXXf w;
         };
 
-        struct EdgeParameters
-        {
+        /**
+         * The impedance parameter and locally reaction switch per boundary
+         */
+        struct EdgeParameters {
             bool locally_reacting;
-            float alpha; //Better name
+            float alpha;
         };
 
         /**
          * A representation of one domain, as seen by the kernel.
+         * This object stores the values for pressure and velocities, and references to its neighbours.
+         * It supports boundaries with different impedance values and attenuating boundaries.
          */
-        class Domain : public std::enable_shared_from_this<Domain>
-        {
+        class Domain : public std::enable_shared_from_this<Domain> {
         public:
+            /*! Settings from the PSTDFile */
             std::shared_ptr<PSTDSettings> settings;
             int id;
             float alpha;
@@ -129,8 +128,8 @@ namespace OpenPSTD
             //Domain() { };
             /**
              * Default constructor
-             * @param settings: PSTD settings pointer
-             * @param id identifier for this domain
+             * @param settings: pointer to PSTDFile settings
+             * @param id integer identifier for this domain
              * @param alpha alpha of the domain, used in calculating impedance
              * @param top_left coordinates of the top left corner (x,y,(z))
              * @param size lengths of the domain edges (x,y,(z))
@@ -145,7 +144,9 @@ namespace OpenPSTD
 
             /**
              * Constructor that accepts vectors of real word coordinates instead of points.
-             * @see Domain(***)
+             * @param top_left_vector:  vector with top left corner dimensions
+             * @param size: vector with size dimensions
+             * @see #Domain
              */
             Domain(std::shared_ptr<PSTDSettings> settings, int id, const float alpha,
                    std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
@@ -153,14 +154,14 @@ namespace OpenPSTD
                    const std::shared_ptr<Domain> pml_for_domain);
 
             /**
-             * Calculates the rho matrices for all edges touching another domain
-             * "rho matrices" is the term used in the python code. In this implementation
-             * they are referred to as "rho arrays", consistent with their use.
+             * Calculates the density coefficients (@f$\rho@f$) for all vertical and horizontal lines in the domain.
+             * For each line it uses the information of neighbouring domains.
              */
             void compute_rho_arrays();
 
             /**
              * Overrides the old values with the new values.
+             * Needs to be called before the CLI or GUI can access the data
              */
             void push_values();
 
@@ -182,7 +183,7 @@ namespace OpenPSTD
             /**
              * Returns the number of neighbours
              * @param count_pml: Whether or not to also include PML domains in the count
-             * @return number of neighbours.
+             * @return number of neighbour domains.
              */
             int number_of_neighbours(bool count_pml);
 
@@ -197,44 +198,46 @@ namespace OpenPSTD
              * Checks if a certain (unrounded) location is contained in this domain.
              * @param location: Coordinates on grid.
              * @return: True if location falls within top_left and bottom_right, false otherwise.
+             * @see contains_point(Point point)
              */
             bool contains_location(std::vector<float> location);
 
             /**
-             * Method that returns a list of all domains touching this domain along a direction
-             * @param: Specified direction enum
+             * Returns a vector of all domains touching this domain along the specified direction
+             * @param: Direction enum
              * @return vector of domain pointers.
              */
             std::vector<std::shared_ptr<Domain>> get_neighbours_at(Direction direction);
 
             /**
-             * Method that returns a single domain of all domains touching this domain along a direction
-             * @param: Specified direction enum
+             * Returns a single neighbour domain (if existing) in the specified location.
+             * If no neighbour domain is present in that location, returns `nullptr`
+             * @param: Direction enum
              * @return vector of domain pointers.
              */
             std::shared_ptr<Domain> get_neighbour_at(Direction direction, std::vector<float> location);
 
 
             /**
-             * Add a a neighbour to the set of neighbour domains.
+             * Adds a neighbour to the set of neighbour domains.
              * @param domain: Pointer to fully initialized neighbour domain
              * @param direction: Direction in which the domain is neighboured.
              */
             void add_neighbour_at(std::shared_ptr<Domain> domain, Direction direction);
 
             /**
-             * Method that checks if this domain is touching the input domain
-             * @param d Domain to check against this domain
+             * Method that checks if this domain is touching `domain`
+             * @param domain: Domain to check against this domain
              */
             bool is_neighbour_of(std::shared_ptr<Domain> domain);
 
             /**
-             * True if domain functions as a PML domain for the provided domain, false otherwise.
+             * @return: true if domain functions as a PML domain for the provided domain, false otherwise.
              */
             bool is_pml_for(std::shared_ptr<Domain> domain);
 
             /**
-             * Returns true if the domain is rigid
+             * @return: true if the domain is rigid, false otherwise
              */
             bool is_rigid();
 
@@ -258,7 +261,7 @@ namespace OpenPSTD
              * @param cd Boundary type (calculation direction)
              * @param ct Calculation type (pressure/velocity)
              * @param dest Values to be used as factor to compute derivative in wavenumber domain
-             * @see spatderp3
+             * @see kernel_functions.cpp
              */
             Eigen::ArrayXXf calc(CalcDirection cd, CalculationType ct, Eigen::ArrayXcf dest);
 
@@ -266,7 +269,7 @@ namespace OpenPSTD
              * Calculate one timestep of propagation in this domain
              * @param cd Boundary type (calculation direction)
              * @param ct Calculation type (pressure/velocity)
-             * @see spatderp3
+             * @see Kernel#spatderp3()
              */
             void calc(CalcDirection cd, CalculationType ct);
 

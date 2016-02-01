@@ -49,10 +49,12 @@ namespace OpenPSTD
             CalcDirection type;
 
             /**
-             * Creates a boundary of given type between the given domains
+             * Creates a boundary of given type between the given domains, together with its orientation.
+             * For boundaries between an upper and a lower domain, the calculation direction is vertical.
+             * For boundaries between a left and a right domain, the calculation direction is horizontal.
              * @param domain1: Pointer to first domain
              * @param domain2: Pointer to second domain
-             * @param Enum of boundaryType (horizontal or vertical)
+             * @param Enum containing the direction of calculation (horizontal or vertical)
              * @return: new Boundary object
              */
             Boundary(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2, CalcDirection type);
