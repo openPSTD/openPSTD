@@ -9,29 +9,33 @@
 #include <shared/PSTDFile.h>
 #include <string>
 #include <vector>
+#include <QImage>
 
 namespace OpenPSTD
 {
     namespace Shared
     {
 
-        class ExportImage : public ExportDomain
+        class ExportImage
         {
         private:
             void saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
                            int domain, int frame, std::vector<int> size, float min, float max);
 
+            void drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max,
+                          int colormapSize, std::vector<int> position, std::vector<int> size);
+
         public:
             /**
-         * Creates a vector with strings that describes the formats that are supported. Every element should be in the
-         * mime type format, for example the png format uses image/png.
-         */
+             * Creates a vector with strings that describes the formats that are supported. Every element should be in the
+             * mime type format, for example the png format uses image/png.
+             */
             virtual std::vector<std::string> GetFormats();
 
-            /**
-             * true if full view is supported. Full view is when all the domains are shown in the same view.
-             */
-            virtual bool FullViewSupported();
+
+            bool GetFullView();
+
+            void SetFullView();
 
             /**
              * Exports a number of frames.

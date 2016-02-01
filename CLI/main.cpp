@@ -437,7 +437,7 @@ namespace OpenPSTD
 
         std::unique_ptr<Shared::ExportDomain> ExportCommand::GetExport(std::string format)
         {
-            std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
+            /*std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
             exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
 
             for (int i = 0; i < exports.size(); ++i)
@@ -448,7 +448,7 @@ namespace OpenPSTD
                     if (f[j].compare(format) == 0)
                         return std::move(exports[i]);
                 }
-            }
+            }*/
             throw Shared::ExportFormatNotSupported(format, std::vector<std::string>());
         }
 
@@ -466,7 +466,7 @@ namespace OpenPSTD
         {
             po::variables_map vm;
             std::vector<std::unique_ptr<Shared::ExportDomain>> exports;
-            exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
+            //exports.push_back(std::unique_ptr<Shared::ExportImage>(new Shared::ExportImage()));
 
             try
             {
@@ -500,14 +500,14 @@ namespace OpenPSTD
                 if (vm.count("list-format"))
                 {
                     std::cout << "Formats supported: " << std::endl;
-                    for (int i = 0; i < exports.size(); ++i)
+                    /*for (int i = 0; i < exports.size(); ++i)
                     {
                         auto f = exports[i]->GetFormats();
                         for (int j = 0; j < f.size(); ++j)
                         {
                             std::cout << f[j] << std::endl;
                         }
-                    }
+                    }*/
                     return 0;
                 }
 
@@ -531,7 +531,8 @@ namespace OpenPSTD
                 std::shared_ptr<Shared::PSTDFile> file = Shared::PSTDFile::Open(filename);
 
                 std::string format = vm["format"].as<std::string>();
-                std::unique_ptr<Shared::ExportDomain> e = GetExport(format);
+                //std::unique_ptr<Shared::ExportDomain> e = GetExport(format);
+                std::unique_ptr<Shared::ExportImage> e(new Shared::ExportImage());
 
                 std::vector<int> domains;
                 if (vm.count("domains") > 0)

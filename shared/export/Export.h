@@ -50,11 +50,6 @@ namespace OpenPSTD
             virtual std::vector<std::string> GetFormats() = 0;
 
             /**
-             * true if full view is supported. Full view is when all the domains are shown in the same view.
-             */
-            virtual bool FullViewSupported() = 0;
-
-            /**
              * Exports a number of frames.
              * @param format: The format that has to be exported, this has to be one of the formats that is returned by GetFormats.
              * @param file: The file from where the export must be done.
@@ -70,7 +65,7 @@ namespace OpenPSTD
              */
             virtual void ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
                                     std::string name,
-                                    bool fullview, std::vector<int> domains, int startFrame, int endFrame) = 0;
+                                    std::vector<int> domains, int startFrame, int endFrame) = 0;
         };
 
 /**

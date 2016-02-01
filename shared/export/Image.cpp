@@ -3,7 +3,6 @@
 //
 
 #include "Image.h"
-#include <QImage>
 #include <boost/lexical_cast.hpp>
 #include <shared/Colors.h>
 #include "kernel/MockKernel.h"
@@ -21,11 +20,6 @@ namespace OpenPSTD
             result.push_back("image/bmp");
             result.push_back("image/jpg");
             return result;
-        }
-
-        bool ExportImage::FullViewSupported()
-        {
-            return false;
         }
 
         void ExportImage::ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
@@ -77,11 +71,26 @@ namespace OpenPSTD
             }
         }
 
+        void ExportImage::drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max, int colormapSize, std::vector<int> position, std::vector<int> size)
+        {
+            //draw on image
+            auto it = frame->begin();
+            for (int i = 0; i < size[0]; ++i)
+            {
+                for (int j = 0; j < size[1]; ++j)
+                {
+                    int color = (int) roundf(((*it) - min) / (max - min) * (colormapSize - 1));
+                    image->setPixel(position[0]+i, position[1]+j, color);
+                    it++;
+                }
+            }
+        }
+
         void ExportImage::saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output, int domain,
                                     int frame, std::vector<int> size, float min, float max)
         {
             //create image
-            QImage result(size[0], size[0], QImage::Format_Indexed8);
+            std::shared_ptr<QImage> result = std::make_shared<QImage>(size[0], size[0], QImage::Format_Indexed8);
 
             //create colormap
             MultiColorGradient colorScheme;
@@ -100,37 +109,30 @@ namespace OpenPSTD
             std::vector<QRgb> colorMap = *colorScheme.CreateColorRGBMap(min, max, 256);
             for (int i = 0; i < colorMap.size(); ++i)
             {
-                result.setColor(i, colorMap[i]);
+                result->setColor(i, colorMap[i]);
             }
 
             //get data
-            auto data = *file->GetFrame(frame, domain);
+            auto data = file->GetFrame(frame, domain);
+
+            //position
+            std::vector<int> position = {0,0};
 
             //draw on image
-            auto it = data.begin();
-            for (int i = 0; i < size[0]; ++i)
-            {
-                for (int j = 0; j < size[1]; ++j)
-                {
-                    //int color = (int)roundf((*it)/0.10f*(colorMap.size()-1));
-                    int color = (int) roundf(((*it) - min) / (max - min) * (colorMap.size() - 1));
-                    result.setPixel(i, j, color);
-                    it++;
-                }
-            }
+            drawData(result, data, min, max, colorMap.size(), position, size);
 
             //save image
             if (format == "image/png")
             {
-                result.save(QString::fromStdString(output + ".png"));
+                result->save(QString::fromStdString(output + ".png"));
             }
             else if (format == "image/bmp")
             {
-                result.save(QString::fromStdString(output + ".bmp"));
+                result->save(QString::fromStdString(output + ".bmp"));
             }
             else if (format == "image/jpg")
             {
-                result.save(QString::fromStdString(output + ".jpg"));
+                result->save(QString::fromStdString(output + ".jpg"));
             }
             else
             {
