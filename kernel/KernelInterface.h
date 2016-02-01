@@ -144,6 +144,14 @@ namespace OpenPSTD
             QVector2D TopLeft;
             QVector2D Size;
             DomainConfEdge T, L, B, R;
+
+            float GetAbsorption(PSTD_DOMAIN_SIDE side);
+            void  SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption);
+
+            bool GetLR(PSTD_DOMAIN_SIDE side);
+            void SetLR(PSTD_DOMAIN_SIDE sides, bool LR);
+
+
         };
 
         class PSTDConfiguration

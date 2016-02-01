@@ -201,7 +201,61 @@ namespace OpenPSTD
         void PSTDSettings::SetRKCoefficients(std::vector<float> coef)
         {
             this->rk_coefficients = coef; //Todo: Set somewhere.
+        }
 
+        float DomainConf::GetAbsorption(PSTD_DOMAIN_SIDE side)
+        {
+            switch (side)
+            {
+                case PSTD_DOMAIN_SIDE_TOP:
+                    return T.Absorption;
+                case PSTD_DOMAIN_SIDE_BOTTOM:
+                    return B.Absorption;
+                case PSTD_DOMAIN_SIDE_LEFT:
+                    return L.Absorption;
+                case PSTD_DOMAIN_SIDE_RIGHT:
+                    return R.Absorption;
+                default:
+                    return 0;
+            }
+        }
+        bool DomainConf::GetLR(PSTD_DOMAIN_SIDE side)
+        {
+            switch (side)
+            {
+                case PSTD_DOMAIN_SIDE_TOP:
+                    return T.LR;
+                case PSTD_DOMAIN_SIDE_BOTTOM:
+                    return B.LR;
+                case PSTD_DOMAIN_SIDE_LEFT:
+                    return L.LR;
+                case PSTD_DOMAIN_SIDE_RIGHT:
+                    return R.LR;
+                default:
+                    return false;
+            }
+        }
+        void DomainConf::SetLR(PSTD_DOMAIN_SIDE sides, bool LR)
+        {
+            if(sides & PSTD_DOMAIN_SIDE_TOP != 0)
+                T.LR = LR;
+            if(sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+                B.LR = LR;
+            if(sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+                L.LR = LR;
+            if(sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+                R.LR = LR;
+        }
+        void DomainConf::SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption)
+        {
+            if(sides & PSTD_DOMAIN_SIDE_TOP != 0)
+                T.Absorption = absorption;
+            if(sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+                B.Absorption = absorption;
+            if(sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+                L.Absorption = absorption;
+            if(sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+                R.Absorption = absorption;
         }
 
         std::shared_ptr<PSTDConfiguration> PSTDConfiguration::CreateDefaultConf()
