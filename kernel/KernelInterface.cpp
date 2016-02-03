@@ -4,209 +4,168 @@
 
 #include "KernelInterface.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
-        const char *PSTDKernelNotConfiguredException::what() const noexcept
-        {
+        const char *PSTDKernelNotConfiguredException::what() const noexcept {
             return "Kernel is not yet configured";
         }
 
 
-        float PSTDSettings::GetGridSpacing()
-        {
+        float PSTDSettings::GetGridSpacing() {
             return this->gridSpacing;
         }
 
-        void PSTDSettings::SetGridSpacing(float value)
-        {
+        void PSTDSettings::SetGridSpacing(float value) {
             this->gridSpacing = value;
             //TODO edit max frequency here as well
         }
 
-        float PSTDSettings::GetPatchError()
-        {
+        float PSTDSettings::GetPatchError() {
             return this->patcherror;
         }
 
-        void PSTDSettings::SetPatchError(float value)
-        {
+        void PSTDSettings::SetPatchError(float value) {
             this->patcherror = value;
         }
 
-        float PSTDSettings::GetRenderTime()
-        {
+        float PSTDSettings::GetRenderTime() {
             return this->calctime;
         }
 
-        void PSTDSettings::SetRenderTime(float value)
-        {
+        void PSTDSettings::SetRenderTime(float value) {
             this->calctime = value;
         }
 
-        int PSTDSettings::GetPMLCells()
-        {
+        int PSTDSettings::GetPMLCells() {
             return this->PMLCells;
         }
 
-        void PSTDSettings::SetPMLCells(int value)
-        {
+        void PSTDSettings::SetPMLCells(int value) {
             this->PMLCells = value;
         }
 
-        float PSTDSettings::GetAttenuationOfPMLCells()
-        {
+        float PSTDSettings::GetAttenuationOfPMLCells() {
             return this->ampMax;
         }
 
-        void PSTDSettings::SetAttenuationOfPMLCells(float value)
-        {
+        void PSTDSettings::SetAttenuationOfPMLCells(float value) {
             this->ampMax = value;
         }
 
-        float PSTDSettings::GetDensityOfAir()
-        {
+        float PSTDSettings::GetDensityOfAir() {
             return this->rho;
         }
 
-        void PSTDSettings::SetDensityOfAir(float value)
-        {
+        void PSTDSettings::SetDensityOfAir(float value) {
             this->rho = value;
         }
 
 /**
  * TODO: add dynamic behavior to setters of freqMax and grid spacing
  */
-        float PSTDSettings::GetMaxFrequency()
-        {
+        float PSTDSettings::GetMaxFrequency() {
             return this->freqMax;
         }
 
-        void PSTDSettings::SetMaxFrequency(float value)
-        {
+        void PSTDSettings::SetMaxFrequency(float value) {
             this->freqMax = value;
             //TODO edit grid spacing as well
         }
 
-        float PSTDSettings::GetSoundSpeed()
-        {
+        float PSTDSettings::GetSoundSpeed() {
             return this->c1;
         }
 
-        void PSTDSettings::SetSoundSpeed(float value)
-        {
+        void PSTDSettings::SetSoundSpeed(float value) {
             this->c1 = value;
         }
 
-        float PSTDSettings::GetFactRK()
-        {
+        float PSTDSettings::GetFactRK() {
             return this->tfactRK;
         }
 
-        void PSTDSettings::SetFactRK(float value)
-        {
+        void PSTDSettings::SetFactRK(float value) {
             this->tfactRK = value;
         }
 
-        int PSTDSettings::GetSaveNth()
-        {
+        int PSTDSettings::GetSaveNth() {
             return this->SaveNth;
         }
 
-        void PSTDSettings::SetSaveNth(int value)
-        {
+        void PSTDSettings::SetSaveNth(int value) {
             this->SaveNth = value;
         }
 
-        float PSTDSettings::GetBandWidth()
-        {
+        float PSTDSettings::GetBandWidth() {
             return this->band_width;
         }
 
-        void PSTDSettings::SetBandWidth(float value)
-        {
+        void PSTDSettings::SetBandWidth(float value) {
             this->band_width = value;
         }
 
-        float PSTDSettings::GetWaveLength()
-        {
+        float PSTDSettings::GetWaveLength() {
             return this->wave_length;
         }
 
-        void PSTDSettings::SetWaveLength(float value)
-        {
+        void PSTDSettings::SetWaveLength(float value) {
             this->wave_length = value;
         }
 
-        bool PSTDSettings::GetSpectralInterpolation()
-        {
+        bool PSTDSettings::GetSpectralInterpolation() {
             return this->spectral_interpolation;
         }
 
-        void PSTDSettings::SetSpectralInterpolation(bool value)
-        {
+        void PSTDSettings::SetSpectralInterpolation(bool value) {
             this->spectral_interpolation = value;
         }
 
-        bool PSTDSettings::GetGPUAccel()
-        {
+        bool PSTDSettings::GetGPUAccel() {
             return this->gpu;
         }
 
-        void PSTDSettings::SetGPUAccel(bool value)
-        {
+        void PSTDSettings::SetGPUAccel(bool value) {
             this->gpu = value;
         }
 
-        bool PSTDSettings::GetMultiThread()
-        {
+        bool PSTDSettings::GetMultiThread() {
             return this->multithread;
         }
 
-        void PSTDSettings::SetMultiThread(bool value)
-        {
+        void PSTDSettings::SetMultiThread(bool value) {
             this->multithread = value;
         }
 
-        void PSTDSettings::SetWindow(Eigen::ArrayXf A)
-        {
+        void PSTDSettings::SetWindow(Eigen::ArrayXf A) {
             this->window = A;
         }
 
-        Eigen::ArrayXf PSTDSettings::GetWindow()
-        {
+        Eigen::ArrayXf PSTDSettings::GetWindow() {
             return this->window;
         }
 
-        float PSTDSettings::GetTimeStep()
-        {
+        float PSTDSettings::GetTimeStep() {
             return this->tfactRK * this->gridSpacing / this->c1;
         }
 
-        int PSTDSettings::GetWindowSize()
-        {
+        int PSTDSettings::GetWindowSize() {
             //directly translated from original Python implementation
-            int tmp = std::round((this->patcherror * 0.7 - 17) / 2.);
-            tmp = std::round(tmp * 2);
+            int tmp = (int) std::round((this->patcherror * 0.7 - 17) / 2.);
+            tmp = (int) std::round(tmp * 2);
             return tmp;
         }
 
-        std::vector<float> PSTDSettings::GetRKCoefficients()
-        {
+        std::vector<float> PSTDSettings::GetRKCoefficients() {
             return this->rk_coefficients;
         }
 
-        void PSTDSettings::SetRKCoefficients(std::vector<float> coef)
-        {
+        void PSTDSettings::SetRKCoefficients(std::vector<float> coef) {
             this->rk_coefficients = coef; //Todo: Set somewhere.
         }
 
-        float DomainConf::GetAbsorption(PSTD_DOMAIN_SIDE side)
-        {
-            switch (side)
-            {
+        float DomainConf::GetAbsorption(PSTD_DOMAIN_SIDE side) {
+            switch (side) {
                 case PSTD_DOMAIN_SIDE_TOP:
                     return T.Absorption;
                 case PSTD_DOMAIN_SIDE_BOTTOM:
@@ -219,10 +178,9 @@ namespace OpenPSTD
                     return 0;
             }
         }
-        bool DomainConf::GetLR(PSTD_DOMAIN_SIDE side)
-        {
-            switch (side)
-            {
+
+        bool DomainConf::GetLR(PSTD_DOMAIN_SIDE side) {
+            switch (side) {
                 case PSTD_DOMAIN_SIDE_TOP:
                     return T.LR;
                 case PSTD_DOMAIN_SIDE_BOTTOM:
@@ -235,46 +193,55 @@ namespace OpenPSTD
                     return false;
             }
         }
-        void DomainConf::SetLR(PSTD_DOMAIN_SIDE sides, bool LR)
-        {
-            if(sides & PSTD_DOMAIN_SIDE_TOP != 0)
+
+        void DomainConf::SetLR(PSTD_DOMAIN_SIDE sides, bool LR) {
+            if (sides & PSTD_DOMAIN_SIDE_TOP != 0)
                 T.LR = LR;
-            if(sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+            if (sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
                 B.LR = LR;
-            if(sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+            if (sides & PSTD_DOMAIN_SIDE_LEFT != 0)
                 L.LR = LR;
-            if(sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+            if (sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
                 R.LR = LR;
         }
-        void DomainConf::SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption)
-        {
-            if(sides & PSTD_DOMAIN_SIDE_TOP != 0)
+
+        void DomainConf::SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption) {
+            if (sides & PSTD_DOMAIN_SIDE_TOP != 0)
                 T.Absorption = absorption;
-            if(sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+            if (sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
                 B.Absorption = absorption;
-            if(sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+            if (sides & PSTD_DOMAIN_SIDE_LEFT != 0)
                 L.Absorption = absorption;
-            if(sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+            if (sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
                 R.Absorption = absorption;
         }
 
-        std::shared_ptr<PSTDConfiguration> PSTDConfiguration::CreateDefaultConf()
-        {
+        std::shared_ptr<PSTDConfiguration> PSTDConfiguration::CreateDefaultConf() {
             std::shared_ptr<PSTDConfiguration> conf = std::make_shared<PSTDConfiguration>();
             conf->Settings.SetRenderTime(1.0f);
-            conf->Settings.SetSoundSpeed(340.0f);
+            float sound_speed = 340;
+            float grid_spacing = 0.2;
+            float patch_error = 70;
+            conf->Settings.SetSoundSpeed(sound_speed);
             conf->Settings.SetAttenuationOfPMLCells(20000.0f);
             conf->Settings.SetDensityOfAir(1.2f);
             conf->Settings.SetPatchError(70.0f);
             conf->Settings.SetFactRK(0.5f);
-            conf->Settings.SetGridSpacing(0.2);
+            conf->Settings.SetGridSpacing(grid_spacing);
             conf->Settings.SetPMLCells(50);
             conf->Settings.SetSaveNth(1);
 
-            //todo: fix good default values for these parameters
-            conf->Settings.SetBandWidth(1.0f);
-            conf->Settings.SetRKCoefficients(std::vector<float>());
-            conf->Settings.SetWindow(Eigen::ArrayXf());
+            float band_width = (float) (3 * exp(-6) * (sound_speed / grid_spacing) * (sound_speed / grid_spacing));
+            conf->Settings.SetBandWidth(band_width);
+            conf->Settings.SetRKCoefficients(std::vector<float>(
+                    {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f, 1.65919771368e-1f, 5e-1, 1f}));
+            //Todo: What is this window_alpha?
+            float window_alpha = (patch_error - 40) / 20 + 1;
+            int wsize = conf->Settings.GetWindowSize();
+            Eigen::ArrayXf window_coefficients = (Eigen::ArrayXf::LinSpaced(2 * wsize + 1, -wsize, wsize) /
+                                                  wsize).square().cube().exp(); // Need to go to power 6
+
+            conf->Settings.SetWindow(window_coefficients);
             conf->Settings.SetSpectralInterpolation(true);
 
             conf->Speakers.push_back(QVector3D(4, 5, 0));

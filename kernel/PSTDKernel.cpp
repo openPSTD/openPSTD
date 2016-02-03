@@ -83,9 +83,6 @@ namespace OpenPSTD {
                 scene->add_domain(domain);
             }
             scene->add_pml_domains();
-            for (auto speaker: scene->speaker_list) {
-
-            }
             for (auto domain:domains) {
                 domain->post_initialization();
             }
