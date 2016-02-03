@@ -234,7 +234,7 @@ namespace OpenPSTD {
             float band_width = (float) (3 * exp(-6) * (sound_speed / grid_spacing) * (sound_speed / grid_spacing));
             conf->Settings.SetBandWidth(band_width);
             conf->Settings.SetRKCoefficients(std::vector<float>(
-                    {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f, 1.65919771368e-1f, 5e-1, 1f}));
+                    {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f, 1.65919771368e-1f, 5e-1, 1.f}));
             //Todo: What is this window_alpha?
             float window_alpha = (patch_error - 40) / 20 + 1;
             int wsize = conf->Settings.GetWindowSize();
