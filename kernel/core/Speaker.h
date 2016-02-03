@@ -43,13 +43,14 @@ namespace OpenPSTD
 {
     namespace Kernel
     {
+        /**
+         * Initial sound pressure. This class is a 'wrapper' around a gaussian kernel contribution.
+         * Note that speaker locations (just like receiver locations) are defined on the grid,
+         * but don't need to lie on grid points; their coordinates are not rounded off.
+         */
         class Speaker
         {
-            /**
-             * Speaker class. This is a 'wrapper' around a gaussian kernel contribution.
-             * Note that speaker locations (just like receiver locations) are defined on the grid,
-             * but don't need to lie on grid points; their coordinates are not rounded off.
-             */
+
         public:
             const float x;
             const float y;
@@ -58,14 +59,18 @@ namespace OpenPSTD
             Point grid_point = Point((int) x, (int) y, (int) z);
             std::vector<float> grid_offset;
 
-            /*
+            /**
              * Speaker initialization with coordinates from scene.
              * @param location: vector of world coordinates
              */
             Speaker(std::vector<float> location);
 
-            /*
+            /**
              * Adds the initial sound pressure to the domain values.
+             * The initial pressure shape is a Gaussian, defined as
+             * @f$p_0(x,y) = e^{-\beta((x-x_s)^2+(y-y_s)^2)}@f$
+             * with bandwidth @f$\beta = -3e^{-6}c^2/dx^2@f$
+             * and speaker location @f$(x_s,y_s)@f$.
              * @param domain: domain to compute sound pressure contribution for
              */
             void addDomainContribution(std::shared_ptr<Domain> domain);

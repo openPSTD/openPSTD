@@ -59,6 +59,8 @@ BOOST_AUTO_TEST_SUITE(domain)
         domain1.R.LR = false;
         config->Domains.clear();
         config->Domains.push_back(domain1);
+        config->Speakers.clear();
+        config->Speakers.push_back(QVector3D(4, 5, 0));
         BOOST_CHECK(config->Domains.size() == 1);
         Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
 
@@ -208,6 +210,12 @@ BOOST_AUTO_TEST_SUITE(domain)
     BOOST_AUTO_TEST_CASE(test_initial_values) {
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);
+        vector<float> speaker_loc = scene->speaker_list.at(0)->location;
+        // Speakers at location (20,25)
+        // Domain is (250,300)
+        // Bandwidth is 21 491;
+        // cout << "Bandwitdh: " << scene->settings->GetBandWidth()<< endl;
+        cout << (domain->current_values.p0(20, 25)) << *domain << endl;
         cout << (domain->current_values.p0.sum()) << endl;
         BOOST_CHECK(true);
 

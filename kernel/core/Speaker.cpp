@@ -22,23 +22,23 @@ namespace OpenPSTD {
             float dx = domain->settings->GetGridSpacing();
             float rel_x = this->x - domain->top_left.x;
             float rel_y = this->y - domain->top_left.y;
-            FieldValues values = domain->current_values;
             for (int i = 0; i < domain->size.x; i++) {
                 for (int j = 0; j < domain->size.y; j++) {
-                    float distance = (float) sqrt(pow((rel_x - i) * dx, 2) + pow((rel_y - j) * dx, 2));
-                    float pressure = (float) exp(-domain->settings->GetBandWidth() * distance * distance);
-                    // Vectorized versions of above expressions exists//
+                    float squared_distance = SQR((rel_x - i) * dx) + SQR((rel_y - j) * dx);
+                    // Todo: this is according to the wiki, but the fallout is too large. Asked Maarten
+
+                    float pressure = (float) exp(-domain->settings->GetBandWidth() * squared_distance);
+                    // Vectorized versions of above expressions exists
                     // but we need to get into a for loop anyway, because of atan2
-                    float angle = std::atan2(rel_y - j * dx, rel_x - i * dx);
+                    float angle = std::atan2(rel_y - j, rel_x - i);
                     float horizontal_component = SQR(std::cos(angle)) * pressure;
                     float vertical_component = SQR(std::sin(angle)) * pressure;
-                    values.p0(i, j) += pressure;
-                    values.px0(i, j) += horizontal_component;
-                    values.py0(i, j) += vertical_component;
-
+                    domain->current_values.p0(i, j) += pressure;
+                    domain->current_values.px0(i, j) += horizontal_component;
+                    domain->current_values.py0(i, j) += vertical_component;
                 }
             }
-            std::cout << values.p0 << std::endl;
         }
+
     }
 }

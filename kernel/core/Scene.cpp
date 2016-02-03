@@ -269,6 +269,7 @@ namespace OpenPSTD {
             shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 speaker->addDomainContribution(domain_list.at(i));
+                // Todo: Only add when speaker in domain
             }
             speaker_list.push_back(speaker);
         }
