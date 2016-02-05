@@ -231,7 +231,7 @@ namespace OpenPSTD {
             conf->Settings.SetPMLCells(50);
             conf->Settings.SetSaveNth(1);
 
-            float band_width = (float) (3 * exp(-6) * (sound_speed / grid_spacing) * (sound_speed / grid_spacing));
+            float band_width = (float) (3 * 1e-6 * (sound_speed / grid_spacing) * (sound_speed / grid_spacing));
             conf->Settings.SetBandWidth(band_width);
             conf->Settings.SetRKCoefficients(std::vector<float>(
                     {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f, 1.65919771368e-1f, 5e-1, 1.f}));

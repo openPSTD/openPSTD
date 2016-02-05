@@ -214,10 +214,13 @@ BOOST_AUTO_TEST_SUITE(domain)
         // Speakers at location (20,25)
         // Domain is (250,300)
         // Bandwidth is 21 491;
-        // cout << "Bandwitdh: " << scene->settings->GetBandWidth()<< endl;
-        cout << (domain->current_values.p0(20, 25)) << *domain << endl;
-        cout << (domain->current_values.p0.sum()) << endl;
-        BOOST_CHECK(true);
+
+        // Check center to be 1
+        BOOST_CHECK_EQUAL(domain->current_values.p0(20, 25), 1);
+        // Check symmetry
+        BOOST_CHECK_EQUAL(domain->current_values.p0(20, 24), domain->current_values.p0(21, 25));
+        // Check next grid point to be 0.71 (analytically confirmed value)
+        BOOST_CHECK(Kernel::is_approx(domain->current_values.p0(20, 24), 0.706947));
 
     }
 
