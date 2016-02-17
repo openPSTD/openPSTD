@@ -247,7 +247,7 @@ namespace OpenPSTD {
                     }
 
                     ArrayXcf derfact;
-                    if (dest.cols() == 0) {
+                    if (dest.cols() != 0) {
                         derfact = dest;
                     }
                     else {
