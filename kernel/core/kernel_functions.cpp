@@ -297,10 +297,7 @@ namespace OpenPSTD
                                   RhoArray rho_array, Eigen::ArrayXf window, int wlen,
                                   CalculationType ct, CalcDirection direct)
         {
-            return spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
-                                  Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
-                                  RhoArray rho_array, Eigen::ArrayXf window, int wlen,
-                                  CalculationType ct, CalcDirection direct, NULL, NULL);
+            return spatderp3(p1, p2, p3, derfact, rho_array, window, wlen, ct, direct, NULL, NULL);
         }
 
 

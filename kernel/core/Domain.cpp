@@ -291,6 +291,8 @@ namespace OpenPSTD {
                     int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
                     Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
                     if (cd == CalcDirection::X) {
+                        WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
+                                next_2_power(matrix_main.cols()+2*wlen), matrix_main.rows());
                         matrix_main_offset = this->top_left.y;
                         matrix_side1_offset = d1->top_left.y;
                         matrix_side2_offset = d2->top_left.y;
@@ -306,10 +308,12 @@ namespace OpenPSTD {
 
                         source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) =
                                 spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct,
-                                          cd);
+                                          cd, planset.plan, planset.plan_inv);
 
                     }
                     else {
+                        WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
+                                next_2_power(matrix_main.rows()+2*wlen), matrix_main.cols());
                         matrix_main_offset = this->top_left.x;
                         matrix_side1_offset = d1->top_left.x;
                         matrix_side2_offset = d2->top_left.x;
@@ -325,7 +329,7 @@ namespace OpenPSTD {
 
                         source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) =
                                 spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct,
-                                          cd);
+                                          cd, planset.plan, planset.plan_inv);
                     }
                 }
             }

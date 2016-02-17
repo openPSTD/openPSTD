@@ -150,6 +150,16 @@ namespace OpenPSTD {
                                   CalculationType ct, CalcDirection direct);
 
         /**
+         * Version of spatderp3 that takes cached plans as input.
+         * @see spatderp3(9)
+         */
+        Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
+                                  Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
+                                  RhoArray rho_array, Eigen::ArrayXf window, int wlen,
+                                  CalculationType ct, CalcDirection direct,
+                                  fftwf_plan plan, fftwf_plan plan_inv);
+
+        /**
          * Computes and return reflection and transmission matrices for pressure and velocity
          * based on density of a domain and 2 opposite neighbours in any direction
          * @param rho1 density of first neighbour
