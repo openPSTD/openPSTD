@@ -129,7 +129,8 @@ namespace OpenPSTD
         Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
                                   Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
                                   RhoArray rho_array, Eigen::ArrayXf window, int wlen,
-                                  CalculationType ct, CalcDirection direct)
+                                  CalculationType ct, CalcDirection direct,
+                                  fftwf_plan plan, fftwf_plan plan_inv)
         {
 
             //in the Python code: N1 = fft_batch and N2 = fft_length
@@ -144,6 +145,23 @@ namespace OpenPSTD
 
             fftwf_complex *out_buffer;
             out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float) * 2 * (fft_length / 2 + 1) * fft_batch);
+
+            //non-domains don't have a wisdomcache, so this is needed. TODO Perhaps put it in the Scene itself.
+            if(plan == NULL) {
+                int shape[] = {fft_length};
+                int istride = 1; //distance between two elements in one fft-able array
+                int ostride = istride;
+                int idist = fft_length; //distance between first element of different arrays
+                int odist = idist;
+                plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
+                                                          out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
+
+                idist = (fft_length / 2) + 1;
+                odist = idist;
+                int ishape[] = {fft_length / 2 + 1};
+                plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
+                                                              in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
+            }
 
             //if direct == Y, transpose p1, p2 and p3
             if (direct == CalcDirection::Y)
@@ -178,21 +196,6 @@ namespace OpenPSTD
                        p2.rightCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
                 windowed_data << dom1, p2, dom3;
 
-                //TODO rewrite the C interfacing to acceptable C++
-                int shape[] = {fft_length};
-                int istride = 1; //distance between two elements in one fft-able array
-                int ostride = istride;
-                int idist = fft_length; //distance between first element of different arrays
-                int odist = idist;
-                //TODO think of how these can be stored in the solver without creating serious spaghetti
-                fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
-                                                          out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
-
-                idist = (fft_length / 2) + 1;
-                odist = idist;
-                int ishape[] = {fft_length / 2 + 1};
-                fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
-                                                              in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
 
                 //perform the fft
                 memcpy(in_buffer, windowed_data.data(), sizeof(float) * fft_batch * fft_length);
@@ -243,7 +246,6 @@ namespace OpenPSTD
                        p2.rightCols(wlen + 1).leftCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
                 windowed_data << dom1, p2, dom3;
 
-                //TODO rewrite the C interfacing to acceptable C++
                 int shape[] = {fft_length};
                 int istride = 1; //distance between two elements in one fft-able array
                 int ostride = istride;
@@ -288,6 +290,14 @@ namespace OpenPSTD
                 result.transposeInPlace();
             }
             return result;
+        }
+
+        Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
+                                  Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
+                                  RhoArray rho_array, Eigen::ArrayXf window, int wlen,
+                                  CalculationType ct, CalcDirection direct)
+        {
+            return spatderp3(p1, p2, p3, derfact, rho_array, window, wlen, ct, direct, NULL, NULL);
         }
 
 
