@@ -452,6 +452,7 @@ namespace OpenPSTD
             po::variables_map vm;
             std::vector<std::shared_ptr<OpenPSTD::CLI::CLIExport>> exports;
             exports.push_back(std::make_shared<OpenPSTD::CLI::CLIImageExport>());
+            exports.push_back(std::make_shared<OpenPSTD::CLI::CLIHDF5Export>());
 
             try
             {

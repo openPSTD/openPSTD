@@ -34,6 +34,17 @@ namespace OpenPSTD
             virtual void Execute(std::string format, std::shared_ptr <Shared::PSTDFile> file, std::string directory, std::string name,
                                  std::vector<int> domains, int startFrame, int endFrame, po::variables_map input) override;
         };
+
+        class CLIHDF5Export: public CLIExport
+        {
+        public:
+            virtual std::vector<std::string> GetFormats();
+
+            virtual void AddOptions(po::options_description_easy_init add_option) override;
+
+            virtual void Execute(std::string format, std::shared_ptr <Shared::PSTDFile> file, std::string directory, std::string name,
+                                 std::vector<int> domains, int startFrame, int endFrame, po::variables_map input) override;
+        };
     }
 }
 

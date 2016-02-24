@@ -112,3 +112,9 @@ message(STATUS "OpenGL glu found: ${OPENGL_GLU_FOUND}")
 message(STATUS "OpenGL include path: ${OPENGL_INCLUDE_DIR}")
 message(STATUS "OpenGL lib path: ${OPENGL_LIBRARIES}")
 
+#------------------------------------
+# HDF5
+message(STATUS "HDF5 include path: ${HDF5_INCLUDE}")
+message(STATUS "HDF5 lib path: ${HDF5_LIBRARY}")
+message(STATUS "HDF5 HL lib path: ${HDF5_HL_LIBRARY}")
+

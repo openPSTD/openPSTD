@@ -37,6 +37,9 @@ set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 set(FFTWF_LIBRARY "" CACHE PATH "The lib of fftw3f")
 set(FFTWF_INCLUDE_DIR "" CACHE PATH "The include dirs of fftw3f")
 set(FFTWF_SHARED_OBJECT "" CACHE PATH "The dll/so file of fftw3f")
+set(HDF5_INCLUDE "" CACHE PATH "The include dirs of HDF5")
+set(HDF5_LIBRARY "" CACHE PATH "The lib of HDF5")
+set(HDF5_HL_LIBRARY "" CACHE PATH "The lib of HDF5 HL")
 
 
 SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")

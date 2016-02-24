@@ -5,6 +5,7 @@
 #include "exportCLI.h"
 #include <boost/program_options.hpp>
 #include <shared/export/Image.h>
+#include <shared/export/HDF5Export.h>
 
 
 namespace po = boost::program_options;
@@ -27,4 +28,26 @@ void CLIImageExport::Execute(std::string format, std::shared_ptr <Shared::PSTDFi
     Shared::ExportImage realExport;
     realExport.SetFullView(input["image-fullview"].as<bool>());
     realExport.ExportData(format, file, directory, name, domains, startFrame, endFrame);
+}
+
+
+
+std::vector<std::string> CLIHDF5Export::GetFormats()
+{
+    std::vector<std::string> format;
+    format.push_back("application/x-hdf");
+    return format;
+}
+
+void CLIHDF5Export::AddOptions(po::options_description_easy_init add_option)
+{
+
+}
+
+void CLIHDF5Export::Execute(std::string format, std::shared_ptr<Shared::PSTDFile> file, std::string directory,
+                            std::string name, std::vector<int> domains, int startFrame, int endFrame,
+                            po::variables_map input)
+{
+    OpenPSTD::Shared::HDF5 realExport;
+    realExport.ExportData(format, file, directory+"/"+name+".h5", domains, startFrame, endFrame);
 }
