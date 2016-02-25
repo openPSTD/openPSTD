@@ -12,6 +12,7 @@ fi
 cmake \
 	-D EIGEN_INCLUDE:PATH=$PWD/eigen \
 	-D Qt5_DIR:PATH=${QT5DIR} \
+	-D FFTWF_LIBRARY:PATH=libfftw3f-3 \
 	-D HDF5_LIBRARY:PATH=libhdf5 \
 	-D HDF5_HL_LIBRARY:PATH=libhdf5_hl \
 	-D CPACK_GENERATOR=${PACKAGE} \
