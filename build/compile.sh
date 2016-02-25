@@ -11,8 +11,8 @@ else
     QT5DIR=/usr/local/opt/qt5
     PACKAGE=Bundle
 
-    FFTWFLIB=/usr/local/libfftw/libfftw3f.a
-    FFTWFSHAREDOBJ=/usr/local/libfftw/libfftw3f.so
+    FFTWFLIB=/usr/local/lib/libfftw3f.a
+    FFTWFSHAREDOBJ=""
 fi
 
 cmake \
