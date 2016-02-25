@@ -14,9 +14,9 @@ cmake \
 	-D Qt5_DIR:PATH=${QT5DIR} \
 	-D FFTWF_LIBRARY:PATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a \
 	-D FFTWF_SHARED_OBJECT:PATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so \
-	-D HDF5_INCLUDE:PATH=hdf5-1.8.16/hdf5/include \
-	-D HDF5_LIBRARY:PATH=hdf5-1.8.16/hdf5/lib/libhdf5.a \
-	-D HDF5_HL_LIBRARY:PATH=hdf5-1.8.16/hdf5/lib/libhdf5_hl.a \
+	-D HDF5_INCLUDE:PATH=$PWD/hdf5-1.8.16/hdf5/include \
+	-D HDF5_LIBRARY:PATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a \
+	-D HDF5_HL_LIBRARY:PATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a \
 	-D CPACK_GENERATOR=${PACKAGE} \
 	-D OPENPSTD_VERSION_MAJOR=${OPENPSTD_MAJOR_VERSION} \
 	-D OPENPSTD_VERSION_MINOR=${OPENPSTD_MINOR_VERSION} \
