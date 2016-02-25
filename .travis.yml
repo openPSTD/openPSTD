@@ -27,6 +27,7 @@ before_install:
 - export PATH=./build/:$PATH
 - export PATH=/opt/qt55/bin/:$PATH
 - install_add_repo.sh
+- install_win.sh
 
 install:
 - install_boost.sh
