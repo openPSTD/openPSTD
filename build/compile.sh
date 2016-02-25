@@ -5,6 +5,7 @@ set -e
 
 if [ ${TARGET} = "windows" ]; then
     CMAKE=i686-w64-mingw32.static-cmake
+    PACKAGE=ZIP
 else
     CMAKE=cmake
     if [ ${TRAVIS_OS_NAME} = "linux" ]; then
