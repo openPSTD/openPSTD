@@ -2,7 +2,7 @@
 set -e
 
 if [ ${TARGET} = "windows" ]; then
-    sudo apt-get install mxe-${WINTARGET}-qtbase
+    sudo apt-get -y install mxe-${WINTARGET}-qtbase
 else
 if [ $TRAVIS_OS_NAME = "linux" ]; then
     echo running on linux

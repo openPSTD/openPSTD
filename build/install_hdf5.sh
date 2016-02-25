@@ -2,7 +2,7 @@
 set -e
 
 if [ ${TARGET} = "windows" ]; then
-    sudo apt-get install mxe-${WINTARGET}-hdf5
+    sudo apt-get -y install mxe-${WINTARGET}-hdf5
 else
     echo installing HDF5 with source
     wget https://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.16.tar.bz2
