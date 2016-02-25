@@ -2,9 +2,7 @@
 set -e
 
 if [ ${TARGET} = "windows" ]; then
-    cd mxe
-    make fftw
-    cd ..
+    sudo apt-get install mxe-${WINTARGET}-fftw
 else
     if [ ${TRAVIS_OS_NAME} = "linux" ]; then
         echo running on linux

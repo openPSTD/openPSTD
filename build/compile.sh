@@ -4,7 +4,8 @@ set -e
 
 
 if [ ${TARGET} = "windows" ]; then
-    CMAKE=i686-w64-mingw32.static-cmake
+    MXEDIR=/usr/lib/mxe/
+    CMAKE=${MXEDIR}/usr/bin/${WINTARGET}-cmake
     PACKAGE=ZIP
 else
     CMAKE=cmake
