@@ -7,7 +7,13 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+      env: TARGET=linux
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: TARGET=windows
     - os: osx
+      env: TARGET=osx
   allow_failures:
     - os: osx
 

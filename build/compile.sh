@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ${TRAVIS_OS_NAME} = "linux" ]; then
-    QT5DIR=/opt/qt55
-    PACKAGE=TGZ
+
+
+if [ ${TARGET} = "windows" ]; then
+    CMAKE=i686-w64-mingw32.static-cmake
 else
-    QT5DIR=/usr/local/opt/qt5
-    PACKAGE=Bundle
+    CMAKE=cmake
+    if [ ${TRAVIS_OS_NAME} = "linux" ]; then
+        QT5DIR=/opt/qt55
+        PACKAGE=TGZ
+    else
+        QT5DIR=/usr/local/opt/qt5
+        PACKAGE=Bundle
+    fi
 fi
 
-cmake \
+${CMAKE} \
 	-D EIGEN_INCLUDE:PATH=$PWD/eigen \
 	-D Qt5_DIR:PATH=${QT5DIR} \
 	-D FFTWF_LIBRARY:PATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a \
