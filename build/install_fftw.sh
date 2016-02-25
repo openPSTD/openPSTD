@@ -16,6 +16,4 @@ else
     ./configure --enable-float --enable-sse --prefix=/usr/local
     make
     sudo make install
-    cd /usr/local
-    ls
 fi
