@@ -18,7 +18,7 @@ else
     FFTWFSHAREDOBJ=""
 
     HDF5LIB=$PWD/hdf5-1.8.16/hdf5/lib64/libhdf5.a
-    HDF5HLLIB=$PWD/hdf5-1.8.16/hdf5/lib64/libhdf5_hl.a
+    HDF5HLLIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
 fi
 
 cmake \
