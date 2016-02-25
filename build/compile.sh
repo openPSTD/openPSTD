@@ -7,12 +7,18 @@ if [ ${TRAVIS_OS_NAME} = "linux" ]; then
 
     FFTWFLIB=/usr/lib/x86_64-linux-gnu/libfftw3f.a
     FFTWFSHAREDOBJ=/usr/lib/x86_64-linux-gnu/libfftw3f.so
+
+    HDF5LIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a
+    HDF5HLLIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
 else
     QT5DIR=/usr/local/opt/qt5
     PACKAGE=Bundle
 
     FFTWFLIB=/usr/local/lib/libfftw3f.a
     FFTWFSHAREDOBJ=""
+
+    HDF5LIB=$PWD/hdf5-1.8.16/hdf5/lib64/libhdf5.a
+    HDF5HLLIB=$PWD/hdf5-1.8.16/hdf5/lib64/libhdf5_hl.a
 fi
 
 cmake \
@@ -21,8 +27,8 @@ cmake \
 	-D FFTWF_LIBRARY:PATH=${FFTWFLIB} \
 	-D FFTWF_SHARED_OBJECT:PATH=${FFTWFSHAREDOBJ} \
 	-D HDF5_INCLUDE:PATH=$PWD/hdf5-1.8.16/hdf5/include \
-	-D HDF5_LIBRARY:PATH=$PWD/hdf5-1.8.16/hdf5/lib64/libhdf5.a \
-	-D HDF5_HL_LIBRARY:PATH=$PWD/hdf5-1.8.16/hdf5/lib64/libhdf5_hl.a \
+	-D HDF5_LIBRARY:PATH=${HDF5LIB} \
+	-D HDF5_HL_LIBRARY:PATH=${HDF5FLLIB} \
 	-D CPACK_GENERATOR=${PACKAGE} \
 	-D OPENPSTD_VERSION_MAJOR=${OPENPSTD_MAJOR_VERSION} \
 	-D OPENPSTD_VERSION_MINOR=${OPENPSTD_MINOR_VERSION} \
