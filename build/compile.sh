@@ -12,8 +12,8 @@ fi
 cmake \
 	-D EIGEN_INCLUDE:PATH=$PWD/eigen \
 	-D Qt5_DIR:PATH=${QT5DIR} \
-	-D FFTWF_LIBRARY:PATH=\usr\lib\x86_64-linux-gnu\libfftw3f.a \
-	-D FFTWF_SHARED_OBJECT:PATH=\usr\lib\x86_64-linux-gnu\libfftw3f.so \
+	-D FFTWF_LIBRARY:PATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a \
+	-D FFTWF_SHARED_OBJECT:PATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so \
 	-D HDF5_INCLUDE:PATH=hdf5-1.8.16/hdf5/include \
 	-D HDF5_LIBRARY:PATH=hdf5-1.8.16/hdf5/lib/libhdf5.a \
 	-D HDF5_HL_LIBRARY:PATH=hdf5-1.8.16/hdf5/lib/libhdf5_hl.a \
