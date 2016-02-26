@@ -103,8 +103,7 @@ namespace OpenPSTD
                     for (auto domain:this->scene->domain_list)
                     {
                         domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
-                        // I think this is bugged. @see Speaker::add_domain_contribution().
-                        if (frame % this->settings->GetSaveNth() == 0)
+                        if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml)
                         {
                             this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
                         }
