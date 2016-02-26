@@ -136,24 +136,6 @@ BOOST_AUTO_TEST_SUITE(domain)
         }
     }
 
-    BOOST_AUTO_TEST_CASE(domain_rho_arrays) {
-        auto scene = create_a_scene();
-        auto domain = scene->domain_list.at(0);
-        shared_ptr<Kernel::Domain> left_domain = domain->get_neighbours_at(Kernel::Direction::LEFT).at(0);
-        shared_ptr<Kernel::Domain> right_domain = domain->get_neighbours_at(Kernel::Direction::RIGHT).at(0);
-        shared_ptr<Kernel::Domain> top_domain = domain->get_neighbours_at(Kernel::Direction::TOP).at(0);
-
-        int index1 = domain->id * left_domain->id * right_domain->id;
-        ArrayXXf correct_center_domain_velocity(4, 2);
-        correct_center_domain_velocity << 0, 0, 0, 0, 1, 1, 1, 1;
-        BOOST_CHECK(correct_center_domain_velocity.isApprox(domain->rho_arrays[index1].velocity));
-
-        int index2 = domain->id * top_domain->id;
-        ArrayXXf correct_top_pml_domain_pressure(4, 2);
-        correct_top_pml_domain_pressure << 0, 0, 1, -1, 1, 1, 2, 0;
-        BOOST_CHECK(correct_top_pml_domain_pressure.isApprox(top_domain->rho_arrays[index2].pressure));
-    }
-
     BOOST_AUTO_TEST_CASE(domain_clear_methods) {
         auto domain = create_a_domain(-50, -25, 100, 150);
         domain->clear_matrices();
