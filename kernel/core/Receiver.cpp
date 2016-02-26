@@ -114,8 +114,8 @@ namespace OpenPSTD
             ArrayXcf z_fact = get_fft_factors(Point(1, container_domain->size.y), CalcDirection::Y);
             float wave_number = 2 * config->GetWaveLength() + container_domain->size.y + 1;
             int opt_wave_number = next_2_power(wave_number);
-
-            RhoArray rho_array = container_domain->rho_arrays[top_domain->id + bottom_domain->id];
+            
+            RhoArray rho_array = get_rho_array(top_domain->rho, container_domain->rho, bottom_domain->rho);
 
             ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
                                          z_fact, rho_array, get_window_coefficients(70.0f, config->GetWindowSize()),

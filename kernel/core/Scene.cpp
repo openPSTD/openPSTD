@@ -274,12 +274,6 @@ namespace OpenPSTD {
             speaker_list.push_back(speaker);
         }
 
-        void Scene::compute_rho_arrays() {
-            for (auto domain:domain_list) {
-                domain->compute_rho_arrays();
-            }
-        }
-
         void Scene::compute_pml_matrices() {
             for (auto domain:domain_list) {
                 if (domain->is_pml) {

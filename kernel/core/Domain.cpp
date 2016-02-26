@@ -261,31 +261,11 @@ namespace OpenPSTD {
                         }
                     }
 
-                    // Determine which rho matrix instance to use
-                    int rho_array_id;
-                    if (d1 != nullptr) {
-                        if (d2 != nullptr) {
-                            rho_array_id = d1->id * id * d2->id;
-                        }
-                        else {
-                            rho_array_id = d1->id * id;
-                        }
-                    }
-                    else {
-                        if (d2 != nullptr) {
-                            rho_array_id = id * d2->id;
-                        }
-                        else {
-                            rho_array_id = id;
-                        }
-                    }
-                    RhoArray rho_array;
-                    if (ct == CalculationType::PRESSURE) {
-                        rho_array = rho_arrays[rho_array_id];
-                    }
-                    else {
-                        rho_array = rho_arrays[rho_array_id];
-                    }
+                    // TODO check if get_rho_array(...) is slow and if so, cache these values somewhere
+                    float max_rho = 1E10;
+                    RhoArray rho_array = get_rho_array(d1 != nullptr ? d1->rho : max_rho,
+                                              this->rho,
+                                              d2 != nullptr ? d2->rho :max_rho);
 
                     // Calculate the spatial derivatives for the current intersection range and store
                     int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
@@ -495,91 +475,6 @@ namespace OpenPSTD {
                 case Direction::BOTTOM:
                     bottom.push_back(domain);
                     break;
-            }
-        }
-
-        void Domain::compute_rho_arrays() {
-            //struct containing functions calculating the index strings to keep the for loop below somewhat readable.
-            struct index_strings {
-                int id(shared_ptr<Domain> d1, Domain *dm, shared_ptr<Domain> d2) {
-                    return d1->id * dm->id * d2->id;
-                }
-
-                int id(shared_ptr<Domain> d1, Domain *dm) {
-                    return d1->id * dm->id;
-                }
-
-                int id(Domain *dm, shared_ptr<Domain> d2) {
-                    return dm->id * d2->id;
-                }
-
-                int id(Domain *dm) {
-                    return dm->id;
-                }
-            };
-            index_strings x;
-            vector<shared_ptr<Domain>> left_domains = left;
-            vector<shared_ptr<Domain>> right_domains = right;
-            vector<shared_ptr<Domain>> top_domains = top;
-            vector<shared_ptr<Domain>> bottom_domains = bottom; // Why are these copied?
-
-            float max_rho = 1E10; // Large value, well within float range.
-
-            // Checks if sets of adjacent domains are non-zero and calculates the rho_arrays accordingly
-            // TODO (optional) refactor: there is probably a prettier solution than if/else'ing this much
-            // Todo: Now you are computing rho's for any possible combination. I think that's overdoing it...
-            if (left_domains.size()) {
-                for (shared_ptr<Domain> d1 : left_domains) {
-                    if (right_domains.size()) {
-                        for (shared_ptr<Domain> d2 : right_domains) {
-                            vector<float> rhos = {d1->rho, d2->rho};
-                            rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
-                        }
-                    }
-                    else {
-                        vector<float> rhos = {d1->rho, max_rho};
-                        rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], rho, rhos[1]);
-                    }
-                }
-            }
-            else {
-                if (right_domains.size()) {
-                    for (shared_ptr<Domain> d2 : right_domains) {
-                        vector<float> rhos = {max_rho, d2->rho};
-                        rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
-                    }
-                }
-                else {
-                    vector<float> rhos = {max_rho, max_rho};
-                    rho_arrays[x.id(this)] = get_rho_array(rhos[0], rho, rhos[1]);
-                }
-            }
-
-            if (bottom_domains.size()) {
-                for (shared_ptr<Domain> d1 : bottom_domains) {
-                    if (top_domains.size()) {
-                        for (shared_ptr<Domain> d2 : top_domains) {
-                            vector<float> rhos = {d1->rho, d2->rho};
-                            rho_arrays[x.id(d1, this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
-                        }
-                    }
-                    else {
-                        vector<float> rhos = {d1->rho, max_rho};
-                        rho_arrays[x.id(d1, this)] = get_rho_array(rhos[0], rho, rhos[1]);
-                    }
-                }
-            }
-            else {
-                if (top_domains.size()) {
-                    for (shared_ptr<Domain> d2 : top_domains) {
-                        vector<float> rhos = {max_rho, d2->rho};
-                        rho_arrays[x.id(this, d2)] = get_rho_array(rhos[0], rho, rhos[1]);
-                    }
-                }
-                else {
-                    vector<float> rhos = {max_rho, max_rho};
-                    rho_arrays[x.id(this)] = get_rho_array(rhos[0], rho, rhos[1]);
-                }
             }
         }
 
@@ -835,17 +730,6 @@ namespace OpenPSTD {
         void Domain::post_initialization() {
             compute_number_of_neighbours();
             find_update_directions();
-        }
-
-        int Domain::get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2) {
-            int key = this->id;
-            if (domain1 != nullptr) {
-                key *= domain1->id;
-            }
-            if (domain2 != nullptr) {
-                key *= domain2->id;
-            }
-            return key;
         }
     }
 }

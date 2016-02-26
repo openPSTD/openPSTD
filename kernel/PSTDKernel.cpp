@@ -56,7 +56,6 @@ namespace OpenPSTD {
             this->add_domains();
             this->add_speakers();
             this->add_receivers();
-            scene->compute_rho_arrays();
             scene->compute_pml_matrices();
             debug("Finished initializing");
         }

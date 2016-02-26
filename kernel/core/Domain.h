@@ -107,7 +107,6 @@ namespace OpenPSTD {
             float impedance;
             float rho;
             std::map<Direction, EdgeParameters> edge_param_map;
-            std::map<int, RhoArray> rho_arrays;
             std::map<CalcDirection, bool> should_update;
             Point top_left;
             Point bottom_right;
@@ -158,12 +157,6 @@ namespace OpenPSTD {
                    std::vector<float> top_left_vector, std::vector<float> size_vector, const bool is_pml,
                    std::shared_ptr<WisdomCache> wnd, std::map<Direction, EdgeParameters> edge_param_map,
                    const std::shared_ptr<Domain> pml_for_domain);
-
-            /**
-             * Calculates the density coefficients (@f$\rho@f$) for all vertical and horizontal lines in the domain.
-             * For each line it uses the information of neighbouring domains.
-             */
-            void compute_rho_arrays();
 
             /**
              * Overrides the old values with the new values.
@@ -315,8 +308,6 @@ namespace OpenPSTD {
             void find_update_directions();
 
             void compute_number_of_neighbours();
-
-            int get_rho_array_key(std::shared_ptr<Domain> domain1, std::shared_ptr<Domain> domain2);
 
             int get_num_pmls_in_direction(Direction direction);
 
