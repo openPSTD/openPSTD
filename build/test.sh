@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ${TARGET} != "windows" ]; then
+if [ ${TARGET} != "win64" ]; then
     if [ ${TRAVIS_OS_NAME} = "linux" ]; then
         DEPENDENCY_CHECKER=ldd
     else

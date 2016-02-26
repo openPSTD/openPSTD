@@ -1,6 +1,6 @@
 #------------------------------------
 # INSTALL
-if(APPLE)
+if(${OPENPSTD_SYSTEM_NAME} EQUAL "osx")
     install(TARGETS OpenPSTD-gui DESTINATION .)
     #install(TARGETS OpenPSTD-cli DESTINATION .)
 
@@ -14,20 +14,21 @@ if(APPLE)
 	   include(BundleUtilities)
 	   fixup_bundle(\"${APPS}\"   \"\"   \"${OPENPSTD_DEPENDENCIES_SEARCH_PATH}\")
 	   " COMPONENT Runtime)
-elseif(WIN32)
+
+elseif(${OPENPSTD_SYSTEM_NAME} EQUAL "win64")
     install(TARGETS OpenPSTD DESTINATION OpenPSTD)
     install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
     #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
     install(TARGETS unqlite DESTINATION OpenPSTD)
 
-    #install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
-    #install(FILES ${QtCore_location} DESTINATION OpenPSTD)
-    #install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
-    #install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
-    #install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
+    install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
+    install(FILES ${QtCore_location} DESTINATION OpenPSTD)
+    install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
+    install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
+    install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
     #install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
 
-elseif(UNIX)
+elseif(${OPENPSTD_SYSTEM_NAME} EQUAL "linux")
     install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
     #install(TARGETS OpenPSTD-cli DESTINATION bin)

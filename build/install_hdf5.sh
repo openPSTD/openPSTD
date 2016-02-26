@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ${TARGET} = "windows" ]; then
+if [ ${TARGET} = "win64" ]; then
     sudo apt-get -y install mxe-${WINTARGET}-hdf5
 else
     echo installing HDF5 with source
