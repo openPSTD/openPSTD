@@ -15325,7 +15325,7 @@ static int jx9Builtin_ctype_upper(jx9_context *pCtx, int nArg, jx9_value **apArg
 #include <time.h>
 #ifdef __WINNT__
 /* GetSystemTime() */
-#include <Windows.h> 
+#include <windows.h> 
 #ifdef _WIN32_WCE
 /*
 ** WindowsCE does not have a localtime() function.  So create a
