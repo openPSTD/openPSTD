@@ -2,6 +2,7 @@
 // Created by michiel on 24-1-2016.
 //
 
+#include <kernel/core/kernel_functions.h>
 #include "KernelInterface.h"
 
 namespace OpenPSTD {
@@ -149,7 +150,7 @@ namespace OpenPSTD {
         }
 
         std::vector<float> PSTDSettings::GetRKCoefficients() {
-            return this->rk_coefficients;
+            return Kernel::rk_coefficients;
         }
 
         void PSTDSettings::SetRKCoefficients(std::vector<float> coef) {
@@ -224,8 +225,7 @@ namespace OpenPSTD {
 
             float band_width = (float) (3 * 1e-6 * (sound_speed / grid_spacing) * (sound_speed / grid_spacing));
             conf->Settings.SetBandWidth(band_width);
-            conf->Settings.SetRKCoefficients(std::vector<float>(
-                    {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f, 1.65919771368e-1f, 5e-1, 1.f}));
+            // RK coeffs now hardcoded in kernel functions
 
             conf->Settings.SetSpectralInterpolation(true);
 
