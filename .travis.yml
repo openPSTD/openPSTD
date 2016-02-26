@@ -22,7 +22,7 @@ env:
   - OPENPSTD_MAJOR_VERSION=2
   - OPENPSTD_MINOR_VERSION=0
   - WINTARGET=x86-64-w64-mingw32.shared
-  - WINTARGET_CMAKE=x86_64-w64-mingw32.shared
+  - WINTARGET_PATH=x86_64-w64-mingw32.shared
 
 before_install:
 - sudo chmod -R +x build

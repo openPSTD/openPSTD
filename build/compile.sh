@@ -5,13 +5,13 @@ set -e
 
 if [ ${TARGET} = "win64" ]; then
     MXEDIR=/usr/lib/mxe
-    CMAKE=${MXEDIR}/usr/bin/${WINTARGET_CMAKE}-cmake
+    CMAKE=${MXEDIR}/usr/bin/${WINTARGET_PATH}-cmake
     PACKAGE=ZIP
-    FFTLIBPATH=${MXEDIR}/usr/${WINTARGET}/lib/libfftw3f.dll.a
+    FFTLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/lib/libfftw3f.dll.a
     FFTSOPATH=
-    HDF5LIBPATH=${MXEDIR}/usr/${WINTARGET}/lib/libhdf5.dll.a
-    HDF5HLLIBPATH=${MXEDIR}/usr/${WINTARGET}/lib/libhdf5_hl.dll.a
-    HDF5INCLUDEPATH=${MXEDIR}/usr/${WINTARGET}/include/
+    HDF5LIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/lib/libhdf5.dll.a
+    HDF5HLLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/lib/libhdf5_hl.dll.a
+    HDF5INCLUDEPATH=${MXEDIR}/usr/${WINTARGET_PATH}/include/
 else
     FFTLIBPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a
     FFTSOPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so
