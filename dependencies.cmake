@@ -75,16 +75,6 @@ loadQtPackage(Qt5Widgets)
 loadQtPackage(Qt5Core)
 loadQtPackage(Qt5OpenGL)
 
-loadQtPackage(Qt5Concurrent)
-loadQtPackage(Qt5DBus)
-loadQtPackage(Qt5Gui)
-loadQtPackage(Qt5Network)
-loadQtPackage(Qt5OpenGLExtensions)
-loadQtPackage(Qt5PrintSupport)
-loadQtPackage(Qt5Sql)
-loadQtPackage(Qt5Test)
-loadQtPackage(Qt5Xml)
-
 SET(OPENPSTD_DEPENDENCIES_SEARCH_PATH "${OPENPSTD_DEPENDENCIES_SEARCH_PATH};${Qt5_DIR}/${Qt5_LIBS}")
 
 message(STATUS "Qt5 found: ${Qt5_FOUND}")
