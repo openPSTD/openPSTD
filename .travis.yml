@@ -44,6 +44,7 @@ before_script:
 - cmake --help
 - cpack --version
 - cpack --help
+- ls -al /usr/lib/mxe/usr/x86_64-w64-mingw32.static/lib/
 
 script:
 - compile.sh
