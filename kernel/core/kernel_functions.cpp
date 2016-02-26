@@ -59,12 +59,18 @@ namespace OpenPSTD
 
         int next_2_power(float n)
         {
-            return std::max((int) pow(2, ceil(log2(n))), 1);
+            return next_2_power((int) ceil(n));
         }
 
         int next_2_power(int n)
         {
-            return std::max((int) pow(2, ceil(log2(n))), 1);
+            int temp = (n-1) << 1;
+            temp |= temp >> 1;
+            temp |= temp >> 2;
+            temp |= temp >> 4;
+            temp |= temp >> 8;
+            temp |= temp >> 16;
+            return temp+1;
         }
 
         float get_grid_spacing(PSTDSettings cnf)
@@ -300,6 +306,12 @@ namespace OpenPSTD
             return spatderp3(p1, p2, p3, derfact, rho_array, window, wlen, ct, direct, NULL, NULL);
         }
 
+        Eigen::ArrayXf get_window_coefficients(int window_size, int patch_error) {
+            float window_alpha = (patch_error - 40) / 20 + 1;
+            Eigen::ArrayXf window_coefficients = (Eigen::ArrayXf::LinSpaced(2 * window_size + 1, -window_size,window_size) /
+                                                  window_size).square().cube().exp(); // Need to go to power 6 (^2^3)
+            return window_coefficients;
+        }
 
         void debug(std::string msg)
         {
