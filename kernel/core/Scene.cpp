@@ -421,26 +421,10 @@ namespace OpenPSTD {
             /**
              * We use prime numbers as domain id's to facilitate commutative multi-indexing.
              */
-            int last_prime = ids.at(ids.size() - 1);
-            bool potential_prime = true;
-            int new_prime = last_prime + 2;
-            while (true) {
-                for (int id:ids) {
-                    if (new_prime % id == 0) {
-                        potential_prime = false;
-                        break;
-                    }
-                }
-                if (potential_prime) {
-                    break;
-                }
-                else {
-                    new_prime += 2;
-                    potential_prime = true;
-                }
-            }
-            ids.push_back(new_prime);
-            return new_prime;
+            int last_id = ids.at(ids.size() - 1);
+            int new_id = last_id + 1;
+            ids.push_back(last_id);
+            return new_id;
         }
     }
 }
