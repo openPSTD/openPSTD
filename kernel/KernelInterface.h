@@ -124,10 +124,6 @@ namespace OpenPSTD
             std::vector<float> GetRKCoefficients();
 
             void SetRKCoefficients(std::vector<float> coef);
-
-            Eigen::ArrayXf GetWindow();
-
-            void SetWindow(Eigen::ArrayXf A);
         };
 
         class DomainConfEdge
