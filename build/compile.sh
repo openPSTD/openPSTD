@@ -5,7 +5,7 @@ set -e
 
 if [ ${TARGET} = "win64" ]; then
     MXEDIR=/usr/lib/mxe
-    CMAKE=${MXEDIR}/usr/bin/${WINTARGET}-cmake
+    CMAKE=${MXEDIR}/usr/bin/${WINTARGET_CMAKE}-cmake
     PACKAGE=ZIP
     FFTLIBPATH=${MXEDIR}/usr/${WINTARGET}/lib/libfftw3f.dll.a
     FFTSOPATH=
