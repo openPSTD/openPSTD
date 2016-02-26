@@ -299,9 +299,10 @@ namespace OpenPSTD {
         void Scene::add_domain(shared_ptr<Domain> domain) {
             top_left = Point(min(top_left.x, domain->top_left.x),
                              min(top_left.y, domain->top_left.y));
-            bottom_right = Point(min(bottom_right.x, domain->bottom_right.x),
-                                 min(bottom_right.y, domain->bottom_right.y));
-            Point new_size(bottom_right.x - top_left.x, bottom_right.y, domain->bottom_right.y);
+            bottom_right = Point(max(bottom_right.x, domain->bottom_right.x),
+                                 max(bottom_right.y, domain->bottom_right.y));
+            size = Point(bottom_right.x - top_left.x, bottom_right.y - top_left.y);
+
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 shared_ptr<Domain> other_domain = domain_list.at(i);
                 if (domain->is_secondary_pml && other_domain->is_secondary_pml) {
