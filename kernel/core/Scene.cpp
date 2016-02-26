@@ -35,6 +35,7 @@ namespace OpenPSTD {
             this->top_left = Point(0, 0);
             this->bottom_right = Point(0, 0);
             this->size = Point(0, 0);
+            number_of_domains = 0;
         }
 
         void Scene::add_pml_domains() {
@@ -418,13 +419,8 @@ namespace OpenPSTD {
         }
 
         int Scene::get_new_id() {
-            /**
-             * We use prime numbers as domain id's to facilitate commutative multi-indexing.
-             */
-            int last_id = ids.at(ids.size() - 1);
-            int new_id = last_id + 1;
-            ids.push_back(last_id);
-            return new_id;
+            number_of_domains++;
+            return number_of_domains - 1;
         }
     }
 }
