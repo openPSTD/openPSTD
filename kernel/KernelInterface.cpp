@@ -137,14 +137,6 @@ namespace OpenPSTD {
             this->multithread = value;
         }
 
-        void PSTDSettings::SetWindow(Eigen::ArrayXf A) {
-            this->window = A;
-        }
-
-        Eigen::ArrayXf PSTDSettings::GetWindow() {
-            return this->window;
-        }
-
         float PSTDSettings::GetTimeStep() {
             return this->tfactRK * this->gridSpacing / this->c1;
         }
@@ -234,13 +226,7 @@ namespace OpenPSTD {
             conf->Settings.SetBandWidth(band_width);
             conf->Settings.SetRKCoefficients(std::vector<float>(
                     {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f, 1.65919771368e-1f, 5e-1, 1.f}));
-            //Todo: What is this window_alpha?
-            float window_alpha = (patch_error - 40) / 20 + 1;
-            int wsize = conf->Settings.GetWindowSize();
-            Eigen::ArrayXf window_coefficients = (Eigen::ArrayXf::LinSpaced(2 * wsize + 1, -wsize, wsize) /
-                                                  wsize).square().cube().exp(); // Need to go to power 6
 
-            conf->Settings.SetWindow(window_coefficients);
             conf->Settings.SetSpectralInterpolation(true);
 
             conf->Speakers.push_back(QVector3D(4, 5, 0));
