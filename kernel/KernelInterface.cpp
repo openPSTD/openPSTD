@@ -195,24 +195,24 @@ namespace OpenPSTD {
         }
 
         void DomainConf::SetLR(PSTD_DOMAIN_SIDE sides, bool LR) {
-            if (sides & PSTD_DOMAIN_SIDE_TOP != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_TOP) != 0)
                 T.LR = LR;
-            if (sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_BOTTOM) != 0)
                 B.LR = LR;
-            if (sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_LEFT) != 0)
                 L.LR = LR;
-            if (sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_RIGHT) != 0)
                 R.LR = LR;
         }
 
         void DomainConf::SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption) {
-            if (sides & PSTD_DOMAIN_SIDE_TOP != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_TOP) != 0)
                 T.Absorption = absorption;
-            if (sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_BOTTOM) != 0)
                 B.Absorption = absorption;
-            if (sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_LEFT) != 0)
                 L.Absorption = absorption;
-            if (sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_RIGHT) != 0)
                 R.Absorption = absorption;
         }
 
