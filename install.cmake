@@ -28,6 +28,8 @@ elseif(${OPENPSTD_SYSTEM_NAME} EQUAL "win64")
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
     #install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
 
+    message(STATUS "Package for win64")
+
 elseif(${OPENPSTD_SYSTEM_NAME} EQUAL "linux")
     install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
@@ -40,6 +42,8 @@ elseif(${OPENPSTD_SYSTEM_NAME} EQUAL "linux")
     install(FILES ${QtOpenGL_location} DESTINATION lib)
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION lib)
     install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
+
+    message(STATUS "Package for linux")
 endif()
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
