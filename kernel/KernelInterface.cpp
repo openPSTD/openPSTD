@@ -206,13 +206,13 @@ namespace OpenPSTD {
         }
 
         void DomainConf::SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption) {
-            if (sides & PSTD_DOMAIN_SIDE_TOP != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_TOP) != 0)
                 T.Absorption = absorption;
-            if (sides & PSTD_DOMAIN_SIDE_BOTTOM != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_BOTTOM) != 0)
                 B.Absorption = absorption;
-            if (sides & PSTD_DOMAIN_SIDE_LEFT != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_LEFT) != 0)
                 L.Absorption = absorption;
-            if (sides & PSTD_DOMAIN_SIDE_RIGHT != 0)
+            if ((sides & PSTD_DOMAIN_SIDE_RIGHT) != 0)
                 R.Absorption = absorption;
         }
 
