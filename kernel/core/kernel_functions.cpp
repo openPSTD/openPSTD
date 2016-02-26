@@ -59,12 +59,18 @@ namespace OpenPSTD
 
         int next_2_power(float n)
         {
-            return std::max((int) pow(2, ceil(log2(n))), 1);
+            return next_2_power((int) ceil(n));
         }
 
         int next_2_power(int n)
         {
-            return std::max((int) pow(2, ceil(log2(n))), 1);
+            int temp = (n-1) << 1;
+            temp |= temp >> 1;
+            temp |= temp >> 2;
+            temp |= temp >> 4;
+            temp |= temp >> 8;
+            temp |= temp >> 16;
+            return temp+1;
         }
 
         float get_grid_spacing(PSTDSettings cnf)
