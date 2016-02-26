@@ -36,6 +36,7 @@ install:
 - install_eigen.sh
 - install_fftw.sh
 - install_hdf5.sh
+- ls -al /usr/lib/mxe/usr/bin/
 
 before_script:
 - uname -r
