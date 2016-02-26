@@ -48,6 +48,7 @@ before_script:
 - ls -al /usr/lib/mxe/usr/
 - ls -al /usr/lib/mxe/usr/i686-w64-mingw32.static/
 - ls -al /usr/lib/mxe/usr/i686-w64-mingw32.static/lib/
+- ls -al /usr/lib/mxe/usr/i686-w64-mingw32.static/qt5/lib/
 
 script:
 - compile.sh
