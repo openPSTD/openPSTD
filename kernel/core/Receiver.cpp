@@ -118,8 +118,8 @@ namespace OpenPSTD
             RhoArray rho_array = container_domain->rho_arrays[top_domain->id + bottom_domain->id];
 
             ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
-                                         z_fact, rho_array, config->GetWindow(), config->GetWindowSize(),
-                                         CalculationType::PRESSURE, CalcDirection::Y);
+                                         z_fact, rho_array, get_window_coefficients(70f, config->GetWindowSize()),
+                                         config->GetWindowSize(), CalculationType::PRESSURE, CalcDirection::Y);
 
             int rel_y_point = grid_location.y - container_domain->top_left.y;
             float si_value = p0shift(rel_y_point, 0);

@@ -170,8 +170,8 @@ namespace OpenPSTD {
                     int range_end = *max_element(range_intersection.begin(), range_intersection.end()) + 1;
                     int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                     int N_total = 2 * settings->GetWindowSize() + primary_dimension;
-                    int wlen = this->settings->GetWindowSize();
-                    Eigen::ArrayXf wind = this->settings->GetWindow();
+                    int wlen = settings->GetWindowSize();
+                    Eigen::ArrayXf wind = get_window_coefficients(wlen, settings->GetPatchError());
 
                     if (ct == CalculationType::PRESSURE) {
                         N_total++;

@@ -179,6 +179,14 @@ namespace OpenPSTD {
         float get_grid_spacing(PSTDSettings cnf);
 
         /**
+         * Gives a two-sided array of window coefficients for a given window size and patch error
+         * @param window_size length of the window
+         * @param patch_error given patch error
+         * @return Eigen::ArrayXf Eigen array of length window_size*2 containing window coefficients
+         */
+        Eigen::ArrayXf get_window_coefficients(int window_size, int patch_error);
+
+        /**
          * Computes the smallest power of 2 larger or equal to n if n positive, and 1 otherwise
          * @param n
          * return 2^k >= n

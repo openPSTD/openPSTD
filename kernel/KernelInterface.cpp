@@ -221,7 +221,6 @@ namespace OpenPSTD {
             conf->Settings.SetRenderTime(1.0f);
             float sound_speed = 340;
             float grid_spacing = 0.2;
-            float patch_error = 70;
             conf->Settings.SetSoundSpeed(sound_speed);
             conf->Settings.SetAttenuationOfPMLCells(20000.0f);
             conf->Settings.SetDensityOfAir(1.2f);
