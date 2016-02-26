@@ -35,6 +35,7 @@ namespace OpenPSTD {
             this->top_left = Point(0, 0);
             this->bottom_right = Point(0, 0);
             this->size = Point(0, 0);
+            number_of_domains = 0;
         }
 
         void Scene::add_pml_domains() {
@@ -291,12 +292,13 @@ namespace OpenPSTD {
         }
 
         void Scene::add_domain(shared_ptr<Domain> domain) {
-            top_left = Point(min(top_left.x, domain->top_left.x),
-                             min(top_left.y, domain->top_left.y));
-            bottom_right = Point(max(bottom_right.x, domain->bottom_right.x),
-                                 max(bottom_right.y, domain->bottom_right.y));
-            size = Point(bottom_right.x - top_left.x, bottom_right.y - top_left.y);
-
+            if (not domain->is_pml) {
+                top_left = Point(min(top_left.x, domain->top_left.x),
+                                 min(top_left.y, domain->top_left.y));
+                bottom_right = Point(max(bottom_right.x, domain->bottom_right.x),
+                                     max(bottom_right.y, domain->bottom_right.y));
+                size = Point(bottom_right.x - top_left.x, bottom_right.y - top_left.y);
+            }
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 shared_ptr<Domain> other_domain = domain_list.at(i);
                 if (domain->is_secondary_pml && other_domain->is_secondary_pml) {
@@ -380,14 +382,17 @@ namespace OpenPSTD {
         Eigen::ArrayXXf Scene::get_field(char field_type) {
             Eigen::ArrayXXf field(size.x, size.y);
             for (auto domain:domain_list) {
-                Point offset = domain->top_left - top_left;
-                switch (field_type) {
-                    case 'p':
-                        field.block(offset.x, offset.y, domain->size.x, domain->size.y) += domain->current_values.p0;
-                        break;
-                    default:
-                        //No other fields are required (yet). However, leaving open for extension.
-                        break;
+                if (not domain->is_pml) {
+                    Point offset = domain->top_left - top_left;
+                    switch (field_type) {
+                        case 'p':
+                            field.block(offset.x, offset.y, domain->size.x,
+                                        domain->size.y) += domain->current_values.p0;
+                            break;
+                        default:
+                            //No other fields are required (yet). However, leaving open for extension.
+                            break;
+                    }
                 }
             }
             return field;
@@ -412,29 +417,8 @@ namespace OpenPSTD {
         }
 
         int Scene::get_new_id() {
-            /**
-             * We use prime numbers as domain id's to facilitate commutative multi-indexing.
-             */
-            int last_prime = ids.at(ids.size() - 1);
-            bool potential_prime = true;
-            int new_prime = last_prime + 2;
-            while (true) {
-                for (int id:ids) {
-                    if (new_prime % id == 0) {
-                        potential_prime = false;
-                        break;
-                    }
-                }
-                if (potential_prime) {
-                    break;
-                }
-                else {
-                    new_prime += 2;
-                    potential_prime = true;
-                }
-            }
-            ids.push_back(new_prime);
-            return new_prime;
+            number_of_domains++;
+            return number_of_domains - 1;
         }
     }
 }

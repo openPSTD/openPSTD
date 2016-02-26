@@ -35,12 +35,13 @@ namespace OpenPSTD
     {
 
 
-        WisdomCache::WisdomCache() { }; //Todo: Rename file to wisdom_cache
+        WisdomCache::WisdomCache() {
+        }; //Todo: Rename file to wisdom_cache
 
         WisdomCache::Discretization WisdomCache::get_discretization(float dx, int N)
         {
             int matched_int = this->match_number(N);
-            auto search = this->computed_discretization.find(matched_int);
+            auto search = this->computed_discretization.find(matched_int); // Crashes here
             if (search != this->computed_discretization.end())
             {
                 return search->second;

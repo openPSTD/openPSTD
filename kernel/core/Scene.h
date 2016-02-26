@@ -62,7 +62,7 @@ namespace OpenPSTD
             std::vector<std::shared_ptr<Speaker>> speaker_list;
         private:
             std::map<Direction, EdgeParameters> default_edge_parameters; // Uninitialized
-            std::vector<int> ids = {3, 5};
+            int number_of_domains;
         public:
 
             /**

@@ -27,12 +27,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Solver.h"
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        Solver::Solver(std::shared_ptr<Scene> scene, KernelCallback *callback)
-        {
+
+namespace OpenPSTD {
+    namespace Kernel {
+        Solver::Solver(std::shared_ptr<Scene> scene, KernelCallback *callback) {
             this->scene = scene;
             this->settings = scene->settings;
             this->callback = callback;
@@ -43,76 +41,57 @@ namespace OpenPSTD
         }
 
         SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
-                scene, callback)
-        {
+                scene, callback) {
         }
 
         GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
-                : Solver::Solver(scene, callback)
-        {
+                : Solver::Solver(scene, callback) {
         }
 
         MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
                 scene,
-                callback)
-        {
+                callback) {
         }
 
         GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
                 : Solver::Solver(
-                scene, callback)
-        {
+                scene, callback) {
         }
 
 
         // Todo: Overwrite solver for GPU/Multithreaded
-        void Solver::compute_propagation()
-        {
+        void Solver::compute_propagation() {
             this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", -1);
-            for (int frame = 0; frame < this->number_of_time_steps; frame++)
-            {
-                for (auto domain:this->scene->domain_list)
-                {
+            for (int frame = 0; frame < this->number_of_time_steps; frame++) {
+                for (auto domain:this->scene->domain_list) {
                     domain->push_values();
                 }
-                for (unsigned long rk_step = 0; rk_step < 6; rk_step++)
-                {
-                    for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions)
-                    {
-                        for (Kernel::CalculationType calc_type: Kernel::all_calculation_types)
-                        {
-                            for (auto domain:this->scene->domain_list)
-                            {
-                                if (not domain->is_rigid())
-                                {
-                                    if (domain->should_update[calc_dir])
-                                    {
+                for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
+                    for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
+                        for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
+                            for (auto domain:this->scene->domain_list) {
+                                if (not domain->is_rigid()) {
+                                    if (domain->should_update[calc_dir]) {
                                         domain->calc(calc_dir, calc_type);
                                     }
                                 }
                             }
                         }
                     }
-                    for (auto domain:this->scene->domain_list)
-                    {
-                        if (not domain->is_rigid())
-                        {
+                    for (auto domain:this->scene->domain_list) {
+                        if (not domain->is_rigid()) {
                             this->update_field_values(domain, rk_step);
                         }
                     }
-                    for (auto domain:this->scene->domain_list)
-                    {
+                    for (auto domain:this->scene->domain_list) {
                         domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
-                        // I think this is bugged. @see Speaker::add_domain_contribution().
-                        if (frame % this->settings->GetSaveNth() == 0)
-                        {
+                        if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
                             this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
                         }
                     }
                 }
                 this->scene->apply_pml_matrices();
-                for (auto receiver:this->scene->receiver_list)
-                {
+                for (auto receiver:this->scene->receiver_list) {
                     receiver->compute_local_pressure();
                     //Todo: Write this to a file or process in callback.
                 }
@@ -122,8 +101,7 @@ namespace OpenPSTD
                                      this->number_of_time_steps);
         }
 
-        void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step)
-        {
+        void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step) {
             float dt = this->settings->GetTimeStep();
             float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
             std::vector<float> coefs = this->settings->GetRKCoefficients();
@@ -140,17 +118,15 @@ namespace OpenPSTD
 
         }
 
-        PSTD_FRAME_PTR Solver::get_pressure_vector()
-        {
+        PSTD_FRAME_PTR Solver::get_pressure_vector() {
             auto aligned_pressure = std::make_shared<PSTD_FRAME>();
             aligned_pressure->reserve((unsigned long) this->scene->size.x * this->scene->size.y);
             auto field = this->scene->get_pressure_field();
             unsigned long row_length = (unsigned long) this->scene->size.x;
-            for (unsigned long row = 0; row < field.cols(); row++)
-            {
+            for (unsigned long row = 0; row < field.cols(); row++) {
                 aligned_pressure->insert(aligned_pressure->end(),
-                                        field.data() + row * row_length,
-                                        field.data() + (row + 1) * row_length);
+                                         field.data() + row * row_length,
+                                         field.data() + (row + 1) * row_length);
             }
             return aligned_pressure;
         }

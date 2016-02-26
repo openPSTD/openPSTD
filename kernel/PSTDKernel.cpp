@@ -82,7 +82,7 @@ namespace OpenPSTD {
                 scene->add_domain(domain);
             }
             scene->add_pml_domains();
-            for (auto domain:domains) {
+            for (auto domain:scene->domain_list) {
                 domain->post_initialization();
             }
         }
