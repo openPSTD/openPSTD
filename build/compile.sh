@@ -3,7 +3,7 @@ set -e
 
 
 
-if [ ${TARGET} = "windows" ]; then
+if [ ${TARGET} = "win64" ]; then
     MXEDIR=/usr/lib/mxe/
     CMAKE=${MXEDIR}/usr/bin/${WINTARGET}-cmake
     PACKAGE=ZIP
