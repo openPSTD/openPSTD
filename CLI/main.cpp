@@ -197,7 +197,6 @@ namespace OpenPSTD
                 std::cout << coef[i] << " ";
             }
             std::cout << std::endl;
-            std::cout << "  Window: " << SceneConf->Settings.GetWindow() << std::endl;
 
             std::cout << std::endl;
             std::cout << "Speakers: " << std::endl;
