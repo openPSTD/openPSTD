@@ -1,3 +1,8 @@
+#The MXE boost refers to the static interface libraries and not directly to the dll, so this function solves that problem
+macro(WinInstallBoost BoostModule)
+    install(FILES ${Boost_LIBRARY_DIRS}/../bin/libboost_${BoostModule}-mt-dll)
+endmacro(WinInstallBoost)
+
 #------------------------------------
 # INSTALL
 if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")
@@ -22,10 +27,17 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
 
     install(TARGETS OpenPSTD DESTINATION OpenPSTD)
     install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
-    #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
+    install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
     install(TARGETS unqlite DESTINATION OpenPSTD)
 
     install(FILES ${Boost_LIBRARIES} DESTINATION OpenPSTD)
+    #special function for windows builds (error in MXE)
+    WinInstallBoost(program_options)
+    WinInstallBoost(unit_test_framework)
+    WinInstallBoost(chrono)
+    WinInstallBoost(system)
+    WinInstallBoost(timer)
+    WinInstallBoost(regex)
     install(FILES ${QtCore_location} DESTINATION OpenPSTD)
     install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
     install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
@@ -39,7 +51,7 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")
 
     install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
-    #install(TARGETS OpenPSTD-cli DESTINATION bin)
+    install(TARGETS OpenPSTD-cli DESTINATION bin)
     install(TARGETS unqlite DESTINATION lib)
 
     install(FILES ${Boost_LIBRARIES} DESTINATION lib)
@@ -47,7 +59,9 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")
     install(FILES ${QtWidgets_location} DESTINATION lib)
     install(FILES ${QtOpenGL_location} DESTINATION lib)
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION lib)
-    install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
+    install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION lib)
+    install(FILES ${HDF5_LIBRARY} DESTINATION lib)
+    install(FILES ${HDF5_HL_LIBRARY} DESTINATION lib)
 
     message(STATUS "Package for linux")
 endif()
