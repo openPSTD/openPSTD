@@ -1,10 +1,10 @@
 #The MXE boost refers to the static interface libraries and not directly to the dll, so this function solves that problem
 macro(WinInstallLib Module)
-    install(FILES ${Boost_LIBRARY_DIRS}/../bin/lib${Module}.dll DESTINATION .)
+    install(FILES ${Boost_LIBRARY_DIRS}/../bin/${Module}.dll DESTINATION .)
 endmacro(WinInstallLib)
 
 macro(WinInstallBoost BoostModule)
-    WinInstallLib(boost_${BoostModule}-mt)
+    WinInstallLib(libboost_${BoostModule}-mt)
 endmacro(WinInstallBoost)
 
 #------------------------------------
@@ -35,11 +35,12 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
     install(TARGETS OpenPSTD-shared DESTINATION .)
     install(TARGETS unqlite DESTINATION .)
 
-    WinInstallLib(gcc_s_seh-1)
-    WinInstallLib(stdc++-6)
-    WinInstallLib(png16-16)
-    WinInstallLib(harfbuzz-0)
-    WinInstallLib(pcre16-0)
+    WinInstallLib(libgcc_s_seh-1)
+    WinInstallLib(libstdc++-6)
+    WinInstallLib(libpng16-16)
+    WinInstallLib(libharfbuzz-0)
+    WinInstallLib(libpcre16-0)
+    WinInstallLib(zlib1)
 
     #special function for windows builds (error in MXE)
     WinInstallBoost(program_options)
