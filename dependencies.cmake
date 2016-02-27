@@ -75,6 +75,7 @@ endmacro(loadQtPackage)
 loadQtPackage(Qt5Widgets)
 loadQtPackage(Qt5Core)
 loadQtPackage(Qt5OpenGL)
+loadQtPackage(Qt5Gui)
 
 SET(OPENPSTD_DEPENDENCIES_SEARCH_PATH "${OPENPSTD_DEPENDENCIES_SEARCH_PATH};${Qt5_DIR}/${Qt5_LIBS}")
 

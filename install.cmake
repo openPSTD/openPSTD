@@ -3,6 +3,9 @@ macro(WinInstallBoost BoostModule)
     install(FILES ${Boost_LIBRARY_DIRS}/../bin/libboost_${BoostModule}-mt.dll DESTINATION .)
 endmacro(WinInstallBoost)
 
+get_property(DEBUG_LIBS TARGET OpenPSTD-gui PROPERTY LINK_LIBRARIES)
+message(STATUS "Libs for OpenPSTD-gui: ${DEBUG_LIBS}")
+
 #------------------------------------
 # INSTALL
 if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")
@@ -28,6 +31,7 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
     install(TARGETS OpenPSTD DESTINATION .)
     install(TARGETS OpenPSTD-gui DESTINATION .)
     install(TARGETS OpenPSTD-cli DESTINATION .)
+    install(TARGETS OpenPSTD-shared DESTINATION .)
     install(TARGETS unqlite DESTINATION .)
 
     install(FILES ${Boost_LIBRARIES} DESTINATION .)
@@ -52,6 +56,7 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")
     install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
     install(TARGETS OpenPSTD-cli DESTINATION bin)
+    install(TARGETS OpenPSTD-shared DESTINATION lib)
     install(TARGETS unqlite DESTINATION lib)
 
     install(FILES ${Boost_LIBRARIES} DESTINATION lib)
