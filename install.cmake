@@ -1,7 +1,6 @@
 #------------------------------------
 # INSTALL
-message(STATUS "System name is ${OPENPSTD_SYSTEM_NAME}")
-if("${OPENPSTD_SYSTEM_NAME}" EQUAL "osx")
+if(OPENPSTD_SYSTEM_NAME EQUAL "osx")
     install(TARGETS OpenPSTD-gui DESTINATION .)
     #install(TARGETS OpenPSTD-cli DESTINATION .)
 
@@ -16,7 +15,7 @@ if("${OPENPSTD_SYSTEM_NAME}" EQUAL "osx")
 	   fixup_bundle(\"${APPS}\"   \"\"   \"${OPENPSTD_DEPENDENCIES_SEARCH_PATH}\")
 	   " COMPONENT Runtime)
 
-elseif("${OPENPSTD_SYSTEM_NAME}" EQUAL "win64")
+elseif(OPENPSTD_SYSTEM_NAME EQUAL "win64")
     install(TARGETS OpenPSTD DESTINATION OpenPSTD)
     install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
     #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
@@ -31,7 +30,7 @@ elseif("${OPENPSTD_SYSTEM_NAME}" EQUAL "win64")
 
     message(STATUS "Package for win64")
 
-elseif("${OPENPSTD_SYSTEM_NAME}" EQUAL "linux")
+elseif(OPENPSTD_SYSTEM_NAME EQUAL "linux")
     install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
     #install(TARGETS OpenPSTD-cli DESTINATION bin)
