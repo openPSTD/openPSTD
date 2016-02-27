@@ -1,7 +1,7 @@
 #The MXE boost refers to the static interface libraries and not directly to the dll, so this function solves that problem
 macro(WinInstallLib Module)
     install(FILES ${Boost_LIBRARY_DIRS}/../bin/lib${Module}.dll DESTINATION .)
-endmacro(WinInstallBoost)
+endmacro(WinInstallLib)
 
 macro(WinInstallBoost BoostModule)
     WinInstallLib(boost_${BoostModule}-mt)
@@ -37,9 +37,9 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
 
     WinInstallLib(gcc_s_seh-1)
     WinInstallLib(stdc++-6)
-    WinInstallLib(libpng16-16)
-    WinInstallLib(libharfbuzz-0)
-    WinInstallLib(libpcre16-0)
+    WinInstallLib(png16-16)
+    WinInstallLib(harfbuzz-0)
+    WinInstallLib(pcre16-0)
 
     #special function for windows builds (error in MXE)
     WinInstallBoost(program_options)
