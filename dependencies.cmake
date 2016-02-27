@@ -1,5 +1,6 @@
 #------------------------------------
 # BOOST
+set(Boost_REALPATH ON)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
