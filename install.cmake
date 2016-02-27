@@ -37,6 +37,9 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
 
     WinInstallLib(gcc_s_seh-1)
     WinInstallLib(stdc++-6)
+    WinInstallLib(libpng16-16)
+    WinInstallLib(libharfbuzz-0)
+    WinInstallLib(libpcre16-0)
 
     #special function for windows builds (error in MXE)
     WinInstallBoost(program_options)
