@@ -1,6 +1,6 @@
 #The MXE boost refers to the static interface libraries and not directly to the dll, so this function solves that problem
 macro(WinInstallBoost BoostModule)
-    install(FILES ${Boost_LIBRARY_DIRS}/../bin/libboost_${BoostModule}-mt-dll DESTINATION .)
+    install(FILES ${Boost_LIBRARY_DIRS}/../bin/libboost_${BoostModule}-mt.dll DESTINATION .)
 endmacro(WinInstallBoost)
 
 #------------------------------------
