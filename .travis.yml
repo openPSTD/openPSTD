@@ -29,6 +29,7 @@ before_install:
 - export PATH=./build/:$PATH
 - export PATH=/opt/qt55/bin/:$PATH
 - install_add_repo.sh
+- ls -al /usr/lib/mxe/usr/x86_64-w64-mingw32.shared/
 - ls -al /usr/lib/mxe/usr/x86_64-w64-mingw32.shared/bin/
 - ls -al /usr/lib/mxe/usr/x86_64-w64-mingw32.shared/lib/../bin/
 
