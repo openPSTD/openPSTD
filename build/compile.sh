@@ -7,10 +7,10 @@ if [ ${TARGET} = "win64" ]; then
     MXEDIR=/usr/lib/mxe
     CMAKE=${MXEDIR}/usr/bin/${WINTARGET_PATH}-cmake
     PACKAGE=ZIP
-    FFTLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/lib/libfftw3f.dll.a
+    FFTLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/bin/libfftw3f-3.dll
     FFTSOPATH=
-    HDF5LIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/lib/libhdf5.dll.a
-    HDF5HLLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/lib/libhdf5_hl.dll.a
+    HDF5LIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/bin/libhdf5-8.dll
+    HDF5HLLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/bin/libhdf5_hl-8.dll
     HDF5INCLUDEPATH=${MXEDIR}/usr/${WINTARGET_PATH}/include/
 else
     FFTLIBPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a

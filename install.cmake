@@ -1,6 +1,8 @@
 #------------------------------------
 # INSTALL
 if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")
+    message(STATUS "Package for osx")
+
     install(TARGETS OpenPSTD-gui DESTINATION .)
     #install(TARGETS OpenPSTD-cli DESTINATION .)
 
@@ -16,6 +18,8 @@ if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")
 	   " COMPONENT Runtime)
 
 elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
+    message(STATUS "Package for win64")
+
     install(TARGETS OpenPSTD DESTINATION OpenPSTD)
     install(TARGETS OpenPSTD-gui DESTINATION OpenPSTD)
     #install(TARGETS OpenPSTD-cli DESTINATION OpenPSTD)
@@ -26,11 +30,13 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
     install(FILES ${QtWidgets_location} DESTINATION OpenPSTD)
     install(FILES ${QtOpenGL_location} DESTINATION OpenPSTD)
     install(FILES ${Qt5_LIBRARIES_LOCATIONS} DESTINATION OpenPSTD)
-    #install(FILES ${FFTWF_SHARED_OBJECT} DESTINATION OpenPSTD)
-
-    message(STATUS "Package for win64")
+    install(FILES ${FFTWF_LIBRARY} DESTINATION OpenPSTD)
+    install(FILES ${HDF5_LIBRARY} DESTINATION OpenPSTD)
+    install(FILES ${HDF5_HL_LIBRARY} DESTINATION OpenPSTD)
 
 elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")
+    message(STATUS "Package for linux")
+
     install(TARGETS OpenPSTD DESTINATION lib)
     install(TARGETS OpenPSTD-gui DESTINATION bin)
     #install(TARGETS OpenPSTD-cli DESTINATION bin)
