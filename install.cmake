@@ -50,6 +50,7 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
 
     #extra qt5 plugin for windows
     install(FILES ${Boost_LIBRARY_DIRS}/../qt5/plugins/platforms/qindows.dll DESTINATION platforms)
+    install(FILES ${Boost_LIBRARY_DIRS}/../qt5/plugins/imageformats/qjpeg.dll DESTINATION imageformats)
 
     #special function for windows builds (error in MXE)
     WinInstallBoost(program_options)
