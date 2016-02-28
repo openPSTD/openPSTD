@@ -48,6 +48,9 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
     WinInstallLib(libbz2)
     WinInstallLib(libiconv-2)
 
+    #extra qt5 plugin for windows
+    install(FILES ${Boost_LIBRARY_DIRS}/../qt5/plugins/platforms/qindows.dll DESTINATION platforms)
+
     #special function for windows builds (error in MXE)
     WinInstallBoost(program_options)
     WinInstallBoost(unit_test_framework)
