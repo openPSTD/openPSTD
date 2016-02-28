@@ -157,7 +157,8 @@ namespace OpenPSTD {
         }
 
         std::vector<float> PSTDSettings::GetRKCoefficients() {
-            return this->rk_coefficients;
+            //return this->rk_coefficients;
+            return std::vector<float>();
         }
 
         void PSTDSettings::SetRKCoefficients(std::vector<float> coef) {
