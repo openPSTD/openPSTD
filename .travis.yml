@@ -7,7 +7,13 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+      env: TARGET=linux
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: TARGET=win64
     - os: osx
+      env: TARGET=osx
   allow_failures:
     - os: osx
 
@@ -15,6 +21,8 @@ env:
   global:
   - OPENPSTD_MAJOR_VERSION=2
   - OPENPSTD_MINOR_VERSION=0
+  - WINTARGET=x86-64-w64-mingw32.shared
+  - WINTARGET_PATH=x86_64-w64-mingw32.shared
 
 before_install:
 - sudo chmod -R +x build
@@ -24,9 +32,9 @@ before_install:
 
 install:
 - install_fftw.sh
+- install_hdf5.sh
 - install_xsltproc.sh
 - install_eigen.sh
-- install_hdf5.sh
 - install_boost.sh
 - install_Qt55.sh
 
