@@ -95,28 +95,50 @@ namespace OpenPSTD {
         };
 
         /**
-         * A representation of one domain, as seen by the kernel.
+         * A representation of one rectangular scene unit
+         *
          * This object stores the values for pressure and velocities, and references to its neighbours.
-         * It supports boundaries with different impedance values and attenuating boundaries.
+         * It supports boundaries with different impedance values as well as attenuating boundaries.
          */
         class Domain : public std::enable_shared_from_this<Domain> {
         public:
+            /// Settings from the PSTDKernel
             std::shared_ptr<PSTDSettings> settings;
+            /// Domain identifier. Does not necessarily correspond to the GUI and CLI ids; no need for that
             int id;
+            /// Some coefficient...
             float alpha;
+            // Todo: What is the alpha coefficient?
+            /// Impedance of the boundary
             float impedance;
+            /// Density of the domain interior. Defaults to air.
             float rho;
+            /// Map with boundary coefficients
             std::map<Direction, EdgeParameters> edge_param_map;
+            /// Map with update directions
             std::map<CalcDirection, bool> should_update;
+            /// Start of the domain (top left)
             Point top_left;
+            /// End of the domain (bottom right)
             Point bottom_right;
+            /// Domain size
             Point size;
+            /// Whether the domain is a perfectly matched layer
             bool is_pml;
+            /// Another parameter (PML-related)
+            //Todo: What is this local?
             bool local;
-            FieldValues current_values, previous_values;
+            /// Collection of state variables in this time step (not thread-safe)
+            FieldValues current_values;
+            /// Collection of state variables in previous time step (should be thread-safe)
+            FieldValues previous_values;
+            /// Derivative approximations of the state variables
             FieldLValues l_values;
+            /// Pointer to WisdomCache object
             std::shared_ptr<WisdomCache> wnd;
+            /// Whether the domain is a PML domain for other PML domains
             bool is_secondary_pml;
+            /// List of domains that this domain functions for as a PML
             std::vector<std::shared_ptr<Domain>> pml_for_domain_list;
 
         private:

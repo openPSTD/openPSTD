@@ -9,7 +9,7 @@
 /**
  *
  * \namespace OpenPSTD::Kernel
- * \brief The kernel is responsible for the scientific computions in openPSTD.
+ * \brief The Kernel is responsible for the scientific computions in openPSTD.
  *
  * The Kernel consists of the functions used in the PSTD method, as well as the representations of the computational domain.
  */
