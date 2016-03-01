@@ -29,48 +29,38 @@
 
 using namespace Eigen;
 using namespace std;
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
         Receiver::Receiver(vector<float> location, shared_ptr<PSTDSettings> config, int id,
-                           shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2))
-        {
+                           shared_ptr<Domain> container) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
             this->config = config;
             this->location = location;
             this->container_domain = container;
             this->grid_location = Point((int) this->x, (int) this->y, (int) this->z);
-            for (unsigned long i = 0; i < this->location.size(); i++)
-            {
+            for (unsigned long i = 0; i < this->location.size(); i++) {
                 this->grid_offset.push_back(this->location.at(i) = this->grid_location.array.at(i));
             }
             this->id = id;
         }
 
-        float Receiver::compute_local_pressure()
-        {
+        float Receiver::compute_local_pressure() {
             float pressure;
-            if (config->GetSpectralInterpolation())
-            {
+            if (config->GetSpectralInterpolation()) {
                 pressure = compute_with_si();
             }
-            else
-            {
+            else {
                 pressure = compute_with_nn();
             }
             received_values.push_back(pressure);
             return pressure;
         }
 
-        ArrayXcf Receiver::get_fft_factors(Point size, CalcDirection bt)
-        {
+        ArrayXcf Receiver::get_fft_factors(Point size, CalcDirection bt) {
             int primary_dimension = 0;
-            if (bt == CalcDirection::X)
-            {
+            if (bt == CalcDirection::X) {
                 primary_dimension = size.x;
             }
-            else
-            {
+            else {
                 primary_dimension = size.y;
             }
             float dx = config->GetGridSpacing();
@@ -79,8 +69,7 @@ namespace OpenPSTD
             WisdomCache::Discretization discr = container_domain->wnd->get_discretization(dx, wave_length_number);
             float offset = grid_offset.at(static_cast<unsigned long>(bt));
             ArrayXcf fft_factors(discr.wave_numbers.rows());
-            for (int i = 0; i < discr.wave_numbers.rows(); i++)
-            {
+            for (int i = 0; i < discr.wave_numbers.rows(); i++) {
                 float wave_number = discr.wave_numbers(i);
                 complex<float> complex_factor = discr.complex_factors(i);
                 fft_factors(i) = exp(offset * dx * wave_number * complex_factor);
@@ -88,15 +77,12 @@ namespace OpenPSTD
             return fft_factors;
         }
 
-        float Receiver::compute_with_nn()
-        {
+        float Receiver::compute_with_nn() {
             Point rel_location = grid_location - container_domain->top_left;
-            float nn_value = container_domain->current_values.p0(rel_location.x, rel_location.y);
-            return nn_value;
+            return container_domain->current_values.p0(rel_location.x, rel_location.y);
         }
 
-        float Receiver::compute_with_si()
-        {
+        float Receiver::compute_with_si() {
             shared_ptr<Domain> top_domain = container_domain->get_neighbour_at(Direction::TOP, location);
             shared_ptr<Domain> bottom_domain = container_domain->get_neighbour_at(Direction::BOTTOM, location);
             ArrayXXf p0dx = calc_domain_fields(container_domain, CalcDirection::X);
@@ -114,7 +100,7 @@ namespace OpenPSTD
             ArrayXcf z_fact = get_fft_factors(Point(1, container_domain->size.y), CalcDirection::Y);
             float wave_number = 2 * config->GetWaveLength() + container_domain->size.y + 1;
             int opt_wave_number = next_2_power(wave_number);
-            
+
             RhoArray rho_array = get_rho_array(top_domain->rho, container_domain->rho, bottom_domain->rho);
 
             ArrayXXf p0shift = spatderp3(p0dx_bottom_slice, p0dx_slice, p0dx_top_slice,
@@ -128,8 +114,7 @@ namespace OpenPSTD
 
         // Todo: Different name;
         // Todo: Can we improve memory management here?
-        ArrayXXf Receiver::calc_domain_fields(shared_ptr<Domain> domain, CalcDirection bt)
-        {
+        ArrayXXf Receiver::calc_domain_fields(shared_ptr<Domain> domain, CalcDirection bt) {
             return domain->calc(bt, CalculationType::PRESSURE, get_fft_factors(domain->size, bt));
         }
     }

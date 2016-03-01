@@ -60,6 +60,7 @@ namespace OpenPSTD
             const float y;
             const float z;
             int id;
+
             /**
              * Unrounded (grid) location
              */
@@ -75,11 +76,21 @@ namespace OpenPSTD
              */
             std::vector<float> grid_offset;
 
+            /**
+             * Config file containing the receiver parameters
+             */
             std::shared_ptr<PSTDSettings> config;
 
+            /**
+             * Domain containing the receiver
+             */
             std::shared_ptr<Domain> container_domain;
+
+            /**
+             * Vector of observed pressure values in the receiver
+             */
+
             std::vector<float> received_values;
-            //Todo: Feature: If location sufficiently close to cell center, always compute with nn
             /**
              * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
              * @param location float coordinates in 3D grid space. For 2D, leave z=0
@@ -96,6 +107,7 @@ namespace OpenPSTD
              * or spectral interpolation (slower, more accurate)
              * @see spatderp3
              * @see config
+             * @return float approximation of the sound pressure in receiver location
              */
             float compute_local_pressure();
 
