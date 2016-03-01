@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+if [ ${TARGET} = "win64" ]; then
+    sudo apt-get -y install mxe-${WINTARGET}-qtbase
+else
 if [ $TRAVIS_OS_NAME = "linux" ]; then
     echo running on linux
     echo installing Qt with apt-get
@@ -12,4 +15,4 @@ else
     echo installing Qt with homebrew
     sudo brew install qt5
 fi
-
+fi

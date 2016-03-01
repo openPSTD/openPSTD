@@ -1,39 +1,55 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ${TRAVIS_OS_NAME} = "linux" ]; then
-    QT5DIR=/opt/qt55
-    PACKAGE=TGZ
 
-    FFTWFLIB=/usr/lib/x86_64-linux-gnu/libfftw3f.a
-    FFTWFSHAREDOBJ=/usr/lib/x86_64-linux-gnu/libfftw3f.so
 
-    HDF5LIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a
-    HDF5HLLIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
+if [ ${TARGET} = "win64" ]; then
+    MXEDIR=/usr/lib/mxe
+    CMAKE=${MXEDIR}/usr/bin/${WINTARGET_PATH}-cmake
+    PACKAGE=ZIP
+    FFTLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/bin/libfftw3f-3.dll
+    FFTSOPATH=
+    HDF5LIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/bin/libhdf5-8.dll
+    HDF5HLLIBPATH=${MXEDIR}/usr/${WINTARGET_PATH}/bin/libhdf5_hl-8.dll
+    HDF5INCLUDEPATH=${MXEDIR}/usr/${WINTARGET_PATH}/include/
 else
-    QT5DIR=/usr/local/opt/qt5
-    PACKAGE=Bundle
+    CMAKE=cmake
+    if [ ${TRAVIS_OS_NAME} = "linux" ]; then
+        QT5DIR=/opt/qt55
+        PACKAGE=TGZ
 
-    FFTWFLIB=/usr/local/lib/libfftw3f.a
-    FFTWFSHAREDOBJ=""
+        FFTLIBPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a
+        FFTSOPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so
 
-    HDF5LIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a
-    HDF5HLLIB=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
+        HDF5LIBPATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a
+        HDF5HLLIBPATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
+        HDF5INCLUDEPATH=$PWD/hdf5-1.8.16/hdf5/include
+    else
+        QT5DIR=/usr/local/opt/qt5
+        PACKAGE=Bundle
+
+        FFTLIBPATH=/usr/local/lib/libfftw3f.a
+        FFTSOPATH=""
+
+        HDF5LIBPATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a
+        HDF5HLLIBPATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
+        HDF5INCLUDEPATH=$PWD/hdf5-1.8.16/hdf5/include
+    fi
 fi
 
-cmake \
+${CMAKE} \
 	-D EIGEN_INCLUDE:PATH=$PWD/eigen \
 	-D Qt5_DIR:PATH=${QT5DIR} \
-	-D FFTWF_LIBRARY:PATH=${FFTWFLIB} \
-	-D FFTWF_SHARED_OBJECT:PATH=${FFTWFSHAREDOBJ} \
-	-D HDF5_INCLUDE:PATH=$PWD/hdf5-1.8.16/hdf5/include \
-	-D HDF5_LIBRARY:PATH=${HDF5LIB} \
-	-D HDF5_HL_LIBRARY:PATH=${HDF5HLLIB} \
+	-D FFTWF_LIBRARY:PATH=${FFTLIBPATH} \
+	-D FFTWF_SHARED_OBJECT:PATH=${FFTSOPATH} \
+	-D HDF5_INCLUDE:PATH=${HDF5INCLUDEPATH} \
+	-D HDF5_LIBRARY:PATH=${HDF5LIBPATH} \
+	-D HDF5_HL_LIBRARY:PATH=${HDF5HLLIBPATH} \
 	-D CPACK_GENERATOR=${PACKAGE} \
 	-D OPENPSTD_VERSION_MAJOR=${OPENPSTD_MAJOR_VERSION} \
 	-D OPENPSTD_VERSION_MINOR=${OPENPSTD_MINOR_VERSION} \
 	-D OPENPSTD_VERSION_PATCH=${TRAVIS_BUILD_NUMBER} \
-	-D OPENPSTD_SYSTEM_NAME=${TRAVIS_OS_NAME} \
+	-D OPENPSTD_SYSTEM_NAME=${TARGET} \
 	-G Unix\ Makefiles ./
 
 make OpenPSTD-cli
