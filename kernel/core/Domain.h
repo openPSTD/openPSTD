@@ -44,7 +44,7 @@
 #include "Geometry.h"
 #include "../KernelInterface.h"
 #include "Geometry.h"
-#include "wave_numbers.h"
+#include "WisdomCache.h"
 
 namespace OpenPSTD {
     namespace Kernel {

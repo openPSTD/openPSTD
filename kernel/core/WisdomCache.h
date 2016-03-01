@@ -28,8 +28,8 @@
 // Also contains the plans for FFTW.
 //
 //////////////////////////////////////////////////////////////////////////
-#ifndef OPENPSTD_WAVE_NUMBERS_H
-#define OPENPSTD_WAVE_NUMBERS_H
+#ifndef OPENPSTD_WISDOMCACHE_H
+#define OPENPSTD_WISDOMCACHE_H
 
 #include <map>
 #include <math.h>
@@ -116,4 +116,4 @@ namespace OpenPSTD
     }
 }
 
-#endif //OPENPSTD_WAVE_NUMBERS_H
+#endif //OPENPSTD_WISDOMCACHE_H

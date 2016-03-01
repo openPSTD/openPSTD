@@ -40,7 +40,7 @@
 #include "Domain.h"
 #include <string>
 #include "kernel_functions.h"
-#include "wave_numbers.h"
+#include "WisdomCache.h"
 
 namespace OpenPSTD
 {

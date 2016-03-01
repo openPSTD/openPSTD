@@ -33,12 +33,10 @@
 
 #include <ostream>
 #include <vector>
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class Point
-        {
+
+namespace OpenPSTD {
+    namespace Kernel {
+        class Point {
         public:
             int x, y, z;
             std::vector<int> array;
@@ -57,14 +55,16 @@ namespace OpenPSTD
             friend Point operator+(Point a, Point b);
 
             /**
-             * Substraction operator for points.
+             * Subtraction operator for points.
              * Points with negative entries are well defined.
              */
             friend Point operator-(Point a, Point b);
         };
 
-/** String representation for points
-std::ostream &operator<<(std::ostream &str, Point const &v);
-}
+        /** String representation for points
+         *
+         */
+        std::ostream &operator<<(std::ostream &str, Point const &v);
+    }
 }
 #endif //OPENPSTD_GEOMETRY_H
