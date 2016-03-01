@@ -101,11 +101,6 @@ namespace OpenPSTD
             void add_domain(std::shared_ptr<Domain> domain);
 
             /**
-             * Computes the reflection and transmission coordinates for each domain in the scene.
-             */
-            void compute_rho_arrays();
-
-            /**
              * Computes the perfectly matched layer matrix coefficients for each domain in the scene.
              */
             void compute_pml_matrices();
@@ -129,7 +124,7 @@ namespace OpenPSTD
 
             /**
              * Fetch a domain with specified ID, if existing.
-             * @param id: string ID of domain.
+             * @param id: integer ID of domain.
              * @return: domain pointer if domain with id exists, else nullptr.
              */
             std::shared_ptr<Domain> get_domain(int id);
