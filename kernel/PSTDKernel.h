@@ -53,7 +53,9 @@ namespace OpenPSTD {
             std::shared_ptr<Kernel::Scene> scene;
             const float default_alpha = 1.f;
 
-
+            /**
+             * Call the necessary methods to initialize the scene.
+             */
             void initialize_scene();
 
             std::shared_ptr<Kernel::WisdomCache> wnd;
@@ -125,6 +127,9 @@ namespace OpenPSTD {
              */
             SimulationMetadata get_metadata() override;
 
+            /**
+             * Return the scene of the simulation
+             */
             std::shared_ptr<Kernel::Scene> get_scene();
         };
 

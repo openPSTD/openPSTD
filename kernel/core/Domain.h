@@ -63,7 +63,7 @@ namespace OpenPSTD {
         };
 
         /**
-         * The spatial derivates of the pressure and velocity in x and y direction
+         * The spatial derivatives of the pressure and velocity in x and y direction
          */
         struct FieldLValues { // Todo (0mar): Rename, these are spatial derivatives
             Eigen::ArrayXXf Lpx;
@@ -265,7 +265,7 @@ namespace OpenPSTD {
             Eigen::ArrayXXf calc(CalcDirection cd, CalculationType ct, Eigen::ArrayXcf dest);
 
             /**
-             * Calculate one timestep of propagation in this domain
+             * Calculate one time step of propagation in this domain
              * @param cd Boundary type (calculation direction)
              * @param ct Calculation type (pressure/velocity)
              * @see Kernel#spatderp3()
