@@ -43,19 +43,28 @@ namespace OpenPSTD
             int x, y, z;
             std::vector<int> array;
 
-            Point() : x(0), y(0), z(0)
-            { }; //todo:wtf
+            Point() : x(0), y(0), z(0) { };
+
             /**
-             * Constructor for a point in grid coordinates
+             * Constructor for a point in grid coordinates.
+             * Points only hold integer grid coordinates.
              */
             Point(int x, int y, int z = 0);
 
+            /**
+             * Addition operator for points
+             */
             friend Point operator+(Point a, Point b);
 
+            /**
+             * Substraction operator for points.
+             * Points with negative entries are well defined.
+             */
             friend Point operator-(Point a, Point b);
         };
 
-        std::ostream &operator<<(std::ostream &str, Point const &v);
-    }
+/** String representation for points
+std::ostream &operator<<(std::ostream &str, Point const &v);
+}
 }
 #endif //OPENPSTD_GEOMETRY_H
