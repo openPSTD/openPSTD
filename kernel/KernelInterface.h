@@ -12,22 +12,18 @@
 #include <Eigen/Core>
 
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 /**
  * The status of the kernel when the callback is called.
  */
-        enum class CALLBACKSTATUS
-        {
+        enum class CALLBACKSTATUS {
             STARTING,
             RUNNING,
             FINISHED
         };
 
-        enum PSTD_DOMAIN_SIDE
-        {
+        enum PSTD_DOMAIN_SIDE {
             PSTD_DOMAIN_SIDE_TOP = 1,
             PSTD_DOMAIN_SIDE_BOTTOM = 2,
             PSTD_DOMAIN_SIDE_LEFT = 4,
@@ -36,8 +32,7 @@ namespace OpenPSTD
             PSTD_DOMAIN_SIDE_NONE = 0
         };
 
-        class PSTDSettings
-        {
+        class PSTDSettings {
         private:
             float calctime;
             float c1;
@@ -126,15 +121,13 @@ namespace OpenPSTD
             void SetRKCoefficients(std::vector<float> coef);
         };
 
-        class DomainConfEdge
-        {
+        class DomainConfEdge {
         public:
             float Absorption;
             bool LR;
         };
 
-        class DomainConf
-        {
+        class DomainConf {
         public:
             //todo replace QVector2D
             QVector2D TopLeft;
@@ -142,16 +135,17 @@ namespace OpenPSTD
             DomainConfEdge T, L, B, R;
 
             float GetAbsorption(PSTD_DOMAIN_SIDE side);
-            void  SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption);
+
+            void SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption);
 
             bool GetLR(PSTD_DOMAIN_SIDE side);
+
             void SetLR(PSTD_DOMAIN_SIDE sides, bool LR);
 
 
         };
 
-        class PSTDConfiguration
-        {
+        class PSTDConfiguration {
         public:
             PSTDSettings Settings;
             //todo replace QVector3D
@@ -165,8 +159,7 @@ namespace OpenPSTD
             static std::shared_ptr<PSTDConfiguration> CreateDefaultConf();
         };
 
-        class KernelCallback
-        {
+        class KernelCallback {
         public:
             /**
              * This callback will be called with information how far the kernel is progressed.
@@ -193,8 +186,7 @@ namespace OpenPSTD
             virtual void WriteSample(int startSample, int receiver, std::vector<float> data) = 0;
         };
 
-        class SimulationMetadata
-        {
+        class SimulationMetadata {
         public:
             /**
              * The discretization of the domain sizes, in order they were passed to the kernel.
@@ -217,8 +209,7 @@ namespace OpenPSTD
 /**
  * The kernel API. Contains one method for initialization and one for running the simulation.
  */
-        class KernelInterface
-        {
+        class KernelInterface {
         public:
             /**
              * Sets the configuration.
@@ -238,8 +229,7 @@ namespace OpenPSTD
             virtual SimulationMetadata get_metadata() = 0;
         };
 
-        class PSTDKernelNotConfiguredException : public std::exception
-        {
+        class PSTDKernelNotConfiguredException : public std::exception {
         public:
             const char *what() const noexcept override;
         };

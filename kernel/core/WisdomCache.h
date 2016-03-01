@@ -39,23 +39,18 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class WisdomCache
-        {
+namespace OpenPSTD {
+    namespace Kernel {
+        class WisdomCache {
         public:
-            struct Discretization
-            {
+            struct Discretization {
                 Eigen::ArrayXf wave_numbers;
                 Eigen::ArrayXcf complex_factors;
                 Eigen::ArrayXcf pressure_deriv_factors;
                 Eigen::ArrayXcf velocity_deriv_factors;
             };
 
-            struct Planset_FFTW
-            {
+            struct Planset_FFTW {
                 fftwf_plan plan;
                 fftwf_plan plan_inv;
             };
@@ -107,7 +102,7 @@ namespace OpenPSTD
              */
 
             /**
-             * Compute the rounded up 2log of the number of grid cells.
+             * Compute the rounded up @f$\log_2@f$ of the number of grid cells.
              */
             int match_number(int n);
         };

@@ -28,12 +28,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "kernel_functions.h"
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2)
-        {
+
+namespace OpenPSTD {
+    namespace Kernel {
+        RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2) {
             float zn1 = rho1 / rho_self;
             float inv_zn1 = rho_self / rho1;
             float rlw1 = (zn1 - 1) / (zn1 + 1);
@@ -57,40 +55,32 @@ namespace OpenPSTD
             return result;
         }
 
-        int next_2_power(float n)
-        {
+        int next_2_power(float n) {
             return std::max((int) pow(2, ceil(log2(n))), 1);
         }
 
-        int next_2_power(int n)
-        {
+        int next_2_power(int n) {
             return std::max((int) pow(2, ceil(log2(n))), 1);
         }
 
-        float get_grid_spacing(PSTDSettings cnf)
-        {
+        float get_grid_spacing(PSTDSettings cnf) {
             Eigen::Array<float, 9, 1> dxv;
             dxv <<
             0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //TODO: is there a good reason to disallow other vals?
             float waveLength = cnf.GetSoundSpeed() / cnf.GetMaxFrequency() / 2;
-            if (waveLength < 0.002)
-            {
+            if (waveLength < 0.002) {
                 throw std::invalid_argument("Wavelength (speed/frequency) is too small");
             }
-            for (int i = 0; i < dxv.size(); i++)
-            {
-                if (dxv(i) >= waveLength)
-                {
+            for (int i = 0; i < dxv.size(); i++) {
+                if (dxv(i) >= waveLength) {
                     return dxv(i - 1);
                 }
             }
             return dxv(dxv.size() - 1);
         }
 
-        Direction get_opposite(Direction direction)
-        {
-            switch (direction)
-            {
+        Direction get_opposite(Direction direction) {
+            switch (direction) {
                 case Direction::TOP:
                     return Direction::BOTTOM;
                 case Direction::BOTTOM:
@@ -102,10 +92,8 @@ namespace OpenPSTD
             }
         }
 
-        CalcDirection get_orthogonal(CalcDirection direction)
-        {
-            switch (direction)
-            {
+        CalcDirection get_orthogonal(CalcDirection direction) {
+            switch (direction) {
                 case CalcDirection::X:
                     return CalcDirection::Y;
                 case CalcDirection::Y:
@@ -113,10 +101,8 @@ namespace OpenPSTD
             }
         }
 
-        CalcDirection direction_to_calc_direction(Direction direction)
-        {
-            switch (direction)
-            {
+        CalcDirection direction_to_calc_direction(Direction direction) {
+            switch (direction) {
                 case Direction::LEFT:
                 case Direction::RIGHT:
                     return CalcDirection::X;
@@ -130,8 +116,7 @@ namespace OpenPSTD
                                   Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
                                   RhoArray rho_array, Eigen::ArrayXf window, int wlen,
                                   CalculationType ct, CalcDirection direct,
-                                  fftwf_plan plan, fftwf_plan plan_inv)
-        {
+                                  fftwf_plan plan, fftwf_plan plan_inv) {
 
             //in the Python code: N1 = fft_batch and N2 = fft_length
             int fft_batch, fft_length;
@@ -147,25 +132,24 @@ namespace OpenPSTD
             out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float) * 2 * (fft_length / 2 + 1) * fft_batch);
 
             //non-domains don't have a wisdomcache, so this is needed. TODO Perhaps put it in the Scene itself.
-            if(plan == NULL) {
+            if (plan == NULL) {
                 int shape[] = {fft_length};
                 int istride = 1; //distance between two elements in one fft-able array
                 int ostride = istride;
                 int idist = fft_length; //distance between first element of different arrays
                 int odist = idist;
                 plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
-                                                          out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
+                                               out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
 
                 idist = (fft_length / 2) + 1;
                 odist = idist;
                 int ishape[] = {fft_length / 2 + 1};
                 plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
-                                                              in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
+                                                   in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
             }
 
             //if direct == Y, transpose p1, p2 and p3
-            if (direct == CalcDirection::Y)
-            {
+            if (direct == CalcDirection::Y) {
                 p1.transposeInPlace();
                 p2.transposeInPlace();
                 p3.transposeInPlace();
@@ -173,16 +157,14 @@ namespace OpenPSTD
 
             //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
             //slicing and the values pulled from the Rmatrix is slightly different for the two branches
-            if (ct == CalculationType::PRESSURE)
-            {
+            if (ct == CalculationType::PRESSURE) {
                 result.resize(fft_batch, p2.cols() + wlen * 2 + 1);
 
                 //window the outer domains, add a portion of the middle one to the sides and concatenate them all
                 Eigen::ArrayXf window_left = window.head(wlen);
                 Eigen::ArrayXf window_right = window.tail(wlen);
 
-                if (wlen > p1.cols() || wlen > p3.cols())
-                {
+                if (wlen > p1.cols() || wlen > p3.cols()) {
                     //TODO error (or just warn) if this happens and give user feedback.
                 }
 
@@ -203,8 +185,8 @@ namespace OpenPSTD
 
                 //map the results back into an eigen array
                 std::vector<std::complex<float>> spectrum_data;
-                for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++)
-                { //TODO this looks wasteful/slow. Check if it is
+                for (int i = 0;
+                     i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Check if it is
                     spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
                 }
                 Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
@@ -221,8 +203,7 @@ namespace OpenPSTD
                 result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
 
             }
-            else
-            {
+            else {
                 //repeat for velocity calculation with different slicing
 
                 result.resize(fft_batch, p2.cols() + wlen * 2 - 1);
@@ -231,8 +212,7 @@ namespace OpenPSTD
                 Eigen::ArrayXf window_left = window.head(wlen);
                 Eigen::ArrayXf window_right = window.tail(wlen);
 
-                if (wlen > p1.cols() || wlen > p3.cols())
-                {
+                if (wlen > p1.cols() || wlen > p3.cols()) {
                     //TODO error (or just warn) if this happens and give user feedback.
                 }
                 Eigen::ArrayXXf dom1(fft_batch, wlen);
@@ -267,8 +247,7 @@ namespace OpenPSTD
 
                 //map the results back into an eigen array
                 std::vector<std::complex<float>> spectrum_data;
-                for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++)
-                {
+                for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) {
                     spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
                 }
                 Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
@@ -285,8 +264,7 @@ namespace OpenPSTD
                 result = derived_array.leftCols(wlen + p2.cols() - 1).rightCols(p2.cols() - 1);
 
             }
-            if (direct == CalcDirection::Y)
-            {
+            if (direct == CalcDirection::Y) {
                 result.transposeInPlace();
             }
             return result;
@@ -295,33 +273,29 @@ namespace OpenPSTD
         Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
                                   Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
                                   RhoArray rho_array, Eigen::ArrayXf window, int wlen,
-                                  CalculationType ct, CalcDirection direct)
-        {
+                                  CalculationType ct, CalcDirection direct) {
             return spatderp3(p1, p2, p3, derfact, rho_array, window, wlen, ct, direct, NULL, NULL);
         }
 
         Eigen::ArrayXf get_window_coefficients(int window_size, int patch_error) {
             float window_alpha = (patch_error - 40) / 20 + 1;
-            Eigen::ArrayXf window_coefficients = (Eigen::ArrayXf::LinSpaced(2 * window_size + 1, -window_size,window_size) /
-                                                  window_size).square().cube().exp(); // Need to go to power 6 (^2^3)
+            Eigen::ArrayXf window_coefficients = (
+                    Eigen::ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size) /
+                    window_size).square().cube().exp(); // Need to go to power 6 (^2^3)
             return window_coefficients;
         }
 
-        void debug(std::string msg)
-        {
+        void debug(std::string msg) {
 #if 1
             std::cout << msg << std::endl;
 #endif
         }
 
-        bool is_approx(float a, float b)
-        {
-            if (a == 0)
-            {
+        bool is_approx(float a, float b) {
+            if (a == 0) {
                 return fabs(b) < EPSILON;
             }
-            else
-            {
+            else {
                 return (fabs((a - b) / a) < EPSILON);
 
             }

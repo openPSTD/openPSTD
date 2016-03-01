@@ -37,13 +37,10 @@
 #include "core/Scene.h"
 #include "PSTDKernel.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
-        class Solver
-        {
+        class Solver {
         private:
             std::shared_ptr<PSTDSettings> settings;
             std::shared_ptr<Scene> scene;
@@ -85,8 +82,7 @@ namespace OpenPSTD
             void compute_propagation();
         };
 
-        class SingleThreadSolver : public Solver
-        {
+        class SingleThreadSolver : public Solver {
         public:
             /**
              * Default constructor. Blocking call: will not return before the solver is done.
@@ -95,8 +91,7 @@ namespace OpenPSTD
             SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
-        class MultiThreadSolver : public Solver
-        {
+        class MultiThreadSolver : public Solver {
         public:
             /**
              * Multithreaded solver. This instance employs multiple CPU's
@@ -105,8 +100,7 @@ namespace OpenPSTD
             MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
-        class GPUSingleThreadSolver : public Solver
-        {
+        class GPUSingleThreadSolver : public Solver {
         public:
             /**
              * GPU solver. This instance runs the PSTD computations on the graphics card
@@ -115,8 +109,7 @@ namespace OpenPSTD
             GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
-        class GPUMultiThreadSolver : public Solver
-        {
+        class GPUMultiThreadSolver : public Solver {
         public:
             /**
              * Multithreaded GPU solver. This instance employs both multiple CPU's as well as the graphics card.

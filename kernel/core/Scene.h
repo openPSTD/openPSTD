@@ -44,12 +44,9 @@
 #include "Boundary.h"
 #include "../KernelInterface.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class Scene
-        {
+namespace OpenPSTD {
+    namespace Kernel {
+        class Scene {
         public:
             std::vector<std::shared_ptr<Domain>> domain_list;
             std::shared_ptr<PSTDSettings> settings;

@@ -40,17 +40,13 @@
 #include "core/Scene.h"
 #include "KernelInterface.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
-
-/**
- * The kernel API. Contains one method for initialization and one for running the simulation.
- */
-        class PSTDKernel : public KernelInterface
-        {
+        /**
+         * The kernel API. Contains one method for initialization and one for running the simulation.
+         */
+        class PSTDKernel : public KernelInterface {
         private:
             std::shared_ptr<PSTDConfiguration> config;
             std::shared_ptr<PSTDSettings> settings;

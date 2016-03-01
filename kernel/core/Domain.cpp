@@ -264,15 +264,15 @@ namespace OpenPSTD {
                     // TODO check if get_rho_array(...) is slow and if so, cache these values somewhere
                     float max_rho = 1E10;
                     RhoArray rho_array = get_rho_array(d1 != nullptr ? d1->rho : max_rho,
-                                              this->rho,
-                                              d2 != nullptr ? d2->rho :max_rho);
+                                                       this->rho,
+                                                       d2 != nullptr ? d2->rho : max_rho);
 
                     // Calculate the spatial derivatives for the current intersection range and store
                     int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
                     Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
                     if (cd == CalcDirection::X) {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
-                                next_2_power(matrix_main.cols()+2*wlen), matrix_main.rows());
+                                next_2_power(matrix_main.cols() + 2 * wlen), matrix_main.rows());
                         matrix_main_offset = this->top_left.y;
                         matrix_side1_offset = d1->top_left.y;
                         matrix_side2_offset = d2->top_left.y;
@@ -293,7 +293,7 @@ namespace OpenPSTD {
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
-                                next_2_power(matrix_main.rows()+2*wlen), matrix_main.cols());
+                                next_2_power(matrix_main.rows() + 2 * wlen), matrix_main.cols());
                         matrix_main_offset = this->top_left.x;
                         matrix_side1_offset = d1->top_left.x;
                         matrix_side2_offset = d2->top_left.x;
