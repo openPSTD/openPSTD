@@ -523,9 +523,7 @@ namespace OpenPSTD {
 
 
         void Domain::find_update_directions() {
-            vector<CalcDirection> calc_directions = {CalcDirection::X, CalcDirection::Y};
-            vector<Direction> directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
-            for (CalcDirection calc_dir: calc_directions) {
+            for (CalcDirection calc_dir: all_calc_directions) {
                 bool should_update = false;
                 if (number_of_neighbours(false) == 1 and is_pml) {
                     if (has_horizontal_attenuation and calc_dir == CalcDirection::X) {
@@ -539,7 +537,7 @@ namespace OpenPSTD {
                         should_update = false;
                     }
                     else {
-                        for (Direction direction: directions) {
+                        for (Direction direction: all_directions) {
                             vector<shared_ptr<Domain>> dir_neighbours = get_neighbours_at(direction);
                             if (dir_neighbours.size() == 1 and !dir_neighbours.at(0)->is_pml) {
                                 vector<shared_ptr<Domain>> opp_neighbours =
