@@ -87,7 +87,7 @@ namespace OpenPSTD {
         };
 
         /**
-         * The impedance parameter and locally reaction switch per boundary
+         * The impedance parameter and locally reaction switch for a boundary
          */
         struct EdgeParameters {
             bool locally_reacting;
