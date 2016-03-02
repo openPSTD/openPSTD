@@ -40,9 +40,19 @@
 namespace OpenPSTD {
     namespace Kernel {
 
+        /**
+         * Component that computes the state variables of the scene for consecutive time steps.
+         *
+         * This is an abstract class, implemented in single/multi-threaded solvers.
+         * Based on the settings and the scene, the solver repeatedly executes the
+         * PSTD method to approximate the pressure and velocity.
+         * The time integration is performed with a RK6 method described in <paper>.
+         */
         class Solver {
         private:
+            /// Parameters and settings
             std::shared_ptr<PSTDSettings> settings;
+            /// Scene (initialized before passed to the solver)
             std::shared_ptr<Scene> scene;
 
         protected:
@@ -82,6 +92,9 @@ namespace OpenPSTD {
             void compute_propagation();
         };
 
+        /**
+         * Default singlethreaded solver.
+         */
         class SingleThreadSolver : public Solver {
         public:
             /**
@@ -91,6 +104,9 @@ namespace OpenPSTD {
             SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
+        /**
+         * Solver that exploits the multiple CPU cores of a machine
+         */
         class MultiThreadSolver : public Solver {
         public:
             /**
@@ -100,6 +116,9 @@ namespace OpenPSTD {
             MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
+        /**
+         * Solver that performs the computational intensive parts on a GPU
+         */
         class GPUSingleThreadSolver : public Solver {
         public:
             /**
@@ -109,6 +128,9 @@ namespace OpenPSTD {
             GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
+        /**
+         * Solver that both utilized multiple cores and the GPU
+         */
         class GPUMultiThreadSolver : public Solver {
         public:
             /**
