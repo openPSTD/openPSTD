@@ -42,7 +42,9 @@
 namespace OpenPSTD {
     namespace Kernel {
         /**
-         * Initial sound pressure. This class is a 'wrapper' around a gaussian kernel contribution.
+         * Locations and amplitude of initial sound pressure.
+         *
+         * This class is a 'wrapper' around a gaussian kernel contribution.
          * Note that speaker locations (just like receiver locations) are defined on the grid,
          * but don't need to lie on grid points; their coordinates are not rounded off.
          */

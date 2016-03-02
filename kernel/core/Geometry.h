@@ -36,6 +36,10 @@
 
 namespace OpenPSTD {
     namespace Kernel {
+        /**
+         * The points of the grid, represented by 2D integer vectors.
+         * Origin (0,0) is top left.
+         */
         class Point {
         public:
             int x, y, z;

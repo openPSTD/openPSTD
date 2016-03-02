@@ -42,19 +42,19 @@
 #include "kernel_functions.h"
 #include "WisdomCache.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class Receiver
-        {
-            /*
-            * Receiver class. This class measures and stores the sound pressure on each time step.
-            * Note that receiver locations (just like speaker locations) are defined on the grid,
-            * but don't need to lie on grid points; their coordinates are not rounded off.
-             * If the Receiver is not located on a grid point, the sound values are interpolated,
-             * either from the nearest grid point or using a spectral interpolation method.
-            */
+namespace OpenPSTD {
+    namespace Kernel {
+        /**
+         * Measure pressure values on a fixed location in the scene.
+         *
+         * This class measures and stores the sound pressure on each time step.
+         * Note that receiver locations (just like speaker locations) are defined on the grid,
+         * but don't need to lie on grid points; their coordinates are not rounded off.
+         * If the Receiver is not located on a grid point, the sound values are interpolated,
+         * either from the nearest grid point or using a spectral interpolation method.
+         */
+        class Receiver {
+
         public:
             const float x;
             const float y;
@@ -91,6 +91,7 @@ namespace OpenPSTD
              */
 
             std::vector<float> received_values;
+
             /**
              * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
              * @param location float coordinates in 3D grid space. For 2D, leave z=0

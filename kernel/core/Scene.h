@@ -46,18 +46,30 @@
 
 namespace OpenPSTD {
     namespace Kernel {
+        /**
+         * Collection of the rectangular domains.
+         *
+         * This class holds all the (PML) domains through which the sound propagates.
+         * It also has a reference to all speakers and receivers as well as the boundaries.
+         */
         class Scene {
         public:
+            /// List with domains
             std::vector<std::shared_ptr<Domain>> domain_list;
+            /// Settings for the simulation
             std::shared_ptr<PSTDSettings> settings;
-            Point top_left;
+            /// Top left of the most top left domain
+            Point top_left;Initial sound pressure.
+            /// Bottom right of the most bottom right domain
             Point bottom_right;
+            /// Difference between top left and bottom right
             Point size;
 
             std::vector<std::shared_ptr<Boundary>> boundary_list;
             std::vector<std::shared_ptr<Receiver>> receiver_list;
             std::vector<std::shared_ptr<Speaker>> speaker_list;
         private:
+            /// Set with default parameters for domain separators
             std::map<Direction, EdgeParameters> default_edge_parameters; // Uninitialized
             int number_of_domains;
         public:

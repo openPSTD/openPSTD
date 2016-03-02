@@ -23,9 +23,6 @@
 //
 // Authors: Omar Richardson, Louis van Harten
 //
-// Purpose: Discretize wave numbers dynamically,
-// and optimize them for FFT computations.
-// Also contains the plans for FFTW.
 //
 //////////////////////////////////////////////////////////////////////////
 #ifndef OPENPSTD_WISDOMCACHE_H
@@ -41,8 +38,20 @@
 
 namespace OpenPSTD {
     namespace Kernel {
+
+        /**
+         * Storage of the accumulated wisdom in the simulation.
+         *
+         * Purpose: Discretize wave numbers dynamically,
+         * and optimize them for FFT computations.
+         * Also contains the plans for FFTW.
+         */
         class WisdomCache {
         public:
+
+            /**
+             * Storage of the wave number discretizations
+             */
             struct Discretization {
                 Eigen::ArrayXf wave_numbers;
                 Eigen::ArrayXcf complex_factors;
@@ -50,6 +59,9 @@ namespace OpenPSTD {
                 Eigen::ArrayXcf velocity_deriv_factors;
             };
 
+            /**
+             * Storage of the plans used in the Fast Fourier Transform
+             */
             struct Planset_FFTW {
                 fftwf_plan plan;
                 fftwf_plan plan_inv;
