@@ -59,7 +59,7 @@ namespace OpenPSTD {
             /// Settings for the simulation
             std::shared_ptr<PSTDSettings> settings;
             /// Top left of the most top left domain
-            Point top_left;Initial sound pressure.
+            Point top_left;
             /// Bottom right of the most bottom right domain
             Point bottom_right;
             /// Difference between top left and bottom right
