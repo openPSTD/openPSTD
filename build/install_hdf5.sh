@@ -19,7 +19,7 @@ else
        tar -xjf hdf5-1.8.16.tar.bz2
        cd hdf5-1.8.16
        ./configure
-       make CFLAGS="-w -fPIC" CXXFLAGS="-w -fPIC -stdlib=libstdc++"
+       make CFLAGS="-w -fPIC" CXXFLAGS="-w -fPIC -stdlib=libc++"
        sudo make install
        cd ../  
     fi
