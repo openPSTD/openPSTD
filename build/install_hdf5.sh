@@ -14,13 +14,8 @@ else
         sudo make install
         cd ../
     else
-        echo installing HDF5 with source
-       wget https://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.16.tar.bz2
-       tar -xjf hdf5-1.8.16.tar.bz2
-       cd hdf5-1.8.16
-       ./configure
-       make CFLAGS="-w -fPIC" CXXFLAGS="-w -fPIC -stdlib=libstdc++"
-       sudo make install
-       cd ../  
+        echo installing HDF5 from Homebrew
+        sudo brew install homebrew/science/hdf5
+        ls /usr/local/lib
     fi
 fi
