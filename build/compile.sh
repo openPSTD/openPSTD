@@ -31,9 +31,9 @@ else
         FFTLIBPATH=/usr/local/lib/libfftw3f.a
         FFTSOPATH=""
 
-        HDF5LIBPATH=/usr/local/lib/libhdf5.a
-        HDF5HLLIBPATH=/usr/local/lib/libhdf5_hl.a
-        HDF5INCLUDEPATH=/usr/local/include
+        HDF5LIBPATH=/usr/local/Cellar/hdf5/1.8.16_1/lib/libhdf5.a
+        HDF5HLLIBPATH=/usr/local/Cellar/hdf5/1.8.16_1/lib/libhdf5_hl.a
+        HDF5INCLUDEPATH=/usr/local/Cellar/hdf5/1.8.16_1/include
     fi
 fi
 
