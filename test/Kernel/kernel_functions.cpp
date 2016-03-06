@@ -73,8 +73,19 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
     }
 
     BOOST_AUTO_TEST_CASE(test_get_grid_spacing) {
-        //Todo: Implement when PSTDSettings cnf is implemented
-        BOOST_CHECK(true);
+        PSTDSettings settings;
+        settings.SetSoundSpeed(340);
+        settings.SetMaxFrequency(84000);
+        BOOST_CHECK(get_grid_spacing(settings) <= 0.0020238);
+        settings.SetSoundSpeed(340);
+        settings.SetMaxFrequency(20000);
+        BOOST_CHECK(get_grid_spacing(settings) <= 0.0085);
+        settings.SetSoundSpeed(340);
+        settings.SetMaxFrequency(200);
+        BOOST_CHECK(get_grid_spacing(settings) <= 0.85);
+        settings.SetSoundSpeed(340);
+        settings.SetMaxFrequency(20);
+        BOOST_CHECK(get_grid_spacing(settings) <= 8.5);
     }
 
 
