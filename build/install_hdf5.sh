@@ -16,5 +16,6 @@ else
     else
         echo installing HDF5 from Homebrew
         sudo brew install homebrew/science/hdf5
+        ls -lAh /usr/local/lib
     fi
 fi
