@@ -120,7 +120,7 @@ namespace OpenPSTD {
 
             //in the Python code: N1 = fft_batch and N2 = fft_length
             int fft_batch, fft_length;
-            Eigen::ArrayXXf result(1, 1); //also called Lp in some places in documentation
+            Eigen::ArrayXXf result; //also called Lp in some places in documentation
 
             fft_batch = p2.rows();
             fft_length = next_2_power((int) p2.cols() + wlen * 2);
