@@ -171,12 +171,13 @@ namespace OpenPSTD {
                 Eigen::ArrayXXf dom1(fft_batch, wlen);
                 Eigen::ArrayXXf dom3(fft_batch, wlen);
                 Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
+                Eigen::ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
                 //this looks inefficient, but Eigen should optimize it into single operations (TODO: check if it does)
                 dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
                        p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
                 dom3 = p3.leftCols(wlen).rowwise() * window_right.transpose() * rho_array.pressure(3, 1) +
                        p2.rightCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
-                windowed_data << dom1, p2, dom3;
+                windowed_data << dom1, p2, dom3, zero_pad;
 
 
                 //perform the fft
