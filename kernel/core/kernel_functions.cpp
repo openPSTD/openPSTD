@@ -133,17 +133,17 @@ namespace OpenPSTD {
             out_buffer = (fftwf_complex *) fftwf_malloc(sizeof(float) * 2 * (fft_length / 2 + 1) * fft_batch);
 
             //non-domains don't have a wisdomcache, so this is needed. TODO Perhaps put it in the Scene itself.
-            if (plan == NULL) {
+            if (plan == NULL || true) { //always use this one for now, debugging purposes
                 int shape[] = {fft_length};
                 int istride = 1; //distance between two elements in one fft-able array
                 int ostride = istride;
                 int idist = fft_length; //distance between first element of different arrays
-                int odist = idist;
+                int odist = fft_length / 2 + 1;
                 plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
                                                out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
 
                 idist = (fft_length / 2) + 1;
-                odist = idist;
+                odist = fft_length;
                 int ishape[] = {fft_length / 2 + 1};
                 plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch, out_buffer, NULL, ostride, odist,
                                                    in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
@@ -188,24 +188,26 @@ namespace OpenPSTD {
 
                 //perform the fft
                 memcpy(in_buffer, fft_input_data.data(), sizeof(float) * fft_batch * fft_length);
+                std::cout << plan;
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
                 //map the results back into an eigen array
                 std::vector<std::complex<float>> spectrum_data;
-                // TODO check if the compiler optimizes this. If not, do it
                 for (int i = 0;
                      i < (fft_length / 2 + 1) * fft_batch; i++) {
                     spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
-                    std::cout << "in_buf[" << i << "]" << in_buffer[i] << "\n";
-                    //std::cout << "out_buf[" << i << "][0]:" << out_buffer[i][0] << "\n";
+                    std::cout << "out_buf[" << i << "][0]:" << out_buffer[i][0] << "\t[1]:" << out_buffer[i][1] << "j\n";
                 }
                 Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length / 2 + 1);
+
+                
 
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.leftCols(fft_length / 2 + 1).transpose();
                 std::complex<float> *spectrum_prep;
                 Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length / 2 + 1) = spectrum_array;
-                fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex *>(&spectrum_prep[0]), in_buffer);
+                out_buffer = reinterpret_cast<fftwf_complex *>(&spectrum_prep[0]);
+                fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
 
                 Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer, fft_batch, fft_length).array();
 
