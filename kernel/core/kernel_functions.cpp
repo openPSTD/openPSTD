@@ -172,6 +172,7 @@ namespace OpenPSTD {
                 Eigen::ArrayXXf dom1(fft_batch, wlen);
                 Eigen::ArrayXXf dom3(fft_batch, wlen);
                 Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
+                Eigen::ArrayXXf fft_input_data(fft_length, fft_batch);
                 Eigen::ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
                 //this looks inefficient, but Eigen should optimize it into single operations (TODO: check if it does)
                 dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
@@ -182,8 +183,11 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
+                //maybe optimize this away later (rearrange fft input or change calls above)
+                fft_input_data = windowed_data.transpose();
+
                 //perform the fft
-                memcpy(in_buffer, windowed_data.data(), sizeof(float) * fft_batch * fft_length);
+                memcpy(in_buffer, fft_input_data.data(), sizeof(float) * fft_batch * fft_length);
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
                 //map the results back into an eigen array
@@ -192,11 +196,13 @@ namespace OpenPSTD {
                 for (int i = 0;
                      i < (fft_length / 2 + 1) * fft_batch; i++) {
                     spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
+                    std::cout << "in_buf[" << i << "]" << in_buffer[i] << "\n";
+                    //std::cout << "out_buf[" << i << "][0]:" << out_buffer[i][0] << "\n";
                 }
                 Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
-                spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
+                spectrum_array = spectrum_array.array().rowwise() * derfact.leftCols(fft_length / 2 + 1).transpose();
                 std::complex<float> *spectrum_prep;
                 Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length / 2 + 1) = spectrum_array;
                 fftwf_execute_dft_c2r(plan, reinterpret_cast<fftwf_complex *>(&spectrum_prep[0]), in_buffer);
