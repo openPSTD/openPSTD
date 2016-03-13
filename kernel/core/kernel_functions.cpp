@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "kernel_functions.h"
+#include <iostream> //TODO REMOVE
 
 namespace OpenPSTD {
     namespace Kernel {
@@ -177,8 +178,12 @@ namespace OpenPSTD {
                        p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
                 dom3 = p3.leftCols(wlen).rowwise() * window_right.transpose() * rho_array.pressure(3, 1) +
                        p2.rightCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
+                dom1 = dom1.rowwise() * window_left.transpose();
+                dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
+                //DEBUG TODO FIXME REMOVE
+                std::cout << dom1;
 
                 //perform the fft
                 memcpy(in_buffer, windowed_data.data(), sizeof(float) * fft_batch * fft_length);
@@ -186,13 +191,20 @@ namespace OpenPSTD {
 
                 //map the results back into an eigen array
                 std::vector<std::complex<float>> spectrum_data;
+                // TODO check if the compiler optimizes this. If not, do it
                 for (int i = 0;
-                     i < (fft_length / 2 + 1) * fft_batch; i++) { //TODO this looks wasteful/slow. Check if it is
+                     i < (fft_length / 2 + 1) * fft_batch; i++) {
                     spectrum_data.push_back(std::complex<float>(out_buffer[i][0], out_buffer[i][1]));
                 }
-                Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length);
+                Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
+                std::cout << "spectrum_array (rows, cols):\n(" << spectrum_array.rows() << ", ";
+                std::cout << spectrum_array.cols() << ")\n"; //FIXME remove
+                std::cout << "derfact (rows, cols):\n(" << derfact.rows() << ", ";
+                std::cout << derfact.cols() << ")\n"; //FIXME remove
+                std::cout << windowed_data.transpose();
+
                 spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
                 std::complex<float> *spectrum_prep;
                 Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length / 2 + 1) = spectrum_array;
