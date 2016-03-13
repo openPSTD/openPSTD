@@ -182,9 +182,6 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
-                //DEBUG TODO FIXME REMOVE
-                std::cout << dom1;
-
                 //perform the fft
                 memcpy(in_buffer, windowed_data.data(), sizeof(float) * fft_batch * fft_length);
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
@@ -199,12 +196,6 @@ namespace OpenPSTD {
                 Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
-                std::cout << "spectrum_array (rows, cols):\n(" << spectrum_array.rows() << ", ";
-                std::cout << spectrum_array.cols() << ")\n"; //FIXME remove
-                std::cout << "derfact (rows, cols):\n(" << derfact.rows() << ", ";
-                std::cout << derfact.cols() << ")\n"; //FIXME remove
-                std::cout << windowed_data.transpose();
-
                 spectrum_array = spectrum_array.array().rowwise() * derfact.transpose();
                 std::complex<float> *spectrum_prep;
                 Eigen::Map<Eigen::ArrayXXcf>(spectrum_prep, fft_batch, fft_length / 2 + 1) = spectrum_array;
