@@ -188,7 +188,6 @@ namespace OpenPSTD {
 
                 //perform the fft
                 memcpy(in_buffer, fft_input_data.data(), sizeof(float) * fft_batch * fft_length);
-                std::cout << plan;
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
                 //map the results back into an eigen array
@@ -200,7 +199,33 @@ namespace OpenPSTD {
                 }
                 Eigen::Map<Eigen::ArrayXXcf> spectrum_array(&spectrum_data[0], fft_batch, fft_length / 2 + 1);
 
-                
+                // TODO remove (debug) try the plan on the first row only
+                fftwf_complex *in_buffer_debug = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex) * fft_length);
+                fftwf_complex *out_buffer_debug = (fftwf_complex *) fftwf_malloc(sizeof(fftwf_complex)*(fft_length));
+
+                int shape[] = {fft_length};
+                int istride = 1; //distance between two elements in one fft-able array
+                int ostride = istride;
+                int idist = fft_length; //distance between first element of different arrays
+                int odist = fft_length / 2 + 1;
+                fftwf_plan plan_debug = fftwf_plan_dft_1d(shape[0], in_buffer_debug, out_buffer_debug, FFTW_FORWARD, FFTW_ESTIMATE);
+                idist = (fft_length / 2) + 1;
+                odist = fft_length;
+                int ishape[] = {fft_length / 2 + 1};
+                fftwf_plan plan_inv_debug = fftwf_plan_dft_1d(shape[0], out_buffer_debug, in_buffer_debug, FFTW_BACKWARD, FFTW_ESTIMATE);
+
+                for (int i=0; i<fft_length; i++) {
+                    in_buffer_debug[i][0] = fft_input_data(i, 0);
+                    in_buffer_debug[i][1] = 0;
+                }
+
+                fftwf_execute(plan_debug);
+                std::vector<std::complex<float>> spectrum_data_debug;
+                for (int i = 0; i < (fft_length / 2 + 1); i++) {
+                    spectrum_data_debug.push_back(std::complex<float>(out_buffer_debug[i][0], out_buffer_debug[i][1]));
+                    std::cout << "out_buf_debug[" << i << "][0]:" << out_buffer_debug[i][0] << "\t[1]:" << out_buffer_debug[i][1] << "j\n";
+                }
+                Eigen::Map<Eigen::ArrayXXcf> spectrum_array_debug(&spectrum_data_debug[0], 1, fft_length / 2 + 1);
 
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.leftCols(fft_length / 2 + 1).transpose();
