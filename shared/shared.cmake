@@ -23,7 +23,7 @@ target_include_directories(OpenPSTD-shared PUBLIC ${HDF5_INCLUDE})
 
 target_link_libraries(OpenPSTD-shared OpenPSTD)
 target_link_libraries(OpenPSTD-shared unqlite)
-target_link_libraries(OpenPSTD-shared ${Boost_LIBRARIES})
 target_link_libraries(OpenPSTD-shared ${Qt5_LIBRARIES})
 target_link_libraries(OpenPSTD-shared ${HDF5_HL_LIBRARY})
 target_link_libraries(OpenPSTD-shared ${HDF5_LIBRARY})
+target_link_libraries(OpenPSTD-shared ${Boost_LIBRARIES})

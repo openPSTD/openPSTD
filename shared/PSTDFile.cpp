@@ -33,8 +33,15 @@ extern "C"
 #include <unqlite.h>
 }
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/iostreams/stream_buffer.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/serialization/vector.hpp>
+#include <vector>
+#include <iostream>
 
 namespace OpenPSTD
 {
@@ -42,17 +49,16 @@ namespace OpenPSTD
     {
         using namespace std;
 
+#define PSTD_FILE_VERSION 2
+
 #define PSTD_FILE_PREFIX_SCENE 1
-#define PSTD_FILE_PREFIX_PSTD 2
-#define PSTD_FILE_PREFIX_DOMAIN_COUNT 3
-#define PSTD_FILE_PREFIX_FRAME_COUNT 4
-#define PSTD_FILE_PREFIX_FRAMEDATA 5
-#define PSTD_FILE_PREFIX_SCENE_SETTINGS 6
-#define PSTD_FILE_PREFIX_SCENE_SPEAKERS 7
-#define PSTD_FILE_PREFIX_SCENE_RECEIVERS 8
-#define PSTD_FILE_PREFIX_SCENE_DOMAINS 9
+
+#define PSTD_FILE_PREFIX_RESULTS_SCENE 100
+#define PSTD_FILE_PREFIX_RESULTS_SCENE_KERNEL 101
+#define PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT 102
+#define PSTD_FILE_PREFIX_RESULTS_FRAMEDATA 103
+
 #define PSTD_FILE_PREFIX_VERSION 10000
-#define PSTD_FILE_VERSION 1
 
         std::string PSTDFileKeyToString(PSTDFile_Key_t key)
         {
@@ -90,10 +96,58 @@ namespace OpenPSTD
             _action = action;
         }
 
+        std::string PSTDFileIOException::GetErrorString(int unqlite_error) const noexcept
+        {
+            switch (unqlite_error)
+            {
+                case UNQLITE_OK: return "Successful result";
+                case UNQLITE_NOMEM: return "Out of memory";
+                case UNQLITE_ABORT: return "Another thread have released this instance";
+                case UNQLITE_IOERR: return "IO error";
+                case UNQLITE_CORRUPT: return "Corrupt pointer";
+                case UNQLITE_LOCKED: return "Forbidden Operation";
+                case UNQLITE_BUSY: return "The database file is locked";
+                case UNQLITE_DONE: return "Operation done";
+                case UNQLITE_PERM: return "Permission error";
+                case UNQLITE_NOTIMPLEMENTED: return "Method not implemented by the underlying Key/Value storage engine";
+                case UNQLITE_NOTFOUND: return "No such record";
+                case UNQLITE_NOOP: return "No such method";
+                case UNQLITE_INVALID: return "Invalid parameter";
+                case UNQLITE_EOF: return "End Of Input";
+                case UNQLITE_UNKNOWN: return "Unknown configuration option";
+                case UNQLITE_LIMIT: return "Database limit reached";
+                case UNQLITE_EXISTS: return "Record exists";
+                case UNQLITE_EMPTY: return "Empty record";
+                case UNQLITE_COMPILE_ERR: return "Compilation error";
+                case UNQLITE_VM_ERR: return "Virtual machine error";
+                case UNQLITE_FULL: return "Full database (unlikely)";
+                case UNQLITE_CANTOPEN: return "Unable to open the database file";
+                case UNQLITE_READ_ONLY: return "Read only Key/Value storage engine";
+                case SXERR_ORANGE: return "Out of range value";
+                case SXERR_MORE: return "Need more input";
+                case SXERR_SYNTAX: return "Syntax error";
+                case SXERR_OVERFLOW: return "Stack or buffer overflow";
+                case SXERR_WILLBLOCK: return "Operation will block";
+                case SXERR_FORMAT: return "Invalid format";
+                case SXERR_NEXT: return "Not an error";
+                case SXERR_OS: return "System call return an error";
+                case SXERR_CONTINUE: return "Not an error: Operation in progress";
+                case SXERR_NOMATCH: return "No match";
+                case SXERR_RESET: return "Operation reset";
+                case SXERR_SHORT: return "Buffer too short";
+                case SXERR_PATH: return "Path error";
+                case SXERR_TIMEOUT: return "Timeout";
+                case SXERR_BIG: return "Too big for processing";
+                case SXERR_RETRY: return "Retry your call";
+                case SXERR_IGNORE: return "Ignore";
+                default: return "UNKOWN ERROR";
+            }
+        }
+
         const char *PSTDFileIOException::what() const noexcept
         {
-            return ("Error with '" + _action + "': error code: " + boost::lexical_cast<std::string>(_unqlite_error) +
-                    " with key " + PSTDFileKeyToString(_key) + ")").c_str();
+            return ("Error with '" + _action + "': error " + this->GetErrorString(_unqlite_error) + " (" + boost::lexical_cast<std::string>(_unqlite_error) +
+                    ") with key " + PSTDFileKeyToString(_key) + ")").c_str();
         }
 
         std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename)
@@ -124,17 +178,10 @@ namespace OpenPSTD
                 result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_VERSION, {}), PSTD_FILE_VERSION);
 
                 //create basic geometry with default options
-                std::shared_ptr<Kernel::PSTDConfiguration> SceneConf = Kernel::PSTDConfiguration::CreateDefaultConf();
-                result->SetSceneConf(SceneConf);
+                result->SetSceneConf(Kernel::PSTDConfiguration::CreateDefaultConf());
 
-                //create PSTD conf
-                //todo fix the correct type
-                //std::shared_ptr<rapidjson::Document> PSTDConf(new rapidjson::Document());
-                //PSTDConf->Parse("{}");
-                //result->SetPSTDConf(PSTDConf);
-
-                //zero frames are saves
-                result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
+                //create empty geometry for results
+                result->SetSceneConf(result->CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), Kernel::PSTDConfiguration::CreateEmptyConf());
             }
 
             return PSTDFile::Open(filename);
@@ -147,71 +194,64 @@ namespace OpenPSTD
 
         shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf()
         {
-            shared_ptr<Kernel::PSTDConfiguration> conf = make_shared<Kernel::PSTDConfiguration>();
-            conf->Settings = this->GetValue<Kernel::PSTDSettings>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}));
-            conf->Speakers = this->GetArray<QVector3D>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}));
-            conf->Receivers = this->GetArray<QVector3D>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_RECEIVERS, {}));
-            conf->Domains = this->GetArray<Kernel::DomainConf>(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}));
-
-            return conf;
+            return this->GetSceneConf(CreateKey(PSTD_FILE_PREFIX_SCENE, {}));
         }
 
         void PSTDFile::SetSceneConf(shared_ptr<Kernel::PSTDConfiguration> scene)
         {
-            this->SetValue(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SETTINGS, {}), scene->Settings);
-            this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_SPEAKERS, {}), scene->Speakers);
-            this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_RECEIVERS, {}), scene->Receivers);
-            this->SetArray(this->CreateKey(PSTD_FILE_PREFIX_SCENE_DOMAINS, {}), scene->Domains);
+            this->SetSceneConf(CreateKey(PSTD_FILE_PREFIX_SCENE, {}), scene);
         }
 
-        int PSTDFile::GetDomainCount()
+        int PSTDFile::GetResultsDomainCount()
         {
-            return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}));
+            std::shared_ptr<Kernel::PSTDConfiguration> conf = this->GetResultsSceneConf();
+            return conf->Domains.size();
         }
 
-        int PSTDFile::GetFrameCount(unsigned int domain)
+        int PSTDFile::GetResultsFrameCount(unsigned int domain)
         {
-            return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {domain}));
+            return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT, {domain}));
         }
 
-        Kernel::PSTD_FRAME_PTR PSTDFile::GetFrame(unsigned int frame, unsigned int domain)
+        Kernel::PSTD_FRAME_PTR PSTDFile::GetResultsFrame(unsigned int frame, unsigned int domain)
         {
             unqlite_int64 size;
-            float *result = (float *) this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}), &size);
+            float *result = (float *) this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAMEDATA, {domain, frame}), &size);
             return make_shared<Kernel::PSTD_FRAME>(result, result + (size / 4));
         }
 
-        void PSTDFile::SaveNextFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frameData)
+        void PSTDFile::SaveNextResultsFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frameData)
         {
             unsigned int frame = IncrementFrameCount(domain);
-            this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {domain, frame}),
+            this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAMEDATA, {domain, frame}),
                               frameData->size() * sizeof(Kernel::PSTD_FRAME_UNIT), frameData->data());
         }
 
-        void PSTDFile::InitializeSimulationResults(int domains)
+        void PSTDFile::InitializeResults()
         {
-            SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), domains);
-            for (unsigned int i = 0; i < domains; i++)
+            auto conf = GetSceneConf();
+            SetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), conf);
+            for (unsigned int i = 0; i < conf->Domains.size(); i++)
             {
-                SetValue<int>(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {i}), 0);
+                SetValue<int>(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT, {i}), 0);
             }
         }
 
-        void PSTDFile::DeleteSimulationResults()
+        void PSTDFile::DeleteResults()
         {
             int rc;
 
-            int domainCount = this->GetDomainCount();
+            int domainCount = this->GetResultsDomainCount();
             for (unsigned int d = 0; d < domainCount; d++)
             {
-                int frameCount = this->GetFrameCount(d);
+                int frameCount = this->GetResultsFrameCount(d);
                 for (unsigned int f = 0; f < frameCount; f++)
                 {
-                    this->DeleteValue(CreateKey(PSTD_FILE_PREFIX_FRAMEDATA, {d, f}));
+                    this->DeleteValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAMEDATA, {d, f}));
                 }
-                this->DeleteValue(CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {d}));
+                this->DeleteValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT, {d}));
             }
-            SetValue<int>(CreateKey(PSTD_FILE_PREFIX_DOMAIN_COUNT, {}), 0);
+            this->SetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), Kernel::PSTDConfiguration::CreateEmptyConf());
         }
 
         void PSTDFile::OutputDebugInfo()
@@ -300,7 +340,6 @@ namespace OpenPSTD
         PSTDFile_Key_t PSTDFile::CreateKeyFromData(char *pBuf, int pnByte)
         {
             PSTDFile_Key_t result = make_shared<std::vector<char>>(pBuf, pBuf + pnByte);
-            //PSTDFile_Key_t result = std::shared_ptr<std::vector<char>>(new vector<char>(pBuf, pBuf + pnByte));
             return result;
         }
 
@@ -322,9 +361,45 @@ namespace OpenPSTD
             }
         }
 
+        std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf(PSTDFile_Key_t key)
+        {
+            namespace io = boost::iostreams;
+            typedef std::vector<char> buffer_type;
+
+            Kernel::PSTDConfiguration data_in;
+            unqlite_int64 nBytes;
+            auto data = this->GetRawValue(key, &nBytes);
+
+            io::basic_array_source<char> source(data, nBytes);
+            io::stream<io::basic_array_source <char> > input_stream(source);
+            boost::archive::text_iarchive ia(input_stream);
+
+            ia >> data_in;
+
+            delete[] data;
+
+            std::shared_ptr<Kernel::PSTDConfiguration> result = make_shared<Kernel::PSTDConfiguration>(data_in);
+            return result;
+
+        }
+
+        void PSTDFile::SetSceneConf(PSTDFile_Key_t key, std::shared_ptr<Kernel::PSTDConfiguration> scene)
+        {
+            namespace io = boost::iostreams;
+            typedef std::vector<char> buffer_type;
+            buffer_type buffer;
+
+            io::stream<io::back_insert_device<buffer_type> > output_stream(buffer);
+            boost::archive::text_oarchive oa(output_stream);
+
+            oa << (*scene);
+            output_stream.flush();
+            this->SetRawValue(key, buffer.size(), buffer.data());
+        }
+
         unsigned int PSTDFile::IncrementFrameCount(unsigned int domain)
         {
-            auto key = CreateKey(PSTD_FILE_PREFIX_FRAME_COUNT, {domain});
+            auto key = CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT, {domain});
             int frame = GetValue<int>(key);
             SetValue<int>(key, frame + 1);
             return frame;
@@ -342,5 +417,9 @@ namespace OpenPSTD
             }
         }
 
+        std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetResultsSceneConf()
+        {
+            return this->GetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}));
+        }
     }
 }

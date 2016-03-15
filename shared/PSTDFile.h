@@ -50,15 +50,77 @@ extern "C"
 #include <shared/InvalidationData.h>
 #include <QVector2D>
 #include <QVector3D>
+#include <boost/serialization/split_free.hpp>
+#include <boost/serialization/serialization.hpp>
+
+
+/*
+ * Non-intrusive serialization functions for QVector2D and QVector3D
+ */
+namespace boost {
+    namespace serialization {
+
+        template<class Archive>
+        void save(Archive & ar, const QVector2D & v, unsigned int version)
+        {
+            ar & v.x();
+            ar & v.y();
+        }
+        template<class Archive>
+        void load(Archive & ar, QVector2D & v, unsigned int version)
+        {
+            float x, y;
+            ar & x;
+            ar & y;
+            v.setX(x);
+            v.setY(y);
+        }
+
+        template<class Archive>
+        void save(Archive & ar, const QVector3D & v, unsigned int version)
+        {
+            ar & v.x();
+            ar & v.y();
+            ar & v.z();
+        }
+
+        template<class Archive>
+        void load(Archive & ar, QVector3D & v, unsigned int version)
+        {
+            float x, y, z;
+            ar & x;
+            ar & y;
+            ar & z;
+            v.setX(x);
+            v.setY(y);
+            v.setZ(z);
+        }
+
+    } // namespace serialization
+} // namespace boost
+
+
+BOOST_SERIALIZATION_SPLIT_FREE(QVector2D)
+
+BOOST_SERIALIZATION_SPLIT_FREE(QVector3D)
 
 namespace OpenPSTD
 {
     namespace Shared
     {
+        /**
+         * A standard type for the key
+         */
         using PSTDFile_Key_t = std::shared_ptr<std::vector<char> >;
 
+        /**
+         * Key to string, for debug purposes
+         */
         std::string PSTDFileKeyToString(PSTDFile_Key_t key);
 
+        /**
+         * Version error of the file
+         */
         class PSTDFileVersionException : public std::exception
         {
         private:
@@ -70,13 +132,16 @@ namespace OpenPSTD
             const char *what() const noexcept override;
         };
 
+        /**
+         * general exception of unqlite(lowlevel) errors
+         */
         class PSTDFileIOException : public std::exception
         {
         private:
             int _unqlite_error;
             PSTDFile_Key_t _key;
             std::string _action;
-
+            std::string GetErrorString(int unqlite_error) const noexcept;
         public:
             PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action);
 
@@ -86,26 +151,59 @@ namespace OpenPSTD
         class PSTDFile : public InvalidationData
         {
         private:
+            /**
+             * Backend, the back end should be automatically closed(by the unique_ptr)
+             */
             std::unique_ptr<unqlite, int (*)(unqlite *)> backend;
 
+            /**
+             * Get a value by key as a string
+             */
             std::unique_ptr<std::string> GetStringValue(PSTDFile_Key_t key);
 
+            /**
+             * Gets the raw value by key(ownership is transfered to caller)
+             */
             char *GetRawValue(PSTDFile_Key_t key, unqlite_int64 *nBytes);
 
+            /**
+             * Sets a string value by key
+             */
             void SetStringValue(PSTDFile_Key_t key, std::shared_ptr<std::string> value);
 
+            /**
+             * Set the raw value by key(ownership of value is of the caller)
+             */
             void SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value);
 
+            /**
+             * Delete a certain value
+             */
             void DeleteValue(PSTDFile_Key_t key);
 
+            /**
+             * Initialize the database
+             */
             void initialize();
 
+            /**
+             * Increment framecount
+             */
             unsigned int IncrementFrameCount(unsigned int domain);
 
+            /**
+             * Create key based on a prefix and multiple integer value
+             */
             static PSTDFile_Key_t CreateKey(unsigned int prefix, std::initializer_list<unsigned int> list);
 
+            /**
+             * Create key based on raw data
+             */
             static PSTDFile_Key_t CreateKeyFromData(char *pBuf, int pnByte);
 
+            /**
+             * Get a certain value by type T
+             */
             template<typename T>
             T GetValue(PSTDFile_Key_t key)
             {
@@ -123,6 +221,9 @@ namespace OpenPSTD
                 return zBuf;
             }
 
+            /**
+             * set a certain value by type T
+             */
             template<typename T>
             void SetValue(PSTDFile_Key_t key, T value)
             {
@@ -136,6 +237,9 @@ namespace OpenPSTD
                 }
             }
 
+            /**
+             * Get a certain value by type vector<T>
+             */
             template<typename T>
             std::vector<T> GetArray(PSTDFile_Key_t key)
             {
@@ -162,6 +266,9 @@ namespace OpenPSTD
                 return zBuf;
             }
 
+            /**
+             * Set a certain value by type vector<T>
+             */
             template<typename T>
             void SetArray(PSTDFile_Key_t key, const std::vector<T> &value)
             {
@@ -174,6 +281,18 @@ namespace OpenPSTD
                     throw PSTDFileIOException(rc, key, "store data");
                 }
             }
+
+            /**
+             * Reads the scene config out of the file
+             * @return a shared ptr to a new object of scene configuration
+             */
+            std::shared_ptr<Kernel::PSTDConfiguration> GetSceneConf(PSTDFile_Key_t key);
+
+            /**
+             * Writes the scene config to the file
+             * @param scene a shared ptr to an object of scene configuration
+             */
+            void SetSceneConf(PSTDFile_Key_t key, std::shared_ptr<Kernel::PSTDConfiguration> scene);
 
         public:
             /**
@@ -190,7 +309,17 @@ namespace OpenPSTD
              */
             static std::unique_ptr<PSTDFile> New(const std::string &filename);
 
+            /**
+             * Constructs a PSTDFile, for internal use
+             */
             PSTDFile();
+
+            /**
+             * Compresses the file that so that the file is smaller. This also deletes the data results.
+             */
+            //todo implement
+            //void Compress();
+
 
             /**
              * Reads the scene config out of the file
@@ -204,22 +333,57 @@ namespace OpenPSTD
              */
             void SetSceneConf(std::shared_ptr<Kernel::PSTDConfiguration> scene);
 
-            int GetDomainCount();
 
-            int GetFrameCount(unsigned int domain);
 
-            Kernel::PSTD_FRAME_PTR GetFrame(unsigned int frame, unsigned int domain);
+            /**
+             * initializes the results(creates domains)
+             */
+            void InitializeResults();
 
-            void SaveNextFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frame);
+            /**
+             * Reads the scene config out of the file. This scene config is for the results, this config can differs from
+             * GetSceneConf.
+             * @return a shared ptr to a new object of scene configuration
+             */
+            std::shared_ptr<Kernel::PSTDConfiguration> GetResultsSceneConf();
 
-            void InitializeSimulationResults(int domains);
+            /**
+             * Get the number of domains
+             */
+            int GetResultsDomainCount();
 
-            void DeleteSimulationResults();
+            /**
+             * Get the number of frames for a single domain
+             * @param domain The domain index
+             */
+            int GetResultsFrameCount(unsigned int domain);
 
+            /**
+             * Gets the data from the frame
+             */
+            Kernel::PSTD_FRAME_PTR GetResultsFrame(unsigned int frame, unsigned int domain);
+
+            /**
+             * Saves the next frame for a certain domain in the file
+             */
+            void SaveNextResultsFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frame);
+
+            /**
+             * Delete all the simulation results
+             */
+            void DeleteResults();
+
+
+
+            /**
+             * outputs debug info, only for debug purposes.
+             */
             void OutputDebugInfo();
         };
 
     }
 }
+
+
 
 #endif //OPENPSTD_PSTDFILE_H

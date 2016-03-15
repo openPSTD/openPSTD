@@ -79,7 +79,30 @@ namespace OpenPSTD {
             bool multithread;
             /// Window coefficients for attenuating the sound
             Eigen::ArrayXf window;
+
         public:
+
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & calctime;
+                ar & c1;
+                ar & ampMax;
+                ar & freqMax;
+                ar & rho;
+                ar & patcherror;
+                ar & tfactRK;
+                ar & gridSpacing;
+                ar & band_width;
+                ar & wave_length;
+                ar & rk_coefficients;
+                ar & spectral_interpolation;
+                ar & PMLCells;
+                ar & SaveNth;
+                ar & gpu;
+                ar & multithread;
+            }
+
             float GetGridSpacing();
 
             void SetGridSpacing(float value);
@@ -158,6 +181,13 @@ namespace OpenPSTD {
             float Absorption;
             /// Locally reacting flag
             bool LR;
+
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & Absorption;
+                ar & LR;
+            }
         };
 
         /**
@@ -178,7 +208,16 @@ namespace OpenPSTD {
 
             void SetLR(PSTD_DOMAIN_SIDE sides, bool LR);
 
-
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & TopLeft;
+                ar & Size;
+                ar & T;
+                ar & L;
+                ar & B;
+                ar & R;
+            }
         };
 
         /**
@@ -201,6 +240,19 @@ namespace OpenPSTD {
              *
              */
             static std::shared_ptr<PSTDConfiguration> CreateDefaultConf();
+            /**
+             * Creates an empty configuration
+             */
+            static std::shared_ptr<PSTDConfiguration> CreateEmptyConf();
+
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & Settings;
+                ar & Speakers;
+                ar & Receivers;
+                ar & Domains;
+            }
         };
 
         /**

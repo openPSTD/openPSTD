@@ -29,7 +29,7 @@ namespace OpenPSTD
 
             if (domains.size() == 0)
             {
-                int domainCount = file->GetDomainCount();
+                int domainCount = file->GetResultsDomainCount();
 
                 for (int d = 0; d < domainCount; ++d)
                 {
@@ -43,7 +43,7 @@ namespace OpenPSTD
                 H5Gcreate2(file_id, domainLoc.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
                 if (startFrame == -1) startFrame = 0;
-                if (endFrame == -1) endFrame = file->GetFrameCount(d) - 1;
+                if (endFrame == -1) endFrame = file->GetResultsFrameCount(d) - 1;
                 for (int f = startFrame; f <= endFrame; ++f)
                 {
                     std::string location = domainLoc + "/" + boost::lexical_cast<std::string>(f);
@@ -53,7 +53,7 @@ namespace OpenPSTD
                     size.push_back(metadata.DomainMetadata[d][1]);
 
                     //get data and write to file
-                    auto data = file->GetFrame(f, d);
+                    auto data = file->GetResultsFrame(f, d);
                     H5LTmake_dataset(file_id, location.c_str(), 2, size.data(), H5T_NATIVE_FLOAT, data->data());
                 }
             }
