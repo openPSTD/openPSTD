@@ -8,7 +8,7 @@ SET(SOURCE_FILES_SHARED_LIB ${SOURCE_FILES_SHARED_LIB}
         shared/export/Export.cpp shared/export/Image.cpp
         shared/export/HDF5Export.cpp)
 
-add_library(OpenPSTD-shared STATIC ${SOURCE_FILES_SHARED_LIB})
+add_library(OpenPSTD-shared SHARED ${SOURCE_FILES_SHARED_LIB})
 
 # create extra Qt5 code
 set_target_properties(OpenPSTD-shared
