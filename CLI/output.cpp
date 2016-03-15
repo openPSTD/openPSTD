@@ -29,7 +29,7 @@ namespace OpenPSTD
 
         void CLIOutput::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data)
         {
-            _file->SaveNextFrame(domain, data);
+            _file->SaveNextResultsFrame(domain, data);
         }
 
         void CLIOutput::WriteSample(int startSample, int receiver, std::vector<float> data)

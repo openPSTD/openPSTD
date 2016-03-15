@@ -150,7 +150,7 @@ namespace OpenPSTD {
         }
 
         std::vector<float> PSTDSettings::GetRKCoefficients() {
-            return Kernel::rk_coefficients;
+            return this->rk_coefficients;
         }
 
         void PSTDSettings::SetRKCoefficients(std::vector<float> coef) {
@@ -226,6 +226,7 @@ namespace OpenPSTD {
             float band_width = (float) (3 * 1e-6 * (sound_speed / grid_spacing) * (sound_speed / grid_spacing));
             conf->Settings.SetBandWidth(band_width);
             // RK coeffs now hardcoded in kernel functions
+            conf->Settings.SetRKCoefficients(Kernel::rk_coefficients);
 
             conf->Settings.SetSpectralInterpolation(true);
 
@@ -246,6 +247,26 @@ namespace OpenPSTD {
             d.R.LR = false;
 
             conf->Domains.push_back(d);
+
+            return conf;
+        }
+
+        std::shared_ptr<PSTDConfiguration> PSTDConfiguration::CreateEmptyConf() {
+            std::shared_ptr<PSTDConfiguration> conf = std::make_shared<PSTDConfiguration>();
+            conf->Settings.SetRenderTime(0);
+            conf->Settings.SetSoundSpeed(0);
+            conf->Settings.SetAttenuationOfPMLCells(0);
+            conf->Settings.SetDensityOfAir(0);
+            conf->Settings.SetPatchError(0);
+            conf->Settings.SetFactRK(0);
+            conf->Settings.SetGridSpacing(0);
+            conf->Settings.SetPMLCells(0);
+            conf->Settings.SetSaveNth(0);
+
+            conf->Settings.SetBandWidth(0);
+            // RK coeffs now hardcoded in kernel functions
+
+            conf->Settings.SetSpectralInterpolation(false);
 
             return conf;
         }

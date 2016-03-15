@@ -42,7 +42,7 @@ namespace OpenPSTD
 
             if (domains.size() == 0)
             {
-                int domainCount = file->GetDomainCount();
+                int domainCount = file->GetResultsDomainCount();
 
                 for (int d = 0; d < domainCount; ++d)
                 {
@@ -55,10 +55,10 @@ namespace OpenPSTD
             for (int d = 0; d < domains.size(); ++d)
             {
                 if (startFrame == -1) startFrame = 0;
-                if (endFrame == -1) endFrame = file->GetFrameCount(domains[d]) - 1;
+                if (endFrame == -1) endFrame = file->GetResultsFrameCount(domains[d]) - 1;
                 for (int f = startFrame; f <= endFrame; ++f)
                 {
-                    Kernel::PSTD_FRAME_PTR frame = file->GetFrame(f, domains[d]);
+                    Kernel::PSTD_FRAME_PTR frame = file->GetResultsFrame(f, domains[d]);
                     for (int i = 0; i < frame->size(); ++i)
                     {
                         min = std::min((*frame)[i], min);
@@ -70,7 +70,7 @@ namespace OpenPSTD
             if(this->_fullView)
             {
                 if (startFrame == -1) startFrame = 0;
-                if (endFrame == -1) endFrame = file->GetFrameCount(domains[0]) - 1;
+                if (endFrame == -1) endFrame = file->GetResultsFrameCount(domains[0]) - 1;
                 for (int f = startFrame; f <= endFrame; ++f)
                 {
                     this->saveFullImage(format, file, directory + "/" + name + "-" + boost::lexical_cast<std::string>(f),
@@ -82,7 +82,7 @@ namespace OpenPSTD
                 for(int d : domains)
                 {
                     if (startFrame == -1) startFrame = 0;
-                    if (endFrame == -1) endFrame = file->GetFrameCount(d) - 1;
+                    if (endFrame == -1) endFrame = file->GetResultsFrameCount(d) - 1;
                     for (int f = startFrame; f <= endFrame; ++f)
                     {
                         this->saveImage(format, file,
@@ -138,7 +138,7 @@ namespace OpenPSTD
             }
 
             //get data
-            auto data = file->GetFrame(frame, domain);
+            auto data = file->GetResultsFrame(frame, domain);
 
             //position
             std::vector<int> position = {0, 0};
@@ -228,7 +228,7 @@ namespace OpenPSTD
             for (int d : domains)
             {
                 //get data
-                auto data = file->GetFrame(frame, d);
+                auto data = file->GetResultsFrame(frame, d);
 
                 //draw on image
                 drawData(result, data, min, max, colorMap.size(), positions[d], sizes[d]);
