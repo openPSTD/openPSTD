@@ -44,23 +44,32 @@
 #include "Boundary.h"
 #include "../KernelInterface.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class Scene
-        {
+namespace OpenPSTD {
+    namespace Kernel {
+        /**
+         * Collection of the rectangular domains.
+         *
+         * This class holds all the (PML) domains through which the sound propagates.
+         * It also has a reference to all speakers and receivers as well as the boundaries.
+         */
+        class Scene {
         public:
+            /// List with domains
             std::vector<std::shared_ptr<Domain>> domain_list;
+            /// Settings for the simulation
             std::shared_ptr<PSTDSettings> settings;
+            /// Top left of the most top left domain
             Point top_left;
+            /// Bottom right of the most bottom right domain
             Point bottom_right;
+            /// Difference between top left and bottom right
             Point size;
 
             std::vector<std::shared_ptr<Boundary>> boundary_list;
             std::vector<std::shared_ptr<Receiver>> receiver_list;
             std::vector<std::shared_ptr<Speaker>> speaker_list;
         private:
+            /// Set with default parameters for domain separators
             std::map<Direction, EdgeParameters> default_edge_parameters; // Uninitialized
             int number_of_domains;
         public:
@@ -101,11 +110,6 @@ namespace OpenPSTD
             void add_domain(std::shared_ptr<Domain> domain);
 
             /**
-             * Computes the reflection and transmission coordinates for each domain in the scene.
-             */
-            void compute_rho_arrays();
-
-            /**
              * Computes the perfectly matched layer matrix coefficients for each domain in the scene.
              */
             void compute_pml_matrices();
@@ -129,7 +133,7 @@ namespace OpenPSTD
 
             /**
              * Fetch a domain with specified ID, if existing.
-             * @param id: string ID of domain.
+             * @param id: integer ID of domain.
              * @return: domain pointer if domain with id exists, else nullptr.
              */
             std::shared_ptr<Domain> get_domain(int id);

@@ -11,6 +11,9 @@ namespace OpenPSTD
 {
     namespace Kernel
     {
+        /**
+         * Fake kernel useful for testing the interaction between kernel and CLI or GUI
+         */
         class MockKernel : public KernelInterface
         {
         private:

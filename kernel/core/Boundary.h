@@ -41,11 +41,20 @@ namespace OpenPSTD
     {
         /**
          * Models a boundary between two domains.
+         *
+         * Boundaries are represented as line segments parallel to one of the two (three) axes in the coordinate system.
+         * Each boundary is adjacent to at most two domains.
          */
         class Boundary
         {
         public:
-            std::shared_ptr<Domain> domain1, domain2;
+            /** First of the domains separated by the boundary **/
+            std::shared_ptr<Domain> domain1;
+
+            /** Second of the domains separated by the boundary **/
+            std::shared_ptr<Domain> domain2;
+
+            /** Whether the boundary is used for horizontal or vertical computations **/
             CalcDirection type;
 
             /**

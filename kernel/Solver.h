@@ -37,15 +37,22 @@
 #include "core/Scene.h"
 #include "PSTDKernel.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
-        class Solver
-        {
+        /**
+         * Component that computes the state variables of the scene for consecutive time steps.
+         *
+         * This is an abstract class, implemented in single/multi-threaded solvers.
+         * Based on the settings and the scene, the solver repeatedly executes the
+         * PSTD method to approximate the pressure and velocity.
+         * The time integration is performed with a RK6 method described in <paper>.
+         */
+        class Solver {
         private:
+            /// Parameters and settings
             std::shared_ptr<PSTDSettings> settings;
+            /// Scene (initialized before passed to the solver)
             std::shared_ptr<Scene> scene;
 
         protected:
@@ -85,8 +92,10 @@ namespace OpenPSTD
             void compute_propagation();
         };
 
-        class SingleThreadSolver : public Solver
-        {
+        /**
+         * Default singlethreaded solver.
+         */
+        class SingleThreadSolver : public Solver {
         public:
             /**
              * Default constructor. Blocking call: will not return before the solver is done.
@@ -95,8 +104,10 @@ namespace OpenPSTD
             SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
-        class MultiThreadSolver : public Solver
-        {
+        /**
+         * Solver that exploits the multiple CPU cores of a machine
+         */
+        class MultiThreadSolver : public Solver {
         public:
             /**
              * Multithreaded solver. This instance employs multiple CPU's
@@ -105,8 +116,10 @@ namespace OpenPSTD
             MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
-        class GPUSingleThreadSolver : public Solver
-        {
+        /**
+         * Solver that performs the computational intensive parts on a GPU
+         */
+        class GPUSingleThreadSolver : public Solver {
         public:
             /**
              * GPU solver. This instance runs the PSTD computations on the graphics card
@@ -115,8 +128,10 @@ namespace OpenPSTD
             GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
         };
 
-        class GPUMultiThreadSolver : public Solver
-        {
+        /**
+         * Solver that both utilized multiple cores and the GPU
+         */
+        class GPUMultiThreadSolver : public Solver {
         public:
             /**
              * Multithreaded GPU solver. This instance employs both multiple CPU's as well as the graphics card.

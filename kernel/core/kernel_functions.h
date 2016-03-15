@@ -86,6 +86,9 @@ namespace OpenPSTD {
             LEFT, RIGHT, TOP, BOTTOM
         };
 
+        /**
+         * Convenience vectors
+         */
         const std::vector<Direction> all_directions = {Direction::LEFT, Direction::RIGHT, Direction::TOP,
                                                        Direction::BOTTOM};
 
@@ -93,6 +96,9 @@ namespace OpenPSTD {
         const std::vector<CalculationType> all_calculation_types = {CalculationType::PRESSURE,
                                                                     CalculationType::VELOCITY};
 
+        /**
+         * Coefficients for a six stage RK time integration
+         */
         const std::vector<float> rk_coefficients = {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f,
                                                     1.65919771368e-1f, 5e-1, 1.f}; // Temporary until bugfix
 
@@ -192,10 +198,18 @@ namespace OpenPSTD {
         /**
          * Computes the smallest power of 2 larger or equal to n if n positive, and 1 otherwise
          * @param n
-         * return 2^k >= n
+         * @return 2^k >= n
          */
         int next_2_power(float n);
 
+        /**
+         * Perform a numerical check whether a approximately equals b.
+         * Returns
+         * @see EPSILON
+         * @param a: float
+         * @param b: float
+         * @return True if relative or absolute difference is smaller than the specified EPSILON, False otherwise
+         */
         bool is_approx(float a, float b);
 
         void debug(std::string msg);

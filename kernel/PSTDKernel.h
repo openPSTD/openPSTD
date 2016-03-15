@@ -40,26 +40,32 @@
 #include "core/Scene.h"
 #include "KernelInterface.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
-
-/**
- * The kernel API. Contains one method for initialization and one for running the simulation.
- */
-        class PSTDKernel : public KernelInterface
-        {
+        /**
+         * The API with methods that run the simulation from a PSTDFile
+         *
+         * This API has two methods, one for initialization of the scene and the domains,
+         * and one for starting the actual simulation.
+         */
+        class PSTDKernel : public KernelInterface {
         private:
+            /// Configuration file from which the simulation is created
             std::shared_ptr<PSTDConfiguration> config;
+            /// Settings derived from the configuration
             std::shared_ptr<PSTDSettings> settings;
+            /// Scene created from the config
             std::shared_ptr<Kernel::Scene> scene;
+            /// Standard alpha
             const float default_alpha = 1.f;
 
-
+            /**
+             * Call the necessary methods to initialize the scene.
+             */
             void initialize_scene();
 
+            /// Wisdom cache used in the simulation
             std::shared_ptr<Kernel::WisdomCache> wnd;
 
             /**
@@ -115,6 +121,7 @@ namespace OpenPSTD
             /**
              * Sets the configuration,
              * also initializes the kernel and the scene, constructs the domains and sets the parameters.
+             * @param config: Configuration file from the PSTDFile
              */
             void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) override;
 
@@ -129,6 +136,10 @@ namespace OpenPSTD
              */
             SimulationMetadata get_metadata() override;
 
+            /**
+             * Return the scene of the simulation
+             * @return: Shared pointer to simulation of the scene
+             */
             std::shared_ptr<Kernel::Scene> get_scene();
         };
 

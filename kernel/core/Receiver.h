@@ -40,26 +40,27 @@
 #include "Domain.h"
 #include <string>
 #include "kernel_functions.h"
-#include "wave_numbers.h"
+#include "WisdomCache.h"
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class Receiver
-        {
-            /*
-            * Receiver class. This class measures and stores the sound pressure on each time step.
-            * Note that receiver locations (just like speaker locations) are defined on the grid,
-            * but don't need to lie on grid points; their coordinates are not rounded off.
-             * If the Receiver is not located on a grid point, the sound values are interpolated,
-             * either from the nearest grid point or using a spectral interpolation method.
-            */
+namespace OpenPSTD {
+    namespace Kernel {
+        /**
+         * Measure pressure values on a fixed location in the scene.
+         *
+         * This class measures and stores the sound pressure on each time step.
+         * Note that receiver locations (just like speaker locations) are defined on the grid,
+         * but don't need to lie on grid points; their coordinates are not rounded off.
+         * If the Receiver is not located on a grid point, the sound values are interpolated,
+         * either from the nearest grid point or using a spectral interpolation method.
+         */
+        class Receiver {
+
         public:
             const float x;
             const float y;
             const float z;
             int id;
+
             /**
              * Unrounded (grid) location
              */
@@ -75,11 +76,22 @@ namespace OpenPSTD
              */
             std::vector<float> grid_offset;
 
+            /**
+             * Config file containing the receiver parameters
+             */
             std::shared_ptr<PSTDSettings> config;
 
+            /**
+             * Domain containing the receiver
+             */
             std::shared_ptr<Domain> container_domain;
+
+            /**
+             * Vector of observed pressure values in the receiver
+             */
+
             std::vector<float> received_values;
-            //Todo: Feature: If location sufficiently close to cell center, always compute with nn
+
             /**
              * Initializes a receiver on coordinates (x,y,z) in grid space (not fixed to integers)
              * @param location float coordinates in 3D grid space. For 2D, leave z=0
@@ -96,6 +108,7 @@ namespace OpenPSTD
              * or spectral interpolation (slower, more accurate)
              * @see spatderp3
              * @see config
+             * @return float approximation of the sound pressure in receiver location
              */
             float compute_local_pressure();
 

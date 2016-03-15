@@ -16,7 +16,7 @@ else
         wget http://www.fftw.org/fftw-3.3.4.tar.gz
         tar -xzf fftw-3.3.4.tar.gz
         cd fftw-3.3.4
-        ./configure --enable-float --enable-sse --prefix=/usr
+        ./configure --enable-float --enable-sse CXX="g++ -stdlib=libstdc++ -arch i386 -arch x86_64"
         make
         sudo make install
     fi

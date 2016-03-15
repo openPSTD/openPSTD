@@ -23,13 +23,10 @@
 //
 // Authors: Omar Richardson, Louis van Harten
 //
-// Purpose: Discretize wave numbers dynamically,
-// and optimize them for FFT computations.
-// Also contains the plans for FFTW.
 //
 //////////////////////////////////////////////////////////////////////////
-#ifndef OPENPSTD_WAVE_NUMBERS_H
-#define OPENPSTD_WAVE_NUMBERS_H
+#ifndef OPENPSTD_WISDOMCACHE_H
+#define OPENPSTD_WISDOMCACHE_H
 
 #include <map>
 #include <math.h>
@@ -39,23 +36,33 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-        class WisdomCache
-        {
+namespace OpenPSTD {
+    namespace Kernel {
+
+        /**
+         * Storage of the accumulated wisdom in the simulation.
+         *
+         * Purpose: Discretize wave numbers dynamically,
+         * and optimize them for FFT computations.
+         * Also contains the plans for FFTW.
+         */
+        class WisdomCache {
         public:
-            struct Discretization
-            {
+
+            /**
+             * Storage of the wave number discretizations
+             */
+            struct Discretization {
                 Eigen::ArrayXf wave_numbers;
                 Eigen::ArrayXcf complex_factors;
                 Eigen::ArrayXcf pressure_deriv_factors;
                 Eigen::ArrayXcf velocity_deriv_factors;
             };
 
-            struct Planset_FFTW
-            {
+            /**
+             * Storage of the plans used in the Fast Fourier Transform
+             */
+            struct Planset_FFTW {
                 fftwf_plan plan;
                 fftwf_plan plan_inv;
             };
@@ -107,7 +114,7 @@ namespace OpenPSTD
              */
 
             /**
-             * Compute the rounded up 2log of the number of grid cells.
+             * Compute the rounded up @f$\log_2@f$ of the number of grid cells.
              */
             int match_number(int n);
         };
@@ -116,4 +123,4 @@ namespace OpenPSTD
     }
 }
 
-#endif //OPENPSTD_WAVE_NUMBERS_H
+#endif //OPENPSTD_WISDOMCACHE_H

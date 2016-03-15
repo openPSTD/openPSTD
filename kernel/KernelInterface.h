@@ -12,22 +12,21 @@
 #include <Eigen/Core>
 
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
-/**
- * The status of the kernel when the callback is called.
- */
-        enum class CALLBACKSTATUS
-        {
+namespace OpenPSTD {
+    namespace Kernel {
+        /**
+         * The status of the kernel when the callback is called.
+         */
+        enum class CALLBACKSTATUS {
             STARTING,
             RUNNING,
             FINISHED
         };
 
-        enum PSTD_DOMAIN_SIDE
-        {
+        /**
+         * Enums for the domain boundary representation in the interface
+         */
+        enum PSTD_DOMAIN_SIDE {
             PSTD_DOMAIN_SIDE_TOP = 1,
             PSTD_DOMAIN_SIDE_BOTTOM = 2,
             PSTD_DOMAIN_SIDE_LEFT = 4,
@@ -36,25 +35,49 @@ namespace OpenPSTD
             PSTD_DOMAIN_SIDE_NONE = 0
         };
 
-        class PSTDSettings
-        {
+        /**
+         * A collection of parameters and settings for the simulation
+         *
+         * PSTDSettings contains various parameters like simulation duration, time step size
+         * window shape, etcetera. Most of these can freely be set, some depend on other parameters.
+         */
+        class PSTDSettings {
         private:
+            /// Simulation length. Number of steps depends on this and dt
             float calctime;
+            /// Speed of sound in air
             float c1;
+            /// Maximum amplitude
             float ampMax;
+            /// Maximum frequency
             float freqMax;
+            /// Density of medium (default: air)
             float rho;
+            /// Patch error
+            // Todo: What is this?
             float patcherror;
+            /// Time step coefficient used in computing the RK time step size
             float tfactRK;
+            /// Size of grid cell in x and y (and z) direction
             float gridSpacing;
+            /// Bandwidth
             float band_width;
+            /// Wave length. Has to satisfy some minimum
             float wave_length;
+            /// Coefficients of the six-stage RK method, according to <paper>
             std::vector<float> rk_coefficients;
+            /// Flag indicating whether to interpolate pressure values with spectral interpolation.
+            /// If false, interpolation occurs with a nearest neighbour approximation
             bool spectral_interpolation;
+            /// Number of cells of the perfectly matched layer boundary
             int PMLCells;
+            /// Subsampling size of the simulation results.
             int SaveNth;
+            /// Enable GPU-acceleration
             bool gpu;
+            /// Enable CPU-acceleration
             bool multithread;
+            /// Window coefficients for attenuating the sound
             Eigen::ArrayXf window;
 
         public:
@@ -149,10 +172,14 @@ namespace OpenPSTD
             void SetRKCoefficients(std::vector<float> coef);
         };
 
-        class DomainConfEdge
-        {
+        /**
+         * Interface values for boundaries of domains
+         */
+        class DomainConfEdge {
         public:
+            /// Wall absorption coefficient
             float Absorption;
+            /// Locally reacting flag
             bool LR;
 
             template<class Archive>
@@ -163,8 +190,10 @@ namespace OpenPSTD
             }
         };
 
-        class DomainConf
-        {
+        /**
+         * Interface representation of the domain
+         */
+        class DomainConf {
         public:
             //todo replace QVector2D
             QVector2D TopLeft;
@@ -172,9 +201,11 @@ namespace OpenPSTD
             DomainConfEdge T, L, B, R;
 
             float GetAbsorption(PSTD_DOMAIN_SIDE side);
-            void  SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption);
+
+            void SetAbsorption(PSTD_DOMAIN_SIDE sides, float absorption);
 
             bool GetLR(PSTD_DOMAIN_SIDE side);
+
             void SetLR(PSTD_DOMAIN_SIDE sides, bool LR);
 
             template<class Archive>
@@ -189,8 +220,13 @@ namespace OpenPSTD
             }
         };
 
-        class PSTDConfiguration
-        {
+        /**
+         * Representation of the scene configuration.
+         *
+         * This object contains the settings with the simulation parameters (see Settings) as well
+         * as the domains, speaker and receivers with their respective positions.
+         */
+        class PSTDConfiguration {
         public:
             PSTDSettings Settings;
             //todo replace QVector3D
@@ -199,7 +235,9 @@ namespace OpenPSTD
             std::vector<DomainConf> Domains;
 
             /**
-             * Creates a default configuration
+             * Obtain a default configuration with decent values for a simulation run
+             * @return: Pointer to a set configuration file
+             *
              */
             static std::shared_ptr<PSTDConfiguration> CreateDefaultConf();
             /**
@@ -217,8 +255,13 @@ namespace OpenPSTD
             }
         };
 
-        class KernelCallback
-        {
+        /**
+         * Callback interface for communication with the CLI or the GUI
+         *
+         * This callback is passed to the kernel to return simulation information to the requester.
+         * Main use case is passing the observed pressure values, the warnings and the errors.
+         */
+        class KernelCallback {
         public:
             /**
              * This callback will be called with information how far the kernel is progressed.
@@ -245,8 +288,10 @@ namespace OpenPSTD
             virtual void WriteSample(int startSample, int receiver, std::vector<float> data) = 0;
         };
 
-        class SimulationMetadata
-        {
+        /**
+         * Data not obtained in running openPSTD but necessary for representing the information.
+         */
+        class SimulationMetadata {
         public:
             /**
              * The discretization of the domain sizes, in order they were passed to the kernel.
@@ -266,11 +311,10 @@ namespace OpenPSTD
             std::vector<std::vector<int>> DomainPositions;
         };
 
-/**
- * The kernel API. Contains one method for initialization and one for running the simulation.
- */
-        class KernelInterface
-        {
+        /**
+         * The kernel API.
+         */
+        class KernelInterface {
         public:
             /**
              * Sets the configuration.
@@ -290,8 +334,7 @@ namespace OpenPSTD
             virtual SimulationMetadata get_metadata() = 0;
         };
 
-        class PSTDKernelNotConfiguredException : public std::exception
-        {
+        class PSTDKernelNotConfiguredException : public std::exception {
         public:
             const char *what() const noexcept override;
         };

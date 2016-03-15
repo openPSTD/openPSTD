@@ -16,7 +16,7 @@ else()
     # Kernel test files
     set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/Kernel/kernel_functions.cpp
             test/Kernel/Speaker.cpp test/Kernel/Geometry.cpp test/Kernel/Domain.cpp
-            test/Kernel/wave_numbers.cpp)
+            test/Kernel/WisdomCache.cpp)
 endif()
 
 

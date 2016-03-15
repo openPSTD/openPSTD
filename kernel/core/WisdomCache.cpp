@@ -25,29 +25,24 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "wave_numbers.h"
+#include "WisdomCache.h"
 
 using namespace std;
 
-namespace OpenPSTD
-{
-    namespace Kernel
-    {
+namespace OpenPSTD {
+    namespace Kernel {
 
 
         WisdomCache::WisdomCache() {
         }; //Todo: Rename file to wisdom_cache
 
-        WisdomCache::Discretization WisdomCache::get_discretization(float dx, int N)
-        {
+        WisdomCache::Discretization WisdomCache::get_discretization(float dx, int N) {
             int matched_int = this->match_number(N);
             auto search = this->computed_discretization.find(matched_int); // Crashes here
-            if (search != this->computed_discretization.end())
-            {
+            if (search != this->computed_discretization.end()) {
                 return search->second;
             }
-            else
-            {
+            else {
                 Discretization new_wave_discretizer = discretize_wave_numbers(dx, matched_int);
                 computed_discretization[matched_int] = new_wave_discretizer;
                 return new_wave_discretizer;
@@ -55,8 +50,7 @@ namespace OpenPSTD
         }
 
 
-        WisdomCache::Discretization WisdomCache::discretize_wave_numbers(float dx, int N)
-        {
+        WisdomCache::Discretization WisdomCache::discretize_wave_numbers(float dx, int N) {
             float max_wave_number = (float) M_PI / dx;
             int two_power = (int) pow(2, N - 1);
 
@@ -80,24 +74,20 @@ namespace OpenPSTD
             return discr;
         }
 
-        WisdomCache::Planset_FFTW WisdomCache::get_fftw_planset(int fft_length, int fft_batch_size)
-        {
+        WisdomCache::Planset_FFTW WisdomCache::get_fftw_planset(int fft_length, int fft_batch_size) {
             std::string plan_key = std::to_string(fft_length).append(",").append(std::to_string(fft_batch_size));
             auto search = this->cached_fftw_plans.find(plan_key);
-            if (search != this->cached_fftw_plans.end())
-            {
+            if (search != this->cached_fftw_plans.end()) {
                 return search->second;
             }
-            else
-            {
+            else {
                 Planset_FFTW new_fftw_planset = create_fftw_planset(fft_length, fft_batch_size);
                 cached_fftw_plans[plan_key] = new_fftw_planset;
                 return new_fftw_planset;
             }
         }
 
-        WisdomCache::Planset_FFTW WisdomCache::create_fftw_planset(int fft_length, int fft_batch_size)
-        {
+        WisdomCache::Planset_FFTW WisdomCache::create_fftw_planset(int fft_length, int fft_batch_size) {
             int shape[] = {fft_length};
             int istride = 1; //distance between two elements in one fft-able array
             int ostride = istride;
@@ -116,18 +106,15 @@ namespace OpenPSTD
             return result;
         }
 
-        int WisdomCache::match_number(int n)
-        {
+        int WisdomCache::match_number(int n) {
             return (int) ceil(log2(n));
         }
 
 
-        ostream &operator<<(ostream &str, WisdomCache const &v)
-        {
+        ostream &operator<<(ostream &str, WisdomCache const &v) {
             string number_repr;
             for (auto iterator = v.computed_discretization.begin();
-                 iterator != v.computed_discretization.end(); iterator++)
-            {
+                 iterator != v.computed_discretization.end(); iterator++) {
                 number_repr += "n = 2^" + to_string(iterator->first) + " ";
             }
             return str << "Wavenumberdiscretizations: " << number_repr;
