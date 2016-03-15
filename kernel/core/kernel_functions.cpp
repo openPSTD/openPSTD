@@ -238,6 +238,7 @@ namespace OpenPSTD {
 
                 //ifft result contains the outer domains, so slice
                 result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
+                result = result / fft_length; // normalize to compensate for fftw roundtrip gain
 
             }
             else {
