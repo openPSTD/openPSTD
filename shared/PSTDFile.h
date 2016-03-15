@@ -63,8 +63,11 @@ namespace boost {
         template<class Archive>
         void save(Archive & ar, const QVector2D & v, unsigned int version)
         {
-            ar & v.x();
-            ar & v.y();
+            float x, y;
+            x = v.x();
+            y = v.y();
+            ar & x;
+            ar & y;
         }
         template<class Archive>
         void load(Archive & ar, QVector2D & v, unsigned int version)
@@ -79,9 +82,13 @@ namespace boost {
         template<class Archive>
         void save(Archive & ar, const QVector3D & v, unsigned int version)
         {
-            ar & v.x();
-            ar & v.y();
-            ar & v.z();
+            float x, y, z;
+            x = v.x();
+            y = v.y();
+            z = v.z();
+            ar & x;
+            ar & y;
+            ar & z;
         }
 
         template<class Archive>
