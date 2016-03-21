@@ -43,9 +43,8 @@ namespace OpenPSTD
 
         void OpenFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->d = Shared::PSTDFile::Open(this->filename);
-            reciever.model->d->Change();
-            reciever.model->Register(reciever.model->d);
+            reciever.model->documentAccess->Open(this->filename);
+            reciever.model->documentAccess->Change();
         }
 
 
@@ -55,17 +54,22 @@ namespace OpenPSTD
 
         void NewFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->d = Shared::PSTDFile::New(this->filename);
-            reciever.model->d->Change();
-            reciever.model->Register(reciever.model->d);
+            reciever.model->documentAccess->New(this->filename);
+            reciever.model->documentAccess->Change();
         }
 
         void SaveFileOperation::Run(const Reciever &reciever)
         {
-            //todo fix this command
-            /*reciever.model->d->Commit();
-            reciever.model->d->Change();
-            reciever.model->Register(reciever.model->d);*/
+            reciever.model->documentAccess->Save();
+        }
+
+        SaveAsFileOperation::SaveAsFileOperation(std::string filename): filename(filename)
+        {
+        }
+
+        void SaveAsFileOperation::Run(const Reciever &reciever)
+        {
+            reciever.model->documentAccess->SaveAs(this->filename);
         }
     }
 }

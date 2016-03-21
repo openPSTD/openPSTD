@@ -81,9 +81,9 @@ namespace OpenPSTD
                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
             program->bind();
-            if (m->view->IsChanged() || m->d->IsChanged())
+            if (m->view->IsChanged() || m->documentAccess->IsChanged())
             {
-                this->gridSpacing = m->d->GetSceneConf()->Settings.GetGridSpacing();
+                this->gridSpacing = m->documentAccess->GetDocument()->GetSceneConf()->Settings.GetGridSpacing();
                 this->viewMatrix = m->view->viewMatrix;
 
                 UpdateLines();

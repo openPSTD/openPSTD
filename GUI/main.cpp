@@ -39,11 +39,16 @@
 int main(int argc, char *argv[])
 {
     using namespace OpenPSTD::GUI;
-    std::shared_ptr<Controller> c = std::make_shared<Controller>();
 
-    c->SetArguments(argc, argv);
-    c->SetOperationRunner(c);
-    c->RunApplication();
+    int result;
+    {
+        std::shared_ptr <Controller> c = std::make_shared<Controller>();
+
+        c->SetArguments(argc, argv);
+        c->SetOperationRunner(c);
+        result = c->RunApplication();
+    }
+    return result;
 }
 
 namespace OpenPSTD
@@ -76,7 +81,7 @@ namespace OpenPSTD
                 runningOp = true;
                 operation->Run(r);
                 runningOp = false;
-                //todo: fix that also the document itself is registered
+                //todo: fix that also the documentAccess itself is registered
                 //if(this->model->invalidation.IsChanged())
                 {
                     this->w->UpdateFromModel(this->model);

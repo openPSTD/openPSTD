@@ -119,7 +119,7 @@ namespace OpenPSTD
 
             if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
             {
-                auto conf = model->d->GetSceneConf();
+                auto conf = model->documentAccess->GetDocument()->GetSceneConf();
                 int i = model->interactive->Selection.SelectedIndex;
                 domainProperties->SetDomain(conf->Domains[i]);
             }

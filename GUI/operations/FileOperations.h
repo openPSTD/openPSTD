@@ -71,6 +71,17 @@ namespace OpenPSTD
             virtual void Run(const Reciever &reciever) override;
         };
 
+        class SaveAsFileOperation : public BaseOperation
+        {
+        public:
+            SaveAsFileOperation(std::string filename);
+
+            virtual void Run(const Reciever &reciever) override;
+
+        private:
+            std::string filename;
+        };
+
     }
 }
 

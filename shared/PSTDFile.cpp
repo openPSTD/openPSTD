@@ -148,8 +148,9 @@ namespace OpenPSTD
                     ") with key " + PSTDFileKeyToString(_key) + ")").c_str();
         }
 
-        OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename)
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::Open(const boost::filesystem::path &path)
         {
+            std::string filename = path.string();
             std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
             unqlite *backend;
             unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
@@ -162,8 +163,9 @@ namespace OpenPSTD
             return result;
         }
 
-        OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::New(const boost::filesystem::path &path)
         {
+            std::string filename = path.string();
             {
                 std::unique_ptr<PSTDFile> result(new PSTDFile());
 

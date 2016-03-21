@@ -38,6 +38,7 @@
 #include "openpstd-shared_export.h"
 #include <string>
 #include <Eigen/Dense>
+#include <boost/filesystem.hpp>
 
 extern "C"
 {
@@ -190,11 +191,6 @@ namespace OpenPSTD
             void DeleteValue(PSTDFile_Key_t key);
 
             /**
-             * Initialize the database
-             */
-            void initialize();
-
-            /**
              * Increment framecount
              */
             unsigned int IncrementFrameCount(unsigned int domain);
@@ -308,14 +304,14 @@ namespace OpenPSTD
              * @param filename the filename that has to be opened
              * @return a unique ptr to the PSTD file
              */
-            static OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> Open(const std::string &filename);
+            static OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> Open(const boost::filesystem::path &filename);
 
             /**
-             * Creates a new file, a file can't exist only in memory, so a filename has to be given
-             * @param filename The filename of the newly create PSTD file
-             * @return A unique ptr to the new PSTD file
+             * Opens a file
+             * @param filename the filename that has to be opened
+             * @return a unique ptr to the PSTD file
              */
-            static OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> New(const std::string &filename);
+            static OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> New(const boost::filesystem::path &filename);
 
             /**
              * Constructs a PSTDFile, for internal use

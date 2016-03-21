@@ -103,7 +103,7 @@ namespace OpenPSTD
                 this->lineWidth = m->settings->visual.EdgeSize;
             }
 
-            if (m->d->IsChanged())
+            if (m->documentAccess->IsChanged())
             {
                 std::unique_ptr<std::vector<Edge>> edges = GetAllEdges(m);
                 std::unique_ptr<std::vector<Edge>> edgesWithoutDuplicates = RemoveDuplicateEdges(std::move(edges));
@@ -167,7 +167,7 @@ namespace OpenPSTD
 
         std::unique_ptr<std::vector<Edge>> SceneLayer::GetAllEdges(std::shared_ptr<Model> const &m)
         {
-            auto conf = m->d->GetSceneConf();
+            auto conf = m->documentAccess->GetDocument()->GetSceneConf();
             std::unique_ptr<std::vector<Edge>> result(new std::vector<Edge>());
 
             for (int i = 0; i < conf->Domains.size(); i++)

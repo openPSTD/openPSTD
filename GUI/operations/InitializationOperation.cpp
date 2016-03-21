@@ -33,6 +33,7 @@
 #include "InitializationOperation.h"
 #include "MouseOperations.h"
 #include "SelectionOperations.h"
+#include "FileOperations.h"
 
 namespace OpenPSTD
 {
@@ -41,9 +42,9 @@ namespace OpenPSTD
         void InitializationOperation::Run(const Reciever &reciever)
         {
             //todo: make sure an no file is loaded
-            reciever.model->d = std::unique_ptr<Shared::PSTDFile>(Shared::PSTDFile::New("test.jps"));
-            reciever.model->d->Change();
-            reciever.model->Register(reciever.model->d);
+            //create a basic file
+            std::shared_ptr<NewFileOperation> op1 = std::make_shared<NewFileOperation>("test.pstd");
+            reciever.operationRunner->RunOperation(op1);
 
             reciever.model->view->aspectMatrix = QMatrix4x4();
             reciever.model->view->viewMatrix = QMatrix4x4();
@@ -55,13 +56,13 @@ namespace OpenPSTD
             reciever.model->settings->Change();
 
             //select none of the domains
-            std::shared_ptr<DeselectOperation> op1(new DeselectOperation());
-            reciever.operationRunner->RunOperation(op1);
+            std::shared_ptr<DeselectOperation> op2(new DeselectOperation());
+            reciever.operationRunner->RunOperation(op2);
 
             //initialize Mouse handler
-            std::shared_ptr<ChangeMouseHandlerOperations> op2(new ChangeMouseHandlerOperations(
+            std::shared_ptr<ChangeMouseHandlerOperations> op3(new ChangeMouseHandlerOperations(
                     std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy())));
-            reciever.operationRunner->RunOperation(op2);
+            reciever.operationRunner->RunOperation(op3);
         }
     }
 }
