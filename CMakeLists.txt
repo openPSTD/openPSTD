@@ -30,6 +30,10 @@ cmake_minimum_required(VERSION 3.0)
 project(OpenPSTD)
 
 #------------------------------------
+# include module
+include (GenerateExportHeader)
+
+#------------------------------------
 # configuration options in the cache
 set(BOOST_ROOT "" CACHE PATH "The boost root directory")
 set(Qt5_DIR "" CACHE PATH "The directory to the Qt5 library")
@@ -58,6 +62,7 @@ message(STATUS "Building version: ${OPENPSTD_VERSION_MAJOR}.${OPENPSTD_VERSION_M
 #------------------------------------
 # General
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+include_directories(${CMAKE_BINARY_DIR})
 
 #------------------------------------
 # Dependencies

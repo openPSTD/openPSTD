@@ -35,6 +35,7 @@
 #ifndef OPENPSTD_PSTDFILE_H
 #define OPENPSTD_PSTDFILE_H
 
+#include "openpstd-shared_export.h"
 #include <string>
 #include <Eigen/Dense>
 
@@ -128,21 +129,21 @@ namespace OpenPSTD
         /**
          * Version error of the file
          */
-        class PSTDFileVersionException : public std::exception
+        class OPENPSTD_SHARED_EXPORT PSTDFileVersionException : public std::exception
         {
         private:
             int FileVersion;
 
         public:
-            PSTDFileVersionException(int fileVersion);
+            OPENPSTD_SHARED_EXPORT PSTDFileVersionException(int fileVersion);
 
-            const char *what() const noexcept override;
+            OPENPSTD_SHARED_EXPORT const char *what() const noexcept override;
         };
 
         /**
          * general exception of unqlite(lowlevel) errors
          */
-        class PSTDFileIOException : public std::exception
+        class OPENPSTD_SHARED_EXPORT PSTDFileIOException : public std::exception
         {
         private:
             int _unqlite_error;
@@ -150,12 +151,12 @@ namespace OpenPSTD
             std::string _action;
             std::string GetErrorString(int unqlite_error) const noexcept;
         public:
-            PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action);
+            OPENPSTD_SHARED_EXPORT PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action);
 
-            const char *what() const noexcept override;
+            OPENPSTD_SHARED_EXPORT const char *what() const noexcept override;
         };
 
-        class PSTDFile : public InvalidationData
+        class OPENPSTD_SHARED_EXPORT PSTDFile : public InvalidationData
         {
         private:
             /**
@@ -307,19 +308,19 @@ namespace OpenPSTD
              * @param filename the filename that has to be opened
              * @return a unique ptr to the PSTD file
              */
-            static std::unique_ptr<PSTDFile> Open(const std::string &filename);
+            static OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> Open(const std::string &filename);
 
             /**
              * Creates a new file, a file can't exist only in memory, so a filename has to be given
              * @param filename The filename of the newly create PSTD file
              * @return A unique ptr to the new PSTD file
              */
-            static std::unique_ptr<PSTDFile> New(const std::string &filename);
+            static OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> New(const std::string &filename);
 
             /**
              * Constructs a PSTDFile, for internal use
              */
-            PSTDFile();
+            OPENPSTD_SHARED_EXPORT PSTDFile();
 
             /**
              * Compresses the file that so that the file is smaller. This also deletes the data results.
@@ -332,60 +333,60 @@ namespace OpenPSTD
              * Reads the scene config out of the file
              * @return a shared ptr to a new object of scene configuration
              */
-            std::shared_ptr<Kernel::PSTDConfiguration> GetSceneConf();
+            OPENPSTD_SHARED_EXPORT std::shared_ptr<Kernel::PSTDConfiguration> GetSceneConf();
 
             /**
              * Writes the scene config to the file
              * @param scene a shared ptr to an object of scene configuration
              */
-            void SetSceneConf(std::shared_ptr<Kernel::PSTDConfiguration> scene);
+            OPENPSTD_SHARED_EXPORT void SetSceneConf(std::shared_ptr<Kernel::PSTDConfiguration> scene);
 
 
 
             /**
              * initializes the results(creates domains)
              */
-            void InitializeResults();
+            OPENPSTD_SHARED_EXPORT void InitializeResults();
 
             /**
              * Reads the scene config out of the file. This scene config is for the results, this config can differs from
              * GetSceneConf.
              * @return a shared ptr to a new object of scene configuration
              */
-            std::shared_ptr<Kernel::PSTDConfiguration> GetResultsSceneConf();
+            OPENPSTD_SHARED_EXPORT std::shared_ptr<Kernel::PSTDConfiguration> GetResultsSceneConf();
 
             /**
              * Get the number of domains
              */
-            int GetResultsDomainCount();
+            OPENPSTD_SHARED_EXPORT int GetResultsDomainCount();
 
             /**
              * Get the number of frames for a single domain
              * @param domain The domain index
              */
-            int GetResultsFrameCount(unsigned int domain);
+            OPENPSTD_SHARED_EXPORT int GetResultsFrameCount(unsigned int domain);
 
             /**
              * Gets the data from the frame
              */
-            Kernel::PSTD_FRAME_PTR GetResultsFrame(unsigned int frame, unsigned int domain);
+            OPENPSTD_SHARED_EXPORT Kernel::PSTD_FRAME_PTR GetResultsFrame(unsigned int frame, unsigned int domain);
 
             /**
              * Saves the next frame for a certain domain in the file
              */
-            void SaveNextResultsFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frame);
+            OPENPSTD_SHARED_EXPORT void SaveNextResultsFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frame);
 
             /**
              * Delete all the simulation results
              */
-            void DeleteResults();
+            OPENPSTD_SHARED_EXPORT void DeleteResults();
 
 
 
             /**
              * outputs debug info, only for debug purposes.
              */
-            void OutputDebugInfo();
+            OPENPSTD_SHARED_EXPORT void OutputDebugInfo();
         };
 
     }

@@ -6,15 +6,13 @@
 #include <boost/lexical_cast.hpp>
 #include <shared/Colors.h>
 #include "kernel/MockKernel.h"
-#include <limits>
-#include <algorithm>
 
 namespace OpenPSTD
 {
     namespace Shared
     {
 
-        std::vector<std::string> ExportImage::GetFormats()
+        OPENPSTD_SHARED_EXPORT std::vector<std::string> ExportImage::GetFormats()
         {
             auto result = std::vector<std::string>();
             result.push_back("image/png");
@@ -23,16 +21,16 @@ namespace OpenPSTD
             return result;
         }
 
-        bool ExportImage::GetFullView()
+        OPENPSTD_SHARED_EXPORT bool ExportImage::GetFullView()
         {
             return _fullView;
         }
-        void ExportImage::SetFullView(bool value)
+        OPENPSTD_SHARED_EXPORT void ExportImage::SetFullView(bool value)
         {
             _fullView = value;
         }
 
-        void ExportImage::ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
+        OPENPSTD_SHARED_EXPORT void ExportImage::ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
                                      std::string name, std::vector<int> domains, int startFrame,
                                      int endFrame)
         {
@@ -95,7 +93,7 @@ namespace OpenPSTD
 
         }
 
-        void ExportImage::drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max,
+        OPENPSTD_SHARED_NO_EXPORT void ExportImage::drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max,
                                    int colormapSize, std::vector<int> position, std::vector<int> size)
         {
             //draw on image
@@ -111,7 +109,7 @@ namespace OpenPSTD
             }
         }
 
-        void ExportImage::saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output, int domain,
+        OPENPSTD_SHARED_NO_EXPORT void ExportImage::saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output, int domain,
                                     int frame, std::vector<int> size, float min, float max)
         {
             //create image
@@ -165,7 +163,7 @@ namespace OpenPSTD
             }
         }
 
-        void ExportImage::saveFullImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
+        OPENPSTD_SHARED_NO_EXPORT void ExportImage::saveFullImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
                                         std::vector<int> domains, int frame, std::vector<std::vector<int>> positions,
                                         std::vector<std::vector<int>> sizes, float min, float max)
         {

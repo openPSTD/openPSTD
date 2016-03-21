@@ -14,7 +14,7 @@ namespace OpenPSTD
 {
     namespace Shared
     {
-        void HDF5::ExportData(std::string format, std::shared_ptr <PSTDFile> file, std::string output,
+        OPENPSTD_SHARED_EXPORT void HDF5::ExportData(std::string format, std::shared_ptr <PSTDFile> file, std::string output,
                               std::vector<int> domains, int startFrame, int endFrame)
         {
             hid_t file_id;

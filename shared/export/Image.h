@@ -5,6 +5,7 @@
 #ifndef OPENPSTD_IMAGE_H
 #define OPENPSTD_IMAGE_H
 
+#include "openpstd-shared_export.h"
 #include "Export.h"
 #include <shared/PSTDFile.h>
 #include <string>
@@ -15,19 +16,19 @@ namespace OpenPSTD
 {
     namespace Shared
     {
-        class ExportImage
+        class OPENPSTD_SHARED_EXPORT ExportImage
         {
         private:
             bool _fullView;
 
-            void saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
+            OPENPSTD_SHARED_NO_EXPORT void saveImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
                            int domain, int frame, std::vector<int> size, float min, float max);
 
-            void saveFullImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
+            OPENPSTD_SHARED_NO_EXPORT void saveFullImage(std::string format, std::shared_ptr<PSTDFile> file, std::string output,
                                std::vector<int> domains, int frame, std::vector<std::vector<int>> positions,
                                std::vector<std::vector<int>> sizes, float min, float max);
 
-            void drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max,
+            OPENPSTD_SHARED_NO_EXPORT void drawData(std::shared_ptr<QImage> image, Kernel::PSTD_FRAME_PTR frame, float min, float max,
                           int colormapSize, std::vector<int> position, std::vector<int> size);
 
         public:
@@ -35,20 +36,20 @@ namespace OpenPSTD
              * Creates a vector with strings that describes the formats that are supported. Every element should be in the
              * mime type format, for example the png format uses image/png.
              */
-            virtual std::vector<std::string> GetFormats();
+            OPENPSTD_SHARED_EXPORT virtual std::vector<std::string> GetFormats();
 
 
             /**
              * This is where every domain is written to a single frame.
              * The result is that in a single image all the domains are shown
              */
-            bool GetFullView();
+            OPENPSTD_SHARED_EXPORT bool GetFullView();
 
             /**
              * This is where every domain is written to a single frame.
              * The result is that in a single image all the domains are shown
              */
-            void SetFullView(bool value);
+            OPENPSTD_SHARED_EXPORT void SetFullView(bool value);
 
             /**
              * Exports a number of frames.
@@ -62,7 +63,7 @@ namespace OpenPSTD
              * @param startFrame: The first frame that must be exported (included). -1 when it should start with the first frame.
              * @param endFrame: The last frame that must be exported (included). -1 when it should should finish with the last frame.
              */
-            virtual void ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
+            OPENPSTD_SHARED_EXPORT virtual void ExportData(std::string format, std::shared_ptr<PSTDFile> file, std::string directory,
                                     std::string name, std::vector<int> domains, int startFrame, int endFrame);
         };
 
