@@ -37,6 +37,7 @@ namespace OpenPSTD
         {
         private:
             void Print(const std::string &filename, bool debug);
+            void Print(std::shared_ptr<Kernel::PSTDConfiguration> conf);
 
         public:
             std::string GetName() override;
