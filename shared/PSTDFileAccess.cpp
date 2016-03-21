@@ -91,7 +91,7 @@ namespace OpenPSTD
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::Close()
         {
-            if(!this->d)
+            if(this->d)
             {
                 this->d = nullptr;
                 remove(GetTempPath());

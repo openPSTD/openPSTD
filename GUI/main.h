@@ -47,7 +47,6 @@ namespace OpenPSTD
         {
         public:
             Controller();
-            ~Controller() { std::cout << "destroy controller...." << std::endl; }
 
             void SetArguments(int argc, char *argv[]);
 
