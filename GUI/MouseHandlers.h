@@ -59,10 +59,10 @@ namespace OpenPSTD
         class MouseStrategy
         {
         protected:
-            std::shared_ptr<OperationRunner> operationRunner;
+            std::weak_ptr<OperationRunner> operationRunner;
 
         public:
-            void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
+            void SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner);
 
             virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *, QVector2D pos)
             { };

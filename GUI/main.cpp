@@ -40,14 +40,20 @@ int main(int argc, char *argv[])
 {
     using namespace OpenPSTD::GUI;
 
-    int result;
-    {
-        std::shared_ptr <Controller> c = std::make_shared<Controller>();
+    std::shared_ptr <Controller> c = std::make_shared<Controller>();
 
-        c->SetArguments(argc, argv);
-        c->SetOperationRunner(c);
-        result = c->RunApplication();
-    }
+    c->model = std::make_shared<Model>();
+    c->RunOperationWithoutUpdate(std::make_shared<InitializationOperation>());
+
+    c->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
+    c->w = std::unique_ptr<MainWindow>(new MainWindow(c));
+
+    c->w->show();
+
+    c->UpdateWithoutOperation();
+
+    int result = c->a->exec();
+
     return result;
 }
 
@@ -56,22 +62,16 @@ namespace OpenPSTD
     namespace GUI
     {
         Controller::Controller() :
-                operationRunner(nullptr),
                 runningOp(false)
         {
 
-        }
-
-        void Controller::SetOperationRunner(std::shared_ptr<OperationRunner> runner)
-        {
-            this->operationRunner = runner;
         }
 
         void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
         {
             Reciever r;
             r.model = this->model;
-            r.operationRunner = this->operationRunner;
+            r.operationRunner = this->shared_from_this();
             if (runningOp)
             {
                 operation->Run(r);
@@ -94,7 +94,7 @@ namespace OpenPSTD
         {
             Reciever r;
             r.model = this->model;
-            r.operationRunner = this->operationRunner;
+            r.operationRunner = this->shared_from_this();
             runningOp = true;
             operation->Run(r);
             runningOp = false;
@@ -110,21 +110,6 @@ namespace OpenPSTD
         {
             this->argc = argc;
             this->argv = argv;
-        }
-
-        int Controller::RunApplication()
-        {
-            this->model = std::make_shared<Model>();
-            this->RunOperationWithoutUpdate(std::make_shared<InitializationOperation>());
-
-            this->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
-            this->w = std::unique_ptr<MainWindow>(new MainWindow(this->operationRunner));
-
-            this->w->show();
-
-            this->UpdateWithoutOperation();
-
-            return a->exec();
         }
     }
 }

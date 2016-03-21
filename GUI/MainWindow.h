@@ -54,7 +54,7 @@ namespace OpenPSTD
         Q_OBJECT
 
         public:
-            explicit MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
+            explicit MainWindow(std::weak_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
 
             void UpdateFromModel(std::shared_ptr<Model> const &model);
 
@@ -62,7 +62,7 @@ namespace OpenPSTD
             std::unique_ptr<Ui_MainWindow> ui;
             std::unique_ptr<DomainProperties> domainProperties;
             std::unique_ptr<DocumentSettings> documentSettings;
-            std::shared_ptr<OperationRunner> operationRunner;
+            std::weak_ptr<OperationRunner> operationRunner;
             std::vector<QAction *> MouseHandlersActions;
 
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);

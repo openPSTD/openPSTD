@@ -38,7 +38,7 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        void MouseStrategy::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
+        void MouseStrategy::SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner)
         {
             this->operationRunner = operationRunner;
         }
@@ -47,7 +47,7 @@ namespace OpenPSTD
                                                     QVector2D pos)
         {
             std::shared_ptr<SelectObjectOperation> op = std::make_shared<SelectObjectOperation>(pos);
-            operationRunner->RunOperation(op);
+            operationRunner.lock()->RunOperation(op);
         }
 
         void MouseMoveSceneStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
@@ -61,7 +61,7 @@ namespace OpenPSTD
             if (buttons & Qt::LeftButton)
             {
                 std::shared_ptr<TranslateScene> op = std::make_shared<TranslateScene>(offset);
-                operationRunner->RunOperation(op);
+                operationRunner.lock()->RunOperation(op);
             }
         }
 
@@ -73,7 +73,7 @@ namespace OpenPSTD
             float delta2 = powf(2, delta / 120);
 
             std::shared_ptr<ResizeScene> op = std::make_shared<ResizeScene>(delta2, pos);
-            operationRunner->RunOperation(op);
+            operationRunner.lock()->RunOperation(op);
         }
 
         void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *event,
@@ -122,7 +122,7 @@ namespace OpenPSTD
             std::shared_ptr<CreateDomainOperation> op = std::make_shared<CreateDomainOperation>(
                     model->interactive->CreateDomain.start,
                     model->interactive->CreateDomain.currentEnd);
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
         MouseCreateSpeakerReceiverStrategy::MouseCreateSpeakerReceiverStrategy(PstdObjectType type) : _type(type)
@@ -143,7 +143,7 @@ namespace OpenPSTD
         {
             std::shared_ptr<CreateReceiverSpeakerOperation> op = std::make_shared<CreateReceiverSpeakerOperation>(
                     this->_type, (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D());
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
     }
 }

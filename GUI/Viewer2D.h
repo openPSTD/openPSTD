@@ -87,7 +87,7 @@ namespace OpenPSTD
 
             void UpdateFromModel(std::shared_ptr<Model> const &model);
 
-            void SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner);
+            void SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner);
 
 
         protected:
@@ -107,7 +107,7 @@ namespace OpenPSTD
 
         private:
             std::vector<std::shared_ptr<Layer>> layers;
-            std::shared_ptr<OperationRunner> operationRunner;
+            std::weak_ptr<OperationRunner> operationRunner;
         };
 
         void GLError(std::string name);

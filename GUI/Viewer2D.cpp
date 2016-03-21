@@ -91,7 +91,7 @@ namespace OpenPSTD
             this->layers.push_back(std::make_shared<InteractiveLayer>());
         }
 
-        void Viewer2D::SetOperationRunner(std::shared_ptr<OperationRunner> operationRunner)
+        void Viewer2D::SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner)
         {
             this->operationRunner = operationRunner;
         }
@@ -128,9 +128,9 @@ namespace OpenPSTD
 
         void Viewer2D::resizeGL(int w, int h)
         {
-            if (this->operationRunner)
+            if (!this->operationRunner.expired())
             {
-                this->operationRunner->RunOperation(std::make_shared<ChangeAspectMatrix>(w, h));
+                this->operationRunner.lock()->RunOperation(std::make_shared<ChangeAspectMatrix>(w, h));
             }
 
             std::unique_ptr<QOpenGLFunctions, void (*)(void *)> f(QOpenGLContext::currentContext()->functions(),
@@ -233,7 +233,7 @@ namespace OpenPSTD
             std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->mousePressEvent(reciever.model, event, pos);
             });
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
         void Viewer2D::mouseReleaseEvent(QMouseEvent *event)
@@ -245,7 +245,7 @@ namespace OpenPSTD
             std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->mouseReleaseEvent(reciever.model, event, pos);
             });
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
         void Viewer2D::mouseMoveEvent(QMouseEvent *event)
@@ -257,7 +257,7 @@ namespace OpenPSTD
             std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->mouseMoveEvent(reciever.model, event, pos);
             });
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
         void Viewer2D::wheelEvent(QWheelEvent *event)
@@ -269,7 +269,7 @@ namespace OpenPSTD
             std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([&](const Reciever &reciever) {
                 reciever.model->mouseHandler->wheelEvent(reciever.model, event, pos);
             });
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
     }
