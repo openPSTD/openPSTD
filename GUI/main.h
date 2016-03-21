@@ -48,8 +48,6 @@ namespace OpenPSTD
         public:
             Controller();
 
-            void SetArguments(int argc, char *argv[]);
-
             virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
 
             void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
@@ -59,11 +57,7 @@ namespace OpenPSTD
             std::unique_ptr<QApplication> a;
             std::unique_ptr<MainWindow> w;
 
-            int argc;
-            char **argv;
-
         private:
-
             bool runningOp;
 
         };

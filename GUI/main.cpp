@@ -101,11 +101,5 @@ namespace OpenPSTD
             this->w->UpdateFromModel(this->model);
             this->model->Reset();
         }
-
-        void Controller::SetArguments(int argc, char *argv[])
-        {
-            this->argc = argc;
-            this->argv = argv;
-        }
     }
 }
