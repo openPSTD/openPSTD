@@ -36,7 +36,7 @@ namespace OpenPSTD
 {
     namespace Shared
     {
-        bool InvalidationData::IsChanged()
+        OPENPSTD_SHARED_EXPORT bool InvalidationData::IsChanged()
         {
             if (changed)
                 return true;
@@ -61,12 +61,12 @@ namespace OpenPSTD
 
         }
 
-        void InvalidationData::Change()
+        OPENPSTD_SHARED_EXPORT void InvalidationData::Change()
         {
             changed = true;
         }
 
-        void InvalidationData::Reset()
+        OPENPSTD_SHARED_EXPORT void InvalidationData::Reset()
         {
             changed = false;
 
@@ -86,7 +86,7 @@ namespace OpenPSTD
             }
         }
 
-        void InvalidationData::Register(std::weak_ptr<InvalidationData> item)
+        OPENPSTD_SHARED_EXPORT void InvalidationData::Register(std::weak_ptr<InvalidationData> item)
         {
             this->items.push_back(item);
         }

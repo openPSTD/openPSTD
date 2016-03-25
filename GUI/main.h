@@ -43,29 +43,23 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        class Controller: public OperationRunner
+        class Controller: public OperationRunner, public std::enable_shared_from_this<Controller>
         {
         public:
             Controller();
 
-            void SetArguments(int argc, char *argv[]);
-            int RunApplication();
-            void SetOperationRunner(std::shared_ptr<OperationRunner> runner);
-
             virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
 
-        private:
             void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
             void UpdateWithoutOperation();
 
-            bool runningOp;
-            std::shared_ptr<OperationRunner> operationRunner;
             std::shared_ptr<Model> model;
             std::unique_ptr<QApplication> a;
             std::unique_ptr<MainWindow> w;
 
-            int argc;
-            char **argv;
+        private:
+            bool runningOp;
+
         };
     }
 }

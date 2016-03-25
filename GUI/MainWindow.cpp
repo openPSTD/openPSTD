@@ -42,7 +42,7 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        MainWindow::MainWindow(std::shared_ptr<OperationRunner> operationRunner, QWidget *parent) :
+        MainWindow::MainWindow(std::weak_ptr<OperationRunner> operationRunner, QWidget *parent) :
                 QMainWindow(parent),
                 ui(new Ui_MainWindow()),
                 operationRunner(operationRunner),
@@ -100,7 +100,7 @@ namespace OpenPSTD
 
             QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
                              [&](bool checked) {
-                                 this->operationRunner->RunOperation(
+                                 this->operationRunner.lock()->RunOperation(
                                          std::make_shared<RemoveSelectedObjectOperation>());
                              });
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
@@ -119,7 +119,7 @@ namespace OpenPSTD
 
             if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
             {
-                auto conf = model->d->GetSceneConf();
+                auto conf = model->documentAccess->GetDocument()->GetSceneConf();
                 int i = model->interactive->Selection.SelectedIndex;
                 domainProperties->SetDomain(conf->Domains[i]);
             }
@@ -132,7 +132,7 @@ namespace OpenPSTD
             if (!fileName.isNull())
             {
                 auto op = std::make_shared<NewFileOperation>(fileName.toStdString());
-                this->operationRunner->RunOperation(op);
+                this->operationRunner.lock()->RunOperation(op);
             }
         }
 
@@ -143,14 +143,14 @@ namespace OpenPSTD
             if (!fileName.isNull())
             {
                 auto op = std::make_shared<OpenFileOperation>(fileName.toStdString());
-                this->operationRunner->RunOperation(op);
+                this->operationRunner.lock()->RunOperation(op);
             }
         }
 
         void MainWindow::Save()
         {
             auto op = std::make_shared<SaveFileOperation>();
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
         void MainWindow::ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler)
@@ -162,7 +162,7 @@ namespace OpenPSTD
             action->setChecked(true);
 
             auto op = std::make_shared<ChangeMouseHandlerOperations>(std::move(mouseHandler));
-            this->operationRunner->RunOperation(op);
+            this->operationRunner.lock()->RunOperation(op);
         }
 
         void MainWindow::EditSelectedDomain()
@@ -178,7 +178,7 @@ namespace OpenPSTD
                 op->LRB = this->domainProperties->LRB();
                 op->LRL = this->domainProperties->LRL();
                 op->LRR = this->domainProperties->LRR();
-                this->operationRunner->RunOperation(op);
+                this->operationRunner.lock()->RunOperation(op);
             }
         }
 
@@ -193,7 +193,7 @@ namespace OpenPSTD
         {
             if (this->documentSettings->exec() == QDialog::Accepted)
             {
-                this->operationRunner->RunOperation(
+                this->operationRunner.lock()->RunOperation(
                         std::make_shared<EditDocumentSettingsOperation>(this->documentSettings->GetResult()));
             }
         }

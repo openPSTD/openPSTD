@@ -36,6 +36,7 @@
 #ifndef OPENPSTD_INVALIDATIONDATA_H
 #define OPENPSTD_INVALIDATIONDATA_H
 
+#include "openpstd-shared_export.h"
 #include <memory>
 #include <vector>
 
@@ -47,7 +48,7 @@ namespace OpenPSTD
  * A class that keeps track if something has changed. If it changes than Change has to be called. To check call
  * IsChanged. To reset the change, Reset has to be called. It also keeps children that individually can be changed.
  */
-        class InvalidationData
+        class OPENPSTD_SHARED_EXPORT InvalidationData
         {
         private:
             std::vector<std::weak_ptr<InvalidationData>> items;
@@ -66,22 +67,22 @@ namespace OpenPSTD
              * Registers a child that is checked when calling IsChanged. This is a weak_ptr, so that if the object is destroyed,
              * then it will deregister.
              */
-            virtual void Register(std::weak_ptr<InvalidationData> child);
+            OPENPSTD_SHARED_EXPORT virtual void Register(std::weak_ptr<InvalidationData> child);
 
             /**
              * checks if it has changed or any of it's children.
              */
-            virtual bool IsChanged();
+            OPENPSTD_SHARED_EXPORT virtual bool IsChanged();
 
             /**
              * Specify that there is a change.
              */
-            virtual void Change();
+            OPENPSTD_SHARED_EXPORT virtual void Change();
 
             /**
              * Resets the change.
              */
-            virtual void Reset();
+            OPENPSTD_SHARED_EXPORT virtual void Reset();
         };
 
 /**

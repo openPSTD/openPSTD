@@ -10,14 +10,14 @@ namespace OpenPSTD
     namespace Shared
     {
 
-        ExportFormatNotSupported::ExportFormatNotSupported(std::string format,
+        OPENPSTD_SHARED_EXPORT ExportFormatNotSupported::ExportFormatNotSupported(std::string format,
                                                            std::vector<std::string> supportedFormats) :
                 _format(format), _supportedFormats(supportedFormats)
         {
 
         }
 
-        const char *ExportFormatNotSupported::what() const noexcept
+        OPENPSTD_SHARED_EXPORT const char *ExportFormatNotSupported::what() const noexcept
         {
             if (_supportedFormats.size() == 0)
             {

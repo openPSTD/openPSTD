@@ -40,8 +40,6 @@ extern "C"
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/serialization/vector.hpp>
-#include <vector>
-#include <iostream>
 
 namespace OpenPSTD
 {
@@ -78,18 +76,18 @@ namespace OpenPSTD
             return result;
         }
 
-        PSTDFileVersionException::PSTDFileVersionException(int fileVersion)
+        OPENPSTD_SHARED_EXPORT PSTDFileVersionException::PSTDFileVersionException(int fileVersion)
         {
             this->FileVersion = fileVersion;
         }
 
-        const char *PSTDFileVersionException::what() const noexcept
+        OPENPSTD_SHARED_EXPORT const char *PSTDFileVersionException::what() const noexcept
         {
             return ("Wrong version: " + boost::lexical_cast<std::string>(FileVersion) + "(expected: " +
                     boost::lexical_cast<std::string>(PSTD_FILE_VERSION) + ")").c_str();
         }
 
-        PSTDFileIOException::PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action)
+        OPENPSTD_SHARED_EXPORT PSTDFileIOException::PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action)
         {
             _unqlite_error = unqlite_error;
             _key = key;
@@ -144,14 +142,15 @@ namespace OpenPSTD
             }
         }
 
-        const char *PSTDFileIOException::what() const noexcept
+        OPENPSTD_SHARED_EXPORT const char *PSTDFileIOException::what() const noexcept
         {
             return ("Error with '" + _action + "': error " + this->GetErrorString(_unqlite_error) + " (" + boost::lexical_cast<std::string>(_unqlite_error) +
                     ") with key " + PSTDFileKeyToString(_key) + ")").c_str();
         }
 
-        std::unique_ptr<PSTDFile> PSTDFile::Open(const std::string &filename)
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::Open(const boost::filesystem::path &path)
         {
+            std::string filename = path.string();
             std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
             unqlite *backend;
             unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
@@ -164,8 +163,9 @@ namespace OpenPSTD
             return result;
         }
 
-        std::unique_ptr<PSTDFile> PSTDFile::New(const std::string &filename)
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::New(const boost::filesystem::path &path)
         {
+            std::string filename = path.string();
             {
                 std::unique_ptr<PSTDFile> result(new PSTDFile());
 
@@ -187,47 +187,47 @@ namespace OpenPSTD
             return PSTDFile::Open(filename);
         }
 
-        PSTDFile::PSTDFile() : backend(nullptr, unqlite_close)
+        OPENPSTD_SHARED_EXPORT PSTDFile::PSTDFile() : backend(nullptr, unqlite_close)
         {
 
         }
 
-        shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf()
+        OPENPSTD_SHARED_EXPORT shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf()
         {
             return this->GetSceneConf(CreateKey(PSTD_FILE_PREFIX_SCENE, {}));
         }
 
-        void PSTDFile::SetSceneConf(shared_ptr<Kernel::PSTDConfiguration> scene)
+        OPENPSTD_SHARED_EXPORT void PSTDFile::SetSceneConf(shared_ptr<Kernel::PSTDConfiguration> scene)
         {
             this->SetSceneConf(CreateKey(PSTD_FILE_PREFIX_SCENE, {}), scene);
         }
 
-        int PSTDFile::GetResultsDomainCount()
+        OPENPSTD_SHARED_EXPORT int PSTDFile::GetResultsDomainCount()
         {
             std::shared_ptr<Kernel::PSTDConfiguration> conf = this->GetResultsSceneConf();
             return conf->Domains.size();
         }
 
-        int PSTDFile::GetResultsFrameCount(unsigned int domain)
+        OPENPSTD_SHARED_EXPORT int PSTDFile::GetResultsFrameCount(unsigned int domain)
         {
             return GetValue<int>(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT, {domain}));
         }
 
-        Kernel::PSTD_FRAME_PTR PSTDFile::GetResultsFrame(unsigned int frame, unsigned int domain)
+        OPENPSTD_SHARED_EXPORT Kernel::PSTD_FRAME_PTR PSTDFile::GetResultsFrame(unsigned int frame, unsigned int domain)
         {
             unqlite_int64 size;
             float *result = (float *) this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAMEDATA, {domain, frame}), &size);
             return make_shared<Kernel::PSTD_FRAME>(result, result + (size / 4));
         }
 
-        void PSTDFile::SaveNextResultsFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frameData)
+        OPENPSTD_SHARED_EXPORT void PSTDFile::SaveNextResultsFrame(unsigned int domain, Kernel::PSTD_FRAME_PTR frameData)
         {
             unsigned int frame = IncrementFrameCount(domain);
             this->SetRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAMEDATA, {domain, frame}),
                               frameData->size() * sizeof(Kernel::PSTD_FRAME_UNIT), frameData->data());
         }
 
-        void PSTDFile::InitializeResults()
+        OPENPSTD_SHARED_EXPORT void PSTDFile::InitializeResults()
         {
             auto conf = GetSceneConf();
             SetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), conf);
@@ -237,7 +237,7 @@ namespace OpenPSTD
             }
         }
 
-        void PSTDFile::DeleteResults()
+        OPENPSTD_SHARED_EXPORT void PSTDFile::DeleteResults()
         {
             int rc;
 
@@ -254,7 +254,7 @@ namespace OpenPSTD
             this->SetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), Kernel::PSTDConfiguration::CreateEmptyConf());
         }
 
-        void PSTDFile::OutputDebugInfo()
+        OPENPSTD_SHARED_EXPORT void PSTDFile::OutputDebugInfo()
         {
             int rc = 0;
             unqlite_kv_cursor *cursor;
@@ -361,7 +361,7 @@ namespace OpenPSTD
             }
         }
 
-        std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf(PSTDFile_Key_t key)
+        OPENPSTD_SHARED_EXPORT std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf(PSTDFile_Key_t key)
         {
             namespace io = boost::iostreams;
             typedef std::vector<char> buffer_type;
@@ -383,7 +383,7 @@ namespace OpenPSTD
 
         }
 
-        void PSTDFile::SetSceneConf(PSTDFile_Key_t key, std::shared_ptr<Kernel::PSTDConfiguration> scene)
+        OPENPSTD_SHARED_EXPORT void PSTDFile::SetSceneConf(PSTDFile_Key_t key, std::shared_ptr<Kernel::PSTDConfiguration> scene)
         {
             namespace io = boost::iostreams;
             typedef std::vector<char> buffer_type;
@@ -417,7 +417,7 @@ namespace OpenPSTD
             }
         }
 
-        std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetResultsSceneConf()
+        OPENPSTD_SHARED_EXPORT std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetResultsSceneConf()
         {
             return this->GetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}));
         }

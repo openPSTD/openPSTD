@@ -64,7 +64,7 @@ namespace OpenPSTD
         {
             QVector2D mousePos = (reciever.model->view->viewMatrix.inverted() *
                                   this->ScreenPosition.toVector3D()).toVector2D();
-            auto conf = reciever.model->d->GetSceneConf();
+            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
 
             for (int i = 0; i < conf->Receivers.size(); i++)
             {

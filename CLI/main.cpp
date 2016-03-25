@@ -171,9 +171,31 @@ namespace OpenPSTD
             }
 
             std::cout << "=============================================================" << std::endl;
-            std::cout << "== Configuration                                           ==" << std::endl;
+            std::cout << "== Editable configuration                                  ==" << std::endl;
             std::cout << "=============================================================" << std::endl;
             auto SceneConf = file->GetSceneConf();
+            Print(SceneConf);
+
+            std::cout << "=============================================================" << std::endl;
+            std::cout << "== Results configuration                                   ==" << std::endl;
+            std::cout << "=============================================================" << std::endl;
+            auto resultsConf = file->GetResultsSceneConf();
+            Print(resultsConf);
+
+            std::cout << "=============================================================" << std::endl;
+            std::cout << "== Results                                                 ==" << std::endl;
+            std::cout << "=============================================================" << std::endl;
+
+            int frameCount = file->GetResultsDomainCount();
+            std::cout << "Domains: " << frameCount << std::endl;
+            for (int i = 0; i < frameCount; ++i)
+            {
+                std::cout << "Frame count for domain " << i << ": " << file->GetResultsFrameCount(i) << std::endl;
+            }
+        }
+
+        void ListCommand::Print(std::shared_ptr<Kernel::PSTDConfiguration> SceneConf)
+        {
             std::cout << "Settings: " << std::endl;
             std::cout << "  Grid spacing: " << SceneConf->Settings.GetGridSpacing() << std::endl;
             std::cout << "  Patche rror: " << SceneConf->Settings.GetPatchError() << std::endl;
@@ -200,18 +222,32 @@ namespace OpenPSTD
 
             std::cout << std::endl;
             std::cout << "Speakers: " << std::endl;
-            for (int i = 0; i < SceneConf->Speakers.size(); ++i)
+            if(SceneConf->Speakers.size() > 0)
             {
-                std::cout << "  " << i << ": <" << SceneConf->Speakers[i].x() << ", " << SceneConf->Speakers[i].y() <<
-                ">" << std::endl;
+                for (int i = 0; i < SceneConf->Speakers.size(); ++i)
+                {
+                    std::cout << "  " << i << ": <" << SceneConf->Speakers[i].x() << ", "
+                            << SceneConf->Speakers[i].y() << ">" << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "  None" << std::endl;
             }
 
             std::cout << std::endl;
             std::cout << "Receivers: " << std::endl;
-            for (int i = 0; i < SceneConf->Receivers.size(); ++i)
+            if(SceneConf->Speakers.size() > 0)
             {
-                std::cout << "  " << i << ": <" << SceneConf->Receivers[i].x() << ", " << SceneConf->Receivers[i].y() <<
-                ">" << std::endl;
+                for (int i = 0; i < SceneConf->Receivers.size(); ++i)
+                {
+                    std::cout << "  " << i << ": <" << SceneConf->Receivers[i].x() << ", "
+                            << SceneConf->Receivers[i].y() << ">" << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "  None" << std::endl;
             }
 
             std::cout << std::endl;
@@ -219,31 +255,21 @@ namespace OpenPSTD
             for (int i = 0; i < SceneConf->Domains.size(); ++i)
             {
                 std::cout << "  Domain " << i << ":" << std::endl;
-                std::cout << "    Pos: <" << SceneConf->Domains[i].TopLeft.x() << ", " <<
-                SceneConf->Domains[i].TopLeft.y() << ">" << std::endl;
-                std::cout << "    Size: <" << SceneConf->Domains[i].Size.x() << ", " <<
-                SceneConf->Domains[i].Size.y() << ">" << std::endl;
-                std::cout << "    Top: Absorption " << SceneConf->Domains[i].T.Absorption << ", LR " <<
-                SceneConf->Domains[i].T.LR << std::endl;
-                std::cout << "    Bottom: Absorption " << SceneConf->Domains[i].B.Absorption << ", LR " <<
-                SceneConf->Domains[i].B.LR << std::endl;
-                std::cout << "    Left: Absorption " << SceneConf->Domains[i].L.Absorption << ", LR " <<
-                SceneConf->Domains[i].L.LR << std::endl;
-                std::cout << "    Right: Absorption " << SceneConf->Domains[i].R.Absorption << ", LR " <<
-                SceneConf->Domains[i].R.LR << std::endl;
-            }
-
-            std::cout << "=============================================================" << std::endl;
-            std::cout << "== Results                                                 ==" << std::endl;
-            std::cout << "=============================================================" << std::endl;
-
-            int frameCount = file->GetResultsDomainCount();
-            std::cout << "Domains: " << frameCount << std::endl;
-            for (int i = 0; i < frameCount; ++i)
-            {
-                std::cout << "Frame count for domain " << i << ": " << file->GetResultsFrameCount(i) << std::endl;
+                std::cout << "    Pos: <" << SceneConf->Domains[i].TopLeft.x() << ", "
+                        << SceneConf->Domains[i].TopLeft.y() << ">" << std::endl;
+                std::cout << "    Size: <" << SceneConf->Domains[i].Size.x() << ", "
+                        << SceneConf->Domains[i].Size.y() << ">" << std::endl;
+                std::cout << "    Top: Absorption " << SceneConf->Domains[i].T.Absorption << ", LR "
+                        << SceneConf->Domains[i].T.LR << std::endl;
+                std::cout << "    Bottom: Absorption " << SceneConf->Domains[i].B.Absorption << ", LR "
+                        << SceneConf->Domains[i].B.LR << std::endl;
+                std::cout << "    Left: Absorption " << SceneConf->Domains[i].L.Absorption << ", LR "
+                        << SceneConf->Domains[i].L.LR << std::endl;
+                std::cout << "    Right: Absorption " << SceneConf->Domains[i].R.Absorption << ", LR "
+                        << SceneConf->Domains[i].R.LR << std::endl;
             }
         }
+
 
         std::string EditCommand::GetName()
         {

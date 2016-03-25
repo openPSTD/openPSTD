@@ -37,7 +37,7 @@ namespace OpenPSTD
     namespace Shared
     {
 
-        std::unique_ptr<std::vector<float>> BaseColorGradient::CreateRawRGBAColorMap(float start, float stop,
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<std::vector<float>> BaseColorGradient::CreateRawRGBAColorMap(float start, float stop,
                                                                                      unsigned int count)
         {
             std::unique_ptr<std::vector<QColor>> map = this->CreateColorMap(start, stop, count);
@@ -52,7 +52,7 @@ namespace OpenPSTD
             return std::move(result);
         }
 
-        std::unique_ptr<std::vector<QColor>> BaseColorGradient::CreateColorMap(float start, float stop,
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<std::vector<QColor>> BaseColorGradient::CreateColorMap(float start, float stop,
                                                                                unsigned int count)
         {
             std::unique_ptr<std::vector<QColor>> result(new std::vector<QColor>(count));
@@ -65,7 +65,7 @@ namespace OpenPSTD
             return std::move(result);
         }
 
-        std::unique_ptr<std::vector<QRgb>> BaseColorGradient::CreateColorRGBMap(float start, float stop,
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<std::vector<QRgb>> BaseColorGradient::CreateColorRGBMap(float start, float stop,
                                                                                 unsigned int count)
         {
             std::unique_ptr<std::vector<QRgb>> result(new std::vector<QRgb>(count));
@@ -78,12 +78,12 @@ namespace OpenPSTD
             return std::move(result);
         }
 
-        void MultiColorGradient::AddColor(float position, QColor c)
+        OPENPSTD_SHARED_EXPORT void MultiColorGradient::AddColor(float position, QColor c)
         {
             this->colors[position] = c;
         }
 
-        QColor MultiColorGradient::CalcColor(float value)
+        OPENPSTD_SHARED_EXPORT QColor MultiColorGradient::CalcColor(float value)
         {
             auto begin = this->colors.begin();
             if (value <= begin->first)
@@ -92,7 +92,6 @@ namespace OpenPSTD
             }
             auto last = this->colors.end();
             last--;
-            float lastValue = last->first;
             if (value >= last->first)
             {
                 return last->second;
@@ -121,61 +120,61 @@ namespace OpenPSTD
             return y0 + (y1 - y0) * ((x - x0) / (x1 - x0));
         }
 
-        TwoColorGradient::TwoColorGradient(QColor c0, QColor c1)
+        OPENPSTD_SHARED_EXPORT TwoColorGradient::TwoColorGradient(QColor c0, QColor c1)
         {
             this->AddColor(0, c0);
             this->AddColor(1, c1);
         }
 
-        QColor BaseColorScheme::EditorBackgroundColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorBackgroundColor()
         { return COLOR_WHITE; }
 
-        QColor BaseColorScheme::EditorLineColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorLineColor()
         { return COLOR_WHITE; }
 
-        std::unique_ptr<BaseColorGradient> BaseColorScheme::EditorLineAbsoptionColorGradient()
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<BaseColorGradient> BaseColorScheme::EditorLineAbsoptionColorGradient()
         { return COLOR_GRADIENT_WHITE; }
 
-        QColor BaseColorScheme::EditorDefualtDomainColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorDefualtDomainColor()
         { return COLOR_WHITE; }
 
-        std::unique_ptr<BaseColorGradient> BaseColorScheme::EditorDomainSignalColorGradient()
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<BaseColorGradient> BaseColorScheme::EditorDomainSignalColorGradient()
         { return COLOR_GRADIENT_WHITE; }
 
-        QColor BaseColorScheme::EditorAddDomainColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorAddDomainColor()
         { return COLOR_WHITE; }
 
-        QColor BaseColorScheme::EditorSelectionColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorSelectionColor()
         { return COLOR_WHITE; }
 
-        QColor BaseColorScheme::EditorSpeakerColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorSpeakerColor()
         { return COLOR_WHITE; }
 
-        QColor BaseColorScheme::EditorReceiverColor()
+        OPENPSTD_SHARED_EXPORT QColor BaseColorScheme::EditorReceiverColor()
         { return COLOR_WHITE; }
 
 
-        QColor StandardColorScheme::EditorBackgroundColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorBackgroundColor()
         {
             return COLOR_WHITE;
         }
 
-        QColor StandardColorScheme::EditorLineColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorLineColor()
         {
             return QColor(127, 127, 127, 255);
         }
 
-        std::unique_ptr<BaseColorGradient> StandardColorScheme::EditorLineAbsoptionColorGradient()
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<BaseColorGradient> StandardColorScheme::EditorLineAbsoptionColorGradient()
         {
             return std::unique_ptr<TwoColorGradient>(new TwoColorGradient(COLOR_BLUE, COLOR_GREEN));
         }
 
-        QColor StandardColorScheme::EditorDefualtDomainColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorDefualtDomainColor()
         {
             return COLOR_RED;
         }
 
-        std::unique_ptr<BaseColorGradient> StandardColorScheme::EditorDomainSignalColorGradient()
+        OPENPSTD_SHARED_EXPORT std::unique_ptr<BaseColorGradient> StandardColorScheme::EditorDomainSignalColorGradient()
         {
             std::unique_ptr<MultiColorGradient> result(new MultiColorGradient());
             result->AddColor(0, COLOR_BLACK);
@@ -183,22 +182,22 @@ namespace OpenPSTD
             return std::move(result);
         }
 
-        QColor StandardColorScheme::EditorAddDomainColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorAddDomainColor()
         {
             return COLOR_YELLOW;
         }
 
-        QColor StandardColorScheme::EditorSelectionColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorSelectionColor()
         {
             return COLOR_BLACK;
         }
 
-        QColor StandardColorScheme::EditorSpeakerColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorSpeakerColor()
         {
             return COLOR_PURPLE;
         }
 
-        QColor StandardColorScheme::EditorReceiverColor()
+        OPENPSTD_SHARED_EXPORT QColor StandardColorScheme::EditorReceiverColor()
         {
             return COLOR_GREEN;
         }

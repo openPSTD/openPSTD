@@ -65,6 +65,7 @@ namespace OpenPSTD
 #include <QVector2D>
 #include <shared/Colors.h>
 #include <shared/InvalidationData.h>
+#include <shared/PSTDFileAccess.h>
 
 namespace OpenPSTD
 {
@@ -123,7 +124,7 @@ namespace OpenPSTD
         public:
             Model();
 
-            std::shared_ptr<Shared::PSTDFile> d;
+            std::shared_ptr<OpenPSTD::Shared::PSTDFileAccess> documentAccess;
             std::shared_ptr<View> view;
             std::unique_ptr<MouseStrategy> mouseHandler;
             std::shared_ptr<InteractiveModel> interactive;

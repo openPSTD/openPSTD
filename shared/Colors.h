@@ -36,6 +36,7 @@
 #ifndef OPENPSTD_COLORS_H
 #define OPENPSTD_COLORS_H
 
+#include "openpstd-shared_export.h"
 #include <qcolor.h>
 #include <vector>
 #include <memory>
@@ -49,7 +50,7 @@ namespace OpenPSTD
 /**
  * A base class that calculates color gradients
  */
-        class BaseColorGradient
+        class OPENPSTD_SHARED_EXPORT BaseColorGradient
         {
         public:
             /**
@@ -57,7 +58,7 @@ namespace OpenPSTD
              * @param value the value that is as basis of the gradient calculation. This value should be between 0 and 1 (including)
              * @return The color
              */
-            virtual QColor CalcColor(float value) = 0;
+            virtual OPENPSTD_SHARED_EXPORT QColor CalcColor(float value) = 0;
 
             /**
              * Creates a complete color map,
@@ -66,7 +67,7 @@ namespace OpenPSTD
              * @param count The number of samples taken
              * @return the complete colormap
              */
-            virtual std::unique_ptr<std::vector<QColor>> CreateColorMap(float start, float stop, unsigned int count);
+            OPENPSTD_SHARED_EXPORT virtual std::unique_ptr<std::vector<QColor>> CreateColorMap(float start, float stop, unsigned int count);
 
             /**
              * Creates a complete color map of RGB values,
@@ -75,7 +76,7 @@ namespace OpenPSTD
              * @param count The number of samples taken
              * @return the complete colormap
              */
-            virtual std::unique_ptr<std::vector<QRgb>> CreateColorRGBMap(float start, float stop, unsigned int count);
+            OPENPSTD_SHARED_EXPORT virtual std::unique_ptr<std::vector<QRgb>> CreateColorRGBMap(float start, float stop, unsigned int count);
 
             /**
              * Creates a raw color map with RGBA values.
@@ -84,14 +85,14 @@ namespace OpenPSTD
              * @param count The number of samples taken
              * @return the complete raw colormap
              */
-            std::unique_ptr<std::vector<float>> CreateRawRGBAColorMap(float start, float stop, unsigned int count);
+            OPENPSTD_SHARED_EXPORT std::unique_ptr<std::vector<float>> CreateRawRGBAColorMap(float start, float stop, unsigned int count);
         };
 
 /**
  * A multicolor gradient where there are multiple colors at certain locations.
  * Outside the 2 outer colors, the color is constant based on the closest of color.
  */
-        class MultiColorGradient : public BaseColorGradient
+        class OPENPSTD_SHARED_EXPORT MultiColorGradient : public BaseColorGradient
         {
         public:
             /**
@@ -99,24 +100,24 @@ namespace OpenPSTD
              * @param position The position of the color, this should be between 0 and 1 (including)
              * @param c The color at that position
              */
-            void AddColor(float position, QColor c);
+            OPENPSTD_SHARED_EXPORT void AddColor(float position, QColor c);
 
-            virtual QColor CalcColor(float value);
+            OPENPSTD_SHARED_EXPORT virtual QColor CalcColor(float value);
 
         private:
             std::map<float, QColor> colors;
 
-            float LinearInterpolation(float x0, float y0, float x1, float y1, float x);
+            OPENPSTD_SHARED_NO_EXPORT float LinearInterpolation(float x0, float y0, float x1, float y1, float x);
         };
 
 /**
  * A 2-color gradient where 1 color is used at 0 and the other color is used at 1.
  * This class is a specilized case of the MultiColorGradient
  */
-        class TwoColorGradient : public MultiColorGradient
+        class OPENPSTD_SHARED_EXPORT TwoColorGradient : public MultiColorGradient
         {
         public:
-            TwoColorGradient(QColor c0, QColor c1);
+            OPENPSTD_SHARED_EXPORT TwoColorGradient(QColor c0, QColor c1);
         };
 
 #define COLOR_BLACK QColor(0, 0, 0, 255)
@@ -133,52 +134,52 @@ namespace OpenPSTD
 /**
  * A base color scheme, just defines the property's
  */
-        class BaseColorScheme
+        class OPENPSTD_SHARED_EXPORT BaseColorScheme
         {
         public:
-            virtual QColor EditorBackgroundColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorBackgroundColor();
 
-            virtual QColor EditorLineColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorLineColor();
 
-            virtual std::unique_ptr<BaseColorGradient> EditorLineAbsoptionColorGradient();
+            OPENPSTD_SHARED_EXPORT virtual std::unique_ptr<BaseColorGradient> EditorLineAbsoptionColorGradient();
 
-            virtual QColor EditorDefualtDomainColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorDefualtDomainColor();
 
-            virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
+            OPENPSTD_SHARED_EXPORT virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
 
-            virtual QColor EditorAddDomainColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorAddDomainColor();
 
-            virtual QColor EditorSelectionColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorSelectionColor();
 
-            virtual QColor EditorSpeakerColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorSpeakerColor();
 
-            virtual QColor EditorReceiverColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorReceiverColor();
 
         };
 
 /**
  * The default color scheme
  */
-        class StandardColorScheme : public BaseColorScheme
+        class OPENPSTD_SHARED_EXPORT StandardColorScheme : public BaseColorScheme
         {
         public:
-            virtual QColor EditorBackgroundColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorBackgroundColor();
 
-            virtual QColor EditorLineColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorLineColor();
 
-            virtual std::unique_ptr<BaseColorGradient> EditorLineAbsoptionColorGradient();
+            OPENPSTD_SHARED_EXPORT virtual std::unique_ptr<BaseColorGradient> EditorLineAbsoptionColorGradient();
 
-            virtual QColor EditorDefualtDomainColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorDefualtDomainColor();
 
-            virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
+            OPENPSTD_SHARED_EXPORT virtual std::unique_ptr<BaseColorGradient> EditorDomainSignalColorGradient();
 
-            virtual QColor EditorAddDomainColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorAddDomainColor();
 
-            virtual QColor EditorSelectionColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorSelectionColor();
 
-            virtual QColor EditorSpeakerColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorSpeakerColor();
 
-            virtual QColor EditorReceiverColor();
+            OPENPSTD_SHARED_EXPORT virtual QColor EditorReceiverColor();
 
         };
     }

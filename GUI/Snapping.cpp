@@ -71,7 +71,7 @@ namespace OpenPSTD
             }
             if (model->settings->snapping.SnapToGrid)
             {
-                auto conf = model->d->GetSceneConf();
+                auto conf = model->documentAccess->GetDocument()->GetSceneConf();
                 float gridSpacing = conf->Settings.GetGridSpacing();
 
                 if (!snap0)
@@ -86,7 +86,7 @@ namespace OpenPSTD
         std::unique_ptr<std::vector<float>> Snapping::GetEdges(std::shared_ptr<Model> const &model, int dimension)
         {
             std::unique_ptr<std::vector<float>> result(new std::vector<float>());
-            auto conf = model->d->GetSceneConf();
+            auto conf = model->documentAccess->GetDocument()->GetSceneConf();
 
             for (int i = 0; i < conf->Domains.size(); i++)
             {

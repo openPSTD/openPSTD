@@ -36,12 +36,15 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()), view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>())
+        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
+                         view(std::make_shared<View>()),
+                         settings(std::make_shared<Settings>()),
+                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
         {
             this->Register(interactive);
             this->Register(view);
             this->Register(settings);
+            this->Register(documentAccess);
         }
 
     }

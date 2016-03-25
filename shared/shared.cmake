@@ -2,7 +2,7 @@
 # Kernel library
 
 #general
-SET(SOURCE_FILES_SHARED_LIB shared/PSTDFile.cpp shared/InvalidationData.cpp shared/Colors.cpp)
+SET(SOURCE_FILES_SHARED_LIB shared/PSTDFile.cpp shared/InvalidationData.cpp shared/Colors.cpp shared/PSTDFileAccess.cpp)
 #export
 SET(SOURCE_FILES_SHARED_LIB ${SOURCE_FILES_SHARED_LIB}
         shared/export/Export.cpp shared/export/Image.cpp
@@ -10,9 +10,17 @@ SET(SOURCE_FILES_SHARED_LIB ${SOURCE_FILES_SHARED_LIB}
 
 add_library(OpenPSTD-shared SHARED ${SOURCE_FILES_SHARED_LIB})
 
+# make sure the functions are hidden by default
+set_target_properties(OpenPSTD-shared PROPERTIES
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN 1)
+
+# add export header
+generate_export_header(OpenPSTD-shared)
+
 # create extra Qt5 code
-set_target_properties(OpenPSTD-shared
-        PROPERTIES AUTOMOC ON
+set_target_properties(OpenPSTD-shared PROPERTIES
+        AUTOMOC ON
         AUTOUIC ON
         AUTORCC ON)
 

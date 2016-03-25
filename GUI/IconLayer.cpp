@@ -89,7 +89,7 @@ namespace OpenPSTD
         void IconLayer::UpdateScene(std::shared_ptr<Model> const &m,
                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            if (m->d->IsChanged())
+            if (m->documentAccess->IsChanged())
             {
                 QVector2D SizeLines(0.4, 0.4);
                 QVector2D SizeSquare(0.2, 0.2);
@@ -136,7 +136,7 @@ namespace OpenPSTD
         std::vector<QVector2D> IconLayer::GetSpeakers(std::shared_ptr<Model> const &m)
         {
             std::vector<QVector2D> result;
-            auto conf = m->d->GetSceneConf();
+            auto conf = m->documentAccess->GetDocument()->GetSceneConf();
 
             for (int i = 0; i < conf->Speakers.size(); ++i)
             {
@@ -149,7 +149,7 @@ namespace OpenPSTD
         std::vector<QVector2D> IconLayer::GetReceivers(std::shared_ptr<Model> const &m)
         {
             std::vector<QVector2D> result;
-            auto conf = m->d->GetSceneConf();
+            auto conf = m->documentAccess->GetDocument()->GetSceneConf();
 
             for (int i = 0; i < conf->Receivers.size(); ++i)
             {

@@ -101,7 +101,7 @@ namespace OpenPSTD
         void InteractiveLayer::UpdateScene(std::shared_ptr<Model> const &m,
                                            std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            if (m->interactive->IsChanged() || m->d->IsChanged())
+            if (m->interactive->IsChanged() || m->documentAccess->IsChanged())
             {
                 this->addDomainVisible = m->interactive->CreateDomain.visible;
 
@@ -121,7 +121,7 @@ namespace OpenPSTD
 
                 if (this->selectionVisible)
                 {
-                    auto conf = m->d->GetSceneConf();
+                    auto conf = m->documentAccess->GetDocument()->GetSceneConf();
                     int i = m->interactive->Selection.SelectedIndex;
 
                     std::unique_ptr<std::vector<float>> positions(new std::vector<float>());

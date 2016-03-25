@@ -18,17 +18,13 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
+// Date: 18-7-2015
 //
 //
-// Authors:
+// Authors: M. R. Fortuin
 //
 //
 //////////////////////////////////////////////////////////////////////////
-
-//
-// Created by michiel on 18-7-2015.
-//
 
 #include <iostream>
 #include <QtWidgets/qapplication.h>
@@ -39,11 +35,22 @@
 int main(int argc, char *argv[])
 {
     using namespace OpenPSTD::GUI;
-    std::shared_ptr<Controller> c = std::make_shared<Controller>();
 
-    c->SetArguments(argc, argv);
-    c->SetOperationRunner(c);
-    c->RunApplication();
+    std::shared_ptr <Controller> c = std::make_shared<Controller>();
+
+    c->model = std::make_shared<Model>();
+    c->RunOperationWithoutUpdate(std::make_shared<InitializationOperation>());
+
+    c->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
+    c->w = std::unique_ptr<MainWindow>(new MainWindow(c));
+
+    c->w->show();
+
+    c->UpdateWithoutOperation();
+
+    int result = c->a->exec();
+
+    return result;
 }
 
 namespace OpenPSTD
@@ -51,22 +58,16 @@ namespace OpenPSTD
     namespace GUI
     {
         Controller::Controller() :
-                operationRunner(nullptr),
                 runningOp(false)
         {
 
-        }
-
-        void Controller::SetOperationRunner(std::shared_ptr<OperationRunner> runner)
-        {
-            this->operationRunner = runner;
         }
 
         void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
         {
             Reciever r;
             r.model = this->model;
-            r.operationRunner = this->operationRunner;
+            r.operationRunner = this->shared_from_this();
             if (runningOp)
             {
                 operation->Run(r);
@@ -76,7 +77,7 @@ namespace OpenPSTD
                 runningOp = true;
                 operation->Run(r);
                 runningOp = false;
-                //todo: fix that also the document itself is registered
+                //todo: fix that also the documentAccess itself is registered
                 //if(this->model->invalidation.IsChanged())
                 {
                     this->w->UpdateFromModel(this->model);
@@ -89,7 +90,7 @@ namespace OpenPSTD
         {
             Reciever r;
             r.model = this->model;
-            r.operationRunner = this->operationRunner;
+            r.operationRunner = this->shared_from_this();
             runningOp = true;
             operation->Run(r);
             runningOp = false;
@@ -99,27 +100,6 @@ namespace OpenPSTD
         {
             this->w->UpdateFromModel(this->model);
             this->model->Reset();
-        }
-
-        void Controller::SetArguments(int argc, char *argv[])
-        {
-            this->argc = argc;
-            this->argv = argv;
-        }
-
-        int Controller::RunApplication()
-        {
-            this->model = std::make_shared<Model>();
-            this->RunOperationWithoutUpdate(std::make_shared<InitializationOperation>());
-
-            this->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
-            this->w = std::unique_ptr<MainWindow>(new MainWindow(this->operationRunner));
-
-            this->w->show();
-
-            this->UpdateWithoutOperation();
-
-            return a->exec();
         }
     }
 }
