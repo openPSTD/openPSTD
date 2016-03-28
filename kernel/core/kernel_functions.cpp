@@ -202,26 +202,6 @@ namespace OpenPSTD {
                 //ifft result contains the outer domains, so slice
                 result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
                 result = result / fft_length; // normalize to compensate for fftw roundtrip gain
-
-                //for visual matlab verification
-                std::cout << "\nderi_data = [";
-                for(int i=0; i<1;i++) {
-                    for (int j = 0; j < derived_array.cols(); j++) {
-                        std::cout << derived_array(i,j) << " ";
-                    }
-                    std::cout << ";";
-                }
-                std::cout << "]\n\n";
-
-                std::cout << "\nresult_fin = [";
-                for(int i=0; i<1;i++) {
-                    for (int j = 0; j < result.cols(); j++) {
-                        std::cout << result(i,j) << " ";
-                    }
-                    std::cout << ";";
-                }
-                std::cout << "]\n\n";
-                std::cout << "result computed\n";
             }
             else {
                 //repeat for velocity calculation with different slicing
