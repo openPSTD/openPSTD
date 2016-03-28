@@ -181,53 +181,47 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
-                for(int j=0; j<p2.rows();j++) {
-                    for(int i=113; i<116;i++) {
-                        std::cout << "\nrow, col: " << j << ", " << i << ", data: " << windowed_data(j, i);
-
-                    }
-                }
-
                 //maybe optimize this away later (rearrange fft input or change calls above)
                 fft_input_data = windowed_data.transpose();
 
                 //perform the fft
                 memcpy(in_buffer, fft_input_data.data(), sizeof(float) * fft_batch * fft_length);
-
-                  //DEBUG printing TODO remove
-                  std::cout << "\n\nfft input line 1:\n\n";
-                  for(int i=0; i<fft_length; i++) {
-                      std::cout << in_buffer[i] << "  ";
-                  }
-                  std::cout << "\n";
-
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
                 //map the results back into an eigen array
-                for (int i = 0; i < (fft_length / 2 + 1) * fft_batch; i++) {
-                    std::cout << "out_buf[" << i << "][0]:" << out_buffer[i][0] << "\t[1]:" << out_buffer[i][1] << "j\n";
-                }
                 typedef Eigen::Matrix<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> ArrayXXcfrm;
                 Eigen::Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
 
-                //debug statements
-                std::cout << spectrum_array;
-                std::cout << "\n\nspectrum_array rows(),cols(): " <<spectrum_array.rows() << ", " << spectrum_array.cols() <<"\n";
-                std::cout << "derfact rows, cols: " << derfact.rows() << ", " << derfact.cols() << "\n";
-                Eigen::ArrayXcf partial_derfact(fft_length / 2 + 1);
-                partial_derfact = derfact.topRows(fft_length / 2 + 1).transpose();
-                std::cout << "\npartial_derfact: \n" << partial_derfact << "\n";
-
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
-                fftwf_execute_dft_c2r(plan, out_buffer, in_buffer);
+                fftwf_execute_dft_c2r(plan_inv, out_buffer, in_buffer);
 
-                Eigen::ArrayXXf derived_array = Eigen::Map<Eigen::ArrayXXf>(in_buffer, fft_batch, fft_length).array();
+                Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> derived_array =
+                        Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(in_buffer, fft_batch, fft_length).array();
 
                 //ifft result contains the outer domains, so slice
                 result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
                 result = result / fft_length; // normalize to compensate for fftw roundtrip gain
 
+                //for visual matlab verification
+                std::cout << "\nderi_data = [";
+                for(int i=0; i<1;i++) {
+                    for (int j = 0; j < derived_array.cols(); j++) {
+                        std::cout << derived_array(i,j) << " ";
+                    }
+                    std::cout << ";";
+                }
+                std::cout << "]\n\n";
+
+                std::cout << "\nresult_fin = [";
+                for(int i=0; i<1;i++) {
+                    for (int j = 0; j < result.cols(); j++) {
+                        std::cout << result(i,j) << " ";
+                    }
+                    std::cout << ";";
+                }
+                std::cout << "]\n\n";
+                std::cout << "result computed\n";
             }
             else {
                 //repeat for velocity calculation with different slicing
