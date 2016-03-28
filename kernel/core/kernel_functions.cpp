@@ -278,10 +278,8 @@ namespace OpenPSTD {
         }
 
         Eigen::ArrayXf get_window_coefficients(int window_size, int patch_error) {
-            float window_alpha = (patch_error - 40) / 20 + 1;
-            Eigen::ArrayXf window_coefficients = (
-                    Eigen::ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size) /
-                    window_size).square().cube().exp(); // Need to go to power 6 (^2^3)
+            float window_alpha = (patch_error - 40) / 20.0 + 1;
+            Eigen::ArrayXf window_coefficients = ((Eigen::ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size)/window_size).square().cube()*log(10)*window_alpha*-1).exp(); // Need to go to power 6 (^2^3)
             return window_coefficients;
         }
 
