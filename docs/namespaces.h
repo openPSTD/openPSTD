@@ -29,3 +29,10 @@
  *
  * The CLI is useful for running on remote (multicore) machines.
  */
+
+/**
+ *
+ * \namespace OpenPSTD::Shared
+ * \brief This is the namespace for all components shared between the application that call the Kernel (most notably the CLI and the GUI)
+ *
+ */
