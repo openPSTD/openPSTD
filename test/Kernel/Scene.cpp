@@ -39,43 +39,12 @@
 #include <cmath>
 #include <kernel/core/kernel_functions.h>
 
-using namespace OpenPSTD::Kernel;
+using namespace OpenPSTD;
 using namespace std;
 using namespace Eigen;
 
 BOOST_AUTO_TEST_SUITE(wave_numbers)
 
-    shared_ptr<Kernel::Scene> create_a_scene() {
-        shared_ptr<PSTDConfiguration> config = PSTDFile::CreateDefaultConf();
-        Domain domain1;
-        domain1.TopLeft = QVector2D(0, 0);
-        domain1.Size = QVector2D(50, 60);
-        domain1.T.Absorption = 0;
-        domain1.B.Absorption = 0.25;
-        domain1.L.Absorption = 0.35;
-        domain1.R.Absorption = 0.7;
-        domain1.T.LR = false;
-        domain1.B.LR = false;
-        domain1.L.LR = true;
-        domain1.R.LR = false;
-        config->Domains.clear();
-        config->Domains.push_back(domain1);
-        BOOST_CHECK(config->Domains.size() == 1);
-        PSTDKernel kernel = PSTDKernel();
-
-        kernel.start_kernel(config);
-        auto scene = kernel.get_scene();
-        return scene;
-    }
-
-    BOOST_AUTO_TEST_CASE(scene_test_prime_numbers) {
-        BOOST_CHECK(!domain->is_pml);
-    }
-
-
-    BOOST_AUTO_TEST_CASE(scene_test_scene_dimensions) {
-        BOOST_CHECK(true);
-    }
 
     BOOST_AUTO_TEST_CASE(connected_domains) {
         BOOST_CHECK(true);

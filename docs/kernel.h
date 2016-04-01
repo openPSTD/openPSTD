@@ -23,11 +23,10 @@
  * First the domains, speakers and receivers from the PSTDFile are converted to their kernel representation. After that, the domains are connected and integrated into the scene, and the PML domains are created wherever necessary.
  * Then, the attenuation arrays of these PML domains are computed and stored for later use.
  * The initial sound data from the speakers is added to the domains, and the preprocessing phase is complete.
- * The solver is called with a pointer to the fully initialized scene.
  *
  * ## Running steps
  * After initialization of the PSTDKernel, the simulation is start with a call to [run](@ref OpenPSTD::Kernel::PSTDKernel::run()).
- * This calls the [Solver](@ref OpenPSTD::Kernel::Solver).
+ * This creates an [Solver](@ref OpenPSTD::Kernel::Solver) which takes a pointer to a fully initialized scene as an argument.
  * This class performs the spatial computations of the state variables using the PSTD method and the time integration using a six stage Runge Kutta scheme.
  * Each time step the values of the scene are updated, and if requested they are returned to the calling application using the [callback](@ref OpenPSTD::Kernel::KernelCallback) class.
  * ### Detailed propagation
