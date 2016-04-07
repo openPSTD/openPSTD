@@ -33,8 +33,7 @@ namespace OpenPSTD {
     namespace Kernel {
 
 
-        WisdomCache::WisdomCache() {
-        }; //Todo: Rename file to wisdom_cache
+        WisdomCache::WisdomCache() { };
 
         WisdomCache::Discretization WisdomCache::get_discretization(float dx, int N) {
             int matched_int = this->match_number(N);

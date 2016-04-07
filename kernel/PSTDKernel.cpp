@@ -43,9 +43,9 @@ namespace OpenPSTD {
             debug("Initializing kernel");
             this->config = config;
             this->settings = make_shared<PSTDSettings>(config->Settings);
+            this->wnd = make_shared<WisdomCache>();
             this->scene = make_shared<Scene>(this->settings);
             this->initialize_scene();
-            this->wnd = make_shared<WisdomCache>();
             debug("Finished initializing kernel");
         }
 
