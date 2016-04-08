@@ -107,17 +107,12 @@ namespace OpenPSTD {
 
             ArrayXXf source;
 
-            if (dest.cols() == 0) {
-                if (ct == CalculationType::VELOCITY) {
-                    if (cd == CalcDirection::X) {
-                        source = extended_zeros(0, 1);
-                    }
-                    else {
-                        source = extended_zeros(1, 0);
-                    }
+            if (dest.cols() != 0) {
+                if (cd == CalcDirection::X) {
+                    source = extended_zeros(0, 1);
                 }
                 else {
-                    source = extended_zeros(0, 0);
+                    source = extended_zeros(1, 0);
                 }
             }
             else {
@@ -286,10 +281,9 @@ namespace OpenPSTD {
                         matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
                                                                   matrix_side2.rows(), ncols);
 
-                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) =
-                                spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct,
+                        Eigen:ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct,
                                           cd, planset.plan, planset.plan_inv);
-
+                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) = spatresult;
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
