@@ -105,10 +105,10 @@ namespace OpenPSTD {
             float dt = this->settings->GetTimeStep();
             float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
             std::vector<float> coefs = this->settings->GetRKCoefficients();
-            domain->current_values.u0 =
-                    domain->previous_values.u0 - dt * coefs.at(rk_step) * (domain->l_values.Lpx / domain->rho).real();
-            domain->current_values.w0 =
-                    domain->previous_values.w0 - dt * coefs.at(rk_step) * (domain->l_values.Lpy / domain->rho).real();
+            domain->current_values.vx0 =
+                    domain->previous_values.vx0 - dt * coefs.at(rk_step) * (domain->l_values.Lpx / domain->rho).real();
+            domain->current_values.vy0 =
+                    domain->previous_values.vy0 - dt * coefs.at(rk_step) * (domain->l_values.Lpy / domain->rho).real();
             domain->current_values.px0 = domain->previous_values.px0 -
                                          dt * coefs.at(rk_step) *
                                          (domain->l_values.Lvx * domain->rho * c1_square).real();

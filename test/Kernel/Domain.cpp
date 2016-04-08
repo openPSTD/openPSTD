@@ -140,8 +140,8 @@ BOOST_AUTO_TEST_SUITE(domain)
         auto domain = create_a_domain(-50, -25, 100, 150);
         domain->clear_matrices();
         BOOST_CHECK(domain->current_values.p0.isZero());
-        BOOST_CHECK(domain->current_values.u0.isZero());
-        BOOST_CHECK(domain->current_values.w0.isZero());
+        BOOST_CHECK(domain->current_values.vx0.isZero());
+        BOOST_CHECK(domain->current_values.vy0.isZero());
         BOOST_CHECK(domain->l_values.Lpx.isZero());
         BOOST_CHECK(domain->l_values.Lpy.isZero());
 

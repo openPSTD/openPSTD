@@ -55,8 +55,8 @@ namespace OpenPSTD {
          * These values represent the state of the system for a fixed time.
          */
         struct FieldValues {
-            Eigen::ArrayXXf u0; //TODO (do we want to do this?): change float to T, derive a float and a double class
-            Eigen::ArrayXXf w0;
+            Eigen::ArrayXXf vx0;
+            Eigen::ArrayXXf vy0;
             Eigen::ArrayXXf p0;
             Eigen::ArrayXXf px0;
             Eigen::ArrayXXf py0;
@@ -82,8 +82,8 @@ namespace OpenPSTD {
         struct PMLArrays {
             Eigen::ArrayXXf px;
             Eigen::ArrayXXf py;
-            Eigen::ArrayXXf u;
-            Eigen::ArrayXXf w;
+            Eigen::ArrayXXf vx;
+            Eigen::ArrayXXf vy;
         };
 
         /**

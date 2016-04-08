@@ -126,10 +126,10 @@ namespace OpenPSTD {
                 }
                 else {
                     if (cd == CalcDirection::X) {
-                        source = this->current_values.u0;
+                        source = this->current_values.vx0;
                     }
                     else {
-                        source = this->current_values.w0;
+                        source = this->current_values.vy0;
                     }
                 }
             }
@@ -212,10 +212,10 @@ namespace OpenPSTD {
                         matrix_main = current_values.p0;
                     }
                     else if (cd == CalcDirection::X) {
-                        matrix_main = current_values.u0;
+                        matrix_main = current_values.vx0;
                     }
                     else {
-                        matrix_main = current_values.w0;
+                        matrix_main = current_values.vy0;
                     }
 
                     // If the matrices are _not_ already filled with zeroes, choose which values to fill them with.
@@ -225,10 +225,10 @@ namespace OpenPSTD {
                         }
                         else {
                             if (cd == CalcDirection::X) {
-                                matrix_side1 = d1->current_values.u0;
+                                matrix_side1 = d1->current_values.vx0;
                             }
                             else {
-                                matrix_side1 = d1->current_values.w0;
+                                matrix_side1 = d1->current_values.vy0;
                             }
                         }
                     }
@@ -238,10 +238,10 @@ namespace OpenPSTD {
                         }
                         else {
                             if (cd == CalcDirection::X) {
-                                matrix_side2 = d2->current_values.u0;
+                                matrix_side2 = d2->current_values.vx0;
                             }
                             else {
-                                matrix_side2 = d2->current_values.w0;
+                                matrix_side2 = d2->current_values.vy0;
                             }
                         }
                     }
@@ -320,10 +320,10 @@ namespace OpenPSTD {
                 }
                 else {
                     if (cd == CalcDirection::X) {
-                        this->current_values.u0 = source;
+                        this->current_values.vx0 = source;
                     }
                     else {
-                        this->current_values.w0 = source;
+                        this->current_values.vy0 = source;
                     }
                 }
             }
@@ -563,8 +563,8 @@ namespace OpenPSTD {
             current_values.p0 = extended_zeros(0, 0);
             current_values.px0 = extended_zeros(0, 0);
             current_values.py0 = extended_zeros(0, 0);
-            current_values.u0 = extended_zeros(0, 1);
-            current_values.w0 = extended_zeros(1, 0);
+            current_values.vx0 = extended_zeros(0, 1);
+            current_values.vy0 = extended_zeros(1, 0);
 
             previous_values = {}; // Do we def need to empty this?
         }
@@ -573,8 +573,8 @@ namespace OpenPSTD {
         void Domain::clear_pml_arrays() {
             pml_arrays.px = extended_zeros(0, 0);
             pml_arrays.py = extended_zeros(0, 0);
-            pml_arrays.u = extended_zeros(0, 1);
-            pml_arrays.w = extended_zeros(1, 0);
+            pml_arrays.vx = extended_zeros(0, 1);
+            pml_arrays.vy = extended_zeros(1, 0);
 
         }
 
@@ -623,9 +623,9 @@ namespace OpenPSTD {
                 if (is_secondary_pml and is_corner_domain) {
                     // TK: PML is the product of horizontal and vertical attenuation.
                     create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
-                                             pml_arrays.px, pml_arrays.u);
+                                             pml_arrays.px, pml_arrays.vx);
                     create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
-                                             pml_arrays.py, pml_arrays.u);
+                                             pml_arrays.py, pml_arrays.vx);
                 }
                 else {
                     CalcDirection calc_dir = CalcDirection::Y;
@@ -635,15 +635,15 @@ namespace OpenPSTD {
                     switch (calc_dir) {
                         case CalcDirection::X:
                             create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
-                                                     pml_arrays.px, pml_arrays.u);
-                            pml_arrays.py = ArrayXXf::Ones(size.x, size.y);//Change if unique
-                            pml_arrays.w = ArrayXXf::Ones(size.x, size.y);
+                                                     pml_arrays.px, pml_arrays.vx);
+                            pml_arrays.py = ArrayXXf::Ones(size.y, size.x);//Change if unique
+                            pml_arrays.vy = ArrayXXf::Ones(size.y+1, size.x); //TODO check if x/y is correct here
                             break;
                         case CalcDirection::Y:
                             create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
-                                                     pml_arrays.py, pml_arrays.w);
-                            pml_arrays.px = ArrayXXf::Ones(size.x, size.y);//Change if unique
-                            pml_arrays.u = ArrayXXf::Ones(size.x, size.y);//Change if unique
+                                                     pml_arrays.py, pml_arrays.vy);
+                            pml_arrays.px = ArrayXXf::Ones(size.y, size.x);//Change if unique
+                            pml_arrays.vx = ArrayXXf::Ones(size.y, size.x+1);//Change if unique
                             break;
                     }
                 }
@@ -657,8 +657,8 @@ namespace OpenPSTD {
             // The pressure and velocity matrices are multiplied by the PML values.
             current_values.px0 *= pml_arrays.px;
             current_values.py0 *= pml_arrays.py;
-            current_values.u0 *= pml_arrays.u;
-            current_values.w0 *= pml_arrays.w;
+            current_values.vx0 *= pml_arrays.vx;
+            current_values.vy0 *= pml_arrays.vy;
         }
 
 
