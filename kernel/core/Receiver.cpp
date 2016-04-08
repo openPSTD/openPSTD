@@ -115,7 +115,9 @@ namespace OpenPSTD {
         // Todo: Different name;
         // Todo: Can we improve memory management here?
         ArrayXXf Receiver::calc_domain_fields(shared_ptr<Domain> domain, CalcDirection bt) {
-            return domain->calc(bt, CalculationType::PRESSURE, get_fft_factors(domain->size, bt));
+            int win_size = config->GetWindowSize();
+            Point domsize_windowed(domain->size.x+2*win_size, domain->size.y+2*win_size, domain->size.z+2*win_size);
+            return domain->calc(bt, CalculationType::PRESSURE, get_fft_factors(domsize_windowed, bt));
         }
     }
 }
