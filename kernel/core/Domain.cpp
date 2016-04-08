@@ -706,12 +706,12 @@ namespace OpenPSTD {
             switch (calc_dir) {
                 //Replicate matrices to size of domain
                 case CalcDirection::X:
-                    pml_pressure = pressure_pml_factors.transpose().replicate(1, size.x);
-                    pml_velocity = velocity_pml_factors.transpose().replicate(1, size.x);
+                    pml_pressure = pressure_pml_factors.transpose().replicate(size.x, 1);
+                    pml_velocity = velocity_pml_factors.transpose().replicate(size.x, 1);
                     break;
                 case CalcDirection::Y:
-                    pml_pressure = pressure_pml_factors.replicate(size.y, 1);
-                    pml_velocity = velocity_pml_factors.replicate(size.y, 1);
+                    pml_pressure = pressure_pml_factors.replicate(1, size.y);
+                    pml_velocity = velocity_pml_factors.replicate(1, size.y);
                     break;
             }
         }
