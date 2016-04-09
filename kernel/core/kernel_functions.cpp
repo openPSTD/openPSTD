@@ -120,6 +120,13 @@ namespace OpenPSTD {
                                   CalculationType ct, CalcDirection direct,
                                   fftwf_plan plan, fftwf_plan plan_inv) {
 
+            //if direct == Y, transpose p1, p2 and p3
+            if (direct == CalcDirection::Y) {
+                p1.transposeInPlace();
+                p2.transposeInPlace();
+                p3.transposeInPlace();
+            }
+
             //in the Python code: N1 = fft_batch and N2 = fft_length
             int fft_batch, fft_length;
             ArrayXXf result; //also called Lp in some places in documentation
@@ -145,13 +152,6 @@ namespace OpenPSTD {
 
                 plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
                                                    in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
-            }
-
-            //if direct == Y, transpose p1, p2 and p3
-            if (direct == CalcDirection::Y) {
-                p1.transposeInPlace();
-                p2.transposeInPlace();
-                p3.transposeInPlace();
             }
 
             //the pressure is calculated for len(p2)+1, velocity for len(p2)-1
