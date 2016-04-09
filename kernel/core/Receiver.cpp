@@ -45,7 +45,7 @@ namespace OpenPSTD {
 
         float Receiver::compute_local_pressure() {
             float pressure;
-            if (config->GetSpectralInterpolation()) {
+            if (config->GetSpectralInterpolation() && false) { //always use nn until si is fixed (TODO: re-enable)
                 pressure = compute_with_si();
             }
             else {
