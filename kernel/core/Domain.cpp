@@ -166,7 +166,7 @@ namespace OpenPSTD {
                     int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                     int N_total = 2 * settings->GetWindowSize() + primary_dimension;
                     int wlen = settings->GetWindowSize();
-                    Eigen::ArrayXf wind = get_window_coefficients(wlen, settings->GetPatchError());
+                    ArrayXf wind = get_window_coefficients(wlen, settings->GetPatchError());
 
                     if (ct == CalculationType::PRESSURE) {
                         N_total++;
@@ -264,7 +264,7 @@ namespace OpenPSTD {
 
                     // Calculate the spatial derivatives for the current intersection range and store
                     int matrix_main_offset, matrix_side1_offset, matrix_side2_offset;
-                    Eigen::ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
+                    ArrayXXf matrix_main_indexed, matrix_side1_indexed, matrix_side2_indexed;
                     if (cd == CalcDirection::X) {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
                                 next_2_power(matrix_main.cols() + 2 * wlen), matrix_main.rows());
@@ -301,7 +301,7 @@ namespace OpenPSTD {
                         matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
                                                                   nrows, matrix_side2.cols());
 
-                        Eigen::ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
+                        ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
                         source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) = spatresult;
                     }
@@ -329,7 +329,7 @@ namespace OpenPSTD {
          * a default empty vector as dest.
          */
         void Domain::calc(CalcDirection cd, CalculationType ct) {
-            Eigen::ArrayXcf nulldest;
+            ArrayXcf nulldest;
             Domain::calc(cd, ct, nulldest);
         }
 

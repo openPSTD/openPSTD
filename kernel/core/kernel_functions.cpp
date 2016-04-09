@@ -30,6 +30,7 @@
 #include "kernel_functions.h"
 #include <iostream> //TODO REMOVE
 
+using namespace Eigen;
 namespace OpenPSTD {
     namespace Kernel {
         RhoArray get_rho_array(const float rho1, const float rho_self, const float rho2) {
@@ -47,8 +48,8 @@ namespace OpenPSTD {
             float trw1 = (2 * zn2) / (zn2 + 1);
             float trw2 = (2 * inv_zn2) / (inv_zn2 + 1);
             RhoArray result = {};
-            result.pressure = Eigen::ArrayXXf(4, 2);
-            result.velocity = Eigen::ArrayXXf(4, 2);;
+            result.pressure = ArrayXXf(4, 2);
+            result.velocity = ArrayXXf(4, 2);;
             result.pressure << rlw1, rlw2, rrw1, rrw2,
                     tlw1, tlw2, trw1, trw2;
             result.velocity << -rlw1, -rlw2, -rrw1, -rrw2,
@@ -65,7 +66,7 @@ namespace OpenPSTD {
         }
 
         float get_grid_spacing(PSTDSettings cnf) {
-            Eigen::Array<float, 9, 1> dxv;
+            Array<float, 9, 1> dxv;
             dxv <<
             0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1; //TODO: is there a good reason to disallow other vals?
             float waveLength = cnf.GetSoundSpeed() / cnf.GetMaxFrequency() / 2;
@@ -113,15 +114,15 @@ namespace OpenPSTD {
             }
         }
 
-        Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
-                                  Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
-                                  RhoArray rho_array, Eigen::ArrayXf window, int wlen,
+        ArrayXXf spatderp3(ArrayXXf p1, ArrayXXf p2,
+                                  ArrayXXf p3, ArrayXcf derfact,
+                                  RhoArray rho_array, ArrayXf window, int wlen,
                                   CalculationType ct, CalcDirection direct,
                                   fftwf_plan plan, fftwf_plan plan_inv) {
 
             //in the Python code: N1 = fft_batch and N2 = fft_length
             int fft_batch, fft_length;
-            Eigen::ArrayXXf result; //also called Lp in some places in documentation
+            ArrayXXf result; //also called Lp in some places in documentation
 
             fft_batch = p2.rows();
             fft_length = next_2_power((int) p2.cols() + wlen * 2);
@@ -159,19 +160,19 @@ namespace OpenPSTD {
                 result.resize(fft_batch, p2.cols() + wlen * 2 + 1);
 
                 //window the outer domains, add a portion of the middle one to the sides and concatenate them all
-                Eigen::ArrayXf window_left = window.head(wlen);
-                Eigen::ArrayXf window_right = window.tail(wlen);
+                ArrayXf window_left = window.head(wlen);
+                ArrayXf window_right = window.tail(wlen);
 
                 if (wlen > p1.cols() || wlen > p3.cols()) {
                     //TODO error (or just warn) if this happens and give user feedback.
                 }
 
-                Eigen::ArrayXXf dom1(fft_batch, wlen);
-                Eigen::ArrayXXf dom3(fft_batch, wlen);
-                Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
-                Eigen::ArrayXXf fft_input_data(fft_length, fft_batch);
-                Eigen::ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
-                zero_pad = Eigen::ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
+                ArrayXXf dom1(fft_batch, wlen);
+                ArrayXXf dom3(fft_batch, wlen);
+                ArrayXXf windowed_data(fft_batch, fft_length);
+                ArrayXXf fft_input_data(fft_length, fft_batch);
+                ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
+                zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
                 //this looks inefficient, but Eigen should optimize it into single operations (TODO: check if it does)
                 dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
                        p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
@@ -189,15 +190,15 @@ namespace OpenPSTD {
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
                 //map the results back into an eigen array
-                typedef Eigen::Matrix<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> ArrayXXcfrm;
-                Eigen::Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
+                typedef Matrix<std::complex<float>, Dynamic, Dynamic, RowMajor> ArrayXXcfrm;
+                Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
                 fftwf_execute_dft_c2r(plan_inv, out_buffer, in_buffer);
 
-                Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> derived_array =
-                        Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(in_buffer, fft_batch, fft_length).array();
+                Matrix<float, Dynamic, Dynamic, RowMajor> derived_array =
+                        Map<Matrix<float, Dynamic, Dynamic, RowMajor>>(in_buffer, fft_batch, fft_length).array();
 
                 //ifft result contains the outer domains, so slice
                 result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
@@ -208,19 +209,19 @@ namespace OpenPSTD {
                 result.resize(fft_batch, p2.cols() + wlen * 2 - 1);
 
                 //window the outer domains, add a portion of the middle one to the sides and concatenate them all
-                Eigen::ArrayXf window_left = window.head(wlen);
-                Eigen::ArrayXf window_right = window.tail(wlen);
+                ArrayXf window_left = window.head(wlen);
+                ArrayXf window_right = window.tail(wlen);
 
                 if (wlen > p1.cols() || wlen > p3.cols()) {
                     //TODO error (or just warn) if this happens and give user feedback.
                 }
 
-                Eigen::ArrayXXf dom1(fft_batch, wlen);
-                Eigen::ArrayXXf dom3(fft_batch, wlen);
-                Eigen::ArrayXXf windowed_data(fft_batch, fft_length);
-                Eigen::ArrayXXf fft_input_data(fft_length, fft_batch);
-                Eigen::ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
-                zero_pad = Eigen::ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
+                ArrayXXf dom1(fft_batch, wlen);
+                ArrayXXf dom3(fft_batch, wlen);
+                ArrayXXf windowed_data(fft_batch, fft_length);
+                ArrayXXf fft_input_data(fft_length, fft_batch);
+                ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
+                zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
                 dom1 = p1.rightCols(wlen+1).leftCols(wlen).rowwise() * window_left.transpose() * rho_array.velocity(2, 1) +
                        p2.leftCols(wlen+1).rightCols(wlen).rowwise().reverse() * rho_array.velocity(0, 0);
                 dom3 = p3.leftCols(wlen+1).rightCols(wlen).rowwise() * window_right.transpose() * rho_array.velocity(3, 1) +
@@ -237,15 +238,15 @@ namespace OpenPSTD {
                 fftwf_execute_dft_r2c(plan, in_buffer, out_buffer);
 
                 //map the results back into an eigen array
-                typedef Eigen::Matrix<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> ArrayXXcfrm;
-                Eigen::Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
+                typedef Matrix<std::complex<float>, Dynamic, Dynamic, RowMajor> ArrayXXcfrm;
+                Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
                 fftwf_execute_dft_c2r(plan_inv, out_buffer, in_buffer);
 
-                Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> derived_array =
-                        Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(in_buffer, fft_batch, fft_length).array();
+                Matrix<float, Dynamic, Dynamic, RowMajor> derived_array =
+                        Map<Matrix<float, Dynamic, Dynamic, RowMajor>>(in_buffer, fft_batch, fft_length).array();
 
                 //ifft result contains the outer domains, so slice
                 result = derived_array.leftCols(wlen + p2.cols()).rightCols(p2.cols()-1);
@@ -257,16 +258,16 @@ namespace OpenPSTD {
             return result;
         }
 
-        Eigen::ArrayXXf spatderp3(Eigen::ArrayXXf p1, Eigen::ArrayXXf p2,
-                                  Eigen::ArrayXXf p3, Eigen::ArrayXcf derfact,
-                                  RhoArray rho_array, Eigen::ArrayXf window, int wlen,
+        ArrayXXf spatderp3(ArrayXXf p1, ArrayXXf p2,
+                                  ArrayXXf p3, ArrayXcf derfact,
+                                  RhoArray rho_array, ArrayXf window, int wlen,
                                   CalculationType ct, CalcDirection direct) {
             return spatderp3(p1, p2, p3, derfact, rho_array, window, wlen, ct, direct, NULL, NULL);
         }
 
-        Eigen::ArrayXf get_window_coefficients(int window_size, int patch_error) {
+        ArrayXf get_window_coefficients(int window_size, int patch_error) {
             float window_alpha = (patch_error - 40) / 20.0 + 1;
-            Eigen::ArrayXf window_coefficients = ((Eigen::ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size)/window_size).square().cube()*log(10)*window_alpha*-1).exp(); // Need to go to power 6 (^2^3)
+            ArrayXf window_coefficients = ((ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size)/window_size).square().cube()*log(10)*window_alpha*-1).exp(); // Need to go to power 6 (^2^3)
             return window_coefficients;
         }
 
