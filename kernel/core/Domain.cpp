@@ -107,7 +107,7 @@ namespace OpenPSTD {
 
             ArrayXXf source;
 
-            if (dest.cols() != 0) {
+            if (dest.rows() != 0) {
                 if (cd == CalcDirection::X) {
                     source = extended_zeros(0, 1);
                 }
@@ -117,14 +117,19 @@ namespace OpenPSTD {
             }
             else {
                 if (ct == CalculationType::PRESSURE) {
-                    source = this->current_values.p0;
+                    if (cd == CalcDirection::X) {
+                        source = this->l_values.Lpx;
+                    }
+                    else {
+                        source = this->l_values.Lpy;
+                    }
                 }
                 else {
                     if (cd == CalcDirection::X) {
-                        source = this->current_values.vx0;
+                        source = this->l_values.Lvx;
                     }
                     else {
-                        source = this->current_values.vy0;
+                        source = this->l_values.Lvy;
                     }
                 }
             }
@@ -163,6 +168,7 @@ namespace OpenPSTD {
                     // Set up various parameters and intermediates that are needed for the spatial derivatives
                     int range_start = *min_element(range_intersection.begin(), range_intersection.end());
                     int range_end = *max_element(range_intersection.begin(), range_intersection.end()) + 1;
+                    int full_range = range_end-range_start;
                     int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                     int N_total = 2 * settings->GetWindowSize() + primary_dimension;
                     int wlen = settings->GetWindowSize();
@@ -170,6 +176,7 @@ namespace OpenPSTD {
 
                     if (ct == CalculationType::PRESSURE) {
                         N_total++;
+                        full_range++;
                     }
                     else {
                         primary_dimension++;
@@ -242,7 +249,7 @@ namespace OpenPSTD {
                     }
 
                     ArrayXcf derfact;
-                    if (dest.cols() != 0) {
+                    if (dest.rows() != 0) {
                         derfact = dest;
                     }
                     else {
@@ -283,7 +290,7 @@ namespace OpenPSTD {
 
                         Eigen:ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols+1) = spatresult;
+                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), full_range) = spatresult;
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
@@ -303,21 +310,7 @@ namespace OpenPSTD {
 
                         ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) = spatresult;
-                    }
-                }
-            }
-
-            if (dest.cols() == 0) {
-                if (ct == CalculationType::PRESSURE) {
-                    this->current_values.p0 = source;
-                }
-                else {
-                    if (cd == CalcDirection::X) {
-                        this->current_values.vx0 = source;
-                    }
-                    else {
-                        this->current_values.vy0 = source;
+                        source.block(range_start - matrix_main_offset, 0, full_range, matrix_main.cols()) = spatresult;
                     }
                 }
             }
