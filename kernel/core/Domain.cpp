@@ -133,8 +133,8 @@ namespace OpenPSTD {
             shared_ptr<Domain> d1, d2;
             for (int i = 0; i != domains1.size() + 1; i++) { //the +1 because a null pointer is also needed
                 d1 = (i != domains1.size()) ? domains1[i] : nullptr;
-                for (int j = 0; i != domains2.size() + 1; j++) {
-                    d2 = (i != domains2.size()) ? domains2[i] : nullptr;
+                for (int j = 0; j != domains2.size() + 1; j++) {
+                    d2 = (j != domains2.size()) ? domains2[j] : nullptr;
                     vector<int> rho_matrix_key;
                     rho_matrix_key.push_back(d1->id);
                     rho_matrix_key.push_back(d2->id);
