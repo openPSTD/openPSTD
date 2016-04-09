@@ -281,9 +281,9 @@ namespace OpenPSTD {
                         matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
                                                                   matrix_side2.rows(), ncols);
 
-                        Eigen:ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct,
-                                          cd, planset.plan, planset.plan_inv);
-                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols) = spatresult;
+                        Eigen:ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
+                                                              rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
+                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), ncols+1) = spatresult;
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
@@ -301,9 +301,9 @@ namespace OpenPSTD {
                         matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
                                                                   nrows, matrix_side2.cols());
 
-                        source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) =
-                                spatderp3(matrix_side1, matrix_main, matrix_side2, derfact, rho_array, wind, wlen, ct,
-                                          cd, planset.plan, planset.plan_inv);
+                        Eigen::ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
+                                                              rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
+                        source.block(range_start - matrix_main_offset, 0, nrows, matrix_main.cols()) = spatresult;
                     }
                 }
             }
