@@ -136,8 +136,8 @@ namespace OpenPSTD {
                 for (int j = 0; j != domains2.size() + 1; j++) {
                     d2 = (j != domains2.size()) ? domains2[j] : nullptr;
                     vector<int> rho_matrix_key;
-                    rho_matrix_key.push_back(d1->id);
-                    rho_matrix_key.push_back(d2->id);
+                    if (d1!=nullptr) rho_matrix_key.push_back(d1->id);
+                    if (d2!=nullptr) rho_matrix_key.push_back(d2->id);
 
                     //The range is determined and clipped to the neighbour domain ranges
                     vector<int> range_intersection = own_range;
@@ -149,7 +149,7 @@ namespace OpenPSTD {
                                          back_inserter(range_intersection));
                     }
                     if (d2 != nullptr) {
-                        vector<int> range2 = d1->get_range(cd);
+                        vector<int> range2 = d2->get_range(cd);
                         set_intersection(range2.begin(), range2.end(),
                                          range_intersection.begin(), range_intersection.end(),
                                          back_inserter(range_intersection));
@@ -308,7 +308,7 @@ namespace OpenPSTD {
                 }
             }
 
-            if (dest.cols() != 0) {
+            if (dest.cols() == 0) {
                 if (ct == CalculationType::PRESSURE) {
                     this->current_values.p0 = source;
                 }
