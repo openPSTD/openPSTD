@@ -518,7 +518,7 @@ namespace OpenPSTD {
 
         void Domain::find_update_directions() {
             for (CalcDirection calc_dir: all_calc_directions) {
-                bool should_update = false;
+                bool should_update = true;
                 if (number_of_neighbours(false) == 1 and is_pml) {
                     if (has_horizontal_attenuation and calc_dir == CalcDirection::X) {
                         // Todo: make sure we calculate in direction orthogonal to boundary
@@ -542,6 +542,7 @@ namespace OpenPSTD {
                         }
                     }
                 }
+
                 this->should_update[calc_dir] = should_update;
             }
         }
