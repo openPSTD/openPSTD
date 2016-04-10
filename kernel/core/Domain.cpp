@@ -314,6 +314,24 @@ namespace OpenPSTD {
                     }
                 }
             }
+            if (dest.rows() == 0) {
+                if (ct == CalculationType::PRESSURE) {
+                    if (cd == CalcDirection::X) {
+                        this->l_values.Lpx = source;
+                    }
+                    else {
+                        this->l_values.Lpy = source;
+                    }
+                }
+                else {
+                    if (cd == CalcDirection::X) {
+                        this->l_values.Lvx = source;
+                    }
+                    else {
+                        this->l_values.Lvy = source;
+                    }
+                }
+            }
             return source;
         }
 
