@@ -58,7 +58,8 @@ namespace OpenPSTD
     namespace GUI
     {
         Controller::Controller() :
-                runningOp(false)
+                runningOp(false),
+                worker(this->shared_from_this())
         {
 
         }

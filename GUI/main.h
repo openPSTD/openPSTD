@@ -34,6 +34,7 @@
 
 #include <memory>
 #include "operations/BaseOperation.h"
+#include "operations/long/LongOperationRunner.h"
 
 namespace OpenPSTD
 {
@@ -60,6 +61,7 @@ namespace OpenPSTD
 
         private:
             bool runningOp;
+            BackgroundWorker worker;
 
         };
     }
