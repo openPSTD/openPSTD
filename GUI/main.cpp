@@ -65,17 +65,14 @@ namespace OpenPSTD
 
         void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
         {
-            Reciever r;
-            r.model = this->model;
-            r.operationRunner = this->shared_from_this();
             if (runningOp)
             {
-                operation->Run(r);
+                operation->Run(this->BuildReceiver());
             }
             else
             {
                 runningOp = true;
-                operation->Run(r);
+                operation->Run(this->BuildReceiver());
                 runningOp = false;
                 //todo: fix that also the documentAccess itself is registered
                 //if(this->model->invalidation.IsChanged())
@@ -88,11 +85,8 @@ namespace OpenPSTD
 
         void Controller::RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation)
         {
-            Reciever r;
-            r.model = this->model;
-            r.operationRunner = this->shared_from_this();
             runningOp = true;
-            operation->Run(r);
+            operation->Run(this->BuildReceiver());
             runningOp = false;
         }
 
@@ -101,5 +95,15 @@ namespace OpenPSTD
             this->w->UpdateFromModel(this->model);
             this->model->Reset();
         }
+
+        Reciever Controller::BuildReceiver()
+        {
+            Reciever r;
+            r.model = this->model;
+            r.operationRunner = this->shared_from_this();
+            return r;
+        }
+
+
     }
 }

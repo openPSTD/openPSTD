@@ -12,7 +12,7 @@ else()
     message(STATUS "Test file: ALL")
 
     # GUI test files
-    set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/GUI/Edges-test.cpp)
+    set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/GUI/Edges-test.cpp test/GUI/LongOperationRunner-test.cpp)
     # Kernel test files
     set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/Kernel/kernel_functions.cpp
             test/Kernel/Speaker.cpp test/Kernel/Scene.cpp test/Kernel/Geometry.cpp test/Kernel/Domain.cpp

@@ -39,7 +39,10 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        class Controller: public OperationRunner, public std::enable_shared_from_this<Controller>
+        class Controller:
+                public OperationRunner,
+                public ReceiverBuilder,
+                public std::enable_shared_from_this<Controller>
         {
         public:
             Controller();
@@ -48,6 +51,8 @@ namespace OpenPSTD
 
             void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
             void UpdateWithoutOperation();
+
+            Reciever BuildReceiver();
 
             std::shared_ptr<Model> model;
             std::unique_ptr<QApplication> a;

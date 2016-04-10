@@ -16,7 +16,9 @@ find_package(Boost 1.54.0 REQUIRED
         regex
         iostreams
         serialization
-        filesystem)
+        filesystem
+        thread
+        date_time)
 
 message(STATUS "Boost found: ${Boost_FOUND}")
 message(STATUS "Boost lib path: ${Boost_LIBRARY_DIRS}")

@@ -58,6 +58,12 @@ namespace OpenPSTD
             virtual void RunOperation(std::shared_ptr<BaseOperation> operation) = 0;
         };
 
+        class ReceiverBuilder
+        {
+        public:
+            virtual Reciever BuildReceiver() = 0;
+        };
+
         class Reciever
         {
         public:

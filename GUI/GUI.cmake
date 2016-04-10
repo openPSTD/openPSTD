@@ -5,6 +5,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/BaseOperation.cpp GUI/op
         GUI/operations/EditOperations.cpp GUI/operations/ViewOperations.cpp
         GUI/operations/InitializationOperation.cpp GUI/operations/MouseOperations.cpp
         GUI/operations/SelectionOperations.cpp)
+# Long operations
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/long/LongOperationRunner.cpp)
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MouseHandlers.cpp)
 # OpenGL viewer
