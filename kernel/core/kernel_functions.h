@@ -99,7 +99,7 @@ namespace OpenPSTD {
         /**
          * Coefficients for a six stage RK time integration
          */
-        const std::vector<float> rk_coefficients = {8.91421261e-4f, 7555704391e-3f, 4.0919732041e-2f,
+        const std::vector<float> rk_coefficients = {8.91421261e-4f, 7.555704391e-3f, 4.0919732041e-2f,
                                                     1.65919771368e-1f, 5e-1, 1.f}; // Temporary until bugfix
 
 

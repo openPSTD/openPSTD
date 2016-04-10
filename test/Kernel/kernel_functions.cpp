@@ -21,7 +21,7 @@
 // Date: 2-1-2016
 //
 //
-// Authors: Omar Richardson
+// Authors: Omar Richardson, Louis van Harten
 //
 //
 // Purpose: Test suite for kernel functions
