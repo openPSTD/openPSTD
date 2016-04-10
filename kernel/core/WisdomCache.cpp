@@ -68,8 +68,8 @@ namespace OpenPSTD {
             discr.complex_factors.imag() = partial_ones;
             discr.complex_factors.real() = Eigen::ArrayXf::Zero(2 * two_power);
             Eigen::ArrayXcf complex_wave_numbers = discr.complex_factors * discr.wave_numbers;
-            discr.pressure_deriv_factors = (-complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
-            discr.velocity_deriv_factors = (complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers;
+            discr.pressure_deriv_factors = (-complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers / 2;
+            discr.velocity_deriv_factors = (complex_wave_numbers * (dx * 0.5)).exp() * complex_wave_numbers / 2;
             return discr;
         }
 
