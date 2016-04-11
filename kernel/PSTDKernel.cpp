@@ -72,9 +72,9 @@ namespace OpenPSTD {
                 Kernel::Point grid_size((int) s.at(0), (int) s.at(1));
                 map<Kernel::Direction, Kernel::EdgeParameters> edge_param_map = translate_edge_parameters(domain);
                 int domain_id = scene->get_new_id();
-                shared_ptr<Kernel::Domain> domain_ptr(
-                        new Kernel::Domain(this->settings, domain_id, default_alpha, grid_top_left,
-                                           grid_size, false, this->wnd, edge_param_map, nullptr));
+                shared_ptr<Kernel::Domain> domain_ptr = std::make_shared<Kernel::Domain>(
+                        this->settings, domain_id, default_alpha, grid_top_left,
+                        grid_size, false, this->wnd, edge_param_map, nullptr);
                 domains.push_back(domain_ptr);
                 domain_id_int++;
             }
@@ -116,16 +116,16 @@ namespace OpenPSTD {
             std::shared_ptr<Kernel::Solver> solver;
             switch (solver_num) {
                 case 0:
-                    solver = std::shared_ptr<Kernel::Solver>(new Kernel::SingleThreadSolver(this->scene, callback));
+                    solver = std::make_shared<Kernel::SingleThreadSolver>(this->scene, callback);
                     break;
                 case 1:
-                    solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUSingleThreadSolver(this->scene, callback));
+                    solver = std::make_shared<Kernel::GPUSingleThreadSolver>(this->scene, callback);
                     break;
                 case 2:
-                    solver = std::shared_ptr<Kernel::Solver>(new Kernel::MultiThreadSolver(this->scene, callback));
+                    solver = std::make_shared<Kernel::MultiThreadSolver>(this->scene, callback);
                     break;
                 case 3:
-                    solver = std::shared_ptr<Kernel::Solver>(new Kernel::GPUMultiThreadSolver(this->scene, callback));
+                    solver = std::make_shared<Kernel::GPUMultiThreadSolver>(this->scene, callback);
                     break;
                 default:
                     //TODO Raise Error
