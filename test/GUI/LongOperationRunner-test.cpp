@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
         std::shared_ptr<MockReceiverBuilder> builder = std::make_shared<MockReceiverBuilder>();
         BackgroundWorker worker(builder);
         worker.Start();
-        BOOST_TEST(worker.IsIdle());
+        BOOST_CHECK(worker.IsIdle());
         worker.JoinASAP();
     }
 
@@ -92,9 +92,9 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
         std::shared_ptr<MockReceiverBuilder> builder = std::make_shared<MockReceiverBuilder>();
         BackgroundWorker worker(builder);
         worker.Start();
-        BOOST_TEST(worker.IsIdle());
+        BOOST_CHECK(worker.IsIdle());
         boost::this_thread::sleep_for(boost::chrono::seconds(1));
-        BOOST_TEST(worker.IsIdle());
+        BOOST_CHECK(worker.IsIdle());
         worker.JoinASAP();
     }
 
@@ -121,9 +121,9 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
         op->started.wait_for(lock, boost::chrono::milliseconds(1000));
 
         //test items
-        BOOST_TEST(op->GetProgress() == 0.5f);
-        BOOST_TEST(worker.GetCurrentName() == "mock");
-        BOOST_TEST(worker.GetCurrentProgress() == 0.5f);
+        BOOST_CHECK(op->GetProgress() == 0.5f);
+        BOOST_CHECK(worker.GetCurrentName() == "mock");
+        BOOST_CHECK(worker.GetCurrentProgress() == 0.5f);
 
         //end operation
         op->end.notify_all();
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
 
         //wait so the worker can recover
         boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
-        BOOST_TEST(worker.IsIdle());
+        BOOST_CHECK(worker.IsIdle());
 
         worker.JoinASAP();
     }
@@ -161,9 +161,9 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
         op->started.wait_for(lock, boost::chrono::milliseconds(1000));
 
         //test items
-        BOOST_TEST(op->GetProgress() == 0.5f);
-        BOOST_TEST(worker.GetCurrentName() == "mock");
-        BOOST_TEST(worker.GetCurrentProgress() == 0.5f);
+        BOOST_CHECK(op->GetProgress() == 0.5f);
+        BOOST_CHECK(worker.GetCurrentName() == "mock");
+        BOOST_CHECK(worker.GetCurrentProgress() == 0.5f);
 
         //end operation
         op->end.notify_all();
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
 
         //wait so the worker can recover
         boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
-        BOOST_TEST(worker.IsIdle());
+        BOOST_CHECK(worker.IsIdle());
 
         worker.JoinASAP();
     }
