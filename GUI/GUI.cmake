@@ -6,7 +6,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/BaseOperation.cpp GUI/op
         GUI/operations/InitializationOperation.cpp GUI/operations/MouseOperations.cpp
         GUI/operations/SelectionOperations.cpp GUI/operations/LambdaOperation.cpp)
 # Long operations
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/long/LongOperationRunner.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/long/LongOperationRunner.cpp
+        GUI/operations/long/SimulateLOperation.cpp)
 # mouse handlers
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/mouse/MouseCreateDomainStrategy.cpp
         GUI/mouse/MouseCreateSpeakerReceiverStrategy.cpp GUI/mouse/MouseMoveSceneStrategy.cpp
