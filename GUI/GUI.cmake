@@ -13,10 +13,18 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/mouse/MouseCreateDomainStrategy.cpp
         GUI/mouse/MouseCreateSpeakerReceiverStrategy.cpp GUI/mouse/MouseMoveSceneStrategy.cpp
         GUI/mouse/MouseSelectStrategy.cpp GUI/mouse/MouseStrategy.cpp)
 # OpenGL viewer
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Viewer2D.cpp GUI/GridLayer.cpp GUI/SceneLayer.cpp
-        GUI/InteractiveLayer.cpp GUI/IconLayer.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/Viewer2D.cpp
+        GUI/GridLayer.cpp
+        GUI/SceneLayer.cpp
+        GUI/InteractiveLayer.cpp
+        GUI/IconLayer.cpp)
 # UI files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MainWindow.cpp GUI/DomainProperties.cpp GUI/DocumentSettings.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/MainWindow.cpp
+        GUI/DomainProperties.cpp
+        GUI/DocumentSettings.cpp
+        GUI/ApplicationSettings.cpp)
 # Resource files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
 # Remaining
