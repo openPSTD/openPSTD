@@ -18,31 +18,39 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#include "GUI/operations/EditOperations.h"
+#include "MouseCreateSpeakerReceiverStrategy.h"
 
-namespace OpenPSTD
+using namespace OpenPSTD::GUI;
+
+MouseCreateSpeakerReceiverStrategy::MouseCreateSpeakerReceiverStrategy(OpenPSTD::GUI::PstdObjectType type) : _type(type)
 {
-    namespace GUI
-    {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
-        {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
-        }
 
-    }
+}
+
+void MouseCreateSpeakerReceiverStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model,
+                                                QMouseEvent *mouseEvent,
+                                                QVector2D pos)
+{
+
+}
+
+void MouseCreateSpeakerReceiverStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model,
+                                                   QMouseEvent *mouseEvent,
+                                                   QVector2D pos)
+{
+    std::shared_ptr<CreateReceiverSpeakerOperation> op = std::make_shared<CreateReceiverSpeakerOperation>(
+            this->_type, (model->view->viewMatrix.inverted() * pos.toVector3D()).toVector2D());
+    this->operationRunner.lock()->RunOperation(op);
 }

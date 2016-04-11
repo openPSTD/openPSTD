@@ -33,6 +33,7 @@
 #define OPENPSTD_SELECTDOMAINOPERATION_H
 
 #include "BaseOperation.h"
+#include "../Model.h"
 
 namespace OpenPSTD
 {

@@ -33,11 +33,19 @@
 #ifndef OPENPSTD_MODEL_H
 #define OPENPSTD_MODEL_H
 
+#include <memory>
+#include <vector>
+#include <QtGui/qmatrix4x4.h>
+#include <kernel/KernelInterface.h>
+#include <shared/PSTDFile.h>
+#include <shared/Colors.h>
+#include <shared/PSTDFileAccess.h>
+
 namespace OpenPSTD
 {
     namespace GUI
     {
-        class Model;
+        class MouseStrategy;
 
         enum SelectionType
         {
@@ -54,23 +62,7 @@ namespace OpenPSTD
             OBJECT_RECEIVER,
             OBJECT_SPEAKER
         };
-    }
-}
-#include <memory>
-#include <vector>
-#include <QtGui/qmatrix4x4.h>
-#include <kernel/KernelInterface.h>
-#include <shared/PSTDFile.h>
-#include "MouseHandlers.h"
-#include <QVector2D>
-#include <shared/Colors.h>
-#include <shared/InvalidationData.h>
-#include <shared/PSTDFileAccess.h>
 
-namespace OpenPSTD
-{
-    namespace GUI
-    {
         class InteractiveModel : public Shared::InvalidationData
         {
         public:

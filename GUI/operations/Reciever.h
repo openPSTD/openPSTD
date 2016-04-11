@@ -18,31 +18,39 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#ifndef OPENPSTD_BACKGROUNDWORKER_H
+#define OPENPSTD_BACKGROUNDWORKER_H
+
+#include <memory>
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
-        {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
-        }
 
+        class OperationRunner;
+        class Model;
+        class BackgroundWorker;
+
+        class Reciever
+        {
+        public:
+            std::shared_ptr <Model> model;
+            std::shared_ptr <OperationRunner> operationRunner;
+            std::shared_ptr <BackgroundWorker> Backgroundworker;
+        };
     }
 }
+
+#endif //OPENPSTD_BACKGROUNDWORKER_H

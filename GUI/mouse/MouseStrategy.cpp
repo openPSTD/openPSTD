@@ -18,31 +18,26 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#include "MouseStrategy.h"
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
+        void MouseStrategy::SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner)
         {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
+            this->operationRunner = operationRunner;
         }
-
     }
 }

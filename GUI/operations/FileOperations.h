@@ -38,6 +38,7 @@
 
 #include "BaseOperation.h"
 #include <string>
+#include "../Model.h"
 
 namespace OpenPSTD
 {

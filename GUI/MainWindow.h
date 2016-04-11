@@ -35,7 +35,7 @@
 #include <QMainWindow>
 #include <memory>
 #include "operations/BaseOperation.h"
-#include "MouseHandlers.h"
+#include "mouse/MouseStrategy.h"
 #include "DomainProperties.h"
 #include "DocumentSettings.h"
 #include <ui_MainWindow.h>

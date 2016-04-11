@@ -45,7 +45,8 @@ namespace OpenPSTD
 }
 
 #include "BaseOperation.h"
-#include "../MouseHandlers.h"
+#include "GUI/mouse/MouseStrategy.h"
+#include "../Model.h"
 
 namespace OpenPSTD
 {

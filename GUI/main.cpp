@@ -36,19 +36,32 @@ int main(int argc, char *argv[])
 {
     using namespace OpenPSTD::GUI;
 
+    //create
     std::shared_ptr <Controller> c = std::make_shared<Controller>();
 
+    //start running background worker
+    c->StartUpBackgroundWorker();
+
+    //create model
     c->model = std::make_shared<Model>();
+
+    //initialize everything
     c->RunOperationWithoutUpdate(std::make_shared<InitializationOperation>());
 
+    //Start and show Qt application
     c->a = std::unique_ptr<QApplication>(new QApplication(argc, argv));
     c->w = std::unique_ptr<MainWindow>(new MainWindow(c));
 
     c->w->show();
 
+    //update everything
     c->UpdateWithoutOperation();
 
+    //Execute
     int result = c->a->exec();
+
+    //shutdown worker
+    c->ShutdownBackgroundWorker();
 
     return result;
 }
@@ -58,8 +71,7 @@ namespace OpenPSTD
     namespace GUI
     {
         Controller::Controller() :
-                runningOp(false),
-                worker(this->shared_from_this())
+                runningOp(false)
         {
 
         }
@@ -102,7 +114,19 @@ namespace OpenPSTD
             Reciever r;
             r.model = this->model;
             r.operationRunner = this->shared_from_this();
+            r.Backgroundworker = this->worker;
             return r;
+        }
+
+        void Controller::StartUpBackgroundWorker()
+        {
+            this->worker = std::make_shared<BackgroundWorker>(this->shared_from_this());
+            this->worker->Start();
+        }
+
+        void Controller::ShutdownBackgroundWorker()
+        {
+            this->worker->JoinASAP();
         }
 
 

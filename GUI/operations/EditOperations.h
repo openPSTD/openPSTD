@@ -33,6 +33,7 @@
 #define OPENPSTD_EDITOPERATIONS_H
 
 #include "BaseOperation.h"
+#include "../Model.h"
 #include <boost/numeric/ublas/vector.hpp>
 #include <QVector2D>
 

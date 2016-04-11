@@ -18,31 +18,37 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#ifndef OPENPSTD_LAMBDAOPERATION_H
+#define OPENPSTD_LAMBDAOPERATION_H
+
+#include <functional>
+#include "BaseOperation.h"
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
+        class LambdaOperation : public BaseOperation
         {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
-        }
+        private:
+            std::function<void(const Reciever &)> _func;
 
+        public:
+            LambdaOperation(std::function<void(const Reciever &)> func);
+
+            virtual void Run(const Reciever &reciever) override;
+        };
     }
 }
+#endif //OPENPSTD_LAMBDAOPERATION_H

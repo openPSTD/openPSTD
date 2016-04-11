@@ -18,31 +18,58 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#ifndef OPENPSTD_MOUSESTRATEGY_H
+#define OPENPSTD_MOUSESTRATEGY_H
+
+#include "GUI/Model.h"
+#include "GUI/operations/BaseOperation.h"
+#include <QMouseEvent>
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
+        class MouseStrategy
         {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
-        }
+        protected:
+            std::weak_ptr<OperationRunner> operationRunner;
 
+        public:
+            void SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner);
+
+            virtual void mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *,
+                                         QVector2D pos)
+            { };
+
+            virtual void mouseReleaseEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                           QVector2D pos)
+            { };
+
+            virtual void mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                        QVector2D pos)
+            { };
+
+            virtual void wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent,
+                                    QVector2D pos)
+            { };
+        };
     }
 }
+
+#include <memory>
+#include <QtGui/qevent.h>
+#include "GUI/operations/BaseOperation.h"
+#include "GUI/Model.h"
+
+#endif //OPENPSTD_MOUSESTRATEGY_H

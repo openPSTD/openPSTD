@@ -39,6 +39,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
+#include <QMouseEvent>
 #include <algorithm>
 #include <math.h>
 #include <string>
@@ -49,6 +50,8 @@
 #include "InteractiveLayer.h"
 #include <boost/lexical_cast.hpp>
 #include "operations/ViewOperations.h"
+#include "operations/LambdaOperation.h"
+#include "mouse/MouseStrategy.h"
 
 namespace OpenPSTD
 {

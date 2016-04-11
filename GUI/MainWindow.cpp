@@ -30,12 +30,15 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include <QFileDialog>
-#include "operations/FileOperations.h"
 #include <QVariant>
-#include "MouseHandlers.h"
+#include "operations/FileOperations.h"
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
 #include "AboutBoxesText.h"
+#include "mouse/MouseSelectStrategy.h"
+#include "mouse/MouseMoveSceneStrategy.h"
+#include "mouse/MouseCreateDomainStrategy.h"
+#include "mouse/MouseCreateSpeakerReceiverStrategy.h"
 #include <QMessageBox>
 
 namespace OpenPSTD

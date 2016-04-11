@@ -37,6 +37,7 @@
 #define OPENPSTD_VIEWOPERATIONS_H
 
 #include "BaseOperation.h"
+#include "../Model.h"
 #include <QMatrix4x4>
 #include <QVector2D>
 

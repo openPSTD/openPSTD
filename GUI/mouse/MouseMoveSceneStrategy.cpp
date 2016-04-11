@@ -18,56 +18,51 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
 //
 // Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_MAIN_GUI_H
-#define OPENPSTD_MAIN_GUI_H
+#include <GUI/operations/ViewOperations.h>
+#include "MouseMoveSceneStrategy.h"
 
-#include <memory>
-#include "operations/BaseOperation.h"
-#include "operations/long/LongOperationRunner.h"
+using namespace OpenPSTD::GUI;
 
-namespace OpenPSTD
+void MouseMoveSceneStrategy::mouseMoveEvent(std::shared_ptr<Model> const &model, QMouseEvent *mouseEvent,
+                                            QVector2D pos)
 {
-    namespace GUI
+    pos = (model->view->aspectMatrix.inverted() * pos.toVector3D()).toVector2D();
+    QVector2D offset = pos - this->mousePos;
+    this->mousePos = pos;
+
+    auto buttons = mouseEvent->buttons();
+    if (buttons & Qt::LeftButton)
     {
-        class Controller:
-                public OperationRunner,
-                public ReceiverBuilder,
-                public std::enable_shared_from_this<Controller>
-        {
-        public:
-            Controller();
-
-            void StartUpBackgroundWorker();
-            void ShutdownBackgroundWorker();
-
-            virtual void RunOperation(std::shared_ptr<BaseOperation> operation);
-
-            void RunOperationWithoutUpdate(std::shared_ptr<BaseOperation> operation);
-            void UpdateWithoutOperation();
-
-            Reciever BuildReceiver();
-
-            std::shared_ptr<Model> model;
-            std::unique_ptr<QApplication> a;
-            std::unique_ptr<MainWindow> w;
-
-        private:
-            bool runningOp;
-            std::shared_ptr <BackgroundWorker> worker;
-
-        };
+        std::shared_ptr<TranslateScene> op = std::make_shared<TranslateScene>(offset);
+        MouseStrategy::operationRunner.lock()->RunOperation(op);
     }
 }
 
-#endif //OPENPSTD_MAIN_GUI_H
+void MouseMoveSceneStrategy::wheelEvent(std::shared_ptr<Model> const &model, QWheelEvent *mouseEvent,
+                                        QVector2D pos)
+{
+    pos = (model->view->aspectMatrix.inverted() * pos.toVector3D()).toVector2D();
+    float delta = mouseEvent->delta();
+    float delta2 = powf(2, delta / 120);
+
+    std::shared_ptr<ResizeScene> op = std::make_shared<ResizeScene>(delta2, pos);
+    operationRunner.lock()->RunOperation(op);
+}
+
+void MouseMoveSceneStrategy::mousePressEvent(std::shared_ptr<Model> const &model, QMouseEvent *event,
+                                             QVector2D pos)
+{
+    pos = (model->view->aspectMatrix.inverted() * pos.toVector3D()).toVector2D();
+    this->mousePos = pos;
+}

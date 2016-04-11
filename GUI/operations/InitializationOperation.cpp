@@ -34,6 +34,7 @@
 #include "MouseOperations.h"
 #include "SelectionOperations.h"
 #include "FileOperations.h"
+#include "../mouse/MouseMoveSceneStrategy.h"
 
 namespace OpenPSTD
 {
@@ -41,6 +42,8 @@ namespace OpenPSTD
     {
         void InitializationOperation::Run(const Reciever &reciever)
         {
+
+
             //todo: make sure an no file is loaded
             //create a basic file
             std::shared_ptr<NewFileOperation> op1 = std::make_shared<NewFileOperation>("test.pstd");

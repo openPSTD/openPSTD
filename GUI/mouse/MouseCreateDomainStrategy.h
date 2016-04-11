@@ -18,31 +18,47 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#ifndef OPENPSTD_MOUSECREATEDOMAINSTRATEGY_H
+#define OPENPSTD_MOUSECREATEDOMAINSTRATEGY_H
+
+#include <memory>
+#include <QMouseEvent>
+#include "GUI/operations/BaseOperation.h"
+#include "GUI/Model.h"
+#include "MouseStrategy.h"
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
+        class MouseCreateDomainStrategy : public MouseStrategy
         {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
-        }
+        private:
+            QVector2D _start;
+            QVector2D _end;
+        public:
+            virtual void mousePressEvent(std::shared_ptr <OpenPSTD::GUI::Model> const &model, QMouseEvent *,
+                                         QVector2D pos) override;
 
+            virtual void mouseMoveEvent(std::shared_ptr <OpenPSTD::GUI::Model> const &model, QMouseEvent *mouseEvent,
+                                        QVector2D pos) override;
+
+            virtual void mouseReleaseEvent(std::shared_ptr <OpenPSTD::GUI::Model> const &model, QMouseEvent *mouseEvent,
+                                           QVector2D pos) override;
+        };
     }
 }
+
+
+#endif //OPENPSTD_MOUSECREATEDOMAINSTRATEGY_H

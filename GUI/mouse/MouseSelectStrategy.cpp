@@ -18,31 +18,30 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      18-7-2015
+// Date: 10-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "Model.h"
-#include "mouse/MouseStrategy.h"
+#include <GUI/operations/SelectionOperations.h>
+#include "MouseSelectStrategy.h"
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        Model::Model() : interactive(std::make_shared<InteractiveModel>()),
-                         view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
-                         documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
+        void MouseSelectStrategy::mouseReleaseEvent(std::shared_ptr<Model> const &model,
+                                                    QMouseEvent *mouseEvent,
+                                                    QVector2D pos)
         {
-            this->Register(interactive);
-            this->Register(view);
-            this->Register(settings);
-            this->Register(documentAccess);
+            std::shared_ptr<SelectObjectOperation> op = std::make_shared<SelectObjectOperation>(pos);
+            MouseStrategy::operationRunner.lock()->RunOperation(op);
         }
-
     }
 }

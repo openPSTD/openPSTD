@@ -4,11 +4,13 @@
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/BaseOperation.cpp GUI/operations/FileOperations.cpp
         GUI/operations/EditOperations.cpp GUI/operations/ViewOperations.cpp
         GUI/operations/InitializationOperation.cpp GUI/operations/MouseOperations.cpp
-        GUI/operations/SelectionOperations.cpp)
+        GUI/operations/SelectionOperations.cpp GUI/operations/LambdaOperation.cpp)
 # Long operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/long/LongOperationRunner.cpp)
 # mouse handlers
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MouseHandlers.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/mouse/MouseCreateDomainStrategy.cpp
+        GUI/mouse/MouseCreateSpeakerReceiverStrategy.cpp GUI/mouse/MouseMoveSceneStrategy.cpp
+        GUI/mouse/MouseSelectStrategy.cpp GUI/mouse/MouseStrategy.cpp)
 # OpenGL viewer
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Viewer2D.cpp GUI/GridLayer.cpp GUI/SceneLayer.cpp
         GUI/InteractiveLayer.cpp GUI/IconLayer.cpp)
