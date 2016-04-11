@@ -108,6 +108,7 @@
     </widget>
     <addaction name="menuDimension"/>
     <addaction name="actionDocument_Settings"/>
+    <addaction name="actionApplication_Settings"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -135,6 +136,7 @@
     <addaction name="actionDelete_selected"/>
     <addaction name="actionResize_domain"/>
     <addaction name="actionEdit_properties_of_domain"/>
+    <addaction name="actionStart_simulation"/>
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
@@ -376,6 +378,21 @@
   <action name="actionAbout_icons">
    <property name="text">
     <string>About icons</string>
+   </property>
+  </action>
+  <action name="actionStart_simulation">
+   <property name="text">
+    <string>Start simulation</string>
+   </property>
+  </action>
+  <action name="actionMock_development">
+   <property name="text">
+    <string>Mock (development)</string>
+   </property>
+  </action>
+  <action name="actionApplication_Settings">
+   <property name="text">
+    <string>Application Settings</string>
    </property>
   </action>
  </widget>

@@ -40,6 +40,7 @@
 #include <shared/PSTDFile.h>
 #include <shared/Colors.h>
 #include <shared/PSTDFileAccess.h>
+#include "Settings.h"
 
 namespace OpenPSTD
 {
@@ -81,28 +82,6 @@ namespace OpenPSTD
             } Selection;
         };
 
-        class SnappingSettings
-        {
-        public:
-            bool SnapToGrid = true;
-            bool SnapToDomainEdges = true;
-            float SnapToDomainEdgesDistance = 0.4f;
-        };
-
-        class VisualSettings
-        {
-        public:
-            float EdgeSize = 5.0f;
-            std::unique_ptr<Shared::BaseColorScheme> colorScheme;
-        };
-
-        class Settings : public Shared::InvalidationData
-        {
-        public:
-            SnappingSettings snapping;
-            VisualSettings visual;
-        };
-
         class View : public Shared::InvalidationData
         {
         public:
@@ -121,6 +100,7 @@ namespace OpenPSTD
             std::unique_ptr<MouseStrategy> mouseHandler;
             std::shared_ptr<InteractiveModel> interactive;
             std::shared_ptr<Settings> settings;
+            std::unique_ptr<Shared::BaseColorScheme> colorScheme;
         };
 
     }

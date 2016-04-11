@@ -20,7 +20,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/MainWindow.cpp GUI/DomainProperties
 # Resource files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp GUI/Edges.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp GUI/Edges.cpp GUI/Settings.cpp)
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main.cpp)
 
 # create extra Qt5 code

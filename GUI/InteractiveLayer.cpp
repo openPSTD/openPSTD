@@ -145,8 +145,8 @@ namespace OpenPSTD
 
             if (m->settings->IsChanged())
             {
-                this->newDomainColor = m->settings->visual.colorScheme->EditorAddDomainColor();
-                this->selectionColor = m->settings->visual.colorScheme->EditorSelectionColor();
+                this->newDomainColor = m->colorScheme->EditorAddDomainColor();
+                this->selectionColor = m->colorScheme->EditorSelectionColor();
 
             }
 

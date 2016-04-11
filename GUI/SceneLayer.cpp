@@ -149,9 +149,9 @@ namespace OpenPSTD
         void SceneLayer::CreateColormap(std::shared_ptr<Model> const &m,
                                         std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            if (m->settings->IsChanged())
+            if (m->IsChanged())
             {
-                std::unique_ptr<std::vector<float>> colormap = m->settings->visual.colorScheme->
+                std::unique_ptr<std::vector<float>> colormap = m->colorScheme->
                         EditorLineAbsoptionColorGradient()->CreateRawRGBAColorMap(0, 1, 512);
 
                 // "Bind" the newly created texture : all future texture functions will modify this texture

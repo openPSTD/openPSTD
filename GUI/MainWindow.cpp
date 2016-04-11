@@ -28,9 +28,7 @@
 
 
 #include "MainWindow.h"
-#include "ui_MainWindow.h"
 #include <QFileDialog>
-#include <QVariant>
 #include "operations/FileOperations.h"
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"

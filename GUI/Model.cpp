@@ -35,7 +35,7 @@ namespace OpenPSTD
     {
         Model::Model() : interactive(std::make_shared<InteractiveModel>()),
                          view(std::make_shared<View>()),
-                         settings(std::make_shared<Settings>()),
+                         settings(Settings::Load()),
                          documentAccess(std::make_shared<OpenPSTD::Shared::PSTDFileAccess>())
         {
             this->Register(interactive);

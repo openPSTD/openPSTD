@@ -54,9 +54,9 @@ namespace OpenPSTD
             reciever.model->view->worldMatrix = QMatrix4x4();
             reciever.model->view->Change();
 
-            reciever.model->settings->visual.colorScheme = std::unique_ptr<Shared::StandardColorScheme>(
+            reciever.model->colorScheme = std::unique_ptr<Shared::StandardColorScheme>(
                     new Shared::StandardColorScheme());
-            reciever.model->settings->Change();
+            reciever.model->Change();
 
             //select none of the domains
             std::shared_ptr<DeselectOperation> op2(new DeselectOperation());

@@ -91,10 +91,10 @@ namespace OpenPSTD
                 program->setUniformValue("u_view", m->view->viewMatrix);
             }
 
-            if (m->settings->IsChanged())
+            if (m->IsChanged())
             {
                 program->bind();
-                program->setUniformValue("u_color", m->settings->visual.colorScheme->EditorLineColor());
+                program->setUniformValue("u_color", m->colorScheme->EditorLineColor());
             }
         }
 

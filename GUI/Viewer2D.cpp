@@ -158,7 +158,7 @@ namespace OpenPSTD
 
             if (model->settings->IsChanged())
             {
-                QColor clearColor = model->settings->visual.colorScheme->EditorBackgroundColor();
+                QColor clearColor = model->colorScheme->EditorBackgroundColor();
                 f->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
             }
 

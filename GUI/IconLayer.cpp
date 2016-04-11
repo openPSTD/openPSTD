@@ -96,14 +96,14 @@ namespace OpenPSTD
                 for (int i = 0; i < speakers.size(); i++)
                 {
                     positions->push_back(speakers[i]);
-                    colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorSpeakerColor()));
+                    colors->push_back(ToVectorRGBA(m->colorScheme->EditorSpeakerColor()));
                 }
 
                 std::vector<QVector2D> receivers = GetReceivers(m);
                 for (int i = 0; i < receivers.size(); i++)
                 {
                     positions->push_back(receivers[i]);
-                    colors->push_back(ToVectorRGBA(m->settings->visual.colorScheme->EditorReceiverColor()));
+                    colors->push_back(ToVectorRGBA(m->colorScheme->EditorReceiverColor()));
                 }
 
                 this->lines = speakers.size() + receivers.size();
