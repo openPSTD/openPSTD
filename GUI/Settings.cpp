@@ -52,14 +52,6 @@ using namespace OpenPSTD::GUI;
     #error Compiling for a not supported platform or Windows, Linux or MAC OS x is not detected by boost predefs
 #endif
 
-Settings::Settings():
-    CPUAcceleration(false),
-    GPUAcceleration(false),
-    UseMockKernel(false)
-{
-
-}
-
 std::shared_ptr<Settings> Settings::Load()
 {
     if(!boost::filesystem::exists(configDir) || !boost::filesystem::exists(filename))

@@ -97,7 +97,6 @@ namespace OpenPSTD
             bool CPUAcceleration = false;
             bool UseMockKernel = false;
 
-            Settings();
             static std::shared_ptr<Settings> Load();
             void Save();
         };
