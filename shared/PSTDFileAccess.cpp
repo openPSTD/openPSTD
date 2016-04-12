@@ -112,7 +112,7 @@ namespace OpenPSTD
         {
             if(this->d)
             {
-                return InvalidationData::IsChanged() && this->d->IsChanged();
+                return InvalidationData::IsChanged() || this->d->IsChanged();
             }
             else
             {
