@@ -39,7 +39,8 @@ using namespace OpenPSTD::GUI;
 
 SimulateLOperation::SimulateLOperation():
     started(false),
-    finished(false)
+    finished(false),
+    currentFrame(0)
 {
 
 }
@@ -107,7 +108,10 @@ void SimulateLOperation::Callback(CALLBACKSTATUS status, std::string message,
                                                  int frame)
 {
     this->Update();
-    this->currentFrame = frame;
+    if(frame >= 0)
+    {
+        this->currentFrame = frame;
+    }
     std::cout << "Progress: " << this->GetProgress() << std::endl;
     //todo something with status and message
 }
