@@ -73,12 +73,13 @@ void BackgroundWorker::EnqueueOperation(std::shared_ptr<LongOperation> Op)
 
 bool BackgroundWorker::IsIdle()
 {
-    bool test = currentOperation?false:true;
-    return test;
+    boost::unique_lock<boost::recursive_mutex> lock(this->currentOperationMutex);
+    return currentOperation?false:true;
 }
 
 float BackgroundWorker::GetCurrentProgress()
 {
+    boost::unique_lock<boost::recursive_mutex> lock(this->currentOperationMutex);
     if(this->IsIdle())
     {
         return -1;
@@ -91,6 +92,7 @@ float BackgroundWorker::GetCurrentProgress()
 
 std::string BackgroundWorker::GetCurrentName()
 {
+    boost::unique_lock<boost::recursive_mutex> lock(this->currentOperationMutex);
     if(this->IsIdle())
     {
         return "";
@@ -114,7 +116,10 @@ void BackgroundWorker::WorkerMethod()
                 {
                     queueCondition.wait(lock);
                 }
-                this->currentOperation = this->queue.front();
+                {
+                    boost::unique_lock<boost::recursive_mutex> lockCurrentOp(this->currentOperationMutex);
+                    this->currentOperation = this->queue.front();
+                }
                 this->queue.pop();
             }
             Reciever r;
@@ -123,7 +128,10 @@ void BackgroundWorker::WorkerMethod()
                 r = builder->BuildReceiver();
             }//make sure the shared_ptr to builder is removed
             this->currentOperation->Run(r);
-            this->currentOperation = std::shared_ptr<LongOperation>();
+            {
+                boost::unique_lock<boost::recursive_mutex> lockCurrentOp(this->currentOperationMutex);
+                this->currentOperation = nullptr;
+            }
             this_thread::interruption_point();
         }
     }

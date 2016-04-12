@@ -97,6 +97,7 @@ namespace OpenPSTD
             boost::condition_variable queueCondition;
             std::unique_ptr<boost::thread> backgroundWorker;
             std::shared_ptr<LongOperation> currentOperation;
+            boost::recursive_mutex currentOperationMutex;
             std::weak_ptr<ReceiverBuilder> builder;
             bool running;
 
