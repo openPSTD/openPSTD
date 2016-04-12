@@ -44,17 +44,6 @@ SimulateLOperation::SimulateLOperation():
 
 }
 
-
-void SimulateLOperation::SetUseMock(bool value)
-{
-    this->useMock = value;
-}
-
-bool SimulateLOperation::GetUseMock()
-{
-    return this->useMock;
-}
-
 std::string SimulateLOperation::GetName()
 {
     return "Simulate";
@@ -62,7 +51,7 @@ std::string SimulateLOperation::GetName()
 
 float SimulateLOperation::GetProgress()
 {
-    return this->currentFrame/this->metadata.Framecount;
+    return this->currentFrame/(float)this->metadata.Framecount;
 }
 
 bool SimulateLOperation::Cancel()
@@ -72,6 +61,7 @@ bool SimulateLOperation::Cancel()
 
 void SimulateLOperation::Run(const Reciever &reciever)
 {
+    std::cout << "Start simulation" << std::cout;
     this->started = true;
     this->pstdFile = reciever.model->documentAccess->GetDocument();
 
@@ -84,7 +74,7 @@ void SimulateLOperation::Run(const Reciever &reciever)
 
     //create and initialize kernel
     std::unique_ptr<KernelInterface> kernel;
-    if(this->useMock)
+    if(reciever.model->settings->UseMockKernel)
     {
         kernel = std::unique_ptr<MockKernel>(new MockKernel());
     }
@@ -100,6 +90,7 @@ void SimulateLOperation::Run(const Reciever &reciever)
     //execute kernel
     kernel->run(this);
     this->finished = true;
+    std::cout << "Finished simulation" << std::cout;
 }
 
 bool SimulateLOperation::Started()
@@ -117,6 +108,7 @@ void SimulateLOperation::Callback(CALLBACKSTATUS status, std::string message,
 {
     this->Update();
     this->currentFrame = frame;
+    std::cout << "Progress: " << this->GetProgress() << std::endl;
     //todo something with status and message
 }
 

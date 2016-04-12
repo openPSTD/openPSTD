@@ -33,12 +33,13 @@
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
 #include "operations/SettingsOperations.h"
+#include "operations/long/LOperationOperation.h"
+#include "operations/long/SimulateLOperation.h"
 #include "AboutBoxesText.h"
 #include "mouse/MouseSelectStrategy.h"
 #include "mouse/MouseMoveSceneStrategy.h"
 #include "mouse/MouseCreateDomainStrategy.h"
 #include "mouse/MouseCreateSpeakerReceiverStrategy.h"
-
 #include <QMessageBox>
 
 namespace OpenPSTD
@@ -107,6 +108,12 @@ namespace OpenPSTD
                                  this->operationRunner.lock()->RunOperation(
                                          std::make_shared<RemoveSelectedObjectOperation>());
                              });
+            QObject::connect(ui->actionStart_simulation, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 this->operationRunner.lock()->RunOperation(
+                                         std::make_shared<StartLOperation>(std::make_shared<SimulateLOperation>()));
+                             });
+
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
                              &MainWindow::EditSelectedDomain);
             QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);

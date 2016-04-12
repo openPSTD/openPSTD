@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 11-4-2016
+// Date: 12-4-2016
 //
 //
 // Authors: M. R. Fortuin
@@ -29,48 +29,28 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_SIMULATELOPERATION_H
-#define OPENPSTD_SIMULATELOPERATION_H
+#ifndef OPENPSTD_LOPERATIONOPERATION_H
+#define OPENPSTD_LOPERATIONOPERATION_H
 
+#include "../BaseOperation.h"
 #include "LongOperationRunner.h"
-#include <kernel/KernelInterface.h>
-#include <shared/PSTDFile.h>
-
 namespace OpenPSTD
 {
     namespace GUI
     {
-
-        /**
-         * Basic long operation for runnning the OpenPSTD kernel
-         */
-        class SimulateLOperation : public LongOperation, public OpenPSTD::Kernel::KernelCallback
+        class StartLOperation : public BaseOperation
         {
         private:
-            std::shared_ptr<OpenPSTD::Shared::PSTDFile> pstdFile;
-            OpenPSTD::Kernel::SimulationMetadata metadata;
-            int currentFrame;
-            bool started;
-            bool finished;
+            std::shared_ptr<LongOperation> LOp;
 
         public:
-            SimulateLOperation();
+            StartLOperation(std::shared_ptr<LongOperation> LOp);
 
-            //interface of LongOperation and BaseOperation
-            std::string GetName();
-            float GetProgress();
-            bool Cancel();
-            void Run(const Reciever &reciever);
-            bool Started();
-            bool Finished();
-
-
-            //implementation of KernelCallback
-            void Callback(OpenPSTD::Kernel::CALLBACKSTATUS status, std::string message, int frame);
-            void WriteFrame(int frame, int domain, OpenPSTD::Kernel::PSTD_FRAME_PTR data);
-            void WriteSample(int startSample, int receiver, std::vector<float> data);
+            void Run(const Reciever &r);
         };
     }
 }
 
-#endif //OPENPSTD_SIMULATELOPERATION_H
+
+
+#endif //OPENPSTD_LOPERATIONOPERATION_H
