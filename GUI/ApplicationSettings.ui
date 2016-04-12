@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">
-    <widget class="QRadioButton" name="radioButton_3">
+    <widget class="QRadioButton" name="rbGPU">
      <property name="text">
       <string>GPU Solver</string>
      </property>
@@ -32,14 +32,14 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QRadioButton" name="radioButton_2">
+    <widget class="QRadioButton" name="rbMCPU">
      <property name="text">
       <string>Multithreaded CPU Solver</string>
      </property>
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QRadioButton" name="radioButton">
+    <widget class="QRadioButton" name="rbCPU">
      <property name="text">
       <string>CPU Solver</string>
      </property>

@@ -32,11 +32,13 @@
 #include "operations/FileOperations.h"
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
+#include "operations/SettingsOperations.h"
 #include "AboutBoxesText.h"
 #include "mouse/MouseSelectStrategy.h"
 #include "mouse/MouseMoveSceneStrategy.h"
 #include "mouse/MouseCreateDomainStrategy.h"
 #include "mouse/MouseCreateSpeakerReceiverStrategy.h"
+
 #include <QMessageBox>
 
 namespace OpenPSTD
@@ -48,7 +50,8 @@ namespace OpenPSTD
                 ui(new Ui_MainWindow()),
                 operationRunner(operationRunner),
                 domainProperties(new DomainProperties()),
-                documentSettings(new DocumentSettings())
+                documentSettings(new DocumentSettings()),
+                applicationSettings(std::make_shared<ApplicationSettings>())
         {
             ui->setupUi(this);
 
@@ -107,6 +110,7 @@ namespace OpenPSTD
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
                              &MainWindow::EditSelectedDomain);
             QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
+            QObject::connect(ui->actionApplication_Settings, &QAction::triggered, this, &MainWindow::EditApplicationSettings);
         }
 
         void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
@@ -117,6 +121,7 @@ namespace OpenPSTD
             this->UpdateDisableWidgets(model);
 
             documentSettings->UpdateFromModel(model);
+            applicationSettings->UpdateFromModel(model);
 
             if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
             {
@@ -196,6 +201,15 @@ namespace OpenPSTD
             {
                 this->operationRunner.lock()->RunOperation(
                         std::make_shared<EditDocumentSettingsOperation>(this->documentSettings->GetResult()));
+            }
+        }
+
+        void MainWindow::EditApplicationSettings()
+        {
+            if (this->applicationSettings->exec() == QDialog::Accepted)
+            {
+                this->operationRunner.lock()->RunOperation(
+                        std::make_shared<UpdateSettingsOperation>(this->applicationSettings));
             }
         }
 

@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 11-4-2016
+// Date: 12-4-2016
 //
 //
 // Authors: M. R. Fortuin
@@ -29,32 +29,25 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "ApplicationSettings.h"
+#ifndef OPENPSTD_SETTINGSOPERATIONS_H
+#define OPENPSTD_SETTINGSOPERATIONS_H
 
-using namespace OpenPSTD::GUI;
-
-ApplicationSettings::ApplicationSettings(QWidget *parent): QDialog(parent), ui(new Ui_ApplicationSettings())
+#include "BaseOperation.h"
+#include "../ApplicationSettings.h"
+namespace OpenPSTD
 {
-    ui->setupUi(this);
-}
-
-void ApplicationSettings::UpdateFromModel(std::shared_ptr<Model> const &model)
-{
-    if(model->settings->IsChanged())
+    namespace GUI
     {
-        ui->rbCPU->setChecked(!model->settings->CPUAcceleration&&!model->settings->GPUAcceleration);
-        ui->rbMCPU->setChecked(model->settings->CPUAcceleration);
-        ui->rbGPU->setChecked(model->settings->GPUAcceleration);
-        ui->cbUseMockKernel->setChecked(model->settings->UseMockKernel);
+        class UpdateSettingsOperation : public BaseOperation
+        {
+        private:
+            std::shared_ptr<ApplicationSettings> ui;
+        public:
+            UpdateSettingsOperation(std::shared_ptr<ApplicationSettings> ui);
+
+            void Run(const Reciever &reciever);
+        };
     }
 }
 
-void ApplicationSettings::UpdateToModel(std::shared_ptr<Model> const &model)
-{
-    model->settings->UseMockKernel = ui->cbUseMockKernel->isChecked();
-    model->settings->CPUAcceleration = ui->rbMCPU->isChecked();
-    model->settings->GPUAcceleration = ui->rbGPU->isChecked();
-}
-
-
-
+#endif //OPENPSTD_SETTINGSOPERATIONS_H

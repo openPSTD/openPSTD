@@ -36,6 +36,7 @@
 #include <memory>
 #include <QtCore/QArgument>
 #include <QtWidgets/QDialog>
+#include "Model.h"
 
 namespace OpenPSTD
 {
@@ -46,7 +47,8 @@ namespace OpenPSTD
             Q_OBJECT
         public:
             explicit ApplicationSettings(QWidget *parent = 0);
-
+            void UpdateFromModel(std::shared_ptr<Model> const &model);
+            void UpdateToModel(std::shared_ptr<Model> const &model);
         private:
             std::unique_ptr<Ui_ApplicationSettings> ui;
         };

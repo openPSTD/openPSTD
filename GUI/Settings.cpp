@@ -35,16 +35,42 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <cstdlib>
 
 namespace fs = boost::filesystem;
 using namespace OpenPSTD::GUI;
 
+std::string GetConfigDir();
+std::string GetFilename();
+
 #if BOOST_OS_WINDOWS
-    std::string configDir = "%APPDATA%\\OpenPSTD";
-    std::string filename = "%APPDATA%\\OpenPSTD\\config.xml";
+    std::string configDir = "OpenPSTD";
+    std::string filename = "config.xml";
+
+    std::string GetConfigDir()
+    {
+        return std::string(getenv("APPDATA")) + "\\" + configDir;
+    }
+
+    std::string GetFilename()
+    {
+        return GetConfigDir() + "\\" + filename;
+    }
+
 #elif BOOST_OS_LINUX
     std::string configDir = "~/.OpenPSTD";
     std::string filename = "~/.OpenPSTD/config.xml";
+
+    std::string GetConfigDir()
+    {
+        return configDir;
+    }
+
+    std::string GetFilename()
+    {
+        return filename;
+    }
+
 #elif BOOST_OS_MACOS
     //todo check where to save config files on MAC OS x
     #error todo check where to save config files on MAC OS x
@@ -54,14 +80,15 @@ using namespace OpenPSTD::GUI;
 
 std::shared_ptr<Settings> Settings::Load()
 {
-    if(!boost::filesystem::exists(configDir) || !boost::filesystem::exists(filename))
+    std::string temp = GetConfigDir();
+    if(!boost::filesystem::exists(temp) || !boost::filesystem::exists(GetFilename()))
     {
         return std::make_shared<Settings>();
     }
 
     //read all settings
     std::shared_ptr<Settings> settings = std::make_shared<Settings>();
-    std::ifstream ifs(filename);
+    std::ifstream ifs(GetFilename());
     boost::archive::xml_iarchive ia(ifs);
     ia >> BOOST_SERIALIZATION_NVP(*settings);
 
@@ -70,19 +97,19 @@ std::shared_ptr<Settings> Settings::Load()
 
 void Settings::Save()
 {
-    if(!boost::filesystem::exists(configDir))
+    if(!boost::filesystem::exists(GetConfigDir()))
     {
-        fs::create_directories(configDir);
+        fs::create_directories(GetConfigDir());
     }
 
-    if(boost::filesystem::exists(filename))
+    if(boost::filesystem::exists(GetFilename()))
     {
-        fs::remove(filename);
+        fs::remove(GetFilename());
     }
 
     Settings* settings = this;
 
-    std::ofstream ofs(filename);
+    std::ofstream ofs(GetFilename());
     boost::archive::xml_oarchive oa(ofs);
     oa << BOOST_SERIALIZATION_NVP(settings);
 }

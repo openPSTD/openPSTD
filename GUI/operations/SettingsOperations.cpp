@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 11-4-2016
+// Date: 12-4-2016
 //
 //
 // Authors: M. R. Fortuin
@@ -29,31 +29,16 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "ApplicationSettings.h"
+#include "SettingsOperations.h"
 
-using namespace OpenPSTD::GUI;
-
-ApplicationSettings::ApplicationSettings(QWidget *parent): QDialog(parent), ui(new Ui_ApplicationSettings())
+OpenPSTD::GUI::UpdateSettingsOperation::UpdateSettingsOperation(std::shared_ptr<ApplicationSettings> ui): ui(ui)
 {
-    ui->setupUi(this);
 }
 
-void ApplicationSettings::UpdateFromModel(std::shared_ptr<Model> const &model)
+void OpenPSTD::GUI::UpdateSettingsOperation::Run(const Reciever &reciever)
 {
-    if(model->settings->IsChanged())
-    {
-        ui->rbCPU->setChecked(!model->settings->CPUAcceleration&&!model->settings->GPUAcceleration);
-        ui->rbMCPU->setChecked(model->settings->CPUAcceleration);
-        ui->rbGPU->setChecked(model->settings->GPUAcceleration);
-        ui->cbUseMockKernel->setChecked(model->settings->UseMockKernel);
-    }
-}
-
-void ApplicationSettings::UpdateToModel(std::shared_ptr<Model> const &model)
-{
-    model->settings->UseMockKernel = ui->cbUseMockKernel->isChecked();
-    model->settings->CPUAcceleration = ui->rbMCPU->isChecked();
-    model->settings->GPUAcceleration = ui->rbGPU->isChecked();
+    this->ui->UpdateToModel(reciever.model);
+    reciever.model->settings->Save();
 }
 
 

@@ -1,17 +1,27 @@
 #------------------------------------
 # UI Graphical
 # Operations
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/BaseOperation.cpp GUI/operations/FileOperations.cpp
-        GUI/operations/EditOperations.cpp GUI/operations/ViewOperations.cpp
-        GUI/operations/InitializationOperation.cpp GUI/operations/MouseOperations.cpp
-        GUI/operations/SelectionOperations.cpp GUI/operations/LambdaOperation.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/operations/BaseOperation.cpp
+        GUI/operations/FileOperations.cpp
+        GUI/operations/EditOperations.cpp
+        GUI/operations/ViewOperations.cpp
+        GUI/operations/InitializationOperation.cpp
+        GUI/operations/MouseOperations.cpp
+        GUI/operations/SelectionOperations.cpp
+        GUI/operations/LambdaOperation.cpp
+        GUI/operations/SettingsOperations.cpp)
 # Long operations
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/operations/long/LongOperationRunner.cpp
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/operations/long/LongOperationRunner.cpp
         GUI/operations/long/SimulateLOperation.cpp)
 # mouse handlers
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/mouse/MouseCreateDomainStrategy.cpp
-        GUI/mouse/MouseCreateSpeakerReceiverStrategy.cpp GUI/mouse/MouseMoveSceneStrategy.cpp
-        GUI/mouse/MouseSelectStrategy.cpp GUI/mouse/MouseStrategy.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/mouse/MouseCreateDomainStrategy.cpp
+        GUI/mouse/MouseCreateSpeakerReceiverStrategy.cpp
+        GUI/mouse/MouseMoveSceneStrategy.cpp
+        GUI/mouse/MouseSelectStrategy.cpp
+        GUI/mouse/MouseStrategy.cpp)
 # OpenGL viewer
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/Viewer2D.cpp
@@ -26,9 +36,16 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/DocumentSettings.cpp
         GUI/ApplicationSettings.cpp)
 # Resource files
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Resources.qrc)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/Resources.qrc)
 # Remaining
-set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI} GUI/Model.cpp GUI/Snapping.cpp GUI/PstdAlgorithm.cpp GUI/Edges.cpp GUI/Settings.cpp)
+set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
+        GUI/Model.cpp
+        GUI/Snapping.cpp
+        GUI/PstdAlgorithm.cpp
+        GUI/Edges.cpp
+        GUI/Settings.cpp)
+
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main.cpp)
 
 # create extra Qt5 code

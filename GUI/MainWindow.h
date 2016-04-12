@@ -38,6 +38,7 @@
 #include "mouse/MouseStrategy.h"
 #include "DomainProperties.h"
 #include "DocumentSettings.h"
+#include "ApplicationSettings.h"
 #include <ui_MainWindow.h>
 
 namespace OpenPSTD
@@ -58,6 +59,7 @@ namespace OpenPSTD
             std::unique_ptr<Ui_MainWindow> ui;
             std::unique_ptr<DomainProperties> domainProperties;
             std::unique_ptr<DocumentSettings> documentSettings;
+            std::shared_ptr<ApplicationSettings> applicationSettings;
             std::weak_ptr<OperationRunner> operationRunner;
             std::vector<QAction *> MouseHandlersActions;
 
@@ -66,6 +68,7 @@ namespace OpenPSTD
             void EditSelectedDomain();
 
             void EditDocumentSettings();
+            void EditApplicationSettings();
 
             void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
 
