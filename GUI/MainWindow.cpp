@@ -59,9 +59,16 @@ namespace OpenPSTD
             progressBar = new QProgressBar(ui->statusbar);
             progressBar->setAlignment(Qt::AlignRight);
             progressBar->setMaximumSize(180, 19);
-            ui->statusbar->addWidget(progressBar);
             progressBar->setValue(0);
             progressBar->setVisible(false);
+
+            statusbarLabel = new QLabel(ui->statusbar);
+            statusbarLabel->setAlignment(Qt::AlignRight);
+            statusbarLabel->setMaximumHeight(19);
+            statusbarLabel->setVisible(false);
+
+            ui->statusbar->addWidget(progressBar);
+            ui->statusbar->addWidget(statusbarLabel);
 
             ui->mainView->SetOperationRunner(this->operationRunner);
 
@@ -148,15 +155,16 @@ namespace OpenPSTD
             if(!worker->IsIdle())
             {
                 this->progressBar->show();
+                this->statusbarLabel->show();
                 this->progressBar->setValue((int)(worker->GetCurrentProgress()*100));
                 std::cout << (int)(worker->GetCurrentProgress()*100) << std::endl;
-                //this->ui->statusbar->showMessage(QString::fromStdString(worker->GetCurrentName()));
+                this->statusbarLabel->setText(QString::fromStdString(worker->GetCurrentName()));
             }
             else
             {
                 std::cout << -1 << std::endl;
                 this->progressBar->hide();
-                //this->ui->statusbar->clearMessage();
+                this->statusbarLabel->hide();
             }
         }
 

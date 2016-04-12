@@ -64,6 +64,7 @@ namespace OpenPSTD
             std::shared_ptr<ApplicationSettings> applicationSettings;
             std::weak_ptr<OperationRunner> operationRunner;
             QProgressBar* progressBar;
+            QLabel* statusbarLabel;
             std::vector<QAction *> MouseHandlersActions;
 
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
