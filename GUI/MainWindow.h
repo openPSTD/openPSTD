@@ -33,6 +33,7 @@
 #define OPENPSTD_MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QProgressBar>
 #include <memory>
 #include "operations/BaseOperation.h"
 #include "mouse/MouseStrategy.h"
@@ -40,6 +41,7 @@
 #include "DocumentSettings.h"
 #include "ApplicationSettings.h"
 #include <ui_MainWindow.h>
+#include "operations/long/LongOperationRunner.h"
 
 namespace OpenPSTD
 {
@@ -53,7 +55,7 @@ namespace OpenPSTD
         public:
             explicit MainWindow(std::weak_ptr<OperationRunner> operationRunner, QWidget *parent = 0);
 
-            void UpdateFromModel(std::shared_ptr<Model> const &model);
+            void UpdateFromModel(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker);
 
         private:
             std::unique_ptr<Ui_MainWindow> ui;
@@ -61,6 +63,7 @@ namespace OpenPSTD
             std::unique_ptr<DocumentSettings> documentSettings;
             std::shared_ptr<ApplicationSettings> applicationSettings;
             std::weak_ptr<OperationRunner> operationRunner;
+            QProgressBar* progressBar;
             std::vector<QAction *> MouseHandlersActions;
 
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
@@ -70,7 +73,7 @@ namespace OpenPSTD
             void EditDocumentSettings();
             void EditApplicationSettings();
 
-            void UpdateDisableWidgets(std::shared_ptr<Model> const &model);
+            void UpdateDisableWidgets(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker);
 
             void ShowAbout();
 

@@ -62,7 +62,6 @@ bool SimulateLOperation::Cancel()
 
 void SimulateLOperation::Run(const Reciever &reciever)
 {
-    std::cout << "Start simulation" << std::cout;
     this->started = true;
     this->pstdFile = reciever.model->documentAccess->GetDocument();
 
@@ -91,7 +90,6 @@ void SimulateLOperation::Run(const Reciever &reciever)
     //execute kernel
     kernel->run(this);
     this->finished = true;
-    std::cout << "Finished simulation" << std::cout;
 }
 
 bool SimulateLOperation::Started()
@@ -112,7 +110,6 @@ void SimulateLOperation::Callback(CALLBACKSTATUS status, std::string message,
     {
         this->currentFrame = frame;
     }
-    std::cout << "Progress: " << this->GetProgress() << std::endl;
     //todo something with status and message
 }
 

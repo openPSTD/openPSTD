@@ -90,7 +90,7 @@ namespace OpenPSTD
                 //todo: fix that also the documentAccess itself is registered
                 //if(this->model->invalidation.IsChanged())
                 {
-                    this->w->UpdateFromModel(this->model);
+                    this->w->UpdateFromModel(this->model, this->worker);
                 }
                 this->model->Reset();
             }
@@ -105,7 +105,7 @@ namespace OpenPSTD
 
         void Controller::UpdateWithoutOperation()
         {
-            this->w->UpdateFromModel(this->model);
+            this->w->UpdateFromModel(this->model, this->worker);
             this->model->Reset();
         }
 

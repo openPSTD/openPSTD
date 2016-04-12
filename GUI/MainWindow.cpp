@@ -56,6 +56,13 @@ namespace OpenPSTD
         {
             ui->setupUi(this);
 
+            progressBar = new QProgressBar(ui->statusbar);
+            progressBar->setAlignment(Qt::AlignRight);
+            progressBar->setMaximumSize(180, 19);
+            ui->statusbar->addWidget(progressBar);
+            progressBar->setValue(0);
+            progressBar->setVisible(false);
+
             ui->mainView->SetOperationRunner(this->operationRunner);
 
             MouseHandlersActions.push_back(ui->actionMove_scene);
@@ -120,12 +127,12 @@ namespace OpenPSTD
             QObject::connect(ui->actionApplication_Settings, &QAction::triggered, this, &MainWindow::EditApplicationSettings);
         }
 
-        void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model)
+        void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
             ui->mainView->UpdateFromModel(model);
             ui->mainView->update();
 
-            this->UpdateDisableWidgets(model);
+            this->UpdateDisableWidgets(model, worker);
 
             documentSettings->UpdateFromModel(model);
             applicationSettings->UpdateFromModel(model);
@@ -135,6 +142,21 @@ namespace OpenPSTD
                 auto conf = model->documentAccess->GetDocument()->GetSceneConf();
                 int i = model->interactive->Selection.SelectedIndex;
                 domainProperties->SetDomain(conf->Domains[i]);
+            }
+
+            std::cout << "update ";
+            if(!worker->IsIdle())
+            {
+                this->progressBar->show();
+                this->progressBar->setValue((int)(worker->GetCurrentProgress()*100));
+                std::cout << (int)(worker->GetCurrentProgress()*100) << std::endl;
+                //this->ui->statusbar->showMessage(QString::fromStdString(worker->GetCurrentName()));
+            }
+            else
+            {
+                std::cout << -1 << std::endl;
+                this->progressBar->hide();
+                //this->ui->statusbar->clearMessage();
             }
         }
 
@@ -195,7 +217,7 @@ namespace OpenPSTD
             }
         }
 
-        void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model)
+        void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
             ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
             ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
