@@ -15,6 +15,12 @@ namespace OpenPSTD
 {
     namespace Shared
     {
+        class OPENPSTD_SHARED_EXPORT PSTDFileAccessInUseException : public std::exception
+        {
+        public:
+            OPENPSTD_SHARED_EXPORT const char *what() const noexcept override;
+        };
+
         class OPENPSTD_SHARED_EXPORT PSTDFileAccess: public InvalidationData
         {
         private:
@@ -22,6 +28,9 @@ namespace OpenPSTD
             boost::filesystem::path realPath;
 
             OPENPSTD_SHARED_NO_EXPORT boost::filesystem::path GetTempPath();
+
+            OPENPSTD_SHARED_NO_EXPORT void InternalClose();
+            OPENPSTD_SHARED_NO_EXPORT void InternalOpen();
 
         public:
             OPENPSTD_SHARED_EXPORT ~PSTDFileAccess();

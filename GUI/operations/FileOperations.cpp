@@ -31,6 +31,7 @@
 //
 
 #include "FileOperations.h"
+#include "long/LongOperationRunner.h"
 
 namespace OpenPSTD
 {
@@ -43,8 +44,11 @@ namespace OpenPSTD
 
         void OpenFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->documentAccess->Open(this->filename);
-            reciever.model->documentAccess->Change();
+            if(!reciever.Backgroundworker->IsIdle())
+                std::cout << "Error: background worker is still running" << std::endl;
+                //todo give correct error
+            else
+                reciever.model->documentAccess->Open(this->filename);
         }
 
 
@@ -54,13 +58,20 @@ namespace OpenPSTD
 
         void NewFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->documentAccess->New(this->filename);
-            reciever.model->documentAccess->Change();
+            if(!reciever.Backgroundworker->IsIdle())
+                std::cout << "Error: background worker is still running" << std::endl;
+                //todo give correct error
+            else
+                reciever.model->documentAccess->New(this->filename);
         }
 
         void SaveFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->documentAccess->Save();
+            if(!reciever.Backgroundworker->IsIdle())
+                std::cout << "Error: background worker is still running" << std::endl;
+                //todo give correct error
+            else
+                reciever.model->documentAccess->Save();
         }
 
         SaveAsFileOperation::SaveAsFileOperation(std::string filename): filename(filename)
@@ -69,7 +80,11 @@ namespace OpenPSTD
 
         void SaveAsFileOperation::Run(const Reciever &reciever)
         {
-            reciever.model->documentAccess->SaveAs(this->filename);
+            if(!reciever.Backgroundworker->IsIdle())
+                std::cout << "Error: background worker is still running" << std::endl;
+                //todo give correct error
+            else
+                reciever.model->documentAccess->SaveAs(this->filename);
         }
     }
 }

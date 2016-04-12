@@ -45,7 +45,7 @@ namespace OpenPSTD
             copy_file(this->realPath, tempFilename);
 
             //opens the temporary file
-            this->d = PSTDFile::Open(tempFilename);
+            this->InternalOpen();
 
             this->Change();
         }
@@ -59,13 +59,14 @@ namespace OpenPSTD
             copy_file(this->realPath, tempFilename);
 
             // open file
-            this->d = PSTDFile::Open(tempFilename);
+            this->InternalOpen();
 
             this->Change();
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::Save()
         {
+            this->InternalClose();
             path tempFilename = this->GetTempPath();
 
             if(exists(this->realPath))
@@ -75,17 +76,18 @@ namespace OpenPSTD
             // copy file
             copy_file(tempFilename, this->realPath);
             //todo: compress
-
+            this->InternalOpen();
             this->Change();
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::SaveAs(path filename)
         {
+            this->InternalClose();
             path tempFilename = this->GetTempPath();
             copy_file(tempFilename, filename);
             this->Open(filename);
             //todo: compress
-
+            this->InternalOpen();
             this->Change();
         }
 
@@ -93,7 +95,7 @@ namespace OpenPSTD
         {
             if(this->d)
             {
-                this->d = nullptr;
+                this->InternalClose();
                 remove(GetTempPath());
 
                 this->Change();
@@ -117,5 +119,30 @@ namespace OpenPSTD
                 return InvalidationData::IsChanged();
             }
         }
+
+        OPENPSTD_SHARED_NO_EXPORT void PSTDFileAccess::InternalClose()
+        {
+            if(this->d.use_count() == 1)
+            {
+                this->d = nullptr;
+            }
+            else
+            {
+                throw PSTDFileAccessInUseException();
+            }
+        }
+
+        OPENPSTD_SHARED_NO_EXPORT void PSTDFileAccess::InternalOpen()
+        {
+            this->d = PSTDFile::Open(this->GetTempPath());
+        }
+
+        OPENPSTD_SHARED_EXPORT const char *PSTDFileAccessInUseException::what() const noexcept
+        {
+            return "The PSTD file is still in use to execute this operation";
+        }
     }
 }
+
+
+
