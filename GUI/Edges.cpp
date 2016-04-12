@@ -90,7 +90,7 @@ namespace OpenPSTD
             return this->_absorption;
         }
 
-        float Edge::GetLocalReacting() const
+        bool Edge::GetLocalReacting() const
         {
             return this->_localReacting;
         }

@@ -75,7 +75,7 @@ namespace OpenPSTD
 
             float GetAbsorption() const;
 
-            float GetLocalReacting() const;
+            bool GetLocalReacting() const;
 
             /**
              * Tests if the 2 edges are on the same line. This only works if they are on horizontal of vertical.
