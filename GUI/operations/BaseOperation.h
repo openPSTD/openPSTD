@@ -49,6 +49,12 @@ namespace OpenPSTD
             virtual void Run(const Reciever &reciever) = 0;
         };
 
+        class EmptyOperation: public BaseOperation
+        {
+        public:
+            virtual void Run(const Reciever &reciever);
+        };
+
         class OperationRunner
         {
         public:

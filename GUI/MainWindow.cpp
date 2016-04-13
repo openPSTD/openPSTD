@@ -56,6 +56,7 @@ namespace OpenPSTD
         {
             ui->setupUi(this);
 
+            //create status bar
             progressBar = new QProgressBar(ui->statusbar);
             progressBar->setAlignment(Qt::AlignRight);
             progressBar->setMaximumSize(180, 19);
@@ -69,6 +70,18 @@ namespace OpenPSTD
 
             ui->statusbar->addWidget(progressBar);
             ui->statusbar->addWidget(statusbarLabel);
+
+            this->updateTimer = new QTimer(this);
+            this->updateTimer->setInterval(100);
+            this->updateTimer->setSingleShot(false);
+            this->updateTimer->setTimerType(Qt::CoarseTimer);
+            QObject::connect(this->updateTimer, &QTimer::timeout, this,
+                             [&]() {
+                                 //run an empty operation, so that the update will be executed
+                                 this->operationRunner.lock()->RunOperation(
+                                         std::make_shared<EmptyOperation>());
+                             });
+
 
             ui->mainView->SetOperationRunner(this->operationRunner);
 
@@ -151,7 +164,7 @@ namespace OpenPSTD
                 domainProperties->SetDomain(conf->Domains[i]);
             }
 
-            if(!worker->IsIdle())
+            if(!worker->IsIdle() && 0 <= worker->GetCurrentProgress() && worker->GetCurrentProgress() <= 1)
             {
                 this->progressBar->show();
                 this->statusbarLabel->show();
@@ -160,10 +173,11 @@ namespace OpenPSTD
             }
             else
             {
-                std::cout << -1 << std::endl;
                 this->progressBar->hide();
                 this->statusbarLabel->hide();
             }
+
+            this->updateTimer->start();
         }
 
         void MainWindow::New()

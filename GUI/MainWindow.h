@@ -34,6 +34,7 @@
 
 #include <QMainWindow>
 #include <QProgressBar>
+#include <QTimer>
 #include <memory>
 #include "operations/BaseOperation.h"
 #include "mouse/MouseStrategy.h"
@@ -65,6 +66,7 @@ namespace OpenPSTD
             std::weak_ptr<OperationRunner> operationRunner;
             QProgressBar* progressBar;
             QLabel* statusbarLabel;
+            QTimer* updateTimer;
             std::vector<QAction *> MouseHandlersActions;
 
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
