@@ -114,7 +114,7 @@ namespace OpenPSTD
             ResizeScene(float scale, QVector2D pos);
         };
 
-        class ChangeViewingFrame
+        class ChangeViewingFrame : public BaseOperation
         {
         private:
             unsigned int frame;

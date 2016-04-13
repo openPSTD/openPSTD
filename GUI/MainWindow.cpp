@@ -33,6 +33,7 @@
 #include "operations/MouseOperations.h"
 #include "operations/EditOperations.h"
 #include "operations/SettingsOperations.h"
+#include "operations/ViewOperations.h"
 #include "operations/long/LOperationOperation.h"
 #include "operations/long/SimulateLOperation.h"
 #include "AboutBoxesText.h"
@@ -145,6 +146,7 @@ namespace OpenPSTD
                              &MainWindow::EditSelectedDomain);
             QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
             QObject::connect(ui->actionApplication_Settings, &QAction::triggered, this, &MainWindow::EditApplicationSettings);
+            QObject::connect(ui->hsbFrame, &QScrollBar::valueChanged, this, &MainWindow::hsbFrameChanged);
         }
 
         void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
@@ -295,5 +297,12 @@ namespace OpenPSTD
         {
             QMessageBox::about(this, "About icons", QString::fromStdString(ABOUT_NOUN_ICONS));
         }
+
+        void MainWindow::hsbFrameChanged(int value)
+        {
+            this->operationRunner.lock()->RunOperation(std::make_shared<ChangeViewingFrame>(value));
+        }
+
+
     }
 }

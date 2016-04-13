@@ -83,6 +83,8 @@ namespace OpenPSTD
 
             void ShowAboutIcons();
 
+            void hsbFrameChanged(int value);
+
         public slots:
 
             void New();
