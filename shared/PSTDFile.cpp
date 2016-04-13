@@ -256,6 +256,7 @@ namespace OpenPSTD
 
         OPENPSTD_SHARED_EXPORT void PSTDFile::OutputDebugInfo()
         {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
             int rc = 0;
             unqlite_kv_cursor *cursor;
             unqlite_kv_cursor_init(this->backend.get(), &cursor);
@@ -282,6 +283,7 @@ namespace OpenPSTD
 
         std::unique_ptr<std::string> PSTDFile::GetStringValue(PSTDFile_Key_t key)
         {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
             unqlite_int64 nBytes;  //Data length
             char *zBuf;     //Dynamically allocated buffer
 
@@ -296,8 +298,11 @@ namespace OpenPSTD
 
         char *PSTDFile::GetRawValue(PSTDFile_Key_t key, unqlite_int64 *nBytes)
         {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
             int rc;
             char *zBuf;     //Dynamically allocated buffer
+
+            *nBytes = 0;
 
             rc = unqlite_kv_fetch(this->backend.get(), key->data(), key->size(), NULL, nBytes);
             if (rc != UNQLITE_OK)
@@ -351,6 +356,7 @@ namespace OpenPSTD
 
         void PSTDFile::SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value)
         {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
             int rc;
 
             rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), value, nBytes);
@@ -364,37 +370,52 @@ namespace OpenPSTD
         OPENPSTD_SHARED_EXPORT std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf(PSTDFile_Key_t key)
         {
             namespace io = boost::iostreams;
-            typedef std::vector<char> buffer_type;
+            try
+            {
+                typedef std::vector<char> buffer_type;
 
-            Kernel::PSTDConfiguration data_in;
-            unqlite_int64 nBytes;
-            auto data = this->GetRawValue(key, &nBytes);
+                Kernel::PSTDConfiguration data_in;
+                unqlite_int64 nBytes;
+                auto data = this->GetRawValue(key, &nBytes);//database
 
-            io::basic_array_source<char> source(data, nBytes);
-            io::stream<io::basic_array_source <char> > input_stream(source);
-            boost::archive::text_iarchive ia(input_stream);
+                io::basic_array_source<char> source(data, nBytes);
+                io::stream<io::basic_array_source<char> > input_stream(source);
+                boost::archive::text_iarchive ia(input_stream);
 
-            ia >> data_in;
+                ia >> data_in;
 
-            delete[] data;
+                delete[] data;
 
-            std::shared_ptr<Kernel::PSTDConfiguration> result = make_shared<Kernel::PSTDConfiguration>(data_in);
-            return result;
-
+                std::shared_ptr<Kernel::PSTDConfiguration> result = make_shared<Kernel::PSTDConfiguration>(data_in);
+                return result;
+            }
+            catch(boost::archive::archive_exception e)
+            {
+                std::cout << "P1: " << e.what() << std::endl;
+                throw e;
+            }
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFile::SetSceneConf(PSTDFile_Key_t key, std::shared_ptr<Kernel::PSTDConfiguration> scene)
         {
-            namespace io = boost::iostreams;
-            typedef std::vector<char> buffer_type;
-            buffer_type buffer;
+            try
+            {
+                namespace io = boost::iostreams;
+                typedef std::vector<char> buffer_type;
+                buffer_type buffer;
 
-            io::stream<io::back_insert_device<buffer_type> > output_stream(buffer);
-            boost::archive::text_oarchive oa(output_stream);
+                io::stream<io::back_insert_device<buffer_type> > output_stream(buffer);
+                boost::archive::text_oarchive oa(output_stream);
 
-            oa << (*scene);
-            output_stream.flush();
-            this->SetRawValue(key, buffer.size(), buffer.data());
+                oa << (*scene);
+                output_stream.flush();
+                this->SetRawValue(key, buffer.size(), buffer.data());
+            }
+            catch(boost::archive::archive_exception e)
+            {
+                std::cout << "P2: " << e.what() << std::endl;
+                throw e;
+            }
         }
 
         unsigned int PSTDFile::IncrementFrameCount(unsigned int domain)
@@ -407,6 +428,7 @@ namespace OpenPSTD
 
         void PSTDFile::DeleteValue(PSTDFile_Key_t key)
         {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
             int rc;
 
             rc = unqlite_kv_delete(this->backend.get(), key->data(), key->size());

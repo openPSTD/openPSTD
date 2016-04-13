@@ -39,6 +39,7 @@
 #include <string>
 #include <Eigen/Dense>
 #include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
 
 extern "C"
 {
@@ -165,6 +166,8 @@ namespace OpenPSTD
              */
             std::unique_ptr<unqlite, int (*)(unqlite *)> backend;
 
+            boost::recursive_mutex backendMutex;
+
             /**
              * Get a value by key as a string
              */
@@ -211,7 +214,8 @@ namespace OpenPSTD
             template<typename T>
             T GetValue(PSTDFile_Key_t key)
             {
-                unqlite_int64 nBytes;
+                boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
+                unqlite_int64 nBytes = sizeof(T);
                 int rc;
 
                 T zBuf;
@@ -231,6 +235,7 @@ namespace OpenPSTD
             template<typename T>
             void SetValue(PSTDFile_Key_t key, T value)
             {
+                boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
                 int rc;
 
                 rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), &value, sizeof(T));
@@ -247,7 +252,8 @@ namespace OpenPSTD
             template<typename T>
             std::vector<T> GetArray(PSTDFile_Key_t key)
             {
-                unqlite_int64 nBytes;
+                boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
+                unqlite_int64 nBytes = 0;
                 unqlite_int64 n;
                 int rc;
 
@@ -276,6 +282,7 @@ namespace OpenPSTD
             template<typename T>
             void SetArray(PSTDFile_Key_t key, const std::vector<T> &value)
             {
+                boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
                 int rc;
 
                 rc = unqlite_kv_store(this->backend.get(), key->data(), key->size(), value.data(),
