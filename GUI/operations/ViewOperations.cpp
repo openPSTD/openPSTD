@@ -125,7 +125,6 @@ namespace OpenPSTD
 
             if(min <= this->frame && this->frame <= max)
             {
-                std::cout << "show frame " << this->frame << std::endl;
                 reciever.model->interactive->visibleFrame = this->frame;
                 reciever.model->interactive->Change();
             }
