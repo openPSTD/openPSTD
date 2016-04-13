@@ -151,13 +151,11 @@ namespace OpenPSTD
                 domainProperties->SetDomain(conf->Domains[i]);
             }
 
-            std::cout << "update ";
             if(!worker->IsIdle())
             {
                 this->progressBar->show();
                 this->statusbarLabel->show();
                 this->progressBar->setValue((int)(worker->GetCurrentProgress()*100));
-                std::cout << (int)(worker->GetCurrentProgress()*100) << std::endl;
                 this->statusbarLabel->setText(QString::fromStdString(worker->GetCurrentName()));
             }
             else
