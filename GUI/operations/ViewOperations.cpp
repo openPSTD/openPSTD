@@ -31,6 +31,7 @@
 //
 
 #include "ViewOperations.h"
+#include <algorithm>
 
 namespace OpenPSTD
 {
@@ -99,5 +100,40 @@ namespace OpenPSTD
         {
             //todo fix this command
         }
+
+        ChangeViewingFrame::ChangeViewingFrame(unsigned int newFrame): frame(newFrame)
+        {
+
+        }
+
+        void ChangeViewingFrame::Run(const Reciever &reciever)
+        {
+            auto doc = reciever.model->documentAccess->GetDocument();
+            int min = INT_MAX;
+            int max = INT_MIN;
+            int domains = doc->GetResultsDomainCount();
+
+            for(int d = 0; d < domains; d++)
+            {
+                int frameCount = doc->GetResultsFrameCount(d);
+                if(frameCount > 0)
+                {
+                    min = 0;
+                }
+                max = std::max(max, frameCount);
+            }
+
+            if(min <= this->frame && this->frame <= max)
+            {
+                std::cout << "show frame " << this->frame << std::endl;
+                reciever.model->interactive->visibleFrame = this->frame;
+                reciever.model->interactive->Change();
+            }
+        }
     }
 }
+
+
+
+
+

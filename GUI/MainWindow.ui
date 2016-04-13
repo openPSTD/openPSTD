@@ -52,12 +52,12 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Time line</string>
+           <string>Frame</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QScrollBar" name="horizontalScrollBar">
+         <widget class="QScrollBar" name="hsbFrame">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
             <horstretch>0</horstretch>

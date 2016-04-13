@@ -77,6 +77,7 @@ namespace OpenPSTD
             void EditApplicationSettings();
 
             void UpdateDisableWidgets(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker);
+            void UpdateHsbFrame(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker);
 
             void ShowAbout();
 

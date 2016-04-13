@@ -80,6 +80,8 @@ namespace OpenPSTD
                 int SelectedIndex;
                 SelectionType Type;
             } Selection;
+
+            unsigned int visibleFrame = -1;
         };
 
         class View : public Shared::InvalidationData

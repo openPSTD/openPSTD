@@ -153,6 +153,7 @@ namespace OpenPSTD
             ui->mainView->update();
 
             this->UpdateDisableWidgets(model, worker);
+            this->UpdateHsbFrame(model, worker);
 
             documentSettings->UpdateFromModel(model);
             applicationSettings->UpdateFromModel(model);
@@ -242,6 +243,29 @@ namespace OpenPSTD
             ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
             ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
             ui->actionResize_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
+        }
+
+        void MainWindow::UpdateHsbFrame(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
+        {
+            if(model->documentAccess->IsChanged())
+            {
+                auto doc = model->documentAccess->GetDocument();
+                bool anyFrame = false;
+                int max = 0;
+                int domains = doc->GetResultsDomainCount();
+
+                for(int d = 0; d < domains; d++)
+                {
+                    int frameCount = doc->GetResultsFrameCount(d);
+                    anyFrame |= frameCount > 0;
+                    max = std::max(max, frameCount);
+                }
+
+                ui->hsbFrame->setEnabled(anyFrame);
+                ui->hsbFrame->setMaximum(max);
+                ui->hsbFrame->setMinimum(0);
+                ui->hsbFrame->setValue(anyFrame?model->interactive->visibleFrame:0);
+            }
         }
 
         void MainWindow::EditDocumentSettings()
