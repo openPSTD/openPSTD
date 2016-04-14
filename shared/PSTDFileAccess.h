@@ -48,6 +48,10 @@ namespace OpenPSTD
             OPENPSTD_SHARED_EXPORT void Close();
 
             OPENPSTD_SHARED_EXPORT virtual bool IsChanged() override;
+
+            OPENPSTD_SHARED_EXPORT bool IsDocumentLoaded();
+
+            OPENPSTD_SHARED_EXPORT std::string GetFilename();
         };
     }
 }

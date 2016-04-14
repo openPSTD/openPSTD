@@ -102,14 +102,16 @@ namespace OpenPSTD
 
         void Viewer2D::paintGL()
         {
-            auto del = [](int *p) { std::cout << "Deleting x, value is : " << *p; };
-            std::unique_ptr<QOpenGLFunctions, void (*)(void *)> f(QOpenGLContext::currentContext()->functions(),
-                                                                  DeleteNothing);
-
-            for (int i = 0; i < this->layers.size(); i++)
+            if(this->loaded)
             {
-                this->layers[i]->PaintGL(this, f);
-                GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->PaintGL");
+                std::unique_ptr<QOpenGLFunctions, void (*)(void *)> f(QOpenGLContext::currentContext()->functions(),
+                                                                      DeleteNothing);
+
+                for (int i = 0; i < this->layers.size(); i++)
+                {
+                    this->layers[i]->PaintGL(this, f);
+                    GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->PaintGL");
+                }
             }
         }
 
@@ -162,10 +164,14 @@ namespace OpenPSTD
                 f->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
             }
 
-            for (int i = 0; i < this->layers.size(); i++)
+            this->loaded = model->documentAccess->IsDocumentLoaded();
+            if(this->loaded)
             {
-                this->layers[i]->UpdateScene(model, f);
-                GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->UpdateScene");
+                for (int i = 0; i < this->layers.size(); i++)
+                {
+                    this->layers[i]->UpdateScene(model, f);
+                    GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->UpdateScene");
+                }
             }
         }
 

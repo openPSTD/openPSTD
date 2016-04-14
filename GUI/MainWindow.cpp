@@ -151,20 +151,29 @@ namespace OpenPSTD
 
         void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
+            if(model->documentAccess->IsDocumentLoaded())
+                this->setWindowTitle(QString::fromStdString("OpenPSTD - " + model->documentAccess->GetFilename()));
+            else
+                this->setWindowTitle(QString::fromStdString("OpenPSTD - No document loaded"));
+
             ui->mainView->UpdateFromModel(model);
             ui->mainView->update();
 
             this->UpdateDisableWidgets(model, worker);
             this->UpdateHsbFrame(model, worker);
 
-            documentSettings->UpdateFromModel(model);
             applicationSettings->UpdateFromModel(model);
 
-            if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
+            if(model->documentAccess->IsDocumentLoaded())
             {
-                auto conf = model->documentAccess->GetDocument()->GetSceneConf();
-                int i = model->interactive->Selection.SelectedIndex;
-                domainProperties->SetDomain(conf->Domains[i]);
+                documentSettings->UpdateFromModel(model);
+
+                if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
+                {
+                    auto conf = model->documentAccess->GetDocument()->GetSceneConf();
+                    int i = model->interactive->Selection.SelectedIndex;
+                    domainProperties->SetDomain(conf->Domains[i]);
+                }
             }
 
             if(!worker->IsIdle() && 0 <= worker->GetCurrentProgress() && worker->GetCurrentProgress() <= 1)
@@ -242,14 +251,33 @@ namespace OpenPSTD
 
         void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
-            ui->actionDelete_selected->setEnabled(model->interactive->Selection.Type != SELECTION_NONE);
-            ui->actionEdit_properties_of_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
-            ui->actionResize_domain->setEnabled(model->interactive->Selection.Type == SELECTION_DOMAIN);
+            ui->actionSave->setEnabled(model->documentAccess->IsDocumentLoaded());
+            ui->actionSave_as->setEnabled(model->documentAccess->IsDocumentLoaded());
+            ui->actionMove_scene->setEnabled(model->documentAccess->IsDocumentLoaded());
+            ui->actionView_complete_scene->setEnabled(model->documentAccess->IsDocumentLoaded());
+
+            bool documentEdit = worker->IsIdle() && model->documentAccess->IsDocumentLoaded();
+
+            ui->actionAdd_Domain->setEnabled(documentEdit);
+            ui->actionAdd_Receiver->setEnabled(documentEdit);
+            ui->actionAdd_speaker->setEnabled(documentEdit);
+            ui->actionSelect->setEnabled(documentEdit);
+            ui->actionDocument_Settings->setEnabled(documentEdit);
+            ui->actionStart_simulation->setEnabled(documentEdit);
+            ui->actionApplication_Settings->setEnabled(documentEdit);
+
+            ui->actionDelete_selected->setEnabled(documentEdit && model->interactive->Selection.Type != SELECTION_NONE);
+            ui->actionEdit_properties_of_domain->setEnabled(documentEdit && model->interactive->Selection.Type == SELECTION_DOMAIN);
+            ui->actionResize_domain->setEnabled(documentEdit && model->interactive->Selection.Type == SELECTION_DOMAIN);
+
+
         }
+
 
         void MainWindow::UpdateHsbFrame(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
-            if(model->documentAccess->IsChanged())
+            bool documentEdit = worker->IsIdle() && model->documentAccess->IsDocumentLoaded();
+            if(documentEdit && model->documentAccess->IsChanged())
             {
                 auto doc = model->documentAccess->GetDocument();
                 bool anyFrame = false;
@@ -267,6 +295,10 @@ namespace OpenPSTD
                 ui->hsbFrame->setMaximum(max);
                 ui->hsbFrame->setMinimum(0);
                 ui->hsbFrame->setValue(anyFrame?model->interactive->visibleFrame:0);
+            }
+            else
+            {
+                ui->hsbFrame->setEnabled(false);
             }
         }
 

@@ -104,6 +104,7 @@ namespace OpenPSTD
         private:
             std::vector<std::shared_ptr<Layer>> layers;
             std::weak_ptr<OperationRunner> operationRunner;
+            bool loaded;
         };
 
         void GLError(std::string name);

@@ -137,6 +137,21 @@ namespace OpenPSTD
             this->d = PSTDFile::Open(this->GetTempPath());
         }
 
+        OPENPSTD_SHARED_EXPORT bool PSTDFileAccess::IsDocumentLoaded()
+        {
+            if(this->d)
+                return true;
+            else
+                return false;
+        }
+
+        OPENPSTD_SHARED_EXPORT std::string PSTDFileAccess::GetFilename()
+        {
+            std::string result = this->realPath.filename().string();
+            return result;
+        }
+
+
         OPENPSTD_SHARED_EXPORT const char *PSTDFileAccessInUseException::what() const noexcept
         {
             return "The PSTD file is still in use to execute this operation";

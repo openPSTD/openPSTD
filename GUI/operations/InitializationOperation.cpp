@@ -42,13 +42,6 @@ namespace OpenPSTD
     {
         void InitializationOperation::Run(const Reciever &reciever)
         {
-
-
-            //todo: make sure an no file is loaded
-            //create a basic file
-            std::shared_ptr<NewFileOperation> op1 = std::make_shared<NewFileOperation>("test.pstd");
-            reciever.operationRunner->RunOperation(op1);
-
             reciever.model->view->aspectMatrix = QMatrix4x4();
             reciever.model->view->viewMatrix = QMatrix4x4();
             reciever.model->view->worldMatrix = QMatrix4x4();

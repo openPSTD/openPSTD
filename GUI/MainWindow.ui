@@ -385,11 +385,6 @@
     <string>Start simulation</string>
    </property>
   </action>
-  <action name="actionMock_development">
-   <property name="text">
-    <string>Mock (development)</string>
-   </property>
-  </action>
   <action name="actionApplication_Settings">
    <property name="text">
     <string>Application Settings</string>
