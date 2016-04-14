@@ -47,7 +47,7 @@ namespace OpenPSTD
     {
         using namespace std;
 
-#define PSTD_FILE_VERSION 2
+#define PSTD_FILE_VERSION 3
 
 #define PSTD_FILE_PREFIX_SCENE 1
 
@@ -55,6 +55,7 @@ namespace OpenPSTD
 #define PSTD_FILE_PREFIX_RESULTS_SCENE_KERNEL 101
 #define PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT 102
 #define PSTD_FILE_PREFIX_RESULTS_FRAMEDATA 103
+#define PSTD_FILE_PREFIX_RESULTS_RECEIVERDATA 104
 
 #define PSTD_FILE_PREFIX_VERSION 10000
 
@@ -235,6 +236,12 @@ namespace OpenPSTD
             {
                 SetValue<int>(CreateKey(PSTD_FILE_PREFIX_RESULTS_FRAME_COUNT, {i}), 0);
             }
+
+            for(unsigned int i = 0; i < conf->Receivers.size(); i++)
+            {
+                //create empty records for the receivers
+                SetRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_RECEIVERDATA, {i}), 0, nullptr);
+            }
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFile::DeleteResults()
@@ -367,6 +374,19 @@ namespace OpenPSTD
             }
         }
 
+        void PSTDFile::AppendRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value)
+        {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
+            int rc;
+
+            rc = unqlite_kv_append(this->backend.get(), key->data(), key->size(), value, nBytes);
+
+            if (rc != UNQLITE_OK)
+            {
+                throw PSTDFileIOException(rc, key, "append data");
+            }
+        }
+
         OPENPSTD_SHARED_EXPORT std::shared_ptr<Kernel::PSTDConfiguration> PSTDFile::GetSceneConf(PSTDFile_Key_t key)
         {
             namespace io = boost::iostreams;
@@ -443,5 +463,26 @@ namespace OpenPSTD
         {
             return this->GetSceneConf(CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}));
         }
+
+        OPENPSTD_SHARED_EXPORT void PSTDFile::SaveReceiverData(unsigned int receiver, Kernel::PSTD_RECEIVER_DATA_PTR data)
+        {
+            this->AppendRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_RECEIVERDATA, {receiver}),
+                                 data->size() * sizeof(Kernel::PSTD_FRAME_UNIT), data->data());
+        }
+
+        OPENPSTD_SHARED_EXPORT Kernel::PSTD_RECEIVER_DATA_PTR PSTDFile::GetReceiverData(unsigned int receiver)
+        {
+            unqlite_int64 size;
+            float *result = (float *) this->GetRawValue(CreateKey(PSTD_FILE_PREFIX_RESULTS_RECEIVERDATA, {receiver}), &size);
+            return make_shared<Kernel::PSTD_RECEIVER_DATA>(result, result + (size / 4));
+        }
+
+        int PSTDFile::GetResultsReceiverCount()
+        {
+            std::shared_ptr<Kernel::PSTDConfiguration> conf = this->GetResultsSceneConf();
+            return conf->Receivers.size();
+        }
+
+
     }
 }

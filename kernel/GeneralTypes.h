@@ -42,6 +42,10 @@ namespace OpenPSTD
         using PSTD_FRAME_UNIT = float;
         using PSTD_FRAME = std::vector<PSTD_FRAME_UNIT>;
         using PSTD_FRAME_PTR = std::shared_ptr<PSTD_FRAME>;
+
+        using PSTD_RECEIVER_DATA_UNIT = float;
+        using PSTD_RECEIVER_DATA = std::vector<PSTD_FRAME_UNIT>;
+        using PSTD_RECEIVER_DATA_PTR = std::shared_ptr<PSTD_FRAME>;
     }
 }
 

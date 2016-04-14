@@ -53,6 +53,17 @@ namespace OpenPSTD
                     }
                     callback->WriteFrame(i, j, frame);
                 }
+                for(int r = 0; r < _conf->Receivers.size(); r++)
+                {
+                    int receiverSamples = 16;
+                    PSTD_RECEIVER_DATA data;
+                    for(int j = 0; j < receiverSamples; j++)
+                    {
+                        float v = rand() / ((float) RAND_MAX);
+                        data.push_back(v);
+                    }
+                    callback->WriteSample(receiverSamples*i, r, data);
+                }
             }
 
             callback->Callback(CALLBACKSTATUS::FINISHED, "finished mocking", -1);

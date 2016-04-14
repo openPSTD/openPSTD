@@ -23,6 +23,7 @@ namespace OpenPSTD
             file_id = H5Fcreate(output.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
             H5Gcreate2(file_id, "/frame", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            H5Gcreate2(file_id, "/receiver", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
             k.initialize_kernel(file->GetSceneConf());
             auto metadata = k.get_metadata();
@@ -56,6 +57,18 @@ namespace OpenPSTD
                     auto data = file->GetResultsFrame(f, d);
                     H5LTmake_dataset(file_id, location.c_str(), 2, size.data(), H5T_NATIVE_FLOAT, data->data());
                 }
+            }
+
+            int receiverCount = file->GetResultsReceiverCount();
+            for(int r = 0; r < receiverCount; r++)
+            {
+                std::string receiverLoc = "/receiver/" + boost::lexical_cast<std::string>(r);
+                auto data = file->GetReceiverData(r);
+
+                std::vector<hsize_t> size;
+                size.push_back(data->size());
+
+                H5LTmake_dataset(file_id, receiverLoc.c_str(), 1, size.data(), H5T_NATIVE_FLOAT, data->data());
             }
 
             /* close file */

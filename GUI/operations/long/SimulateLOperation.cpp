@@ -120,7 +120,8 @@ void SimulateLOperation::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data)
 
 void SimulateLOperation::WriteSample(int startSample, int receiver, std::vector<float> data)
 {
-    //todo add saving to file
+    Kernel::PSTD_RECEIVER_DATA_PTR data_ptr = std::make_shared<Kernel::PSTD_RECEIVER_DATA>(data);
+    this->pstdFile->SaveReceiverData(receiver, data_ptr);
 }
 
 

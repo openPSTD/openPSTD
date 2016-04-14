@@ -189,6 +189,11 @@ namespace OpenPSTD
             void SetRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value);
 
             /**
+             * Set the raw value by key(ownership of value is of the caller)
+             */
+            void AppendRawValue(PSTDFile_Key_t key, unqlite_int64 nBytes, const void *value);
+
+            /**
              * Delete a certain value
              */
             void DeleteValue(PSTDFile_Key_t key);
@@ -384,6 +389,20 @@ namespace OpenPSTD
              */
             OPENPSTD_SHARED_EXPORT void DeleteResults();
 
+            /**
+             * Saves a couple of new samples to the receiver data
+             */
+            OPENPSTD_SHARED_EXPORT void SaveReceiverData(unsigned int receiver, Kernel::PSTD_RECEIVER_DATA_PTR data);
+
+            /**
+             * Gets the receivers data from file
+             */
+            OPENPSTD_SHARED_EXPORT Kernel::PSTD_RECEIVER_DATA_PTR GetReceiverData(unsigned int receiver);
+
+            /**
+             * Gets the number of receivers in the results
+             */
+            OPENPSTD_SHARED_EXPORT int GetResultsReceiverCount();
 
 
             /**

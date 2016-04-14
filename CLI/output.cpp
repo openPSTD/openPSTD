@@ -34,7 +34,8 @@ namespace OpenPSTD
 
         void CLIOutput::WriteSample(int startSample, int receiver, std::vector<float> data)
         {
-
+            Kernel::PSTD_RECEIVER_DATA_PTR data_ptr = std::make_shared<Kernel::PSTD_RECEIVER_DATA>(data);
+            _file->SaveReceiverData(receiver, data_ptr);
         }
     }
 }
