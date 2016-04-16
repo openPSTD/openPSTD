@@ -28,7 +28,7 @@
 
 
 #include "SceneLayer.h"
-#include "Edges.h"
+#include "GUI/Edges.h"
 
 namespace OpenPSTD
 {

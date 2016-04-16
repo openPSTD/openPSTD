@@ -18,41 +18,49 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      26-8-2015
+// Date: 26-8-2015
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
 //
 // Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_GRIDLAYER_H
-#define OPENPSTD_GRIDLAYER_H
+#ifndef OPENPSTD_SCENELAYER_H
+#define OPENPSTD_SCENELAYER_H
 
-#include "Viewer2D.h"
+#include "GUI/Viewer2D.h"
+#include <vector>
+#include <tuple>
+#include "GUI/Edges.h"
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        class GridLayer : public Layer
+
+        class SceneLayer : public Layer
         {
         private:
             std::unique_ptr<QOpenGLShaderProgram> program;
-
-            void UpdateLines();
-
-            std::unique_ptr<std::vector<float>> positions;
             unsigned int positionsBuffer;
+            unsigned int valuesBuffer;
+            GLuint textureID;
             int lines;
-            float gridSpacing;
-            QMatrix4x4 viewMatrix;
+            float lineWidth;
+
+            void CreateColormap(std::shared_ptr<Model> const &m,
+                                std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
+
+            std::unique_ptr<std::vector<Edge>> RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges);
 
         public:
-            GridLayer();
+            SceneLayer();
 
             virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
@@ -62,10 +70,9 @@ namespace OpenPSTD
                                      std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
             virtual MinMaxValue GetMinMax();
-
-            float CalcIdealSpacing();
         };
 
     }
 }
-#endif //OPENPSTD_GRIDLAYER_H
+
+#endif //OPENPSTD_SCENELAYER_H

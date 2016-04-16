@@ -18,49 +18,37 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 26-8-2015
+// Date:
+//      30-8-2015
 //
-//
-// Authors: M. R. Fortuin
-//
+// Authors:
+//      michiel
 //
 // Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_SCENELAYER_H
-#define OPENPSTD_SCENELAYER_H
+#ifndef OPENPSTD_INTERACTIVELAYER_H
+#define OPENPSTD_INTERACTIVELAYER_H
 
-#include "Viewer2D.h"
-#include <vector>
-#include <tuple>
-#include "Edges.h"
-
+#include "GUI/Viewer2D.h"
 namespace OpenPSTD
 {
     namespace GUI
     {
-
-        class SceneLayer : public Layer
+        class InteractiveLayer : public Layer
         {
         private:
             std::unique_ptr<QOpenGLShaderProgram> program;
-            unsigned int positionsBuffer;
-            unsigned int valuesBuffer;
-            GLuint textureID;
-            int lines;
-            float lineWidth;
-
-            void CreateColormap(std::shared_ptr<Model> const &m,
-                                std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
-
-            std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
-
-            std::unique_ptr<std::vector<Edge>> RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges);
-
+            bool addDomainVisible;
+            bool selectionVisible;
+            unsigned int newDomainBuffer;
+            unsigned int selectionBuffer;
+            QColor newDomainColor;
+            QColor selectionColor;
         public:
-            SceneLayer();
+            InteractiveLayer();
 
             virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
@@ -75,4 +63,4 @@ namespace OpenPSTD
     }
 }
 
-#endif //OPENPSTD_SCENELAYER_H
+#endif //OPENPSTD_INTERACTIVELAYER_H

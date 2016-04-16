@@ -27,7 +27,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "IconLayer.h"
-#include "PstdAlgorithm.h"
+#include "GUI/PstdAlgorithm.h"
 namespace OpenPSTD
 {
     namespace GUI

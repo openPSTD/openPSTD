@@ -44,10 +44,10 @@
 #include <math.h>
 #include <string>
 #include <memory>
-#include "GridLayer.h"
-#include "SceneLayer.h"
-#include "IconLayer.h"
-#include "InteractiveLayer.h"
+#include "layers/GridLayer.h"
+#include "layers/SceneLayer.h"
+#include "layers/IconLayer.h"
+#include "layers/InteractiveLayer.h"
 #include <boost/lexical_cast.hpp>
 #include "operations/ViewOperations.h"
 #include "operations/LambdaOperation.h"

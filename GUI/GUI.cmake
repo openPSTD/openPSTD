@@ -26,10 +26,10 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
 # OpenGL viewer
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/Viewer2D.cpp
-        GUI/GridLayer.cpp
-        GUI/SceneLayer.cpp
-        GUI/InteractiveLayer.cpp
-        GUI/IconLayer.cpp)
+        GUI/layers/GridLayer.cpp
+        GUI/layers/SceneLayer.cpp
+        GUI/layers/InteractiveLayer.cpp
+        GUI/layers/IconLayer.cpp)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/MainWindow.cpp
