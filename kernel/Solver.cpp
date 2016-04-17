@@ -116,6 +116,10 @@ namespace OpenPSTD {
                                          dt * coefs.at(rk_step) *
                                          (domain->l_values.Lvy * domain->rho * c1_square).real();
 
+            this->callback->Callback(CALLBACKSTATUS::RUNNING, "vx0 max: "+std::to_string(domain->current_values.vx0.maxCoeff()), 0);
+            this->callback->Callback(CALLBACKSTATUS::RUNNING, "px0 max: "+std::to_string(domain->current_values.px0.maxCoeff()), 0);
+            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lpx max: "+std::to_string(domain->l_values.Lpx.maxCoeff()), 0);
+            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lvx max: "+std::to_string(domain->l_values.Lvx.maxCoeff()), 0);
         }
 
         PSTD_FRAME_PTR Solver::get_pressure_vector() {
