@@ -80,7 +80,7 @@ namespace OpenPSTD {
                     }
                     for (auto domain:this->scene->domain_list) {
                         if (not domain->is_rigid()) {
-                            this->update_field_values(domain, rk_step);
+                            this->update_field_values(domain, rk_step, frame);
                         }
                     }
                     for (auto domain:this->scene->domain_list) {
@@ -101,21 +101,24 @@ namespace OpenPSTD {
                                      this->number_of_time_steps);
         }
 
-        void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step) {
+        void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step,
+                                         unsigned long frame) { // frame is temp
             float dt = this->settings->GetTimeStep();
             float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
             std::vector<float> coefs = this->settings->GetRKCoefficients();
+            write_array_to_file(domain->current_values.px0,
+                                "pressure" + std::to_string(frame) + "_" + std::to_string(rk_step));
             domain->current_values.vx0 =
                     domain->previous_values.vx0 - dt * coefs.at(rk_step) * (domain->l_values.Lpx / domain->rho).real();
             domain->current_values.vy0 =
                     domain->previous_values.vy0 - dt * coefs.at(rk_step) * (domain->l_values.Lpy / domain->rho).real();
-            domain->current_values.px0 = domain->previous_values.px0 -
-                                         dt * coefs.at(rk_step) *
-                                         (domain->l_values.Lvx * domain->rho * c1_square).real();
-            domain->current_values.py0 = domain->previous_values.py0 -
-                                         dt * coefs.at(rk_step) *
-                                         (domain->l_values.Lvy * domain->rho * c1_square).real();
+            domain->current_values.px0 = domain->previous_values.px0 - dt * coefs.at(rk_step) *
+                                                                       (domain->l_values.Lvx * domain->rho * c1_square).real();
+            domain->current_values.py0 = domain->previous_values.py0 - dt * coefs.at(rk_step) *
+                                                                       (domain->l_values.Lvy * domain->rho * c1_square).real();
 
+            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + std::to_string(rk_step), 0);
+            //write_array_to_file(domain->current_values.px0,"pressure"+std::to_string(frame)+"_"+std::to_string(rk_step));
             this->callback->Callback(CALLBACKSTATUS::RUNNING, "vx0 max: "+std::to_string(domain->current_values.vx0.maxCoeff()), 0);
             this->callback->Callback(CALLBACKSTATUS::RUNNING, "px0 max: "+std::to_string(domain->current_values.px0.maxCoeff()), 0);
             this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lpx max: "+std::to_string(domain->l_values.Lpx.maxCoeff()), 0);
