@@ -28,7 +28,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "kernel_functions.h"
-#include <iostream> //TODO REMOVE
+#include <iostream>
+#include <fstream>
 
 using namespace Eigen;
 namespace OpenPSTD {
@@ -286,6 +287,20 @@ namespace OpenPSTD {
 
             }
 
+        }
+
+        void write_array_to_file(Eigen::ArrayXXf array, std::string filename) {
+            std::string data_folder = "testdata";
+            std::string fullname = "cpp.m";
+            std::ofstream data_stream(data_folder + "/" + fullname, std::ios::app);
+            data_stream << filename << " = [";
+            for (int i = 0; i < array.rows(); i++) {
+                for (int j = 0; j < array.cols(); j++) {
+                    data_stream << array(i, j) << " ";
+                }
+                data_stream << ';' << '\n';
+            }
+            data_stream << "];\n";
         }
     }
 }
