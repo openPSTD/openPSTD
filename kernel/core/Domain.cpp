@@ -93,7 +93,10 @@ namespace OpenPSTD {
 
         // version of calc that would have a return value.
         ArrayXXf Domain::calc(CalcDirection cd, CalculationType ct, ArrayXcf dest) {
+            ArrayXXf source;
             vector<shared_ptr<Domain>> domains1, domains2;
+            vector<int> own_range = get_range(cd);
+
             if (cd == CalcDirection::X) {
                 domains1 = left;
                 domains2 = right;
@@ -102,10 +105,6 @@ namespace OpenPSTD {
                 domains1 = bottom;
                 domains2 = top;
             }
-
-            vector<int> own_range = get_range(cd);
-
-            ArrayXXf source;
 
             if (dest.rows() != 0) {
                 if (cd == CalcDirection::X) {
@@ -185,7 +184,6 @@ namespace OpenPSTD {
                     ArrayXXf matrix_main, matrix_side1, matrix_side2;
                     if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                         // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
-                        // TODO Louis: Why only zeroes for ct==velocity? Should zeroes also be added in the else{} block?
                         // a PML domain can also have a neighbour, see:
                         //   |             |
                         // __|_____________|___

@@ -174,7 +174,7 @@ namespace OpenPSTD {
                 ArrayXXf fft_input_data(fft_length, fft_batch);
                 ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
                 zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
-                //this looks inefficient, but Eigen should optimize it into single operations (TODO: check if it does)
+                //this looks inefficient, but the compiler optimizes almost all of it away
                 dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
                        p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
                 dom3 = p3.leftCols(wlen).rowwise() * window_right.transpose() * rho_array.pressure(3, 1) +
@@ -183,7 +183,7 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
-                //maybe optimize this away later (rearrange fft input or change calls above)
+                //TODO maybe optimize this away later (rearrange fft input or change calls above)
                 fft_input_data = windowed_data.transpose();
 
                 //perform the fft
