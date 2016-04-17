@@ -214,7 +214,7 @@ namespace OpenPSTD {
 
         void debug(std::string msg);
 
-        void write_array_to_file(Eigen::ArrayXXf array, std::string filename);
+        void write_array_to_file(Eigen::ArrayXXf array, std::string filename, unsigned long kk);
 
     }
 }
