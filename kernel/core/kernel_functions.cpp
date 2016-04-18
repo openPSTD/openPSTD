@@ -116,10 +116,10 @@ namespace OpenPSTD {
         }
 
         ArrayXXf spatderp3(ArrayXXf p1, ArrayXXf p2,
-                                  ArrayXXf p3, ArrayXcf derfact,
-                                  RhoArray rho_array, ArrayXf window, int wlen,
-                                  CalculationType ct, CalcDirection direct,
-                                  fftwf_plan plan, fftwf_plan plan_inv) {
+                           ArrayXXf p3, ArrayXcf derfact,
+                           RhoArray rho_array, ArrayXf window, int wlen,
+                           CalculationType ct, CalcDirection direct,
+                           fftwf_plan plan, fftwf_plan plan_inv) {
 
             //if direct == Y, transpose p1, p2 and p3
             if (direct == CalcDirection::Y) {
@@ -172,8 +172,9 @@ namespace OpenPSTD {
                 ArrayXXf dom3(fft_batch, wlen);
                 ArrayXXf windowed_data(fft_batch, fft_length);
                 ArrayXXf fft_input_data(fft_length, fft_batch);
-                ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
-                zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
+                ArrayXXf zero_pad(fft_batch, fft_length - 2 * wlen - p2.cols());
+                zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2 * wlen - p2.cols());
+
                 //this looks inefficient, but the compiler optimizes almost all of it away
                 dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
                        p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
@@ -192,7 +193,7 @@ namespace OpenPSTD {
 
                 //map the results back into an eigen array
                 typedef Matrix<std::complex<float>, Dynamic, Dynamic, RowMajor> ArrayXXcfrm;
-                Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
+                Map<ArrayXXcfrm> spectrum_array((std::complex<float> *) out_buffer[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
@@ -205,7 +206,7 @@ namespace OpenPSTD {
                 result = derived_array.leftCols(wlen + p2.cols() + 1).rightCols(p2.cols() + 1);
                 result = result / fft_length; // normalize to compensate for fftw roundtrip gain
             }
-            //repeat for velocity calculation (staggered grid, so various different offsets)
+                //repeat for velocity calculation (staggered grid, so various different offsets)
             else {
                 result.resize(fft_batch, p2.cols() + wlen * 2 - 1);
 
@@ -221,12 +222,14 @@ namespace OpenPSTD {
                 ArrayXXf dom3(fft_batch, wlen);
                 ArrayXXf windowed_data(fft_batch, fft_length);
                 ArrayXXf fft_input_data(fft_length, fft_batch);
-                ArrayXXf zero_pad(fft_batch, fft_length - 2*wlen - p2.cols());
-                zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2*wlen - p2.cols());
-                dom1 = p1.rightCols(wlen+1).leftCols(wlen).rowwise() * window_left.transpose() * rho_array.velocity(2, 1) +
-                       p2.leftCols(wlen+1).rightCols(wlen).rowwise().reverse() * rho_array.velocity(0, 0);
-                dom3 = p3.leftCols(wlen+1).rightCols(wlen).rowwise() * window_right.transpose() * rho_array.velocity(3, 1) +
-                       p2.rightCols(wlen+1).leftCols(wlen).rowwise().reverse() * rho_array.velocity(1, 0);
+                ArrayXXf zero_pad(fft_batch, fft_length - 2 * wlen - p2.cols());
+                zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2 * wlen - p2.cols());
+                dom1 = p1.rightCols(wlen + 1).leftCols(wlen).rowwise() * window_left.transpose() *
+                       rho_array.velocity(2, 1) +
+                       p2.leftCols(wlen + 1).rightCols(wlen).rowwise().reverse() * rho_array.velocity(0, 0);
+                dom3 = p3.leftCols(wlen + 1).rightCols(wlen).rowwise() * window_right.transpose() *
+                       rho_array.velocity(3, 1) +
+                       p2.rightCols(wlen + 1).leftCols(wlen).rowwise().reverse() * rho_array.velocity(1, 0);
                 dom1 = dom1.rowwise() * window_left.transpose();
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
@@ -240,7 +243,7 @@ namespace OpenPSTD {
 
                 //map the results back into an eigen array
                 typedef Matrix<std::complex<float>, Dynamic, Dynamic, RowMajor> ArrayXXcfrm;
-                Map<ArrayXXcfrm> spectrum_array((std::complex<float>*)out_buffer[0], fft_batch, fft_length / 2 + 1);
+                Map<ArrayXXcfrm> spectrum_array((std::complex<float> *) out_buffer[0], fft_batch, fft_length / 2 + 1);
 
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
@@ -250,7 +253,7 @@ namespace OpenPSTD {
                         Map<Matrix<float, Dynamic, Dynamic, RowMajor>>(in_buffer, fft_batch, fft_length).array();
 
                 //ifft result contains the outer domains, so slice
-                result = derived_array.leftCols(wlen + p2.cols()).rightCols(p2.cols()-1);
+                result = derived_array.leftCols(wlen + p2.cols()).rightCols(p2.cols() - 1);
                 result = result / fft_length; // normalize to compensate for fftw roundtrip gain
             }
             if (direct == CalcDirection::Y) {
@@ -260,15 +263,17 @@ namespace OpenPSTD {
         }
 
         ArrayXXf spatderp3(ArrayXXf p1, ArrayXXf p2,
-                                  ArrayXXf p3, ArrayXcf derfact,
-                                  RhoArray rho_array, ArrayXf window, int wlen,
-                                  CalculationType ct, CalcDirection direct) {
+                           ArrayXXf p3, ArrayXcf derfact,
+                           RhoArray rho_array, ArrayXf window, int wlen,
+                           CalculationType ct, CalcDirection direct) {
             return spatderp3(p1, p2, p3, derfact, rho_array, window, wlen, ct, direct, NULL, NULL);
         }
 
         ArrayXf get_window_coefficients(int window_size, int patch_error) {
             float window_alpha = (patch_error - 40) / 20.0 + 1;
-            ArrayXf window_coefficients = ((ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size)/window_size).square().cube()*log(10)*window_alpha*-1).exp(); // Need to go to power 6 (^2^3)
+            ArrayXf window_coefficients = (
+                    (ArrayXf::LinSpaced(2 * window_size + 1, -window_size, window_size) / window_size).square().cube() *
+                    log(10) * window_alpha * -1).exp(); // Need to go to power 6 (^2^3)
             return window_coefficients;
         }
 
@@ -289,11 +294,11 @@ namespace OpenPSTD {
 
         }
 
-        void write_array_to_file(Eigen::ArrayXXf array, std::string filename) {
+        void write_array_to_file(Eigen::ArrayXXf array, std::string filename, unsigned long kk) {
             std::string data_folder = "testdata";
             std::string fullname = "cpp.m";
             std::ofstream data_stream(data_folder + "/" + fullname, std::ios::app);
-            data_stream << filename << " = [";
+            data_stream << filename << "(:,:," << kk + 1 << ") = [";
             for (int i = 0; i < array.rows(); i++) {
                 for (int j = 0; j < array.cols(); j++) {
                     data_stream << array(i, j) << " ";

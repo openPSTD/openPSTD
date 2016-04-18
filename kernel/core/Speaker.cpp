@@ -36,9 +36,6 @@ namespace OpenPSTD {
                     domain->current_values.py0(i, j) += vertical_component;
                 }
             }
-            write_array_to_file(domain->current_values.p0, "fullpres");
-            write_array_to_file(domain->current_values.px0, "partpres");
         }
-
     }
 }
