@@ -77,14 +77,17 @@ namespace OpenPSTD
             f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_value"), 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-            f->glActiveTexture(GL_TEXTURE0);
+            f->glActiveTexture(GL_TEXTURE2);
             f->glBindTexture(GL_TEXTURE_1D, this->textureID);
-            f->glUniform1i((GLuint) program->attributeLocation("colormap"), GL_TEXTURE0);
+            f->glUniform1i((GLuint) program->attributeLocation("colormap"), 2);
 
             f->glLineWidth(5.0f);
             f->glDrawArrays(GL_LINES, 0, lines * 2);
             program->disableAttributeArray("a_position");
             program->disableAttributeArray("a_value");
+
+            f->glBindTexture(GL_TEXTURE_1D, 0);
+            f->glActiveTexture(GL_TEXTURE0);
         }
 
         void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m,
@@ -154,6 +157,7 @@ namespace OpenPSTD
                 std::unique_ptr<std::vector<float>> colormap = m->colorScheme->
                         EditorLineAbsoptionColorGradient()->CreateRawRGBAColorMap(0, 1, 512);
 
+                f->glActiveTexture(GL_TEXTURE2);
                 // "Bind" the newly created texture : all future texture functions will modify this texture
                 f->glBindTexture(GL_TEXTURE_1D, this->textureID);
 

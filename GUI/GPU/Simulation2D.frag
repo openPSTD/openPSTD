@@ -17,20 +17,21 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#version 330
+
 uniform float vmin;
 uniform float vmax;
 
-varying vec4 v_color;
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
 
-uniform sampler2D image;
-uniform sampler2D colormap;
+uniform sampler2D values;
+uniform sampler1D colormap;
 
 void main()
 {
-    float value = texture2D(image, v_texcoord);
+    float value = texture2D(values, v_texcoord).r;
 
-    if(value < vmin)
+    /*if(value < vmin)
     {
         value = vmin;
     }
@@ -39,6 +40,10 @@ void main()
         value = vmax;
     }
 
-    value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = texture2D(colormap, vec2(value, 0));
+    value = (value-vmin)/(vmax-vmin);*/
+    //gl_FragColor = texture2D(values, v_texcoord);
+    //gl_FragColor = texture2D(values, vec2(0.5,0.5));
+    gl_FragColor = vec4(value, v_texcoord.x, v_texcoord.y, 1);
+    //gl_FragColor = texture(colormap, value);
+    //gl_FragColor = texture(colormap, 0.5);
 }

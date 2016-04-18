@@ -29,7 +29,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/layers/GridLayer.cpp
         GUI/layers/SceneLayer.cpp
         GUI/layers/InteractiveLayer.cpp
-        GUI/layers/IconLayer.cpp)
+        GUI/layers/IconLayer.cpp
+        GUI/layers/ResultsLayer.cpp)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/MainWindow.cpp
