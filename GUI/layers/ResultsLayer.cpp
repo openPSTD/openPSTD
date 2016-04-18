@@ -30,7 +30,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "ResultsLayer.h"
-#include <Kernel/MockKernel.h>
+#include <kernel/MockKernel.h>
 #include <queue>
 
 namespace OpenPSTD
@@ -45,7 +45,6 @@ namespace OpenPSTD
                 std::unique_ptr<std::vector<float>> colormap = m->colorScheme->
                         EditorDomainSignalColorGradient()->CreateRawRGBAColorMap(0, 0.10f, 512);
 
-                f->glActiveTexture(GL_TEXTURE0);
                 // "Bind" the newly created texture : all future texture functions will modify this texture
                 f->glBindTexture(GL_TEXTURE_1D, this->colormapID);
 
@@ -77,14 +76,12 @@ namespace OpenPSTD
             program->link();
 
             program->bind();
-            GLError("ResultsLayer:: program->bind();");
 
             program->setUniformValue("vmin", 0.0f);
             program->setUniformValue("vmax", 1.0f);
             f->glUniform1i((GLuint) program->attributeLocation("colormap"), 0);
             f->glUniform1i((GLuint) program->attributeLocation("values"), 1);
 
-            GLError("ResultsLayer:: f->glUniform1i");
             std::vector<QVector2D> texCoords;
             texCoords.push_back(QVector2D(0,0));
             texCoords.push_back(QVector2D(0,1));
@@ -94,8 +91,6 @@ namespace OpenPSTD
             f->glBindBuffer(GL_ARRAY_BUFFER, this->texCoordsBuffer);
             f->glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(QVector2D), texCoords.data(),
                             GL_DYNAMIC_DRAW);
-            GLError("ResultsLayer:: f->glBufferData");
-            program->release();
         }
 
         void ResultsLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
