@@ -31,9 +31,9 @@ namespace OpenPSTD {
                     float angle = std::atan2(rel_y - j, rel_x - i);
                     float horizontal_component = SQR(std::cos(angle)) * pressure;
                     float vertical_component = SQR(std::sin(angle)) * pressure;
-                    domain->current_values.p0(i, j) += pressure;
-                    domain->current_values.px0(i, j) += horizontal_component;
-                    domain->current_values.py0(i, j) += vertical_component;
+                    domain->current_values.p0(j, i) += pressure;
+                    domain->current_values.px0(j, i) += horizontal_component;
+                    domain->current_values.py0(j, i) += vertical_component;
                 }
             }
         }

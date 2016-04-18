@@ -277,18 +277,18 @@ namespace OpenPSTD {
                         matrix_side1_offset = d1->top_left.y;
                         matrix_side2_offset = d2->top_left.y;
 
-                        int ncols = range_end - range_start;
+                        int nrows = range_end - range_start;
 
-                        matrix_main_indexed = matrix_main.block(0, range_start - matrix_main_offset,
-                                                                matrix_main.rows(), ncols);
-                        matrix_side1_indexed = matrix_side1.block(0, range_start - matrix_side1_offset,
-                                                                  matrix_side1.rows(), ncols);
-                        matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
-                                                                  matrix_side2.rows(), ncols);
+                        matrix_main_indexed = matrix_main.block(range_start - matrix_main_offset, 0,
+                                                                  nrows, matrix_main.cols());
+                        matrix_side1_indexed = matrix_side1.block(range_start - matrix_side1_offset, 0,
+                                                                  nrows, matrix_side1.cols());
+                        matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
+                                                                  nrows, matrix_side2.cols());
 
-                        Eigen:ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
+                        Eigen:ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(0, range_start - matrix_main_offset, matrix_main.rows(), full_range) = spatresult;
+                        source.block(0, range_start - matrix_main_offset, nrows, full_range) = spatresult;
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
@@ -297,18 +297,18 @@ namespace OpenPSTD {
                         matrix_side1_offset = d1->top_left.x;
                         matrix_side2_offset = d2->top_left.x;
 
-                        int nrows = range_end - range_start;
+                        int ncols = range_end - range_start;
 
-                        matrix_main_indexed = matrix_main.block(range_start - matrix_main_offset, 0,
-                                                                nrows, matrix_main.cols());
-                        matrix_side1_indexed = matrix_side1.block(range_start - matrix_side1_offset, 0,
-                                                                  nrows, matrix_side1.cols());
-                        matrix_side2_indexed = matrix_side2.block(range_start - matrix_side2_offset, 0,
-                                                                  nrows, matrix_side2.cols());
+                        matrix_main_indexed = matrix_main.block(0, range_start - matrix_main_offset,
+                                                                matrix_main.rows(), ncols);
+                        matrix_side1_indexed = matrix_side1.block(0, range_start - matrix_side1_offset,
+                                                                  matrix_main.rows(), ncols);
+                        matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
+                                                                  matrix_main.rows(), ncols);
 
-                        ArrayXXf spatresult = spatderp3(matrix_side1, matrix_main, matrix_side2, derfact,
+                        ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(range_start - matrix_main_offset, 0, full_range, matrix_main.cols()) = spatresult;
+                        source.block(0, range_start - matrix_main_offset, full_range, ncols) = spatresult;
                     }
                 }
             }
@@ -413,7 +413,7 @@ namespace OpenPSTD {
         }
 
         ArrayXXf Domain::extended_zeros(int x, int y, int z) {
-            return ArrayXXf::Zero(size.x + x, size.y + y);
+            return ArrayXXf::Zero(size.y + y, size.x + x);
         }
 
         vector<shared_ptr<Domain>> Domain::get_neighbours_at(Direction direction) {
@@ -647,7 +647,7 @@ namespace OpenPSTD {
                             create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
                                                      pml_arrays.py, pml_arrays.vy);
                             pml_arrays.px = ArrayXXf::Ones(size.y, size.x);//Change if unique
-                            pml_arrays.vx = ArrayXXf::Ones(size.y, size.x+1);//Change if unique
+                            pml_arrays.vx = ArrayXXf::Ones(size.y, size.x + 1);//Change if unique
                             break;
                     }
                 }

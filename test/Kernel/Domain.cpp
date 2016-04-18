@@ -193,16 +193,16 @@ BOOST_AUTO_TEST_SUITE(domain)
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);
         vector<float> speaker_loc = scene->speaker_list.at(0)->location;
-        // Speakers at location (20,25)
+        // Speakers at location x=20, y=25
         // Domain is (250,300)
         // Bandwidth is 21 491;
 
         // Check center to be 1
-        BOOST_CHECK_EQUAL(domain->current_values.p0(20, 25), 1);
+        BOOST_CHECK_EQUAL(domain->current_values.p0(25, 20), 1);
         // Check symmetry
-        BOOST_CHECK_EQUAL(domain->current_values.p0(20, 24), domain->current_values.p0(21, 25));
+        BOOST_CHECK_EQUAL(domain->current_values.p0(24, 20), domain->current_values.p0(25, 21));
         // Check next grid point to be 0.71 (analytically confirmed value)
-        BOOST_CHECK(Kernel::is_approx(domain->current_values.p0(20, 24), 0.706947));
+        BOOST_CHECK(Kernel::is_approx(domain->current_values.p0(24, 20), 0.706947));
 
     }
 
