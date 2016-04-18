@@ -169,13 +169,14 @@ namespace OpenPSTD {
                     int range_end = *max_element(range_intersection.begin(), range_intersection.end()) + 1;
                     int full_range = range_end-range_start;
                     int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
+                    int result_dimension = primary_dimension;
                     int N_total = 2 * settings->GetWindowSize() + primary_dimension;
                     int wlen = settings->GetWindowSize();
                     ArrayXf wind = get_window_coefficients(wlen, settings->GetPatchError());
 
                     if (ct == CalculationType::PRESSURE) {
                         N_total++;
-                        full_range++;
+                        result_dimension++;
                     }
                     else {
                         primary_dimension++;
@@ -288,7 +289,7 @@ namespace OpenPSTD {
 
                         Eigen:ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(0, range_start - matrix_main_offset, nrows, full_range) = spatresult;
+                        source.block(0, range_start - matrix_main_offset, full_range, result_dimension) = spatresult;
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
@@ -302,13 +303,13 @@ namespace OpenPSTD {
                         matrix_main_indexed = matrix_main.block(0, range_start - matrix_main_offset,
                                                                 matrix_main.rows(), ncols);
                         matrix_side1_indexed = matrix_side1.block(0, range_start - matrix_side1_offset,
-                                                                  matrix_main.rows(), ncols);
+                                                                  matrix_side1.rows(), ncols);
                         matrix_side2_indexed = matrix_side2.block(0, range_start - matrix_side2_offset,
-                                                                  matrix_main.rows(), ncols);
+                                                                  matrix_side2.rows(), ncols);
 
                         ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(0, range_start - matrix_main_offset, full_range, ncols) = spatresult;
+                        source.block(0, range_start - matrix_main_offset, result_dimension, ncols) = spatresult;
                     }
                 }
             }
@@ -378,12 +379,12 @@ namespace OpenPSTD {
         vector<int> Domain::get_range(CalcDirection cd) {
             int a_l, b_l;
             if (cd == CalcDirection::X) {
-                a_l = top_left.x;
-                b_l = bottom_right.x;
-            }
-            else {
                 a_l = top_left.y;
                 b_l = bottom_right.y;
+            }
+            else {
+                a_l = top_left.x;
+                b_l = bottom_right.x;
             }
             vector<int> tmp((unsigned long) (b_l - a_l));
             iota(tmp.begin(), tmp.end(), a_l); // Increases with 1 from a_l
@@ -412,7 +413,7 @@ namespace OpenPSTD {
             return range_intersection;
         }
 
-        ArrayXXf Domain::extended_zeros(int x, int y, int z) {
+        ArrayXXf Domain::extended_zeros(int y, int x, int z) {
             return ArrayXXf::Zero(size.y + y, size.x + x);
         }
 
@@ -710,12 +711,12 @@ namespace OpenPSTD {
             switch (calc_dir) {
                 //Replicate matrices to size of domain
                 case CalcDirection::X:
-                    pml_pressure = pressure_pml_factors.transpose().replicate(size.x, 1);
-                    pml_velocity = velocity_pml_factors.transpose().replicate(size.x, 1);
+                    pml_pressure = pressure_pml_factors.transpose().replicate(size.y, 1);
+                    pml_velocity = velocity_pml_factors.transpose().replicate(size.y, 1);
                     break;
                 case CalcDirection::Y:
-                    pml_pressure = pressure_pml_factors.replicate(1, size.y);
-                    pml_velocity = velocity_pml_factors.replicate(1, size.y);
+                    pml_pressure = pressure_pml_factors.replicate(1, size.x);
+                    pml_velocity = velocity_pml_factors.replicate(1, size.x);
                     break;
             }
         }

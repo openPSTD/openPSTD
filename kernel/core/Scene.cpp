@@ -380,14 +380,14 @@ namespace OpenPSTD {
         }
 
         Eigen::ArrayXXf Scene::get_field(char field_type) {
-            Eigen::ArrayXXf field(size.x, size.y);
+            Eigen::ArrayXXf field(size.y, size.x);
             for (auto domain:domain_list) {
                 if (not domain->is_pml) {
                     Point offset = domain->top_left - top_left;
                     switch (field_type) {
                         case 'p':
-                            field.block(offset.x, offset.y, domain->size.x,
-                                        domain->size.y) += domain->current_values.p0;
+                            field.block(offset.y, offset.x, domain->size.y,
+                                        domain->size.x) += domain->current_values.p0;
                             break;
                         default:
                             //No other fields are required (yet). However, leaving open for extension.

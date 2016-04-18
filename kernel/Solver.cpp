@@ -106,10 +106,12 @@ namespace OpenPSTD {
             float dt = this->settings->GetTimeStep();
             float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
             std::vector<float> coefs = this->settings->GetRKCoefficients();
-            write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
-            write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
-            write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
-            write_array_to_file(domain->current_values.vy0, "velocity_y", frame * 6 + rk_step);
+            if (!domain->is_pml) {
+                write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.vy0, "velocity_y", frame * 6 + rk_step);
+            }
             domain->current_values.vx0 =
                     domain->previous_values.vx0 - dt * coefs.at(rk_step) * (domain->l_values.Lpx / domain->rho);
             domain->current_values.vy0 =
@@ -119,19 +121,29 @@ namespace OpenPSTD {
             domain->current_values.py0 = domain->previous_values.py0 - dt * coefs.at(rk_step) *
                                                                        (domain->l_values.Lvy * domain->rho * c1_square);
 
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + std::to_string(rk_step), 0);
-            write_array_to_file(domain->l_values.Lpx, "pressure_deriv_x", frame * 6 + rk_step);
-            write_array_to_file(domain->l_values.Lpy, "pressure_deriv_y", frame * 6 + rk_step);
-            write_array_to_file(domain->l_values.Lvx, "velocity_deriv_x", frame * 6 + rk_step);
-            write_array_to_file(domain->l_values.Lvy, "velocity_deriv_y", frame * 6 + rk_step);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "vx0 max: "+std::to_string(domain->current_values.vx0.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "vy0 max: "+std::to_string(domain->current_values.vy0.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "px0 max: "+std::to_string(domain->current_values.px0.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "py0 max: "+std::to_string(domain->current_values.py0.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lpx max: "+std::to_string(domain->l_values.Lpx.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lpy max: "+std::to_string(domain->l_values.Lpy.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lvx max: "+std::to_string(domain->l_values.Lvx.maxCoeff()), 0);
-            this->callback->Callback(CALLBACKSTATUS::RUNNING, "Lvy max: "+std::to_string(domain->l_values.Lvy.maxCoeff()), 0);
+            if (!domain->is_pml) {
+                this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + std::to_string(rk_step), 0);
+                write_array_to_file(domain->l_values.Lpx, "pressure_deriv_x", frame * 6 + rk_step);
+                write_array_to_file(domain->l_values.Lpy, "pressure_deriv_y", frame * 6 + rk_step);
+                write_array_to_file(domain->l_values.Lvx, "velocity_deriv_x", frame * 6 + rk_step);
+                write_array_to_file(domain->l_values.Lvy, "velocity_deriv_y", frame * 6 + rk_step);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "vx0 max: " + std::to_string(domain->current_values.vx0.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "vy0 max: " + std::to_string(domain->current_values.vy0.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "px0 max: " + std::to_string(domain->current_values.px0.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "py0 max: " + std::to_string(domain->current_values.py0.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "Lpx max: " + std::to_string(domain->l_values.Lpx.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "Lpy max: " + std::to_string(domain->l_values.Lpy.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "Lvx max: " + std::to_string(domain->l_values.Lvx.maxCoeff()), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING,
+                                         "Lvy max: " + std::to_string(domain->l_values.Lvy.maxCoeff()), 0);
+            }
         }
 
         PSTD_FRAME_PTR Solver::get_pressure_vector() {
