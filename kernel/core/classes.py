@@ -908,11 +908,14 @@ class Scene(object):
         self.source_positions.append(Point(sx, sy))
         for d in [_d for _d in self.domains if not _d.is_pml]:
             Sx, Sy = sx - d.topleft.x*self.cfg.dx, sy - d.topleft.y*self.cfg.dx
+            dSx = (np.arange(d.size.width)*self.cfg.dx - Sx)**2
+            dSy = (np.arange(d.size.height)*self.cfg.dx - Sy)**2
             dS = np.fromfunction(lambda y,x: np.sqrt((x*self.cfg.dx-Sx)**2+(y*self.cfg.dx-Sy)**2), (d.size.height, d.size.width))
             p0 = np.exp(-self.cfg.bwidth*np.power(np.abs(dS),2.))
+            angle = np.arctan2(dSy,dSx)
             d.p0 += p0
-            d.px0 += np.power(np.cos(np.angle(dS)),2.)*p0
-            d.pz0 += np.power(np.sin(np.angle(dS)),2.)*p0
+            d.px0 += np.power(np.cos(angle),2.)*p0
+            d.pz0 += np.power(np.sin(angle),2.)*p0
     def draw_boundaries(self, fig):
         self.subplot = self.subplot if self.subplot else fig.add_subplot(111)
         for b in self.boundaries:
