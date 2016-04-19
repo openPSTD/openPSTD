@@ -43,7 +43,8 @@ namespace OpenPSTD
 
         void CreateDomainOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
             this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
@@ -69,8 +70,8 @@ namespace OpenPSTD
 
             conf->Domains.push_back(d);
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         CreateReceiverSpeakerOperation::CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position) : _type(
@@ -83,7 +84,8 @@ namespace OpenPSTD
 
         void CreateReceiverSpeakerOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
             if (this->_type == OBJECT_RECEIVER)
             {
                 conf->Receivers.push_back(this->_position);
@@ -97,14 +99,15 @@ namespace OpenPSTD
                 //todo throw exception here
             }
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         void RemoveSelectedDomainOperation::Run(const Reciever &reciever)
         {
             if (reciever.model->interactive->Selection.Type == SELECTION_DOMAIN)
             {
+                auto doc = reciever.model->documentAccess->GetDocument();
                 int index = reciever.model->interactive->Selection.SelectedIndex;
                 std::shared_ptr<RemoveDomainOperation> op1(new RemoveDomainOperation(index));
                 reciever.operationRunner->RunOperation(op1);
@@ -119,6 +122,7 @@ namespace OpenPSTD
 
         void RemoveSelectedObjectOperation::Run(const Reciever &reciever)
         {
+            auto doc = reciever.model->documentAccess->GetDocument();
             int index = reciever.model->interactive->Selection.SelectedIndex;
             if (reciever.model->interactive->Selection.Type == SELECTION_DOMAIN)
             {
@@ -150,12 +154,13 @@ namespace OpenPSTD
 
         void RemoveDomainOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             conf->Domains.erase(conf->Domains.begin() + this->index);
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         RemoveSpeakerOperation::RemoveSpeakerOperation(int index) : index(index)
@@ -165,12 +170,13 @@ namespace OpenPSTD
 
         void RemoveSpeakerOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             conf->Speakers.erase(conf->Speakers.begin() + this->index);
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         RemoveReceiverOperation::RemoveReceiverOperation(int index) : index(index)
@@ -180,12 +186,13 @@ namespace OpenPSTD
 
         void RemoveReceiverOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             conf->Receivers.erase(conf->Receivers.begin() + this->index);
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         EditDomainPositionsOperation::EditDomainPositionsOperation(int index, QVector2D startPoint, QVector2D endPoint)
@@ -197,7 +204,8 @@ namespace OpenPSTD
 
         void EditDomainPositionsOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             this->StartPoint = Snapping::Snap(reciever.model, this->StartPoint);
             this->EndPoint = Snapping::Snap(reciever.model, this->EndPoint);
@@ -208,8 +216,8 @@ namespace OpenPSTD
             conf->Domains[index].Size[0] = fabsf(conf->Domains[index].Size[0]);
             conf->Domains[index].Size[1] = fabsf(conf->Domains[index].Size[1]);
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         EditDomainEdgeAbsorptionOperation::EditDomainEdgeAbsorptionOperation(int index, Kernel::PSTD_DOMAIN_SIDE side,
@@ -221,7 +229,8 @@ namespace OpenPSTD
 
         void EditDomainEdgeAbsorptionOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             switch (this->Side)
             {
@@ -239,8 +248,8 @@ namespace OpenPSTD
                     break;
             }
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         EditDomainEdgeLrOperation::EditDomainEdgeLrOperation(int index, Kernel::PSTD_DOMAIN_SIDE side, bool newValue) :
@@ -250,8 +259,8 @@ namespace OpenPSTD
 
         void EditDomainEdgeLrOperation::Run(const Reciever &reciever)
         {
-
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
 
             switch (this->Side)
             {
@@ -269,13 +278,14 @@ namespace OpenPSTD
                     break;
             }
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         void EditSelectedDomainEdgesOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
             int index = reciever.model->interactive->Selection.SelectedIndex;
 
             conf->Domains[index].T.Absorption = this->AbsorptionT;
@@ -288,8 +298,8 @@ namespace OpenPSTD
             conf->Domains[index].L.LR = this->LRL;
             conf->Domains[index].R.LR = this->LRR;
 
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
 
         EditDocumentSettingsOperation::EditDocumentSettingsOperation(Kernel::PSTDSettings settings) : Settings(settings)
@@ -299,10 +309,11 @@ namespace OpenPSTD
 
         void EditDocumentSettingsOperation::Run(const Reciever &reciever)
         {
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto doc = reciever.model->documentAccess->GetDocument();
+            auto conf = doc->GetSceneConf();
             conf->Settings = this->Settings;
-            reciever.model->documentAccess->GetDocument()->SetSceneConf(conf);
-            reciever.model->documentAccess->GetDocument()->Change();
+            doc->SetSceneConf(conf);
+            doc->Change();
         }
     }
 }

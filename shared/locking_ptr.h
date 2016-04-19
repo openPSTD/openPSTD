@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 11-4-2016
+// Date: 19-4-2016
 //
 //
 // Authors: M. R. Fortuin
@@ -29,48 +29,41 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_SIMULATELOPERATION_H
-#define OPENPSTD_SIMULATELOPERATION_H
+#ifndef OPENPSTD_LOCKING_PTR_H
+#define OPENPSTD_LOCKING_PTR_H
 
-#include "LongOperationRunner.h"
-#include <kernel/KernelInterface.h>
-#include <shared/PSTDFileAccess.h>
-
+#include <memory>
+#include <boost/thread.hpp>
 namespace OpenPSTD
 {
-    namespace GUI
+    namespace Shared
     {
-
-        /**
-         * Basic long operation for runnning the OpenPSTD kernel
-         */
-        class SimulateLOperation : public LongOperation, public OpenPSTD::Kernel::KernelCallback
+        template<class T>
+        class locking_ptr
         {
-        private:
-            std::shared_ptr<OpenPSTD::Shared::PSTDFileAccess> pstdFileAccess;
-            OpenPSTD::Kernel::SimulationMetadata metadata;
-            int currentFrame;
-            bool started;
-            bool finished;
-
         public:
-            SimulateLOperation();
+            locking_ptr(std::shared_ptr<T> ptr, std::shared_ptr<boost::recursive_mutex> mutex)
+                    : m_ptr(ptr),
+                      m_mutex(mutex),
+                      m_lock(*m_mutex)
+            {
+            }
 
-            //interface of LongOperation and BaseOperation
-            std::string GetName();
-            float GetProgress();
-            bool Cancel();
-            void Run(const Reciever &reciever);
-            bool Started();
-            bool Finished();
-
-
-            //implementation of KernelCallback
-            void Callback(OpenPSTD::Kernel::CALLBACKSTATUS status, std::string message, int frame);
-            void WriteFrame(int frame, int domain, OpenPSTD::Kernel::PSTD_FRAME_PTR data);
-            void WriteSample(int startSample, int receiver, std::vector<float> data);
+            std::shared_ptr<T> operator ->()
+            {
+                return m_ptr;
+            }
+            std::shared_ptr<T> const operator ->() const
+            {
+                return m_ptr;
+            }
+        private:
+            std::shared_ptr<T> m_ptr;
+            std::shared_ptr<boost::recursive_mutex> m_mutex; // whatever implementation you use
+            boost::unique_lock<boost::recursive_mutex> m_lock;
         };
     }
 }
 
-#endif //OPENPSTD_SIMULATELOPERATION_H
+
+#endif //OPENPSTD_LOCKING_PTR_H
