@@ -50,12 +50,9 @@ namespace OpenPSTD
             };
 
             std::unique_ptr<QOpenGLShaderProgram> program;
-            GLuint colormapID;
             GLuint texCoordsBuffer;
             std::vector<DomainGLInfo> RenderInfo;
 
-            void CreateColormap(std::shared_ptr<Model> const &m,
-                                std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
         public:
             ResultsLayer();
 

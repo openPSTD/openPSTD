@@ -37,25 +37,6 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-        void ResultsLayer::CreateColormap(std::shared_ptr<Model> const &m,
-                                          std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
-        {
-            if (m->IsChanged())
-            {
-                std::unique_ptr<std::vector<float>> colormap = m->colorScheme->
-                        EditorDomainSignalColorGradient()->CreateRawRGBAColorMap(0, 0.10f, 512);
-
-                // "Bind" the newly created texture : all future texture functions will modify this texture
-                f->glBindTexture(GL_TEXTURE_1D, this->colormapID);
-
-                // Give the image to OpenGL
-                glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 512, 0, GL_RGBA, GL_FLOAT, colormap->data());
-
-                f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            }
-        }
-
         ResultsLayer::ResultsLayer()
         {
 
@@ -63,8 +44,6 @@ namespace OpenPSTD
 
         void ResultsLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            f->glGenTextures(1, &this->colormapID);
-            GLError("ResultsLayer:: f->glGenTextures(1, &this->colormapID);");
             std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Simulation2D.vert"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
@@ -79,8 +58,7 @@ namespace OpenPSTD
 
             program->setUniformValue("vmin", 0.0f);
             program->setUniformValue("vmax", 1.0f);
-            f->glUniform1i((GLuint) program->attributeLocation("colormap"), 0);
-            f->glUniform1i((GLuint) program->attributeLocation("values"), 1);
+            f->glUniform1i((GLuint) program->attributeLocation("values"), 0);
 
             std::vector<QVector2D> texCoords;
             texCoords.push_back(QVector2D(0,0));
@@ -102,10 +80,6 @@ namespace OpenPSTD
             program->enableAttributeArray("a_position");
             program->enableAttributeArray("a_texcoord");
 
-            //bind color map
-            f->glActiveTexture(GL_TEXTURE0);
-            f->glBindTexture(GL_TEXTURE_1D, this->colormapID);
-
             //tex_coords
             f->glBindBuffer(GL_ARRAY_BUFFER, this->texCoordsBuffer);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_texcoord"), 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -113,7 +87,7 @@ namespace OpenPSTD
             for(auto info : this->RenderInfo)
             {
                 //bind values texture of subdomain
-                f->glActiveTexture(GL_TEXTURE1);
+                f->glActiveTexture(GL_TEXTURE0);
                 f->glBindTexture(GL_TEXTURE_2D, info.texture);
 
                 //positions of sub domain
@@ -131,8 +105,6 @@ namespace OpenPSTD
         void ResultsLayer::UpdateScene(std::shared_ptr<Model> const &m,
                                        std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            CreateColormap(m, f);
-
             program->bind();
             if (m->view->IsChanged())
             {
@@ -165,11 +137,9 @@ namespace OpenPSTD
                 this->RenderInfo.clear();
                 if(frame >= 0)
                 {
-                    std::cout << frame << "\t";
                     for (int i = 0; i < doc->GetResultsDomainCount(); i++)
                     {
                         int frameCount = doc->GetResultsFrameCount(i);
-                        std::cout << i << "|" << frameCount << "\t";
                         if (frame < frameCount)
                         {
                             DomainGLInfo info;
@@ -224,7 +194,6 @@ namespace OpenPSTD
                             this->RenderInfo.push_back(info);
                         }
                     }
-                    std::cout << std::endl;
                 }
 
                 //delete the unused buffers and textures(most of the time this is none)
@@ -241,8 +210,6 @@ namespace OpenPSTD
                     ReUseTexture.pop();
                     f->glDeleteTextures(1, &t);
                 }
-
-                std::cout << "domains updated: " << this->RenderInfo.size() << std::endl;
             }
         }
 

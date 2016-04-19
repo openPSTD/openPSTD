@@ -90,10 +90,10 @@ namespace OpenPSTD
                 : QOpenGLWidget(parent), layers()
         {
             this->layers.push_back(std::make_shared<ResultsLayer>());
-            //this->layers.push_back(std::make_shared<GridLayer>());
+            this->layers.push_back(std::make_shared<GridLayer>());
             this->layers.push_back(std::make_shared<SceneLayer>());
-            //this->layers.push_back(std::make_shared<IconLayer>());
-            //this->layers.push_back(std::make_shared<InteractiveLayer>());
+            this->layers.push_back(std::make_shared<IconLayer>());
+            this->layers.push_back(std::make_shared<InteractiveLayer>());
         }
 
         void Viewer2D::SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner)
