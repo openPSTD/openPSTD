@@ -165,7 +165,7 @@ namespace OpenPSTD
              * Backend, the back end should be automatically closed(by the unique_ptr)
              */
             std::unique_ptr<unqlite, int (*)(unqlite *)> backend;
-
+            bool changed;
             boost::recursive_mutex backendMutex;
 
             /**
@@ -335,6 +335,10 @@ namespace OpenPSTD
              */
             //todo implement
             //void Compress();
+
+
+            OPENPSTD_SHARED_EXPORT void Commit();
+            OPENPSTD_SHARED_EXPORT void Rollback();
 
 
             /**

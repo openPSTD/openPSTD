@@ -27,11 +27,6 @@ namespace OpenPSTD
             std::shared_ptr<PSTDFile> d;
             boost::filesystem::path realPath;
 
-            OPENPSTD_SHARED_NO_EXPORT boost::filesystem::path GetTempPath();
-
-            OPENPSTD_SHARED_NO_EXPORT void InternalClose();
-            OPENPSTD_SHARED_NO_EXPORT void InternalOpen();
-
         public:
             OPENPSTD_SHARED_EXPORT ~PSTDFileAccess();
 

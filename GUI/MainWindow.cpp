@@ -252,7 +252,6 @@ namespace OpenPSTD
         void MainWindow::UpdateDisableWidgets(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
             ui->actionSave->setEnabled(model->documentAccess->IsDocumentLoaded());
-            ui->actionSave_as->setEnabled(model->documentAccess->IsDocumentLoaded());
             ui->actionMove_scene->setEnabled(model->documentAccess->IsDocumentLoaded());
             ui->actionView_complete_scene->setEnabled(model->documentAccess->IsDocumentLoaded());
 
