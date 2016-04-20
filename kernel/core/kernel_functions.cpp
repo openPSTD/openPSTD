@@ -253,7 +253,7 @@ namespace OpenPSTD {
                         Map<Matrix<float, Dynamic, Dynamic, RowMajor>>(in_buffer, fft_batch, fft_length).array();
 
                 //ifft result contains the outer domains, so slice
-                result = derived_array.leftCols(wlen + p2.cols()-1).rightCols(p2.cols() - 1);
+                result = derived_array.leftCols(wlen + p2.cols()).rightCols(p2.cols() - 1);
                 result = result / fft_length; // normalize to compensate for fftw roundtrip gain
             }
             if (direct == CalcDirection::Y) {
