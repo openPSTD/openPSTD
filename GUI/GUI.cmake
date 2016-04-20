@@ -46,7 +46,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/Snapping.cpp
         GUI/PstdAlgorithm.cpp
         GUI/Edges.cpp
-        GUI/Settings.cpp)
+        GUI/Settings.cpp
+        GUI/ExportImage.cpp )
 
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main.cpp)
 

@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date: 19-4-2016
+// Date: 20-4-2016
 //
 //
 // Authors: M. R. Fortuin
@@ -29,66 +29,43 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_LOCKING_PTR_H
-#define OPENPSTD_LOCKING_PTR_H
+#ifndef OPENPSTD_EXPORTIMAGE_H
+#define OPENPSTD_EXPORTIMAGE_H
 
+#include <ui_ExportImage.h>
 #include <memory>
-#include <boost/thread.hpp>
+#include <string>
+#include "operations/FileOperations.h"
+
 namespace OpenPSTD
 {
-    namespace Shared
+    namespace GUI
     {
-        template<class T>
-        class locking_ptr
+        class ExportImage : public QDialog
         {
+        Q_OBJECT
+
         public:
-            locking_ptr()
-                    : m_ptr(nullptr),
-                      m_mutex(nullptr),
-                      m_lock(nullptr)
-            {
-            }
+            explicit ExportImage(int maxFrame, QWidget *parent = 0);
 
-            locking_ptr(std::shared_ptr<T> ptr, std::shared_ptr<boost::recursive_mutex> mutex)
-                    : m_ptr(ptr),
-                      m_mutex(mutex),
-                      m_lock(new boost::unique_lock<boost::recursive_mutex>(*m_mutex))
-            {
-            }
-
-            std::shared_ptr<T> operator ->()
-            {
-                return m_ptr;
-            }
-            std::shared_ptr<T> const operator ->() const
-            {
-                return m_ptr;
-            }
-
-            /**
-             * Warning this one is not locked, with the same locking api, but some api's have to use this
-             */
-            std::shared_ptr<T> get()
-            {
-                return m_ptr;
-            }
-            /**
-             * Warning this one is not locked, with the same locking api, but some api's have to use this
-             */
-            std::shared_ptr<T> const get() const
-            {
-                return m_ptr;
-            }
-
+            int GetStartFrame();
+            int GetEndFrame();
+            std::string GetDirectory();
+            std::string GetName();
+            ImageFormat GetFormat();
 
 
         private:
-            std::shared_ptr<T> m_ptr;
-            std::shared_ptr<boost::recursive_mutex> m_mutex;
-            std::unique_ptr<boost::unique_lock<boost::recursive_mutex>> m_lock;
+            std::unique_ptr<Ui_ExportImage> ui;
+
+            void UpdateEnabling();
+            void UpdateEnablingI(int i) {UpdateEnabling();};
+            void UpdateEnablingS(QString &text) {UpdateEnabling();};
+
+            void Browse();
         };
     }
 }
 
 
-#endif //OPENPSTD_LOCKING_PTR_H
+#endif //OPENPSTD_EXPORTIMAGE_H

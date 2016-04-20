@@ -28,6 +28,8 @@
 
 
 #include "MainWindow.h"
+#include "AboutBoxesText.h"
+#include "ExportImage.h"
 #include <QFileDialog>
 #include "operations/FileOperations.h"
 #include "operations/MouseOperations.h"
@@ -36,7 +38,6 @@
 #include "operations/ViewOperations.h"
 #include "operations/long/LOperationOperation.h"
 #include "operations/long/SimulateLOperation.h"
-#include "AboutBoxesText.h"
 #include "mouse/MouseSelectStrategy.h"
 #include "mouse/MouseMoveSceneStrategy.h"
 #include "mouse/MouseCreateDomainStrategy.h"
@@ -98,6 +99,8 @@ namespace OpenPSTD
             QObject::connect(ui->actionNew, &QAction::triggered, this, &MainWindow::New);
             QObject::connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::Open);
             QObject::connect(ui->actionSave, &QAction::triggered, this, &MainWindow::Save);
+            QObject::connect(ui->actionExport_Image, &QAction::triggered, this, &MainWindow::ExportImage);
+            QObject::connect(ui->actionExport_HDF5, &QAction::triggered, this, &MainWindow::ExportHDF5);
             QObject::connect(ui->actionMove_scene, &QAction::triggered, this,
                              [&](bool checked) {
                                  ChangeMouseHandler(ui->actionMove_scene,
@@ -151,23 +154,25 @@ namespace OpenPSTD
 
         void MainWindow::UpdateFromModel(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
+            Shared::locking_ptr <Shared::PSTDFile> doc;
             if(model->documentAccess->IsDocumentLoaded())
+            {
+                doc = model->documentAccess->GetDocument();
                 this->setWindowTitle(QString::fromStdString("OpenPSTD - " + model->documentAccess->GetFilename()));
+            }
             else
                 this->setWindowTitle(QString::fromStdString("OpenPSTD - No document loaded"));
 
             ui->mainView->UpdateFromModel(model);
             ui->mainView->update();
 
-            this->UpdateDisableWidgets(model, worker);
-            this->UpdateHsbFrame(model, worker);
-
             applicationSettings->UpdateFromModel(model);
+            this->UpdateDisableWidgets(model, worker);
 
             if(model->documentAccess->IsDocumentLoaded())
             {
+                this->UpdateHsbFrame(model, worker);
                 documentSettings->UpdateFromModel(model);
-
                 if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
                 {
                     auto conf = model->documentAccess->GetDocument()->GetSceneConf();
@@ -264,12 +269,12 @@ namespace OpenPSTD
             ui->actionDocument_Settings->setEnabled(documentEdit);
             ui->actionStart_simulation->setEnabled(documentEdit);
             ui->actionApplication_Settings->setEnabled(documentEdit);
+            ui->actionExport_Image->setEnabled(documentEdit);
+            ui->actionExport_HDF5->setEnabled(documentEdit);
 
             ui->actionDelete_selected->setEnabled(documentEdit && model->interactive->Selection.Type != SELECTION_NONE);
             ui->actionEdit_properties_of_domain->setEnabled(documentEdit && model->interactive->Selection.Type == SELECTION_DOMAIN);
             ui->actionResize_domain->setEnabled(documentEdit && model->interactive->Selection.Type == SELECTION_DOMAIN);
-
-
         }
 
 
@@ -287,13 +292,14 @@ namespace OpenPSTD
                 {
                     int frameCount = doc->GetResultsFrameCount(d);
                     anyFrame |= frameCount > 0;
-                    max = std::max(max, frameCount);
+                    max = std::max(max, frameCount-1);
                 }
 
                 ui->hsbFrame->setEnabled(anyFrame);
                 ui->hsbFrame->setMaximum(max);
                 ui->hsbFrame->setMinimum(0);
                 ui->hsbFrame->setValue(anyFrame?model->interactive->visibleFrame:0);
+                this->maxFrame = max;
             }
             else
             {
@@ -332,6 +338,32 @@ namespace OpenPSTD
         void MainWindow::hsbFrameChanged(int value)
         {
             this->operationRunner.lock()->RunOperation(std::make_shared<ChangeViewingFrame>(value));
+        }
+
+        void MainWindow::ExportHDF5()
+        {
+            QString fileName = QFileDialog::getSaveFileName(this, tr("Export to HDF5"), QString(),
+                                                            tr("HDF5 file (*.h5)"));
+            if (!fileName.isNull())
+            {
+                auto op = std::make_shared<ExportToHDF5Operation>(fileName.toStdString());
+                this->operationRunner.lock()->RunOperation(op);
+            }
+        }
+
+        void MainWindow::ExportImage()
+        {
+            std::unique_ptr<GUI::ExportImage> ui_exportImage(new GUI::ExportImage(maxFrame));
+            if (ui_exportImage->exec() == QDialog::Accepted)
+            {
+                auto op = std::make_shared<ExportToImageOperation>(
+                        ui_exportImage->GetDirectory(),
+                        ui_exportImage->GetName(),
+                        ui_exportImage->GetFormat());
+                op->startFrame = ui_exportImage->GetStartFrame();
+                op->endFrame = ui_exportImage->GetEndFrame();
+                this->operationRunner.lock()->RunOperation(op);
+            }
         }
 
 
