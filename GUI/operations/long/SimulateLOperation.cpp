@@ -64,15 +64,17 @@ void SimulateLOperation::Run(const Reciever &reciever)
 {
     this->started = true;
     this->pstdFileAccess = reciever.model->documentAccess;
-    auto doc = this->pstdFileAccess->GetDocument();
+    std::shared_ptr<PSTDConfiguration> conf;
+    {
+        auto doc = this->pstdFileAccess->GetDocument();
 
-    //make room in the document for results
-    doc->DeleteResults();
-    doc->InitializeResults();
+        //make room in the document for results
+        doc->DeleteResults();
+        doc->InitializeResults();
 
-    //get the configuration
-    auto conf = doc->GetResultsSceneConf();
-
+        //get the configuration
+        conf = doc->GetResultsSceneConf();
+    }//make sure the doc ptr does not exist (release of the lock)
     //create and initialize kernel
     std::unique_ptr<KernelInterface> kernel;
     if(reciever.model->settings->UseMockKernel)
