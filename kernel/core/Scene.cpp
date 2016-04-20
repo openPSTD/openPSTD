@@ -266,7 +266,10 @@ namespace OpenPSTD {
 
         void Scene::add_speaker(const float x, const float y, const float z) {
             // Do not really need to be on the heap. Doing it now for consistency with Receiver.
-            vector<float> grid_like_location = {x, y, z};
+
+            // Put 0,0 at the actual point 0,0 instead of in the middle of the first pressure sample
+            float dx_2 = this->settings->GetGridSpacing()/2;
+            vector<float> grid_like_location = {x-dx_2, y-dx_2, z-dx_2};
             shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 speaker->addDomainContribution(domain_list.at(i));
