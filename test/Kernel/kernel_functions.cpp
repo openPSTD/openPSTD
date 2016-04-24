@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
         float max_rho = 1E10;
         Array<float, 4, 2> velocity;
         Array<float, 4, 2> pressure;
-        velocity << -1, 1, 0, 0, 2, 0, 1, 1;
+        velocity << -1, 1, 0, 0, 0, 2, 1, 1;
         pressure << 1, -1, 0, 0, 2, 0, 1, 1;
         RhoArray rhoArray = get_rho_array(max_rho, air_dens, air_dens);
         BOOST_CHECK(rhoArray.pressure.isApprox(pressure));
