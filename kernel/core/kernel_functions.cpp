@@ -126,6 +126,31 @@ namespace OpenPSTD {
                            CalculationType ct, CalcDirection direct,
                            fftwf_plan plan, fftwf_plan plan_inv) {
 
+            //debug stuff
+            int writenum;
+            static int writenum_px = 0;
+            static int writenum_py = 0;
+            static int writenum_vx = 0;
+            static int writenum_vy = 0;
+            if(direct==CalcDirection::Y) {
+                if(ct==CalculationType::VELOCITY) {
+                    writenum_vy++;
+                    writenum = writenum_vy++;
+                } else {
+                    writenum_py++;
+                    writenum = writenum_py++;
+                }
+            } else {
+                if(ct==CalculationType::VELOCITY) {
+                    writenum_vx++;
+                    writenum = writenum_vx++;
+                } else {
+                    writenum_px++;
+                    writenum = writenum_px++;
+                }
+            } // end debug stuff
+
+
             //if direct == Y, transpose p1, p2 and p3
             if (direct == CalcDirection::Y) {
                 p1.transposeInPlace();
@@ -239,6 +264,9 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
+                //debug
+                //write_array_to_file(windowed_data, "windowed_data_cpp_v", 0);
+
                 //maybe optimize this away later (rearrange fft input or change calls above)
                 fft_input_data = windowed_data.transpose();
 
@@ -250,12 +278,20 @@ namespace OpenPSTD {
                 typedef Matrix<std::complex<float>, Dynamic, Dynamic, RowMajor> ArrayXXcfrm;
                 Map<ArrayXXcfrm> spectrum_array((std::complex<float> *) out_buffer[0], fft_batch, fft_length / 2 + 1);
 
+                //debug
+                //write_array_to_file(spectrum_array.array().real(), "cppspecr", 0);
+                //write_array_to_file(spectrum_array.array().imag(), "cppspeci", 0);
+
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
+
                 fftwf_execute_dft_c2r(plan_inv, out_buffer, in_buffer);
 
                 Matrix<float, Dynamic, Dynamic, RowMajor> derived_array =
                         Map<Matrix<float, Dynamic, Dynamic, RowMajor>>(in_buffer, fft_batch, fft_length).array();
+
+                //debug
+                //write_array_to_file(derived_array, "cppderarr", 0);
 
                 //ifft result contains the outer domains, so slice
                 result = derived_array.leftCols(wlen + p2.cols()).rightCols(p2.cols() - 1);

@@ -107,10 +107,11 @@ namespace OpenPSTD {
             float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
             std::vector<float> coefs = this->settings->GetRKCoefficients();
             if (!domain->is_pml) {
-                write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
-                write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
-                write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
-                write_array_to_file(domain->current_values.vy0, "velocity_y", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.px0+domain->current_values.py0, "pressure_tot", frame * 6 + rk_step);
+                //write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
+                //write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
+                //write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
+                //write_array_to_file(domain->current_values.vy0, "velocity_y", frame * 6 + rk_step);
             }
             domain->current_values.vx0 =
                     domain->previous_values.vx0 - dt * coefs.at(rk_step) * (domain->l_values.Lpx / domain->rho);
@@ -123,10 +124,10 @@ namespace OpenPSTD {
 
             if (!domain->is_pml) {
                 this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + std::to_string(rk_step), 0);
-                write_array_to_file(domain->l_values.Lpx, "pressure_deriv_x", frame * 6 + rk_step);
-                write_array_to_file(domain->l_values.Lpy, "pressure_deriv_y", frame * 6 + rk_step);
-                write_array_to_file(domain->l_values.Lvx, "velocity_deriv_x", frame * 6 + rk_step);
-                write_array_to_file(domain->l_values.Lvy, "velocity_deriv_y", frame * 6 + rk_step);
+                //write_array_to_file(domain->l_values.Lpx, "pressure_deriv_x", frame * 6 + rk_step);
+                //write_array_to_file(domain->l_values.Lpy, "pressure_deriv_y", frame * 6 + rk_step);
+                //write_array_to_file(domain->l_values.Lvx, "velocity_deriv_x", frame * 6 + rk_step);
+                //write_array_to_file(domain->l_values.Lvy, "velocity_deriv_y", frame * 6 + rk_step);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
                                          "vx0 max: " + std::to_string(domain->current_values.vx0.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
