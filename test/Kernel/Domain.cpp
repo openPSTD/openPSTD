@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Domains.clear();
         config->Domains.push_back(domain1);
         config->Speakers.clear();
-        config->Speakers.push_back(QVector3D(4,5,0));
+        config->Speakers.push_back(QVector3D(4.1, 5.1, 0));
         BOOST_CHECK(config->Domains.size() == 1);
         Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
 
@@ -198,7 +198,6 @@ BOOST_AUTO_TEST_SUITE(domain)
         // Bandwidth is 21 491;
 
         // Check center to be 1
-        cout << domain->current_values.p0;
         BOOST_CHECK_EQUAL(domain->current_values.p0(25, 20), 1);
         // Check symmetry
         BOOST_CHECK_EQUAL(domain->current_values.p0(24, 20), domain->current_values.p0(25, 21));
