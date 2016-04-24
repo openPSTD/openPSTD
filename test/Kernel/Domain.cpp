@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Domains.clear();
         config->Domains.push_back(domain1);
         config->Speakers.clear();
-        config->Speakers.push_back(QVector3D(4, 5, 0));
+        config->Speakers.push_back(QVector3D(4.1, 5.1, 0));
         BOOST_CHECK(config->Domains.size() == 1);
         Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
 
