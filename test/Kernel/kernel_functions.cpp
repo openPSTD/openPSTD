@@ -128,22 +128,7 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
         Eigen::ArrayXXf spatexpectation_pressin(4, 51), spatexpectation_velosin(4, 50);
         spatexpectation_pressin = d2v.cos();
         spatexpectation_velosin = d2p.cos();
-
-        std::cout << "\n\n\n";
-        for (int i=0; i<1; i++) {
-            for (int j=0; j<50; j++) {
-                std::cout << spatexpectation_pressin(i,j) << ", ";
-                std::cout << spatresult_pressin(i,j) << "\n";
-            }
-        }
-        std::cout << "\n\n\n";
-        for (int i=0; i<1; i++) {
-            for (int j=0; j<50; j++) {
-                std::cout << spatexpectation_velosin(i,j) << ", ";
-                std::cout << spatresult_velosin(i,j) << "\n";
-            }
-        }
-        std::cout << "\n\n\n";
+        
         BOOST_CHECK(spatexpectation_pressin.isApprox(spatresult_pressin));
         BOOST_CHECK(spatexpectation_velosin.isApprox(spatresult_velosin));
     }
