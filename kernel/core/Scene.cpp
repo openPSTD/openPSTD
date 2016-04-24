@@ -268,7 +268,7 @@ namespace OpenPSTD {
             // Do not really need to be on the heap. Doing it now for consistency with Receiver.
 
             // Put 0,0 at the actual point 0,0 instead of in the middle of the first pressure sample
-            float dx_2 = this->settings->GetGridSpacing()/2;
+            float dx_2 = 0.5; // we're in pressure grid coordinates here, so -0.5 is really 0.5
             vector<float> grid_like_location = {x-dx_2, y-dx_2, z-dx_2};
             shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
             for (unsigned long i = 0; i < domain_list.size(); i++) {

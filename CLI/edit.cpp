@@ -78,7 +78,7 @@ namespace OpenPSTD
 
         void validate(boost::any &v, const std::vector<std::string> &values, CLIEdgeAbsorption *, int)
         {
-            static regex r("\\(([^,]*),([tdlr]),([^,]*)\\)");
+            static regex r("\\(([^,]*),([tblr]),([^,]*)\\)");
 
             validators::check_first_occurrence(v);
             const std::string &s = validators::get_single_string(values);
@@ -87,10 +87,10 @@ namespace OpenPSTD
             if (regex_match(s, match, r))
             {
                 char edge;
-                if (match[2].compare("l")) edge = 'l';
-                else if (match[2].compare("r")) edge = 'r';
-                else if (match[2].compare("t")) edge = 't';
-                else if (match[2].compare("b")) edge = 'b';
+                if (!match[2].compare("l")) edge = 'l';
+                else if (!match[2].compare("r")) edge = 'r';
+                else if (!match[2].compare("t")) edge = 't';
+                else if (!match[2].compare("b")) edge = 'b';
                 v = any(CLIEdgeAbsorption(lexical_cast<int>(match[1]), edge, lexical_cast<float>(match[3])));
             }
             else

@@ -68,7 +68,7 @@ namespace OpenPSTD {
                 this->pml_for_domain_list.push_back(pml_for_domain);
             }
             if (this->is_rigid()) {
-                this->rho = 1E200;
+                this->rho = 1E30;
             }
             else {
                 this->rho = this->settings->GetDensityOfAir();
