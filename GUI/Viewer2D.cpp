@@ -44,10 +44,11 @@
 #include <math.h>
 #include <string>
 #include <memory>
-#include "GridLayer.h"
-#include "SceneLayer.h"
-#include "IconLayer.h"
-#include "InteractiveLayer.h"
+#include "layers/GridLayer.h"
+#include "layers/SceneLayer.h"
+#include "layers/IconLayer.h"
+#include "layers/InteractiveLayer.h"
+#include "layers/ResultsLayer.h"
 #include <boost/lexical_cast.hpp>
 #include "operations/ViewOperations.h"
 #include "operations/LambdaOperation.h"
@@ -88,6 +89,7 @@ namespace OpenPSTD
         Viewer2D::Viewer2D(QWidget *parent)
                 : QOpenGLWidget(parent), layers()
         {
+            this->layers.push_back(std::make_shared<ResultsLayer>());
             this->layers.push_back(std::make_shared<GridLayer>());
             this->layers.push_back(std::make_shared<SceneLayer>());
             this->layers.push_back(std::make_shared<IconLayer>());
@@ -112,6 +114,7 @@ namespace OpenPSTD
                     this->layers[i]->PaintGL(this, f);
                     GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->PaintGL");
                 }
+                f->glActiveTexture(GL_TEXTURE0);
             }
         }
 
@@ -120,15 +123,34 @@ namespace OpenPSTD
             std::unique_ptr<QOpenGLFunctions, void (*)(void *)> f(QOpenGLContext::currentContext()->functions(),
                                                                   DeleteNothing);
 
+            const GLubyte * vendor = f->glGetString(GL_VENDOR);
+            const GLubyte * renderer = f->glGetString(GL_RENDERER);
+            const GLubyte * version = f->glGetString(GL_VERSION);
+            const GLubyte * shadingLanguageVersion = f->glGetString(GL_SHADING_LANGUAGE_VERSION);
+            int major, minor;
+            f->glGetIntegerv(GL_MAJOR_VERSION, &major);
+            f->glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+            std::cout << "Vendor: " << vendor << std::endl;
+            std::cout << "Renderer: " << renderer << std::endl;
+            std::cout << "Version: " << version << std::endl;
+            std::cout << "Shading language version: " << shadingLanguageVersion << std::endl;
+            std::cout << "OpenGL version: " << major << "." << minor << std::endl;
+
             f->glClearColor(0, 0, 0, 1);
 
             f->glDisable(GL_CULL_FACE);
+            f->glDisable(GL_TEXTURE_2D);
+            GLError("Viewer2D:: f->glEnable");
 
             for (int i = 0; i < this->layers.size(); i++)
             {
                 this->layers[i]->InitializeGL(this, f);
                 GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->InitializeGL");
             }
+            f->glActiveTexture(GL_TEXTURE0);
+
+
         }
 
         void Viewer2D::resizeGL(int w, int h)
@@ -173,6 +195,7 @@ namespace OpenPSTD
                     GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->UpdateScene");
                 }
             }
+            f->glActiveTexture(GL_TEXTURE0);
         }
 
         MinMaxValue::MinMaxValue()

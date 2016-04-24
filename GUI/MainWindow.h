@@ -68,6 +68,7 @@ namespace OpenPSTD
             QLabel* statusbarLabel;
             QTimer* updateTimer;
             std::vector<QAction *> MouseHandlersActions;
+            int maxFrame;
 
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
 
@@ -92,6 +93,8 @@ namespace OpenPSTD
             void Open();
 
             void Save();
+            void ExportHDF5();
+            void ExportImage();
 
 
         };

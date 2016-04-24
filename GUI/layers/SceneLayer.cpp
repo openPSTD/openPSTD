@@ -28,7 +28,7 @@
 
 
 #include "SceneLayer.h"
-#include "Edges.h"
+#include "GUI/Edges.h"
 
 namespace OpenPSTD
 {
@@ -63,6 +63,7 @@ namespace OpenPSTD
 
             program->setUniformValue("vmin", 0.0f);
             program->setUniformValue("vmax", 1.0f);
+            f->glUniform1i((GLuint) program->attributeLocation("colormap"), 0);
         }
 
         void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
@@ -79,12 +80,14 @@ namespace OpenPSTD
 
             f->glActiveTexture(GL_TEXTURE0);
             f->glBindTexture(GL_TEXTURE_1D, this->textureID);
-            f->glUniform1i((GLuint) program->attributeLocation("colormap"), GL_TEXTURE0);
 
             f->glLineWidth(5.0f);
             f->glDrawArrays(GL_LINES, 0, lines * 2);
             program->disableAttributeArray("a_position");
             program->disableAttributeArray("a_value");
+
+            f->glBindTexture(GL_TEXTURE_1D, 0);
+            f->glActiveTexture(GL_TEXTURE0);
         }
 
         void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m,

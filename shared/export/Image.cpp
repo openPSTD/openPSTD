@@ -35,7 +35,7 @@ namespace OpenPSTD
                                      int endFrame)
         {
             Kernel::MockKernel k;
-            k.initialize_kernel(file->GetSceneConf());
+            k.initialize_kernel(file->GetResultsSceneConf());
             auto metadata = k.get_metadata();
 
             if (domains.size() == 0)

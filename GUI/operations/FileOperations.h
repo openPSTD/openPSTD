@@ -83,6 +83,38 @@ namespace OpenPSTD
             std::string filename;
         };
 
+        class ExportToHDF5Operation : public BaseOperation
+        {
+        public:
+            ExportToHDF5Operation(std::string filename);
+
+            virtual void Run(const Reciever &reciever) override;
+
+        private:
+            std::string filename;
+        };
+
+        enum class ImageFormat
+        {
+            PNG,
+            BMP,
+            JPG
+        };
+
+        class ExportToImageOperation : public BaseOperation
+        {
+        public:
+            ExportToImageOperation(std::string directory, std::string name, OpenPSTD::GUI::ImageFormat format);
+
+            virtual void Run(const Reciever &reciever) override;
+
+            std::string directory;
+            std::string name;
+            int startFrame;
+            int endFrame;
+            ImageFormat format;
+        };
+
     }
 }
 

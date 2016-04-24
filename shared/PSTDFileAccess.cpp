@@ -11,105 +11,76 @@ namespace OpenPSTD
 {
     namespace Shared
     {
+        OPENPSTD_SHARED_EXPORT PSTDFileAccess::PSTDFileAccess():
+                mutex(std::make_shared<boost::recursive_mutex>())
+        {
+        }
+
         OPENPSTD_SHARED_EXPORT PSTDFileAccess::~PSTDFileAccess()
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             this->Close();
         }
 
-        OPENPSTD_SHARED_EXPORT std::shared_ptr<PSTDFile> PSTDFileAccess::GetDocument()
+        OPENPSTD_SHARED_EXPORT locking_ptr<PSTDFile> PSTDFileAccess::GetDocument()
         {
-            return this->d;
+            return locking_ptr<PSTDFile>(this->d, this->mutex);
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::New(path filename)
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             this->realPath = path(filename.c_str());
-            path tempFilename = this->GetTempPath();
 
             if(exists(this->realPath))
             {
-                //todo handle this with an exception
                 remove(this->realPath);
             }
-            // create file
-            {
-                PSTDFile::New(this->realPath);
-            } //make sure the destructor is called
-
-            if(exists(tempFilename))
-            {
-                //todo handle this with an exception
-                remove(tempFilename);
-            }
-            //copy the file
-            copy_file(this->realPath, tempFilename);
-
-            //opens the temporary file
-            this->InternalOpen();
-
+            this->d = PSTDFile::New(this->realPath);
             this->Change();
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::Open(path filename)
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             this->realPath = path(filename.c_str());
-            path tempFilename = this->GetTempPath();
-
-            // copy file
-            copy_file(this->realPath, tempFilename);
-
-            // open file
-            this->InternalOpen();
-
+            this->d = PSTDFile::Open(this->realPath);
             this->Change();
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::Save()
         {
-            this->InternalClose();
-            path tempFilename = this->GetTempPath();
-
-            if(exists(this->realPath))
-            {
-                remove(this->realPath);
-            }
-            // copy file
-            copy_file(tempFilename, this->realPath);
-            //todo: compress
-            this->InternalOpen();
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
+            this->d->Commit();
             this->Change();
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::SaveAs(path filename)
         {
-            this->InternalClose();
-            path tempFilename = this->GetTempPath();
-            copy_file(tempFilename, filename);
-            this->Open(filename);
-            //todo: compress
-            this->InternalOpen();
-            this->Change();
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
+            throw "Not implemented";
         }
 
         OPENPSTD_SHARED_EXPORT void PSTDFileAccess::Close()
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             if(this->d)
             {
-                this->InternalClose();
-                remove(GetTempPath());
-
+                if(this->d.use_count() == 1)
+                {
+                    this->d = nullptr;
+                }
+                else
+                {
+                    throw PSTDFileAccessInUseException();
+                }
                 this->Change();
             }
         }
 
-        OPENPSTD_SHARED_NO_EXPORT path PSTDFileAccess::GetTempPath()
-        {
-            path s = this->realPath.string() + "-temp";
-            return s;
-        }
-
         OPENPSTD_SHARED_EXPORT bool PSTDFileAccess::IsChanged()
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             if(this->d)
             {
                 return InvalidationData::IsChanged() || this->d->IsChanged();
@@ -120,25 +91,9 @@ namespace OpenPSTD
             }
         }
 
-        OPENPSTD_SHARED_NO_EXPORT void PSTDFileAccess::InternalClose()
-        {
-            if(this->d.use_count() == 1)
-            {
-                this->d = nullptr;
-            }
-            else
-            {
-                throw PSTDFileAccessInUseException();
-            }
-        }
-
-        OPENPSTD_SHARED_NO_EXPORT void PSTDFileAccess::InternalOpen()
-        {
-            this->d = PSTDFile::Open(this->GetTempPath());
-        }
-
         OPENPSTD_SHARED_EXPORT bool PSTDFileAccess::IsDocumentLoaded()
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             if(this->d)
                 return true;
             else
@@ -147,6 +102,7 @@ namespace OpenPSTD
 
         OPENPSTD_SHARED_EXPORT std::string PSTDFileAccess::GetFilename()
         {
+            boost::unique_lock<boost::recursive_mutex> m_lock(*this->mutex);
             std::string result = this->realPath.filename().string();
             return result;
         }

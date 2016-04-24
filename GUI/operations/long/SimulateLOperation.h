@@ -34,7 +34,7 @@
 
 #include "LongOperationRunner.h"
 #include <kernel/KernelInterface.h>
-#include <shared/PSTDFile.h>
+#include <shared/PSTDFileAccess.h>
 
 namespace OpenPSTD
 {
@@ -47,7 +47,7 @@ namespace OpenPSTD
         class SimulateLOperation : public LongOperation, public OpenPSTD::Kernel::KernelCallback
         {
         private:
-            std::shared_ptr<OpenPSTD::Shared::PSTDFile> pstdFile;
+            std::shared_ptr<OpenPSTD::Shared::PSTDFileAccess> pstdFileAccess;
             OpenPSTD::Kernel::SimulationMetadata metadata;
             int currentFrame;
             bool started;

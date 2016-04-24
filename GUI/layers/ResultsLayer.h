@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
 // This file is part of openPSTD.                                       //
 //                                                                      //
 // openPSTD is free software: you can redistribute it and/or modify     //
@@ -17,28 +16,56 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#version 330
+//////////////////////////////////////////////////////////////////////////
+//
+// Date: 16-4-2016
+//
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
+//
+//////////////////////////////////////////////////////////////////////////
 
-uniform float vmin;
-uniform float vmax;
+#ifndef OPENPSTD_RESULTSLAYER_H
+#define OPENPSTD_RESULTSLAYER_H
 
-in vec2 v_texcoord;
+#include "../Viewer2D.h"
+#include <vector>
 
-uniform sampler2D values;
-
-void main()
+namespace OpenPSTD
 {
-    float value = texture2D(values, v_texcoord).r;
-
-    if(value < vmin)
+    namespace GUI
     {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
+        class ResultsLayer: public Layer
+        {
+        private:
+            struct DomainGLInfo
+            {
+            public:
+                GLuint texture;
+                GLuint positionsBuffer;
+            };
 
-    value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = vec4(value, 0, 0, 1);
+            std::unique_ptr<QOpenGLShaderProgram> program;
+            GLuint texCoordsBuffer;
+            std::vector<DomainGLInfo> RenderInfo;
+
+        public:
+            ResultsLayer();
+
+            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual void UpdateScene(std::shared_ptr<Model> const &m,
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual MinMaxValue GetMinMax();
+        };
+    }
 }
+
+#endif //OPENPSTD_RESULTSLAYER_H

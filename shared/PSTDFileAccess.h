@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <boost/filesystem.hpp>
+#include "locking_ptr.h"
 
 namespace OpenPSTD
 {
@@ -26,16 +27,13 @@ namespace OpenPSTD
         private:
             std::shared_ptr<PSTDFile> d;
             boost::filesystem::path realPath;
-
-            OPENPSTD_SHARED_NO_EXPORT boost::filesystem::path GetTempPath();
-
-            OPENPSTD_SHARED_NO_EXPORT void InternalClose();
-            OPENPSTD_SHARED_NO_EXPORT void InternalOpen();
+            std::shared_ptr<boost::recursive_mutex> mutex;
 
         public:
+            OPENPSTD_SHARED_EXPORT PSTDFileAccess();
             OPENPSTD_SHARED_EXPORT ~PSTDFileAccess();
 
-            OPENPSTD_SHARED_EXPORT std::shared_ptr<PSTDFile> GetDocument();
+            OPENPSTD_SHARED_EXPORT locking_ptr<PSTDFile> GetDocument();
 
             OPENPSTD_SHARED_EXPORT void New(boost::filesystem::path filename);
 

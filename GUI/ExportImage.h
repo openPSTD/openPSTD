@@ -18,54 +18,54 @@
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Date:
-//      26-8-2015
+// Date: 20-4-2016
 //
-// Authors:
-//      michiel
+//
+// Authors: M. R. Fortuin
+//
 //
 // Purpose:
 //
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_GRIDLAYER_H
-#define OPENPSTD_GRIDLAYER_H
+#ifndef OPENPSTD_EXPORTIMAGE_H
+#define OPENPSTD_EXPORTIMAGE_H
 
-#include "Viewer2D.h"
+#include <ui_ExportImage.h>
+#include <memory>
+#include <string>
+#include "operations/FileOperations.h"
 
 namespace OpenPSTD
 {
     namespace GUI
     {
-        class GridLayer : public Layer
+        class ExportImage : public QDialog
         {
-        private:
-            std::unique_ptr<QOpenGLShaderProgram> program;
-
-            void UpdateLines();
-
-            std::unique_ptr<std::vector<float>> positions;
-            unsigned int positionsBuffer;
-            int lines;
-            float gridSpacing;
-            QMatrix4x4 viewMatrix;
+        Q_OBJECT
 
         public:
-            GridLayer();
+            explicit ExportImage(int maxFrame, QWidget *parent = 0);
 
-            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+            int GetStartFrame();
+            int GetEndFrame();
+            std::string GetDirectory();
+            std::string GetName();
+            ImageFormat GetFormat();
 
-            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
-            virtual void UpdateScene(std::shared_ptr<Model> const &m,
-                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+        private:
+            std::unique_ptr<Ui_ExportImage> ui;
 
-            virtual MinMaxValue GetMinMax();
+            void UpdateEnabling();
+            void UpdateEnablingI(int i) {UpdateEnabling();};
+            void UpdateEnablingS(QString &text) {UpdateEnabling();};
 
-            float CalcIdealSpacing();
+            void Browse();
         };
-
     }
 }
-#endif //OPENPSTD_GRIDLAYER_H
+
+
+#endif //OPENPSTD_EXPORTIMAGE_H

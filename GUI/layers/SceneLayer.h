@@ -32,10 +32,10 @@
 #ifndef OPENPSTD_SCENELAYER_H
 #define OPENPSTD_SCENELAYER_H
 
-#include "Viewer2D.h"
+#include "GUI/Viewer2D.h"
 #include <vector>
 #include <tuple>
-#include "Edges.h"
+#include "GUI/Edges.h"
 
 namespace OpenPSTD
 {

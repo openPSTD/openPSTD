@@ -32,6 +32,8 @@
 
 #include "FileOperations.h"
 #include "long/LongOperationRunner.h"
+#include <shared/export/HDF5Export.h>
+#include <shared/export/Image.h>
 
 namespace OpenPSTD
 {
@@ -86,5 +88,59 @@ namespace OpenPSTD
             else
                 reciever.model->documentAccess->SaveAs(this->filename);
         }
+
+        ExportToHDF5Operation::ExportToHDF5Operation(std::string filename): filename(filename)
+        {
+
+        }
+
+        void ExportToHDF5Operation::Run(const Reciever &reciever)
+        {
+            std::vector<int> domains;
+            auto doc = reciever.model->documentAccess->GetDocument();
+            OpenPSTD::Shared::HDF5 realExport;
+            //doc-> is strange, but the API needs an shared_ptr, but the lock is kept because the locking_ptr is destroyed only
+            //when outside the scope of the method
+            realExport.ExportData("application/x-hdf", doc.get(), this->filename, domains, -1, -1);
+        }
+
+
+        ExportToImageOperation::ExportToImageOperation(std::string directory, std::string name,
+                                                          OpenPSTD::GUI::ImageFormat format): directory(directory),
+                                                                                              name(name),
+                                                                                              format(format),
+                                                                                              startFrame(0),
+                                                                                              endFrame(-1)
+        {
+
+        }
+
+        void ExportToImageOperation::Run(const Reciever &reciever)
+        {
+            auto doc = reciever.model->documentAccess->GetDocument();
+            std::vector<int> domains;
+
+            OpenPSTD::Shared::ExportImage realExport;
+            realExport.SetFullView(true);
+            std::string formatString;
+            if(this->format == ImageFormat::BMP)
+            {
+                formatString = "image/bmp";
+            }
+            else if(this->format == ImageFormat::PNG)
+            {
+                formatString = "image/png";
+            }
+            else
+            {
+                formatString = "image/jpg";
+            }
+            realExport.ExportData(formatString, doc.get(), this->directory, this->name, domains, this->startFrame, this->endFrame);
+        }
+
     }
 }
+
+
+
+

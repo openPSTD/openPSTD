@@ -63,15 +63,18 @@ bool SimulateLOperation::Cancel()
 void SimulateLOperation::Run(const Reciever &reciever)
 {
     this->started = true;
-    this->pstdFile = reciever.model->documentAccess->GetDocument();
+    this->pstdFileAccess = reciever.model->documentAccess;
+    std::shared_ptr<PSTDConfiguration> conf;
+    {
+        auto doc = this->pstdFileAccess->GetDocument();
 
-    //make room in the document for results
-    this->pstdFile->DeleteResults();
-    this->pstdFile->InitializeResults();
+        //make room in the document for results
+        doc->DeleteResults();
+        doc->InitializeResults();
 
-    //get the configuration
-    auto conf = this->pstdFile->GetResultsSceneConf();
-
+        //get the configuration
+        conf = doc->GetResultsSceneConf();
+    }//make sure the doc ptr does not exist (release of the lock)
     //create and initialize kernel
     std::unique_ptr<KernelInterface> kernel;
     if(reciever.model->settings->UseMockKernel)
@@ -115,13 +118,13 @@ void SimulateLOperation::Callback(CALLBACKSTATUS status, std::string message,
 
 void SimulateLOperation::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data)
 {
-    this->pstdFile->SaveNextResultsFrame(domain, data);
+    this->pstdFileAccess->GetDocument()->SaveNextResultsFrame(domain, data);
 }
 
 void SimulateLOperation::WriteSample(int startSample, int receiver, std::vector<float> data)
 {
     Kernel::PSTD_RECEIVER_DATA_PTR data_ptr = std::make_shared<Kernel::PSTD_RECEIVER_DATA>(data);
-    this->pstdFile->SaveReceiverData(receiver, data_ptr);
+    this->pstdFileAccess->GetDocument()->SaveReceiverData(receiver, data_ptr);
 }
 
 

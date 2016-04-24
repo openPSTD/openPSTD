@@ -145,8 +145,17 @@ namespace OpenPSTD
 
         OPENPSTD_SHARED_EXPORT const char *PSTDFileIOException::what() const noexcept
         {
-            return ("Error with '" + _action + "': error " + this->GetErrorString(_unqlite_error) + " (" + boost::lexical_cast<std::string>(_unqlite_error) +
-                    ") with key " + PSTDFileKeyToString(_key) + ")").c_str();
+            if(this->_key)
+            {
+                return ("Error with '" + _action + "': error " + this->GetErrorString(_unqlite_error) + " (" +
+                        boost::lexical_cast<std::string>(_unqlite_error) +
+                        ") with key " + PSTDFileKeyToString(_key)).c_str();
+            }
+            else
+            {
+                return ("Error with '" + _action + "': error " + this->GetErrorString(_unqlite_error) + " (" +
+                        boost::lexical_cast<std::string>(_unqlite_error) + ")").c_str();
+            }
         }
 
         OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::Open(const boost::filesystem::path &path)
@@ -155,6 +164,7 @@ namespace OpenPSTD
             std::unique_ptr<PSTDFile> result = std::unique_ptr<PSTDFile>(new PSTDFile());
             unqlite *backend;
             unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+            unqlite_config(backend, UNQLITE_CONFIG_DISABLE_AUTO_COMMIT);//commits are done by the save function
             result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
             int version = result->GetValue<int>(PSTDFile::CreateKey(PSTD_FILE_PREFIX_VERSION, {}));
             if (version != PSTD_FILE_VERSION)
@@ -167,25 +177,25 @@ namespace OpenPSTD
         OPENPSTD_SHARED_EXPORT std::unique_ptr<PSTDFile> PSTDFile::New(const boost::filesystem::path &path)
         {
             std::string filename = path.string();
-            {
-                std::unique_ptr<PSTDFile> result(new PSTDFile());
+            std::unique_ptr<PSTDFile> result(new PSTDFile());
 
-                //create db
-                unqlite *backend;
-                unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
-                result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
+            //create db
+            unqlite *backend;
+            unqlite_open(&backend, filename.c_str(), UNQLITE_OPEN_CREATE);
+            unqlite_config(backend, UNQLITE_CONFIG_DISABLE_AUTO_COMMIT);//commits are done by the save function
+            result->backend = std::unique_ptr<unqlite, int (*)(unqlite *)>(backend, unqlite_close);
 
-                //add version
-                result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_VERSION, {}), PSTD_FILE_VERSION);
+            //add version
+            result->SetValue<int>(result->CreateKey(PSTD_FILE_PREFIX_VERSION, {}), PSTD_FILE_VERSION);
 
-                //create basic geometry with default options
-                result->SetSceneConf(Kernel::PSTDConfiguration::CreateDefaultConf());
+            //create basic geometry with default options
+            result->SetSceneConf(Kernel::PSTDConfiguration::CreateDefaultConf());
 
-                //create empty geometry for results
-                result->SetSceneConf(result->CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), Kernel::PSTDConfiguration::CreateEmptyConf());
-            }
+            //create empty geometry for results
+            result->SetSceneConf(result->CreateKey(PSTD_FILE_PREFIX_RESULTS_SCENE, {}), Kernel::PSTDConfiguration::CreateEmptyConf());
 
-            return PSTDFile::Open(filename);
+            result->Commit();
+            return result;
         }
 
         OPENPSTD_SHARED_EXPORT PSTDFile::PSTDFile() : backend(nullptr, unqlite_close)
@@ -481,6 +491,24 @@ namespace OpenPSTD
         {
             std::shared_ptr<Kernel::PSTDConfiguration> conf = this->GetResultsSceneConf();
             return conf->Receivers.size();
+        }
+
+        void PSTDFile::Commit()
+        {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
+            int rc = unqlite_commit(this->backend.get());
+
+            if(rc != UNQLITE_OK)
+                throw PSTDFileIOException(rc, nullptr, "Commit");
+        }
+
+        void PSTDFile::Rollback()
+        {
+            boost::unique_lock<boost::recursive_mutex> lock(this->backendMutex);
+            int rc = unqlite_rollback(this->backend.get());
+
+            if(rc != UNQLITE_OK)
+                throw PSTDFileIOException(rc, nullptr, "Commit");
         }
 
 

@@ -26,10 +26,11 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
 # OpenGL viewer
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/Viewer2D.cpp
-        GUI/GridLayer.cpp
-        GUI/SceneLayer.cpp
-        GUI/InteractiveLayer.cpp
-        GUI/IconLayer.cpp)
+        GUI/layers/GridLayer.cpp
+        GUI/layers/SceneLayer.cpp
+        GUI/layers/InteractiveLayer.cpp
+        GUI/layers/IconLayer.cpp
+        GUI/layers/ResultsLayer.cpp)
 # UI files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/MainWindow.cpp
@@ -45,7 +46,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/Snapping.cpp
         GUI/PstdAlgorithm.cpp
         GUI/Edges.cpp
-        GUI/Settings.cpp)
+        GUI/Settings.cpp
+        GUI/ExportImage.cpp )
 
 add_executable(OpenPSTD-gui ${SOURCE_FILES_GUI} GUI/main.cpp)
 

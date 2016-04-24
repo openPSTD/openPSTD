@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
 // This file is part of openPSTD.                                       //
 //                                                                      //
 // openPSTD is free software: you can redistribute it and/or modify     //
@@ -17,28 +16,56 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#version 330
+//////////////////////////////////////////////////////////////////////////
+//
+// Date:
+//      26-8-2015
+//
+// Authors:
+//      michiel
+//
+// Purpose:
+//
+//
+//////////////////////////////////////////////////////////////////////////
 
-uniform float vmin;
-uniform float vmax;
+#ifndef OPENPSTD_GRIDLAYER_H
+#define OPENPSTD_GRIDLAYER_H
 
-in vec2 v_texcoord;
+#include "GUI/Viewer2D.h"
 
-uniform sampler2D values;
-
-void main()
+namespace OpenPSTD
 {
-    float value = texture2D(values, v_texcoord).r;
-
-    if(value < vmin)
+    namespace GUI
     {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
+        class GridLayer : public Layer
+        {
+        private:
+            std::unique_ptr<QOpenGLShaderProgram> program;
 
-    value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = vec4(value, 0, 0, 1);
+            void UpdateLines();
+
+            std::unique_ptr<std::vector<float>> positions;
+            unsigned int positionsBuffer;
+            int lines;
+            float gridSpacing;
+            QMatrix4x4 viewMatrix;
+
+        public:
+            GridLayer();
+
+            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual void UpdateScene(std::shared_ptr<Model> const &m,
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            virtual MinMaxValue GetMinMax();
+
+            float CalcIdealSpacing();
+        };
+
+    }
 }
+#endif //OPENPSTD_GRIDLAYER_H

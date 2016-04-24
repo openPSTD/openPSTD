@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Date:
-//      30-8-2015
+//      10-9-2015
 //
 // Authors:
 //      michiel
@@ -29,38 +29,41 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_INTERACTIVELAYER_H
-#define OPENPSTD_INTERACTIVELAYER_H
+#ifndef OPENPSTD_ICONLAYER_H
+#define OPENPSTD_ICONLAYER_H
 
-#include "Viewer2D.h"
+#include "GUI/Viewer2D.h"
 namespace OpenPSTD
 {
     namespace GUI
     {
-        class InteractiveLayer : public Layer
+        class IconLayer : public Layer
         {
         private:
             std::unique_ptr<QOpenGLShaderProgram> program;
-            bool addDomainVisible;
-            bool selectionVisible;
-            unsigned int newDomainBuffer;
-            unsigned int selectionBuffer;
-            QColor newDomainColor;
-            QColor selectionColor;
+            unsigned int LineBuffers;
+            unsigned int ColorBuffer;
+            unsigned int lines;
+
+            std::vector<QVector2D> GetSpeakers(std::shared_ptr<Model> const &m);
+
+            std::vector<QVector2D> GetReceivers(std::shared_ptr<Model> const &m);
+
         public:
-            InteractiveLayer();
+            IconLayer();
 
-            virtual void InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+            virtual void InitializeGL(QObject *context,
+                                      std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) override;
 
-            virtual void PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+            virtual void PaintGL(QObject *context,
+                                 std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) override;
 
             virtual void UpdateScene(std::shared_ptr<Model> const &m,
-                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) override;
 
-            virtual MinMaxValue GetMinMax();
+            virtual MinMaxValue GetMinMax() override;
         };
 
     }
 }
-
-#endif //OPENPSTD_INTERACTIVELAYER_H
+#endif //OPENPSTD_ICONLAYER_H

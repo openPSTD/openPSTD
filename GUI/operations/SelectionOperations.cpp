@@ -62,9 +62,10 @@ namespace OpenPSTD
 
         void SelectObjectOperation::Run(const Reciever &reciever)
         {
+            auto doc = reciever.model->documentAccess->GetDocument();
             QVector2D mousePos = (reciever.model->view->viewMatrix.inverted() *
                                   this->ScreenPosition.toVector3D()).toVector2D();
-            auto conf = reciever.model->documentAccess->GetDocument()->GetSceneConf();
+            auto conf = doc->GetSceneConf();
 
             for (int i = 0; i < conf->Receivers.size(); i++)
             {
