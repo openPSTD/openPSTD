@@ -206,10 +206,10 @@ namespace OpenPSTD {
                 zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2 * wlen - p2.cols());
 
                 //this looks inefficient, but the compiler optimizes almost all of it away
-                dom1 = p1.rightCols(wlen).rowwise() * window_left.transpose() * rho_array.pressure(2, 1) +
-                       p2.leftCols(wlen).rowwise().reverse() * rho_array.pressure(0, 0);
-                dom3 = p3.leftCols(wlen).rowwise() * window_right.transpose() * rho_array.pressure(3, 1) +
-                       p2.rightCols(wlen).rowwise().reverse() * rho_array.pressure(1, 0);
+                dom1 = p1.rightCols(wlen) * rho_array.pressure(2, 1) +
+                        (p2.leftCols(wlen)).rowwise().reverse() * rho_array.pressure(0, 0);
+                dom3 = p3.leftCols(wlen) * rho_array.pressure(3, 1) +
+                        (p2.rightCols(wlen)).rowwise().reverse() * rho_array.pressure(1, 0);
                 dom1 = dom1.rowwise() * window_left.transpose();
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
@@ -254,12 +254,10 @@ namespace OpenPSTD {
                 ArrayXXf fft_input_data(fft_length, fft_batch);
                 ArrayXXf zero_pad(fft_batch, fft_length - 2 * wlen - p2.cols());
                 zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2 * wlen - p2.cols());
-                dom1 = p1.rightCols(wlen + 1).leftCols(wlen).rowwise() * window_left.transpose() *
-                       rho_array.velocity(2, 1) +
-                       p2.leftCols(wlen + 1).rightCols(wlen).rowwise().reverse() * rho_array.velocity(0, 0);
-                dom3 = p3.leftCols(wlen + 1).rightCols(wlen).rowwise() * window_right.transpose() *
-                       rho_array.velocity(3, 1) +
-                       p2.rightCols(wlen + 1).leftCols(wlen).rowwise().reverse() * rho_array.velocity(1, 0);
+                dom1 = p1.rightCols(wlen + 1).leftCols(wlen) * rho_array.velocity(2, 1) +
+                        (p2.leftCols(wlen+1).rightCols(wlen)).rowwise().reverse() * rho_array.velocity(0, 0);
+                dom3 = p3.leftCols(wlen + 1).rightCols(wlen) * rho_array.velocity(3, 1) +
+                        (p2.rightCols(wlen+1).leftCols(wlen)).rowwise().reverse() * rho_array.velocity(1, 0);
                 dom1 = dom1.rowwise() * window_left.transpose();
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
