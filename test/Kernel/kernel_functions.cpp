@@ -114,6 +114,15 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
         derfact_v.real() = real_v;
         derfact_v.imag() = imag_v;
 
+        //debug check if derfact is correct
+        WisdomCache wnd = WisdomCache();
+        WisdomCache::Discretization discr1 = wnd.get_discretization(0.4, 128);
+        for(int i=0;i<128;i++){
+            std::cout << discr1.pressure_deriv_factors(i) <<"\n";
+        }
+        derfact_v = discr1.velocity_deriv_factors;
+        derfact_p = discr1.pressure_deriv_factors;
+
         int wlen = 32;
         Eigen::ArrayXf window(65);
         window << 0.00316228,0.00858261,0.02007542,0.0412163 ,0.07551126,0.12530442,0.19087516,0.27012564,0.35896633,0.45219639,0.54452377,0.63140816,0.7095588 ,0.77707471,0.83331485,0.8786185 ,0.9139817 ,0.94076063,0.96043711,0.97445482,0.98411922,0.9905474 ,0.99465322,0.99715493,0.9985956 ,0.99936947,0.9997499 ,0.99991624,0.99997804,0.99999609,0.99999966,0.99999999,1.        ,0.99999999,0.99999966,0.99999609,0.99997804,0.99991624,0.9997499 ,0.99936947,0.9985956 ,0.99715493,0.99465322,0.9905474 ,0.98411922,0.97445482,0.96043711,0.94076063,0.9139817 ,0.8786185 ,0.83331485,0.77707471,0.7095588 ,0.63140816,0.54452377,0.45219639,0.35896633,0.27012564,0.19087516,0.12530442,0.07551126,0.0412163 ,0.02007542,0.00858261,0.00316228;
@@ -122,7 +131,7 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
 
         Eigen::ArrayXXf spatresult_pressin = spatderp3(d1p.sin(), d2p.sin(), d3p.sin(), derfact_p, rho_array, window, wlen,
                                                     CalculationType::PRESSURE, CalcDirection::X);
-        Eigen::ArrayXXf spatresult_velosin = spatderp3(d1v.sin(), d2v.sin(), d3v.sin(), derfact_p, rho_array, window, wlen,
+        Eigen::ArrayXXf spatresult_velosin = spatderp3(d1v.sin(), d2v.sin(), d3v.sin(), derfact_v, rho_array, window, wlen,
                                                     CalculationType::VELOCITY, CalcDirection::X);
 
         Eigen::ArrayXXf spatexpectation_pressin(4, 51), spatexpectation_velosin(4, 50);
