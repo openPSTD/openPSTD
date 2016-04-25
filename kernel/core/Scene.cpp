@@ -111,7 +111,7 @@ namespace OpenPSTD {
                         if (!full_overlap) {
                             pml_domain_ptr->local = true;
                         }
-                        if (alpha > 0 and full_overlap) {
+                        if (alpha > 0 and full_overlap and false) { //TODO FIXME NO 2nd PML FOR NOW
                             vector<unsigned long> second_dir_its;
                             unsigned long dir_1 = ((i) + 1) % 4;
                             unsigned long dir_2 = ((i) + 3) % 4;
