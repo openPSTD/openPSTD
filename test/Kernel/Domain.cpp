@@ -78,6 +78,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         standard.locally_reacting = true;
         standard.alpha = 1;
         shared_ptr<PSTDSettings> settings(new PSTDSettings());
+        settings->SetDensityOfAir(1.2);
         map<Direction, EdgeParameters> edge_param_map = {{Direction::LEFT,   standard},
                                                          {Direction::RIGHT,  standard},
                                                          {Direction::TOP,    standard},
