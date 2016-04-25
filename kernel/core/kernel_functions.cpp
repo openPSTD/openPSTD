@@ -214,6 +214,10 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
+                //debug
+                if(direct==CalcDirection::X)
+                    write_array_to_file(windowed_data, "windowed_data_cpp_p", writenum);
+
                 //TODO maybe optimize this away later (rearrange fft input or change calls above)
                 fft_input_data = windowed_data.transpose();
 
@@ -228,6 +232,7 @@ namespace OpenPSTD {
                 //apply the spectral derivative
                 spectrum_array = spectrum_array.array().rowwise() * derfact.topRows(fft_length / 2 + 1).transpose();
                 fftwf_execute_dft_c2r(plan_inv, out_buffer, in_buffer);
+
 
                 Matrix<float, Dynamic, Dynamic, RowMajor> derived_array =
                         Map<Matrix<float, Dynamic, Dynamic, RowMajor>>(in_buffer, fft_batch, fft_length).array();
@@ -261,6 +266,10 @@ namespace OpenPSTD {
                 dom1 = dom1.rowwise() * window_left.transpose();
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
+
+                //debug
+                if(direct==CalcDirection::X)
+                    write_array_to_file(windowed_data, "windowed_data_cpp_v", writenum);
 
                 //debug
                 //write_array_to_file(windowed_data, "windowed_data_cpp_v", 0);
