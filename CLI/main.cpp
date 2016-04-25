@@ -345,6 +345,7 @@ namespace OpenPSTD
                 }
 
                 file->SetSceneConf(conf);
+                file->Commit();
                 return 0;
             }
             catch (std::exception &e)
