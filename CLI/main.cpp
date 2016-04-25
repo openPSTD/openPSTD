@@ -237,7 +237,7 @@ namespace OpenPSTD
 
             std::cout << std::endl;
             std::cout << "Receivers: " << std::endl;
-            if(SceneConf->Speakers.size() > 0)
+            if(SceneConf->Receivers.size() > 0)
             {
                 for (int i = 0; i < SceneConf->Receivers.size(); ++i)
                 {
@@ -345,6 +345,7 @@ namespace OpenPSTD
                 }
 
                 file->SetSceneConf(conf);
+                file->Commit();
                 return 0;
             }
             catch (std::exception &e)
