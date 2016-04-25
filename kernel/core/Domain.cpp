@@ -147,21 +147,30 @@ namespace OpenPSTD {
                     vector<int> range_intersection = own_range;
 
                     if (d1 != nullptr) {
-                        vector<int> range1 = d1->get_range(cd);
+                        vector<int> range1 = d1->get_range(cd), temp_intersection;
                         set_intersection(range1.begin(), range1.end(),
                                          range_intersection.begin(), range_intersection.end(),
-                                         back_inserter(range_intersection));
+                                         back_inserter(temp_intersection));
+                        range_intersection = temp_intersection;
                     }
                     if (d2 != nullptr) {
-                        vector<int> range2 = d2->get_range(cd);
+                        vector<int> range2 = d2->get_range(cd), temp_intersection;
                         set_intersection(range2.begin(), range2.end(),
                                          range_intersection.begin(), range_intersection.end(),
-                                         back_inserter(range_intersection));
+                                         back_inserter(temp_intersection));
+                        range_intersection = temp_intersection;
                     }
 
                     // If there is nothing left after clipping to domains, continue with a different set of domains
                     if (range_intersection.size() == 0) {
                         continue;
+                    } else {
+                        //don't update the part we update now in later iterations
+                        vector<int> temp_diff;
+                        set_difference(range_intersection.begin(), range_intersection.end(),
+                                         own_range.begin(), own_range.end(),
+                                         inserter(temp_diff, temp_diff.begin()));
+                        own_range = temp_diff;
                     }
 
                     // Set up various parameters and intermediates that are needed for the spatial derivatives
