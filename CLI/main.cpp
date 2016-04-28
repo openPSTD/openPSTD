@@ -449,6 +449,8 @@ namespace OpenPSTD
                 std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file);
                 //run kernel
                 kernel->run(output.get());
+
+                file->Commit();
                 return 0;
             }
             catch (std::exception &e)

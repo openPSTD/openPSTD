@@ -17,7 +17,7 @@
    <item row="3" column="1" colspan="2">
     <widget class="QSpinBox" name="sbEnd">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The last frame that should be exported, -1 for the last frame.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The last frame that should be exported.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="minimum">
       <number>0</number>
