@@ -31,9 +31,11 @@
 //
 
 #include "FileOperations.h"
+#include "ViewOperations.h"
 #include "long/LongOperationRunner.h"
 #include <shared/export/HDF5Export.h>
 #include <shared/export/Image.h>
+
 
 namespace OpenPSTD
 {
@@ -50,7 +52,10 @@ namespace OpenPSTD
                 std::cout << "Error: background worker is still running" << std::endl;
                 //todo give correct error
             else
+            {
                 reciever.model->documentAccess->Open(this->filename);
+                reciever.operationRunner->RunOperation(std::make_shared<ViewWholeScene>());
+            }
         }
 
 
@@ -64,7 +69,10 @@ namespace OpenPSTD
                 std::cout << "Error: background worker is still running" << std::endl;
                 //todo give correct error
             else
+            {
                 reciever.model->documentAccess->New(this->filename);
+                reciever.operationRunner->RunOperation(std::make_shared<ViewWholeScene>());
+            }
         }
 
         void SaveFileOperation::Run(const Reciever &reciever)

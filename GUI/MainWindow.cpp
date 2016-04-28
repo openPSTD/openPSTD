@@ -136,13 +136,16 @@ namespace OpenPSTD
 
             QObject::connect(ui->actionDelete_selected, &QAction::triggered, this,
                              [&](bool checked) {
-                                 this->operationRunner.lock()->RunOperation(
-                                         std::make_shared<RemoveSelectedObjectOperation>());
+                                 this->operationRunner.lock()->RunOperation(std::make_shared<RemoveSelectedObjectOperation>());
                              });
             QObject::connect(ui->actionStart_simulation, &QAction::triggered, this,
                              [&](bool checked) {
-                                 this->operationRunner.lock()->RunOperation(
-                                         std::make_shared<StartLOperation>(std::make_shared<SimulateLOperation>()));
+                                 this->operationRunner.lock()->RunOperation(std::make_shared<SimulateLOperation>());
+                             });
+
+            QObject::connect(ui->actionView_complete_scene, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 this->operationRunner.lock()->RunOperation(std::make_shared<ViewWholeScene>());
                              });
 
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,

@@ -52,12 +52,12 @@ namespace OpenPSTD
             reciever.model->Change();
 
             //select none of the domains
-            std::shared_ptr<DeselectOperation> op2(new DeselectOperation());
+            std::shared_ptr<DeselectOperation> op2 = std::make_shared<DeselectOperation>();
             reciever.operationRunner->RunOperation(op2);
 
             //initialize Mouse handler
-            std::shared_ptr<ChangeMouseHandlerOperations> op3(new ChangeMouseHandlerOperations(
-                    std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy())));
+            std::shared_ptr<ChangeMouseHandlerOperations> op3 = std::make_shared<ChangeMouseHandlerOperations>(
+                    std::unique_ptr<MouseMoveSceneStrategy>(new MouseMoveSceneStrategy()));
             reciever.operationRunner->RunOperation(op3);
         }
     }

@@ -69,7 +69,7 @@ namespace OpenPSTD
 
         class ChangeWorldMatrix : public BaseOperation
         {
-        private:
+        protected:
             QMatrix4x4 M;
 
         public:
@@ -96,9 +96,13 @@ namespace OpenPSTD
             virtual void Run(const Reciever &reciever);
         };
 
-        class ViewWholeScene : public BaseOperation
+        class ViewWholeScene : public ChangeWorldMatrix
         {
         public:
+            float ExtraZoomFactor = 1.25f;
+
+            ViewWholeScene() {}
+
             virtual void Run(const Reciever &reciever);
         };
 

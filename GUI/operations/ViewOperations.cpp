@@ -57,7 +57,7 @@ namespace OpenPSTD
         {
             reciever.model->view->aspectMatrix = this->M;
             reciever.model->view->Change();
-            reciever.operationRunner->RunOperation(std::shared_ptr<UpdateViewMatrix>(new UpdateViewMatrix()));
+            reciever.operationRunner->RunOperation(std::make_shared<UpdateViewMatrix>());
         }
 
         ChangeWorldMatrix::ChangeWorldMatrix(QMatrix4x4 m) : M(m)
@@ -69,7 +69,7 @@ namespace OpenPSTD
         {
             reciever.model->view->worldMatrix = this->M;
             reciever.model->view->Change();
-            reciever.operationRunner->RunOperation(std::shared_ptr<UpdateViewMatrix>(new UpdateViewMatrix()));
+            reciever.operationRunner->RunOperation(std::make_shared<UpdateViewMatrix>());
         }
 
         ModifyWorldMatrix::ModifyWorldMatrix(QMatrix4x4 m) : M(m)
@@ -81,7 +81,7 @@ namespace OpenPSTD
         {
             reciever.model->view->worldMatrix = this->M * reciever.model->view->worldMatrix;
             reciever.model->view->Change();
-            reciever.operationRunner->RunOperation(std::shared_ptr<UpdateViewMatrix>(new UpdateViewMatrix()));
+            reciever.operationRunner->RunOperation(std::make_shared<UpdateViewMatrix>());
         }
 
         TranslateScene::TranslateScene(QVector2D vector) : ModifyWorldMatrix()
@@ -98,7 +98,59 @@ namespace OpenPSTD
 
         void ViewWholeScene::Run(const Reciever &reciever)
         {
-            //todo fix this command
+            QVector2D tl, br;
+
+            if(reciever.model->documentAccess->IsDocumentLoaded())
+            {
+                auto doc = reciever.model->documentAccess->GetDocument();
+                auto conf = doc->GetSceneConf();
+
+                if (conf->Domains.size() > 0)
+                {
+                    //initilize the tl and br with the first element
+                    tl[0] = conf->Domains[0].TopLeft[0];
+                    tl[1] = conf->Domains[0].TopLeft[1];
+                    br[0] = conf->Domains[0].TopLeft[0] + conf->Domains[0].Size[0];
+                    br[1] = conf->Domains[0].TopLeft[1] + conf->Domains[0].Size[1];
+
+                    //check if there are more extreme
+                    for (int i = 1; i < conf->Domains.size(); i++)
+                    {
+                        tl[0] = std::min(tl[0], conf->Domains[i].TopLeft[0]);
+                        tl[1] = std::min(tl[1], conf->Domains[i].TopLeft[1]);
+                        br[0] = std::max(br[0], conf->Domains[i].TopLeft[0] + conf->Domains[i].Size[0]);
+                        br[1] = std::max(br[1], conf->Domains[i].TopLeft[1] + conf->Domains[i].Size[1]);
+                    }
+                    for (int i = 1; i < conf->Receivers.size(); i++)
+                    {
+                        tl[0] = std::min(tl[0], conf->Receivers[i][0]);
+                        tl[1] = std::min(tl[1], conf->Receivers[i][1]);
+                        br[0] = std::max(br[0], conf->Receivers[i][0]);
+                        br[1] = std::max(br[1], conf->Receivers[i][1]);
+                    }
+                    for (int i = 1; i < conf->Speakers.size(); i++)
+                    {
+                        tl[0] = std::min(tl[0], conf->Speakers[i][0]);
+                        tl[1] = std::min(tl[1], conf->Speakers[i][1]);
+                        br[0] = std::max(br[0], conf->Speakers[i][0]);
+                        br[1] = std::max(br[1], conf->Speakers[i][1]);
+                    }
+
+                    //calculate the center
+                    QVector2D center((tl[0] + br[0]) / 2, (tl[1] + br[1]) / 2);
+                    //calculate how much is should zoom out
+                    float scaleFactor = 2 / (ExtraZoomFactor * std::max(fabs(br[0] - tl[0]), fabs(br[1] - tl[1])));
+
+                    //zoom out
+                    this->M.scale(scaleFactor);
+
+                    //translate to the center
+                    this->M.translate(-center);
+
+                    //exectute the matrix
+                    ChangeWorldMatrix::Run(reciever);
+                }
+            }
         }
 
         ChangeViewingFrame::ChangeViewingFrame(unsigned int newFrame): frame(newFrame)
