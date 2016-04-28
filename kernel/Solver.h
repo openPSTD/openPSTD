@@ -67,7 +67,7 @@ namespace OpenPSTD {
              * @param domain: Domain under consideration
              * @param rk_step: sub-step of RK6 method
              */
-            void update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step);
+            void update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step, unsigned long frame);
 
             /**
              * The GUI format for pressure fields
