@@ -93,6 +93,8 @@ namespace OpenPSTD
             MouseHandlersActions.push_back(ui->actionAdd_Receiver);
             MouseHandlersActions.push_back(ui->actionAdd_speaker);
 
+            ui->actionMove_scene->setChecked(true);
+
             QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::ShowAbout);
             QObject::connect(ui->actionAbout_icons, &QAction::triggered, this, &MainWindow::ShowAboutIcons);
 
