@@ -150,7 +150,14 @@ namespace OpenPSTD {
         }
 
         std::vector<float> PSTDSettings::GetRKCoefficients() {
-            return this->rk_coefficients;
+            std::vector<float> rk_coefficients_multiplied(6);
+            rk_coefficients_multiplied[5] = rk_coefficients[5];
+            rk_coefficients_multiplied[4] = rk_coefficients[4] / rk_coefficients_multiplied[5];
+            rk_coefficients_multiplied[3] = rk_coefficients[3] / rk_coefficients_multiplied[4];
+            rk_coefficients_multiplied[2] = rk_coefficients[2] / (rk_coefficients_multiplied[3]*rk_coefficients_multiplied[4]);
+            rk_coefficients_multiplied[1] = rk_coefficients[1] / (rk_coefficients_multiplied[2]*rk_coefficients_multiplied[3]*rk_coefficients_multiplied[4]);
+            rk_coefficients_multiplied[0] = rk_coefficients[0] / (rk_coefficients_multiplied[1]*rk_coefficients_multiplied[2]*rk_coefficients_multiplied[3]*rk_coefficients_multiplied[4]);
+            return rk_coefficients_multiplied;
         }
 
         void PSTDSettings::SetRKCoefficients(std::vector<float> coef) {
