@@ -85,9 +85,11 @@ namespace OpenPSTD {
                     }
                     for (auto domain:this->scene->domain_list) {
                         domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
-                        if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
-                            this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
-                        }
+                    }
+                }
+                for (auto domain:this->scene->domain_list) {
+                    if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
+                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
                     }
                 }
                 this->scene->apply_pml_matrices();
