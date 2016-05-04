@@ -61,7 +61,6 @@ namespace OpenPSTD
         private:
             std::unique_ptr<Ui_MainWindow> ui;
             std::unique_ptr<DomainProperties> domainProperties;
-            std::unique_ptr<DocumentSettings> documentSettings;
             std::shared_ptr<ApplicationSettings> applicationSettings;
             std::weak_ptr<OperationRunner> operationRunner;
             QProgressBar* progressBar;
@@ -69,6 +68,7 @@ namespace OpenPSTD
             QTimer* updateTimer;
             std::vector<QAction *> MouseHandlersActions;
             int maxFrame;
+            Kernel::PSTDSettings fileSettings;
 
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
 

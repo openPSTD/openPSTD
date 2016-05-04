@@ -53,7 +53,6 @@ namespace OpenPSTD
                 ui(new Ui_MainWindow()),
                 operationRunner(operationRunner),
                 domainProperties(new DomainProperties()),
-                documentSettings(new DocumentSettings()),
                 applicationSettings(std::make_shared<ApplicationSettings>())
         {
             ui->setupUi(this);
@@ -177,7 +176,7 @@ namespace OpenPSTD
             if(model->documentAccess->IsDocumentLoaded())
             {
                 this->UpdateHsbFrame(model, worker);
-                documentSettings->UpdateFromModel(model);
+                this->fileSettings = doc->GetSceneConf()->Settings;
                 if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
                 {
                     auto conf = model->documentAccess->GetDocument()->GetSceneConf();
@@ -314,10 +313,12 @@ namespace OpenPSTD
 
         void MainWindow::EditDocumentSettings()
         {
-            if (this->documentSettings->exec() == QDialog::Accepted)
+            std::unique_ptr<DocumentSettings> documentSettings(new DocumentSettings());
+            documentSettings->UpdateFromModel(this->fileSettings);
+            if (documentSettings->exec() == QDialog::Accepted)
             {
                 this->operationRunner.lock()->RunOperation(
-                        std::make_shared<EditDocumentSettingsOperation>(this->documentSettings->GetResult()));
+                        std::make_shared<EditDocumentSettingsOperation>(documentSettings->GetResult()));
             }
         }
 
