@@ -177,7 +177,7 @@ namespace OpenPSTD {
             for (auto &entry: second_order_pml_map) {
                 shared_ptr<Domain> parent_domain = entry.first->pml_for_domain_list.at(0);
                 Direction second_dir = entry.second;
-                if (parent_domain->get_neighbours_at(second_dir).empty()) {
+                if (!parent_domain->get_neighbours_at(second_dir).empty()) {
                     continue;
                 }
                 auto corner_points = get_corner_points(entry.first);
