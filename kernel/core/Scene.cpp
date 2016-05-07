@@ -74,13 +74,13 @@ namespace OpenPSTD {
                                 break;
                             case Direction::TOP:
                                 x_offset = vacant_range(j, 0) - domain->top_left.x;
-                                y_offset = domain->size.y;
+                                y_offset = -number_of_cells;
                                 x_size = vacant_range(j, 1) - vacant_range(j, 0);
                                 y_size = number_of_cells;
                                 break;
                             case Direction::BOTTOM:
                                 x_offset = vacant_range(j, 0) - domain->top_left.x;
-                                y_offset = -number_of_cells;
+                                y_offset = domain->size.y;
                                 x_size = vacant_range(j, 1) - vacant_range(j, 0);
                                 y_size = number_of_cells;
                                 break;
@@ -113,8 +113,9 @@ namespace OpenPSTD {
                         }
                         if (alpha > 0 and full_overlap) {
                             vector<unsigned long> second_dir_its;
-                            unsigned long dir_1 = ((i) + 1) % 4;
-                            unsigned long dir_2 = ((i) + 3) % 4;
+                            // Find directions of the orthogonal calculation direction
+                            unsigned long dir_1 = (i + 1) % 4;
+                            unsigned long dir_2 = (i + 3) % 4;
                             second_dir_its.push_back(dir_1);
                             second_dir_its.push_back(dir_2);
                             for (unsigned long second_dir_it: second_dir_its) {
@@ -240,7 +241,7 @@ namespace OpenPSTD {
         bool Scene::should_merge_domains(shared_ptr<Domain> domain1, shared_ptr<Domain> domain2) {
             shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(domain1);
             shared_ptr<Domain> parent_domain2 = get_singular_parent_domain(domain2);
-            return (domain1 != nullptr && domain1->id == domain2->id);
+            return ((domain1 != nullptr) and (domain1->id == domain2->id));
         }
 
         shared_ptr<Domain> Scene::get_singular_parent_domain(shared_ptr<Domain> domain) {
