@@ -89,7 +89,7 @@ namespace OpenPSTD {
                 }
                 for (auto domain:this->scene->domain_list) {
                     if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
-                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector());
+                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector(domain));
                     }
                 }
                 this->scene->apply_pml_matrices();
@@ -149,10 +149,10 @@ namespace OpenPSTD {
             }
         }
 
-        PSTD_FRAME_PTR Solver::get_pressure_vector() {
+        PSTD_FRAME_PTR Solver::get_pressure_vector(std::shared_ptr<Domain> domain) {
             auto aligned_pressure = std::make_shared<PSTD_FRAME>();
-            aligned_pressure->reserve((unsigned long) this->scene->size.x * this->scene->size.y);
-            auto field = this->scene->get_pressure_field();
+            aligned_pressure->reserve((unsigned long) domain->size.x * domain->size.y);
+            auto field = domain->current_values.p0;
             unsigned long row_length = (unsigned long) this->scene->size.x;
             for (unsigned long row = 0; row < field.cols(); row++) {
                 aligned_pressure->insert(aligned_pressure->end(),
