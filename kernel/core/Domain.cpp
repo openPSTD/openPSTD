@@ -423,6 +423,8 @@ namespace OpenPSTD {
         }
 
         ArrayXXf Domain::extended_zeros(int y, int x, int z) {
+            // Matrices have the same shape of the domain.
+            // Therefore, domains with size (x,y) have 2D array shape (y,x)
             return ArrayXXf::Zero(size.y + y, size.x + x);
         }
 

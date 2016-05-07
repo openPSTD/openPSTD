@@ -65,6 +65,8 @@ namespace OpenPSTD {
             for (int frame = 0; frame < this->number_of_time_steps; frame++) {
                 for (auto domain:this->scene->domain_list) {
                     domain->push_values();
+                    std::cout << "Domain " << domain->id << "\tTL " << domain->top_left << "\tBR " <<
+                    domain->bottom_right << std::endl;
                 }
                 for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
                     for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {

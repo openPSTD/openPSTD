@@ -40,7 +40,7 @@ namespace OpenPSTD {
 
         void Scene::add_pml_domains() {
             int number_of_cells = settings->GetPMLCells();
-            vector<Direction> directions{Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
+            vector<Direction> directions{Direction::LEFT, Direction::TOP, Direction::RIGHT, Direction::BOTTOM};
             vector<string> dir_strings{"left", "top", "right", "bottom"};
 
             vector<shared_ptr<Domain>> first_order_pmls;
@@ -111,7 +111,7 @@ namespace OpenPSTD {
                         if (!full_overlap) {
                             pml_domain_ptr->local = true;
                         }
-                        if (alpha > 0 and full_overlap and false) { //TODO FIXME NO 2nd PML FOR NOW
+                        if (alpha > 0 and full_overlap) {
                             vector<unsigned long> second_dir_its;
                             unsigned long dir_1 = ((i) + 1) % 4;
                             unsigned long dir_2 = ((i) + 3) % 4;
@@ -151,12 +151,15 @@ namespace OpenPSTD {
                                 }
 
                                 Point sec_pml_offset(sec_x_offset, sec_y_offset);
+                                Point sec_pml_top_left = domain->top_left + pml_offset + sec_pml_offset;
                                 Point sec_pml_size(number_of_cells, number_of_cells);
                                 shared_ptr<Domain> sec_pml_domain(
-                                        new Domain(settings, second_pml_id, second_pml_alpha, sec_pml_offset,
+                                        new Domain(settings, second_pml_id, second_pml_alpha, sec_pml_top_left,
                                                    sec_pml_size,
                                                    true, domain->wnd, default_edge_parameters, pml_domain_ptr));
                                 second_order_pml_map[sec_pml_domain] = second_dir;
+                                cout << "Domain " << sec_pml_domain->id << "\t" << sec_pml_domain->top_left << "/" <<
+                                sec_pml_domain->bottom_right << endl;
                             }
                         }
                     }
@@ -269,7 +272,7 @@ namespace OpenPSTD {
 
             // Put 0,0 at the actual point 0,0 instead of in the middle of the first pressure sample
             float dx_2 = 0.5; // we're in pressure grid coordinates here, so -0.5 is really 0.5
-            vector<float> grid_like_location = {x-dx_2, y-dx_2, z-dx_2};
+            vector<float> grid_like_location = {x - dx_2, y - dx_2, z - dx_2};
             shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 speaker->addDomainContribution(domain_list.at(i));
