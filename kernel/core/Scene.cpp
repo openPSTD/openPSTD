@@ -192,21 +192,23 @@ namespace OpenPSTD {
                     }
                     continue;
                 }
-                vector<unsigned long> processed_domain_indices;
+                vector<shared_ptr<Domain>> processed_domains;
                 for (unsigned long i = 0; i < entry.second.size(); i++) {
                     for (unsigned long j = i + 1; j < entry.second.size(); j++) {
                         shared_ptr<Domain> domain_i = entry.second.at(i);
                         shared_ptr<Domain> domain_j = entry.second.at(j);
                         bool processed_i =
-                                find(processed_domain_indices.begin(), processed_domain_indices.end(), domain_i->id) != processed_domain_indices.end();
+                                find(processed_domains.begin(), processed_domains.end(), domain_i) !=
+                                processed_domains.end();
                         bool processed_j =
-                                find(processed_domain_indices.begin(), processed_domain_indices.end(), domain_j->id) != processed_domain_indices.end();
+                                find(processed_domains.begin(), processed_domains.end(), domain_j) !=
+                                processed_domains.end();
                         if (processed_i or processed_j) {
                             continue;
                         }
                         if (should_merge_domains(domain_i, domain_j)) {
-                            processed_domain_indices.push_back(i);
-                            processed_domain_indices.push_back(j);
+                            processed_domains.push_back(domain_i);
+                            processed_domains.push_back(domain_j);
                             for (auto pml_for_domain: domain_j->pml_for_domain_list) {
                                 domain_i->pml_for_domain_list.push_back(pml_for_domain);
                             }
@@ -215,8 +217,8 @@ namespace OpenPSTD {
                     }
                 }
                 for (unsigned long i = 0; i < entry.second.size(); i++) {
-                    if (find(processed_domain_indices.begin(), processed_domain_indices.end(), i) !=
-                        processed_domain_indices.end()) {
+                    if (find(processed_domains.begin(), processed_domains.end(), entry.second.at(i)) ==
+                        processed_domains.end()) {
                         second_order_pml_list.push_back(entry.second.at(i));
                     }
                 }
@@ -238,9 +240,9 @@ namespace OpenPSTD {
 
 
         bool Scene::should_merge_domains(shared_ptr<Domain> domain1, shared_ptr<Domain> domain2) {
-            shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(domain1);
-            shared_ptr<Domain> parent_domain2 = get_singular_parent_domain(domain2);
-            return ((domain1 != nullptr) and (domain1->id == domain2->id));
+            shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(get_singular_parent_domain(domain1));
+            shared_ptr<Domain> parent_domain2 = get_singular_parent_domain(get_singular_parent_domain(domain2));
+            return ((parent_domain1 != nullptr) and (parent_domain1->id == parent_domain2->id));
         }
 
         shared_ptr<Domain> Scene::get_singular_parent_domain(shared_ptr<Domain> domain) {
