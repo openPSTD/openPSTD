@@ -238,7 +238,7 @@ namespace OpenPSTD {
             d.Size = QVector2D(10, 15);
             d.T.Absorption = 1;
             d.B.Absorption = 0;
-            d.L.Absorption = 0;
+            d.L.Absorption = 1;
             d.R.Absorption = 0;
 
             d.T.LR = false;

@@ -92,7 +92,7 @@ namespace OpenPSTD {
                         //We only add secondary PML domains for primary PML domains that fully cover their air domain.
                         //If primary PML domain does not, it's set to locally reacting.
                         CalcDirection calcDirection = direction_to_calc_direction(direction);
-                        bool full_overlap = false;
+                        bool full_overlap;
                         switch (calcDirection) {
                             case CalcDirection::X:
                                 full_overlap = (vacant_range(j, 0) == domain->top_left.y &&
@@ -198,16 +198,15 @@ namespace OpenPSTD {
                         shared_ptr<Domain> domain_i = entry.second.at(i);
                         shared_ptr<Domain> domain_j = entry.second.at(j);
                         bool processed_i =
-                                find(entry.second.begin(), entry.second.end(), domain_i) != entry.second.end();
+                                find(processed_domain_indices.begin(), processed_domain_indices.end(), domain_i->id) != processed_domain_indices.end();
                         bool processed_j =
-                                find(entry.second.begin(), entry.second.end(), domain_j) != entry.second.end();
+                                find(processed_domain_indices.begin(), processed_domain_indices.end(), domain_j->id) != processed_domain_indices.end();
                         if (processed_i or processed_j) {
                             continue;
                         }
                         if (should_merge_domains(domain_i, domain_j)) {
                             processed_domain_indices.push_back(i);
                             processed_domain_indices.push_back(j);
-                            domain_i->id = domain_i->id; // Todo: What happens with mergeable domains?
                             for (auto pml_for_domain: domain_j->pml_for_domain_list) {
                                 domain_i->pml_for_domain_list.push_back(pml_for_domain);
                             }
