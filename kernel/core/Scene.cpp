@@ -159,8 +159,7 @@ namespace OpenPSTD {
                                                    sec_pml_size,
                                                    true, domain->wnd, default_edge_parameters, pml_domain_ptr));
                                 second_order_pml_map[sec_pml_domain] = second_dir;
-                                cout << "Domain " << sec_pml_domain->id << "\t" << sec_pml_domain->top_left << "/" <<
-                                sec_pml_domain->bottom_right << endl;
+                                cout << *sec_pml_domain << endl;
                             }
                         }
                     }

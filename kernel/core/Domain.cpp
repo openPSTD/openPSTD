@@ -734,7 +734,9 @@ namespace OpenPSTD {
 
         ostream &operator<<(ostream &str, Domain const &v) {
             str << "Domain " << v.id;
-            if (v.is_pml) {
+            if (v.is_secondary_pml) {
+                str << " (sec_pml)";
+            } else if (v.is_pml) {
                 str << " (pml)";
             }
             str << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
