@@ -46,11 +46,12 @@ namespace OpenPSTD
         public:
             explicit DocumentSettings(QWidget *parent = 0);
 
-            void UpdateFromModel(std::shared_ptr<Model> const &model);
+            void UpdateFromModel(Kernel::PSTDSettings settings);
 
             Kernel::PSTDSettings GetResult();
 
         private:
+            Kernel::PSTDSettings settings;
             std::unique_ptr<Ui_DocumentSettings> ui;
         };
 

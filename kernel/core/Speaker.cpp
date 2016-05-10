@@ -28,7 +28,7 @@ namespace OpenPSTD {
                     float pressure = std::exp(-domain->settings->GetBandWidth() * squared_distance/10);
                     // Vectorized versions of above expressions exists
                     // but we need to get into a for loop anyway, because of atan2
-                    float angle = std::atan2(rel_y - j, rel_x - i);
+                    float angle = std::atan2(rel_x - i,rel_y - j);
                     float horizontal_component = SQR(std::cos(angle)) * pressure;
                     float vertical_component = SQR(std::sin(angle)) * pressure;
                     domain->current_values.p0(j, i) += pressure;

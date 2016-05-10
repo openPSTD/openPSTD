@@ -73,7 +73,7 @@ namespace OpenPSTD {
              * The GUI format for pressure fields
              * @return PSTD_FRAME (shared pointer to float vector)
              */
-            PSTD_FRAME_PTR get_pressure_vector();
+            PSTD_FRAME_PTR get_pressure_vector(std::shared_ptr<Domain> domain);
 
         public:
             /**

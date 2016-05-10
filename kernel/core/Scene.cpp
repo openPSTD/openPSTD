@@ -40,7 +40,7 @@ namespace OpenPSTD {
 
         void Scene::add_pml_domains() {
             int number_of_cells = settings->GetPMLCells();
-            vector<Direction> directions{Direction::LEFT, Direction::RIGHT, Direction::TOP, Direction::BOTTOM};
+            vector<Direction> directions{Direction::LEFT, Direction::TOP, Direction::RIGHT, Direction::BOTTOM};
             vector<string> dir_strings{"left", "top", "right", "bottom"};
 
             vector<shared_ptr<Domain>> first_order_pmls;
@@ -74,13 +74,13 @@ namespace OpenPSTD {
                                 break;
                             case Direction::TOP:
                                 x_offset = vacant_range(j, 0) - domain->top_left.x;
-                                y_offset = domain->size.y;
+                                y_offset = -number_of_cells;
                                 x_size = vacant_range(j, 1) - vacant_range(j, 0);
                                 y_size = number_of_cells;
                                 break;
                             case Direction::BOTTOM:
                                 x_offset = vacant_range(j, 0) - domain->top_left.x;
-                                y_offset = -number_of_cells;
+                                y_offset = domain->size.y;
                                 x_size = vacant_range(j, 1) - vacant_range(j, 0);
                                 y_size = number_of_cells;
                                 break;
@@ -92,7 +92,7 @@ namespace OpenPSTD {
                         //We only add secondary PML domains for primary PML domains that fully cover their air domain.
                         //If primary PML domain does not, it's set to locally reacting.
                         CalcDirection calcDirection = direction_to_calc_direction(direction);
-                        bool full_overlap = false;
+                        bool full_overlap;
                         switch (calcDirection) {
                             case CalcDirection::X:
                                 full_overlap = (vacant_range(j, 0) == domain->top_left.y &&
@@ -111,10 +111,11 @@ namespace OpenPSTD {
                         if (!full_overlap) {
                             pml_domain_ptr->local = true;
                         }
-                        if (alpha > 0 and full_overlap and false) { //TODO FIXME NO 2nd PML FOR NOW
+                        if (alpha > 0 and full_overlap) {
                             vector<unsigned long> second_dir_its;
-                            unsigned long dir_1 = ((i) + 1) % 4;
-                            unsigned long dir_2 = ((i) + 3) % 4;
+                            // Find directions of the orthogonal calculation direction
+                            unsigned long dir_1 = (i + 1) % 4;
+                            unsigned long dir_2 = (i + 3) % 4;
                             second_dir_its.push_back(dir_1);
                             second_dir_its.push_back(dir_2);
                             for (unsigned long second_dir_it: second_dir_its) {
@@ -151,12 +152,14 @@ namespace OpenPSTD {
                                 }
 
                                 Point sec_pml_offset(sec_x_offset, sec_y_offset);
+                                Point sec_pml_top_left = domain->top_left + pml_offset + sec_pml_offset;
                                 Point sec_pml_size(number_of_cells, number_of_cells);
                                 shared_ptr<Domain> sec_pml_domain(
-                                        new Domain(settings, second_pml_id, second_pml_alpha, sec_pml_offset,
+                                        new Domain(settings, second_pml_id, second_pml_alpha, sec_pml_top_left,
                                                    sec_pml_size,
                                                    true, domain->wnd, default_edge_parameters, pml_domain_ptr));
                                 second_order_pml_map[sec_pml_domain] = second_dir;
+                                cout << *sec_pml_domain << endl;
                             }
                         }
                     }
@@ -173,7 +176,7 @@ namespace OpenPSTD {
             for (auto &entry: second_order_pml_map) {
                 shared_ptr<Domain> parent_domain = entry.first->pml_for_domain_list.at(0);
                 Direction second_dir = entry.second;
-                if (parent_domain->get_neighbours_at(second_dir).empty()) {
+                if (!parent_domain->get_neighbours_at(second_dir).empty()) {
                     continue;
                 }
                 auto corner_points = get_corner_points(entry.first);
@@ -188,22 +191,23 @@ namespace OpenPSTD {
                     }
                     continue;
                 }
-                vector<unsigned long> processed_domain_indices;
+                vector<shared_ptr<Domain>> processed_domains;
                 for (unsigned long i = 0; i < entry.second.size(); i++) {
                     for (unsigned long j = i + 1; j < entry.second.size(); j++) {
                         shared_ptr<Domain> domain_i = entry.second.at(i);
                         shared_ptr<Domain> domain_j = entry.second.at(j);
                         bool processed_i =
-                                find(entry.second.begin(), entry.second.end(), domain_i) != entry.second.end();
+                                find(processed_domains.begin(), processed_domains.end(), domain_i) !=
+                                processed_domains.end();
                         bool processed_j =
-                                find(entry.second.begin(), entry.second.end(), domain_j) != entry.second.end();
+                                find(processed_domains.begin(), processed_domains.end(), domain_j) !=
+                                processed_domains.end();
                         if (processed_i or processed_j) {
                             continue;
                         }
                         if (should_merge_domains(domain_i, domain_j)) {
-                            processed_domain_indices.push_back(i);
-                            processed_domain_indices.push_back(j);
-                            domain_i->id = domain_i->id; // Todo: What happens with mergeable domains?
+                            processed_domains.push_back(domain_i);
+                            processed_domains.push_back(domain_j);
                             for (auto pml_for_domain: domain_j->pml_for_domain_list) {
                                 domain_i->pml_for_domain_list.push_back(pml_for_domain);
                             }
@@ -212,8 +216,8 @@ namespace OpenPSTD {
                     }
                 }
                 for (unsigned long i = 0; i < entry.second.size(); i++) {
-                    if (find(processed_domain_indices.begin(), processed_domain_indices.end(), i) !=
-                        processed_domain_indices.end()) {
+                    if (find(processed_domains.begin(), processed_domains.end(), entry.second.at(i)) ==
+                        processed_domains.end()) {
                         second_order_pml_list.push_back(entry.second.at(i));
                     }
                 }
@@ -235,9 +239,9 @@ namespace OpenPSTD {
 
 
         bool Scene::should_merge_domains(shared_ptr<Domain> domain1, shared_ptr<Domain> domain2) {
-            shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(domain1);
-            shared_ptr<Domain> parent_domain2 = get_singular_parent_domain(domain2);
-            return (domain1 != nullptr && domain1->id == domain2->id);
+            shared_ptr<Domain> parent_domain1 = get_singular_parent_domain(get_singular_parent_domain(domain1));
+            shared_ptr<Domain> parent_domain2 = get_singular_parent_domain(get_singular_parent_domain(domain2));
+            return ((parent_domain1 != nullptr) and (parent_domain1->id == parent_domain2->id));
         }
 
         shared_ptr<Domain> Scene::get_singular_parent_domain(shared_ptr<Domain> domain) {
@@ -269,7 +273,7 @@ namespace OpenPSTD {
 
             // Put 0,0 at the actual point 0,0 instead of in the middle of the first pressure sample
             float dx_2 = 0.5; // we're in pressure grid coordinates here, so -0.5 is really 0.5
-            vector<float> grid_like_location = {x-dx_2, y-dx_2, z-dx_2};
+            vector<float> grid_like_location = {x - dx_2, y - dx_2, z - dx_2};
             shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 speaker->addDomainContribution(domain_list.at(i));

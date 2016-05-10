@@ -117,9 +117,9 @@ BOOST_AUTO_TEST_SUITE(kernel_functions)
         //debug check if derfact is correct
         WisdomCache wnd = WisdomCache();
         WisdomCache::Discretization discr1 = wnd.get_discretization(0.4, 128);
-        for(int i=0;i<128;i++){
-            std::cout << discr1.pressure_deriv_factors(i) <<"\n";
-        }
+//        for(int i=0;i<128;i++){
+//            std::cout << discr1.pressure_deriv_factors(i) <<"\n";
+//        }
         derfact_v = discr1.velocity_deriv_factors;
         derfact_p = discr1.pressure_deriv_factors;
 

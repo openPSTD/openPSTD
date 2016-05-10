@@ -39,10 +39,8 @@ namespace OpenPSTD
             ui->setupUi(this);
         }
 
-        void DocumentSettings::UpdateFromModel(std::shared_ptr<Model> const &model)
+        void DocumentSettings::UpdateFromModel(Kernel::PSTDSettings settings)
         {
-            Kernel::PSTDSettings settings = model->documentAccess->GetDocument()->GetSceneConf()->Settings;
-
             ui->sbGridSpacing->setValue(settings.GetGridSpacing());
             ui->sbPatchError->setValue(settings.GetPatchError());
             ui->sbRenderTime->setValue(settings.GetRenderTime());
@@ -52,12 +50,11 @@ namespace OpenPSTD
             ui->sbSoundSpeed->setValue(settings.GetSoundSpeed());
             ui->sbCFLNumerRKScheme->setValue(settings.GetFactRK());
             ui->sbSaveEveryNth->setValue(settings.GetSaveNth());
+            this->settings = settings;
         }
 
         Kernel::PSTDSettings DocumentSettings::GetResult()
         {
-            Kernel::PSTDSettings settings;
-
             settings.SetGridSpacing(ui->sbGridSpacing->value());
             settings.SetPatchError(ui->sbPatchError->value());
             settings.SetRenderTime(ui->sbRenderTime->value());

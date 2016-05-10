@@ -63,7 +63,6 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Speakers.push_back(QVector3D(4.1, 5.1, 0));
         BOOST_CHECK(config->Domains.size() == 1);
         Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
-
         kernel.initialize_kernel(config);
         auto scene = kernel.get_scene();
         return scene;
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_SUITE(domain)
 
     BOOST_AUTO_TEST_CASE(domain_initialization_from_config) {
         auto scene = create_a_scene();
-        BOOST_CHECK_EQUAL(scene->domain_list.size(), 5);
+        BOOST_CHECK_EQUAL(scene->domain_list.size(), 1 + 4 + 4);
         BOOST_CHECK_EQUAL(scene->domain_list.at(0)->top_left.x, 0);
         BOOST_CHECK_EQUAL(scene->domain_list.at(0)->size.x, 250);
         BOOST_CHECK_EQUAL(scene->domain_list.at(0)->bottom_right.y, 300);
@@ -131,7 +130,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         for (auto domain:scene->domain_list) {
             if (domain != standard_domain) {
                 BOOST_CHECK(domain->is_pml);
-                BOOST_CHECK(standard_domain->is_neighbour_of(domain));
+                BOOST_CHECK(standard_domain->is_neighbour_of(domain) or domain->is_secondary_pml);
             }
 
         }
