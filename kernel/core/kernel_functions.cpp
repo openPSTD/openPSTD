@@ -126,7 +126,7 @@ namespace OpenPSTD {
                            CalculationType ct, CalcDirection direct,
                            fftwf_plan plan, fftwf_plan plan_inv) {
 
-            //debug stuff
+            /*//debug stuff
             int writenum;
             static int writenum_px = 0;
             static int writenum_py = 0;
@@ -148,7 +148,7 @@ namespace OpenPSTD {
                     writenum_px++;
                     writenum = writenum_px++;
                 }
-            } // end debug stuff
+            } // end debug stuff */
 
 
             //if direct == Y, transpose p1, p2 and p3
@@ -214,9 +214,9 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
-                //debug
+                /*//debug
                 if(direct==CalcDirection::X)
-                    write_array_to_file(windowed_data, "windowed_data_cpp_p", writenum);
+                    write_array_to_file(windowed_data, "windowed_data_cpp_p", writenum); */
 
                 //TODO maybe optimize this away later (rearrange fft input or change calls above)
                 fft_input_data = windowed_data.transpose();
@@ -267,9 +267,9 @@ namespace OpenPSTD {
                 dom3 = dom3.rowwise() * window_right.transpose();
                 windowed_data << dom1, p2, dom3, zero_pad;
 
-                //debug
+                /*//debug
                 if(direct==CalcDirection::X)
-                    write_array_to_file(windowed_data, "windowed_data_cpp_v", writenum);
+                    write_array_to_file(windowed_data, "windowed_data_cpp_v", writenum); */
 
                 //debug
                 //write_array_to_file(windowed_data, "windowed_data_cpp_v", 0);

@@ -110,7 +110,7 @@ namespace OpenPSTD {
             float c1_square = this->settings->GetSoundSpeed() * this->settings->GetSoundSpeed();
             std::vector<float> coefs = this->settings->GetRKCoefficients();
             if (!domain->is_pml) {
-                write_array_to_file(domain->current_values.px0+domain->current_values.py0, "pressure_tot", frame * 6 + rk_step);
+                //write_array_to_file(domain->current_values.px0+domain->current_values.py0, "pressure_tot", frame * 6 + rk_step);
                 //write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
                 //write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
                 //write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
@@ -125,7 +125,7 @@ namespace OpenPSTD {
             domain->current_values.py0 = domain->previous_values.py0 - dt * coefs.at(rk_step) *
                                                                        (domain->l_values.Lvy * domain->rho * c1_square);
 
-            if (!domain->is_pml) {
+            /*if (!domain->is_pml) {
                 this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + std::to_string(rk_step), 0);
                 //write_array_to_file(domain->l_values.Lpx, "pressure_deriv_x", frame * 6 + rk_step);
                 //write_array_to_file(domain->l_values.Lpy, "pressure_deriv_y", frame * 6 + rk_step);
@@ -147,19 +147,15 @@ namespace OpenPSTD {
                                          "Lvx max: " + std::to_string(domain->l_values.Lvx.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
                                          "Lvy max: " + std::to_string(domain->l_values.Lvy.maxCoeff()), 0);
-            }
+            }*/
         }
 
         PSTD_FRAME_PTR Solver::get_pressure_vector(std::shared_ptr<Domain> domain) {
             auto aligned_pressure = std::make_shared<PSTD_FRAME>();
             aligned_pressure->reserve((unsigned long) domain->size.x * domain->size.y);
-            auto field = domain->current_values.p0;
-            unsigned long row_length = (unsigned long) this->scene->size.x;
-            for (unsigned long row = 0; row < field.cols(); row++) {
-                aligned_pressure->insert(aligned_pressure->end(),
-                                         field.data() + row * row_length,
-                                         field.data() + (row + 1) * row_length);
-            }
+            auto field = domain->current_values.p0.transpose();
+            Eigen::Map<Eigen::MatrixXf>(aligned_pressure->data(),domain->size.y, domain->size.x) = field;
+
             return aligned_pressure;
         }
     }
