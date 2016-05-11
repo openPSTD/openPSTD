@@ -153,9 +153,11 @@ namespace OpenPSTD {
         PSTD_FRAME_PTR Solver::get_pressure_vector(std::shared_ptr<Domain> domain) {
             auto aligned_pressure = std::make_shared<PSTD_FRAME>();
             aligned_pressure->reserve((unsigned long) domain->size.x * domain->size.y);
-            auto field = domain->current_values.p0.transpose();
-            Eigen::Map<Eigen::MatrixXf>(aligned_pressure->data(),domain->size.y, domain->size.x) = field;
-
+            for (unsigned long i=0;i<domain->size.y;i++) {
+                for (unsigned long j=0;j<domain->size.x;i++) {
+                    aligned_pressure->push_back(domain->current_values.p0(i,j));
+                }
+            }
             return aligned_pressure;
         }
     }
