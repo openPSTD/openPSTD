@@ -307,6 +307,8 @@ namespace OpenPSTD {
             if (direct == CalcDirection::Y) {
                 result.transposeInPlace();
             }
+            free(in_buffer);
+            free(out_buffer);
             return result;
         }
 
