@@ -154,7 +154,7 @@ namespace OpenPSTD {
             auto aligned_pressure = std::make_shared<PSTD_FRAME>();
             aligned_pressure->reserve((unsigned long) domain->size.x * domain->size.y);
             for (unsigned long i=0;i<domain->size.y;i++) {
-                for (unsigned long j=0;j<domain->size.x;i++) {
+                for (unsigned long j=0;j<domain->size.x;j++) {
                     aligned_pressure->push_back(domain->current_values.p0(i,j));
                 }
             }
