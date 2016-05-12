@@ -289,7 +289,7 @@ namespace OpenPSTD
 
         void MainWindow::UpdateHsbFrame(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
-            bool documentEdit = worker->IsIdle() && model->documentAccess->IsDocumentLoaded();
+            bool documentEdit = model->documentAccess->IsDocumentLoaded();
             if(documentEdit && model->documentAccess->IsChanged())
             {
                 auto doc = model->documentAccess->GetDocument();
