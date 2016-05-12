@@ -141,7 +141,12 @@ namespace OpenPSTD
                              });
             QObject::connect(ui->actionStart_simulation, &QAction::triggered, this,
                              [&](bool checked) {
-                                 this->operationRunner.lock()->RunOperation(std::make_shared<SimulateLOperation>());
+                                 //create simulate operation
+                                 auto simulationOp = std::make_shared<SimulateLOperation>();
+                                 //create operation to start a long operation
+                                 auto startLOpOp = std::make_shared<StartLOperation>(simulationOp);
+                                 //execute operation
+                                 this->operationRunner.lock()->RunOperation(startLOpOp);
                              });
 
             QObject::connect(ui->actionView_complete_scene, &QAction::triggered, this,
