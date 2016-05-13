@@ -57,6 +57,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         domain1.B.LR = false;
         domain1.L.LR = true;
         domain1.R.LR = false;
+        config->Settings.SetGridSpacing(0.2f);
         config->Domains.clear();
         config->Domains.push_back(domain1);
         config->Speakers.clear();
