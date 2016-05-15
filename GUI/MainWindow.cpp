@@ -141,7 +141,12 @@ namespace OpenPSTD
                              });
             QObject::connect(ui->actionStart_simulation, &QAction::triggered, this,
                              [&](bool checked) {
-                                 this->operationRunner.lock()->RunOperation(std::make_shared<SimulateLOperation>());
+                                 //create simulate operation
+                                 auto simulationOp = std::make_shared<SimulateLOperation>();
+                                 //create operation to start a long operation
+                                 auto startLOpOp = std::make_shared<StartLOperation>(simulationOp);
+                                 //execute operation
+                                 this->operationRunner.lock()->RunOperation(startLOpOp);
                              });
 
             QObject::connect(ui->actionView_complete_scene, &QAction::triggered, this,
@@ -284,7 +289,7 @@ namespace OpenPSTD
 
         void MainWindow::UpdateHsbFrame(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker)
         {
-            bool documentEdit = worker->IsIdle() && model->documentAccess->IsDocumentLoaded();
+            bool documentEdit = model->documentAccess->IsDocumentLoaded();
             if(documentEdit && model->documentAccess->IsChanged())
             {
                 auto doc = model->documentAccess->GetDocument();
