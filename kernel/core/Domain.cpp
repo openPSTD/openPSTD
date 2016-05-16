@@ -415,9 +415,9 @@ namespace OpenPSTD {
                     other_range = other_domain->get_range(CalcDirection::Y);
                     break;
             }
-            vector<int> range_intersection = own_range;
-            set_intersection(other_range.begin(), other_range.end(), range_intersection.begin(),
-                             range_intersection.end(),
+            vector<int> range_intersection;
+            set_intersection(own_range.begin(), own_range.end(), other_range.begin(),
+                             other_range.end(),
                              back_inserter(range_intersection));
             return range_intersection;
         }

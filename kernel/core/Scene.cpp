@@ -150,7 +150,6 @@ namespace OpenPSTD {
                                         sec_y_offset = pml_domain_ptr->size.y;
                                         break;
                                 }
-
                                 Point sec_pml_offset(sec_x_offset, sec_y_offset);
                                 Point sec_pml_top_left = domain->top_left + pml_offset + sec_pml_offset;
                                 Point sec_pml_size(number_of_cells, number_of_cells);
@@ -165,7 +164,6 @@ namespace OpenPSTD {
                     }
                 }
             }
-
             for (shared_ptr<Domain> domain:first_order_pmls) {
                 add_domain(domain);
             }
