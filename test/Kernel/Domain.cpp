@@ -190,6 +190,12 @@ BOOST_AUTO_TEST_SUITE(domain)
         BOOST_CHECK(true);
     }
 
+    BOOST_AUTO_TEST_CASE(domain_test_range_intersection) {
+        auto scene = create_a_scene();
+        auto domain = scene->domain_list.at(0);
+        BOOST_CHECK(true);
+    }
+
     BOOST_AUTO_TEST_CASE(test_initial_values) {
         auto scene = create_a_scene();
         auto domain = scene->domain_list.at(0);

@@ -247,7 +247,7 @@ namespace OpenPSTD {
             d.R.LR = false;
 
             DomainConf d2;
-            d2.TopLeft = QVector2D(10, 0);
+            d2.TopLeft = QVector2D(10, 4);
             d2.Size = QVector2D(20, 15);
             d2.T.Absorption = 1;
             d2.B.Absorption = 0;

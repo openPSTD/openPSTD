@@ -107,6 +107,7 @@ namespace OpenPSTD {
                         shared_ptr<Domain> pml_domain_ptr(
                                 new Domain(settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer, true,
                                            domain->wnd, default_edge_parameters, domain));
+                        cout << *pml_domain_ptr << endl;
                         first_order_pmls.push_back(pml_domain_ptr);
                         if (!full_overlap) {
                             pml_domain_ptr->local = true;
@@ -346,19 +347,19 @@ namespace OpenPSTD {
                 bool is_neighbour = true;
                 if (domain->bottom_right.x == other_domain->top_left.x) {
                     orientation = Direction::RIGHT;
-                    bt = CalcDirection::Y;
+                    bt = CalcDirection::X;
                 }
                 else if (domain->top_left.x == other_domain->bottom_right.x) {
                     orientation = Direction::LEFT;
-                    bt = CalcDirection::Y;
+                    bt = CalcDirection::X;
                 }
                 else if (domain->bottom_right.y == other_domain->top_left.y) {
                     orientation = Direction::BOTTOM;
-                    bt = CalcDirection::X;
+                    bt = CalcDirection::Y;
                 }
                 else if (domain->top_left.y == other_domain->bottom_right.y) {
                     orientation = Direction::TOP;
-                    bt = CalcDirection::X;
+                    bt = CalcDirection::Y;
                 }
                 else {
                     is_neighbour = false;
