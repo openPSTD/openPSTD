@@ -237,8 +237,8 @@ namespace OpenPSTD {
             d.TopLeft = QVector2D(0, 0);
             d.Size = QVector2D(10, 15);
             d.T.Absorption = 1;
-            d.B.Absorption = 1;
-            d.L.Absorption = 1;
+            d.B.Absorption = 0;
+            d.L.Absorption = .3;
             d.R.Absorption = 1;
 
             d.T.LR = false;
@@ -246,21 +246,21 @@ namespace OpenPSTD {
             d.L.LR = false;
             d.R.LR = false;
 
-            DomainConf d2;
-            d2.TopLeft = QVector2D(10, 4);
-            d2.Size = QVector2D(20, 15);
-            d2.T.Absorption = 1;
-            d2.B.Absorption = 0;
-            d2.L.Absorption = 1;
-            d2.R.Absorption = 1;
-
-            d2.T.LR = false;
-            d2.B.LR = false;
-            d2.L.LR = false;
-            d2.R.LR = false;
-
+//            DomainConf d2;
+//            d2.TopLeft = QVector2D(10, 4);
+//            d2.Size = QVector2D(20, 15);
+//            d2.T.Absorption = 1;
+//            d2.B.Absorption = 0;
+//            d2.L.Absorption = 1;
+//            d2.R.Absorption = 1;
+//
+//            d2.T.LR = false;
+//            d2.B.LR = false;
+//            d2.L.LR = false;
+//            d2.R.LR = false;
+//
             conf->Domains.push_back(d);
-            conf->Domains.push_back(d2);
+//            conf->Domains.push_back(d2);
             return conf;
         }
 
