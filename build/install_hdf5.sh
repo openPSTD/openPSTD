@@ -6,9 +6,9 @@ if [ ${TARGET} = "win64" ]; then
 else
     if [ ${TRAVIS_OS_NAME} = "linux" ]; then
         echo installing HDF5 with source
-        wget https://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.16.tar.bz2
-        tar -xjf hdf5-1.8.16.tar.bz2
-        cd hdf5-1.8.16
+        wget https://www.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.17/src/hdf5-1.8.17.tar.bz2
+        tar -xjf hdf5-1.8.17.tar.bz2
+        cd hdf5-1.8.17
         ./configure
         make CFLAGS="-w -fPIC" CXXFLAGS="-w -fPIC"
         sudo make install
