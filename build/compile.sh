@@ -21,9 +21,9 @@ else
         FFTLIBPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a
         FFTSOPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so
 
-        HDF5LIBPATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5.a
-        HDF5HLLIBPATH=$PWD/hdf5-1.8.16/hdf5/lib/libhdf5_hl.a
-        HDF5INCLUDEPATH=$PWD/hdf5-1.8.16/hdf5/include
+        HDF5LIBPATH=$PWD/hdf5-1.8.17/hdf5/lib/libhdf5.a
+        HDF5HLLIBPATH=$PWD/hdf5-1.8.17/hdf5/lib/libhdf5_hl.a
+        HDF5INCLUDEPATH=$PWD/hdf5-1.8.17/hdf5/include
     else
         QT5DIR=/usr/local/opt/qt5
         PACKAGE=Bundle
