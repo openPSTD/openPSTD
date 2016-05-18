@@ -340,7 +340,7 @@
   </action>
   <action name="actionDocument_Settings">
    <property name="text">
-    <string>Document Settings</string>
+    <string>Calculation Settings</string>
    </property>
    <property name="shortcut">
     <string>F10</string>
