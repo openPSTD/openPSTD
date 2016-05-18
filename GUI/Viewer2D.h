@@ -115,6 +115,8 @@ namespace OpenPSTD
             bool visible;
 
         public:
+            Layer(): visible(true) {}
+
             virtual bool GetVisible()
             { return visible; };
 

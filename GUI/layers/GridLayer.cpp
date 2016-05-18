@@ -83,6 +83,9 @@ namespace OpenPSTD
                                     std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
             program->bind();
+
+            this->visible = m->interactive->GridVisible;
+
             if (m->view->IsChanged() || m->documentAccess->IsChanged())
             {
                 this->gridSpacing = m->documentAccess->GetDocument()->GetSceneConf()->Settings.GetGridSpacing();

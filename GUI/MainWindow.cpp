@@ -36,6 +36,7 @@
 #include "operations/EditOperations.h"
 #include "operations/SettingsOperations.h"
 #include "operations/ViewOperations.h"
+#include "operations/LambdaOperation.h"
 #include "operations/long/LOperationOperation.h"
 #include "operations/long/SimulateLOperation.h"
 #include "mouse/MouseSelectStrategy.h"
@@ -157,6 +158,18 @@ namespace OpenPSTD
                              [&](bool checked) {
                                  this->operationRunner.lock()->RunOperation(std::make_shared<ViewWholeScene>());
                              });
+
+            QObject::connect(ui->actionShow_grid, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([checked](const Reciever &reciever) {
+                                     std::cout << checked << std::endl;
+                                     reciever.model->interactive->GridVisible = checked;
+                                     reciever.model->interactive->Change();
+                                 });
+                                 this->operationRunner.lock()->RunOperation(op);
+
+                             });
+
 
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
                              &MainWindow::EditSelectedDomain);

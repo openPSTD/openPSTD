@@ -81,7 +81,8 @@ namespace OpenPSTD
                 SelectionType Type;
             } Selection;
 
-            unsigned int visibleFrame = -1;
+            int visibleFrame = -1;
+            bool GridVisible = true;
         };
 
         class View : public Shared::InvalidationData

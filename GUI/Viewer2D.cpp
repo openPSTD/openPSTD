@@ -111,7 +111,7 @@ namespace OpenPSTD
 
                 for (int i = 0; i < this->layers.size(); i++)
                 {
-                    this->layers[i]->PaintGL(this, f);
+                    this->layers[i]->PaintGLVisibilityCheck(this, f);
                     GLError("Viewer2D:: this->layers[" + boost::lexical_cast<std::string>(i) + "]->PaintGL");
                 }
                 f->glActiveTexture(GL_TEXTURE0);
