@@ -70,8 +70,14 @@ namespace OpenPSTD
             statusbarLabel->setMaximumHeight(19);
             statusbarLabel->setVisible(false);
 
+            statusbarLabelFrameNumber = new QLabel(ui->statusbar);
+            statusbarLabel->setAlignment(Qt::AlignLeft);
+            statusbarLabel->setMaximumHeight(19);
+            statusbarLabel->setVisible(false);
+
             ui->statusbar->addWidget(progressBar);
             ui->statusbar->addWidget(statusbarLabel);
+            ui->statusbar->addWidget(statusbarLabelFrameNumber);
 
             this->updateTimer = new QTimer(this);
             this->updateTimer->setInterval(100);
@@ -162,7 +168,6 @@ namespace OpenPSTD
             QObject::connect(ui->actionShow_grid, &QAction::triggered, this,
                              [&](bool checked) {
                                  std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([checked](const Reciever &reciever) {
-                                     std::cout << checked << std::endl;
                                      reciever.model->interactive->GridVisible = checked;
                                      reciever.model->interactive->Change();
                                  });
@@ -205,6 +210,16 @@ namespace OpenPSTD
                     int i = model->interactive->Selection.SelectedIndex;
                     domainProperties->SetDomain(conf->Domains[i]);
                 }
+            }
+
+            if(model->interactive->visibleFrame >= 0)
+            {
+                this->statusbarLabelFrameNumber->show();
+                this->statusbarLabelFrameNumber->setText("Frame: " + QString::number(model->interactive->visibleFrame));
+            }
+            else
+            {
+                this->statusbarLabelFrameNumber->hide();
             }
 
             if(!worker->IsIdle() && 0 <= worker->GetCurrentProgress() && worker->GetCurrentProgress() <= 1)

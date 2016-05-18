@@ -65,6 +65,7 @@ namespace OpenPSTD
             std::weak_ptr<OperationRunner> operationRunner;
             QProgressBar* progressBar;
             QLabel* statusbarLabel;
+            QLabel* statusbarLabelFrameNumber;
             QTimer* updateTimer;
             std::vector<QAction *> MouseHandlersActions;
             int maxFrame;
