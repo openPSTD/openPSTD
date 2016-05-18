@@ -138,8 +138,8 @@ namespace OpenPSTD
         {
             float grid_spacing = CalcIdealSpacing();
 
-            QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, -1, 0)).toVector2D();
-            QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, 1, 0)).toVector2D();
+            QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, 1, 0)).toVector2D();
+            QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, -1, 0)).toVector2D();
 
             tl[0] = floorf(tl[0] / grid_spacing);
             tl[1] = floorf(tl[1] / grid_spacing);
@@ -181,15 +181,15 @@ namespace OpenPSTD
 
         void GridLayer::UpdateOriginLines()
         {
-            QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, -1, 0)).toVector2D();
-            QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, 1, 0)).toVector2D();
+            QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, 1, 0)).toVector2D();
+            QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, -1, 0)).toVector2D();
             std::unique_ptr<std::vector<float> > positions = std::unique_ptr<std::vector<float> >(new std::vector<float>());
 
             positions->push_back(tl[0]); positions->push_back(0);
             positions->push_back(br[0]); positions->push_back(0);
 
-            positions->push_back(0); positions->push_back(tl[0]);
-            positions->push_back(0); positions->push_back(br[0]);
+            positions->push_back(0); positions->push_back(tl[1]);
+            positions->push_back(0); positions->push_back(br[1]);
 
             this->originPositions = std::move(positions);
         }

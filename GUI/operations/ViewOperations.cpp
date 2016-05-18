@@ -50,7 +50,8 @@ namespace OpenPSTD
 
         ChangeAspectMatrix::ChangeAspectMatrix(float w, float h) : M()
         {
-            this->M.scale(h / w, 1);
+            // the minus 1 to make it conform the file format
+            this->M.scale(h / w, -1);
         }
 
         void ChangeAspectMatrix::Run(const Reciever &reciever)

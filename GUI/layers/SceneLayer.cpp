@@ -159,14 +159,14 @@ namespace OpenPSTD
                 float bottom = br[1];
 
                 result->push_back(Edge(QVector2D(left, top), QVector2D(left, bottom), conf->Domains[i].L.Absorption,
-                                       conf->Domains[i].L.Absorption));
+                                       conf->Domains[i].L.LR));
                 result->push_back(Edge(QVector2D(right, top), QVector2D(right, bottom), conf->Domains[i].R.Absorption,
-                                       conf->Domains[i].R.Absorption));
+                                       conf->Domains[i].R.LR));
 
                 result->push_back(Edge(QVector2D(left, bottom), QVector2D(right, bottom), conf->Domains[i].B.Absorption,
-                                       conf->Domains[i].B.Absorption));
+                                       conf->Domains[i].B.LR));
                 result->push_back(Edge(QVector2D(left, top), QVector2D(right, top), conf->Domains[i].T.Absorption,
-                                       conf->Domains[i].T.Absorption));
+                                       conf->Domains[i].T.LR));
             }
 
             return std::move(result);
