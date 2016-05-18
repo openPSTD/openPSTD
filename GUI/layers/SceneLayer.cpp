@@ -41,8 +41,6 @@ namespace OpenPSTD
 
         void SceneLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            f->glGenTextures(1, &this->textureID);
-
             f->glGenBuffers(1, &this->positionsBuffer);
             f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
 
@@ -63,7 +61,6 @@ namespace OpenPSTD
 
             program->setUniformValue("vmin", 0.0f);
             program->setUniformValue("vmax", 1.0f);
-            f->glUniform1i((GLuint) program->attributeLocation("colormap"), 0);
         }
 
         void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
@@ -78,9 +75,6 @@ namespace OpenPSTD
             f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_value"), 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-            f->glActiveTexture(GL_TEXTURE0);
-            f->glBindTexture(GL_TEXTURE_1D, this->textureID);
-
             f->glLineWidth(5.0f);
             f->glDrawArrays(GL_LINES, 0, lines * 2);
             program->disableAttributeArray("a_position");
@@ -93,8 +87,6 @@ namespace OpenPSTD
         void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m,
                                      std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            CreateColormap(m, f);
-
             program->bind();
             if (m->view->IsChanged())
             {
@@ -147,25 +139,6 @@ namespace OpenPSTD
         MinMaxValue SceneLayer::GetMinMax()
         {
             return MinMaxValue();
-        }
-
-        void SceneLayer::CreateColormap(std::shared_ptr<Model> const &m,
-                                        std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
-        {
-            if (m->IsChanged())
-            {
-                std::unique_ptr<std::vector<float>> colormap = m->colorScheme->
-                        EditorLineAbsoptionColorGradient()->CreateRawRGBAColorMap(0, 1, 512);
-
-                // "Bind" the newly created texture : all future texture functions will modify this texture
-                f->glBindTexture(GL_TEXTURE_1D, this->textureID);
-
-                // Give the image to OpenGL
-                glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 512, 0, GL_RGBA, GL_FLOAT, colormap->data());
-
-                f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                f->glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            }
         }
 
         std::unique_ptr<std::vector<Edge>> SceneLayer::GetAllEdges(std::shared_ptr<Model> const &m)

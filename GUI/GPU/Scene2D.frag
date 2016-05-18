@@ -24,8 +24,6 @@ uniform float vmax;
 
 in float v_value;
 
-uniform sampler1D colormap;
-
 void main()
 {
     float value = v_value;
@@ -40,5 +38,5 @@ void main()
     }
 
     value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = texture(colormap, value);
+    gl_FragColor = vec4(0, value, 0, 1);
 }

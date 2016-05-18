@@ -48,12 +48,8 @@ namespace OpenPSTD
             std::unique_ptr<QOpenGLShaderProgram> program;
             unsigned int positionsBuffer;
             unsigned int valuesBuffer;
-            GLuint textureID;
             int lines;
             float lineWidth;
-
-            void CreateColormap(std::shared_ptr<Model> const &m,
-                                std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
             std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
 
