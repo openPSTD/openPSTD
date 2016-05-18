@@ -44,12 +44,17 @@ namespace OpenPSTD
             std::unique_ptr<QOpenGLShaderProgram> program;
 
             void UpdateLines();
+            void UpdateOriginLines();
 
             std::unique_ptr<std::vector<float>> positions;
+            std::unique_ptr<std::vector<float>> originPositions;
             unsigned int positionsBuffer;
+            unsigned int originPositionsBuffer;
             int lines;
+            int originLines;
             float gridSpacing;
             QMatrix4x4 viewMatrix;
+            QMatrix4x4 worldMatrix;
 
         public:
             GridLayer();

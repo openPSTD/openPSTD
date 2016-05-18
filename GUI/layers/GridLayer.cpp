@@ -44,7 +44,7 @@ namespace OpenPSTD
             gridSpacing = 0.2f;
 
             f->glGenBuffers(1, &this->positionsBuffer);
-            f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+            f->glGenBuffers(1, &this->originPositionsBuffer);
 
             std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Grid.vert.glsl"));
@@ -65,11 +65,17 @@ namespace OpenPSTD
         {
             program->bind();
             program->enableAttributeArray("a_position");
+
             f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-
             f->glLineWidth(1.0f);
             f->glDrawArrays(GL_LINES, 0, lines * 2);
+
+            f->glBindBuffer(GL_ARRAY_BUFFER, this->originPositionsBuffer);
+            f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+            f->glLineWidth(2.5f);
+            f->glDrawArrays(GL_LINES, 0, 2 * 2);
+
             program->disableAttributeArray("a_position");
         }
 
@@ -81,11 +87,18 @@ namespace OpenPSTD
             {
                 this->gridSpacing = m->documentAccess->GetDocument()->GetSceneConf()->Settings.GetGridSpacing();
                 this->viewMatrix = m->view->viewMatrix;
+                this->worldMatrix = m->view->worldMatrix;
 
                 UpdateLines();
 
                 f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
                 f->glBufferData(GL_ARRAY_BUFFER, this->positions->size() * sizeof(float), this->positions->data(),
+                                GL_DYNAMIC_DRAW);
+
+                UpdateOriginLines();
+
+                f->glBindBuffer(GL_ARRAY_BUFFER, this->originPositionsBuffer);
+                f->glBufferData(GL_ARRAY_BUFFER, this->originPositions->size() * sizeof(float), this->originPositions->data(),
                                 GL_DYNAMIC_DRAW);
 
                 program->setUniformValue("u_view", m->view->viewMatrix);
@@ -107,11 +120,11 @@ namespace OpenPSTD
 
         float GridLayer::CalcIdealSpacing()
         {
-            QVector3D center = this->viewMatrix * QVector3D(0, 0, 0);
-            QVector3D gridSpacingPoint = this->viewMatrix * QVector3D(this->gridSpacing, 0, 0);
+            QVector3D center = this->worldMatrix * QVector3D(0, 0, 0);
+            QVector3D gridSpacingPoint = this->worldMatrix * QVector3D(this->gridSpacing, 0, 0);
             float distance = (center - gridSpacingPoint).length();
             float x = 1;
-            while (0.04 > distance * x)
+            while (0.01 > distance * x)
             {
                 x *= 2;
             }
@@ -162,5 +175,22 @@ namespace OpenPSTD
             this->positions = std::move(positions);
             this->lines = lines;
         }
+
+        void GridLayer::UpdateOriginLines()
+        {
+            QVector2D tl = (this->viewMatrix.inverted() * QVector3D(-1, -1, 0)).toVector2D();
+            QVector2D br = (this->viewMatrix.inverted() * QVector3D(1, 1, 0)).toVector2D();
+            std::unique_ptr<std::vector<float> > positions = std::unique_ptr<std::vector<float> >(new std::vector<float>());
+
+            positions->push_back(tl[0]); positions->push_back(0);
+            positions->push_back(br[0]); positions->push_back(0);
+
+            positions->push_back(0); positions->push_back(tl[0]);
+            positions->push_back(0); positions->push_back(br[0]);
+
+            this->originPositions = std::move(positions);
+        }
+
+
     }
 }
