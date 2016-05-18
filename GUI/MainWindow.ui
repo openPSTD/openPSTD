@@ -332,7 +332,7 @@
   </action>
   <action name="actionEdit_properties_of_domain">
    <property name="text">
-    <string>Edit properties of domain</string>
+    <string>Edit Subdomain Boundary Conditions</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
