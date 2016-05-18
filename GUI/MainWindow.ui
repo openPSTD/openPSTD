@@ -139,7 +139,6 @@
     <property name="title">
      <string>Operations</string>
     </property>
-    <addaction name="actionSelect"/>
     <addaction name="actionAdd_Domain"/>
     <addaction name="actionDelete_selected"/>
     <addaction name="actionResize_domain"/>
@@ -150,7 +149,7 @@
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
-     <string>Tool</string>
+     <string>Mouse Tools</string>
     </property>
     <addaction name="actionSelect"/>
     <addaction name="actionMove_scene"/>
