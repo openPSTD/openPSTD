@@ -188,8 +188,8 @@ namespace OpenPSTD
                             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, metadata.DomainMetadata[i][0],
                                          metadata.DomainMetadata[i][1], 0, GL_RED, GL_FLOAT, values->data());
 
-                            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
                             this->RenderInfo.push_back(info);
                         }
