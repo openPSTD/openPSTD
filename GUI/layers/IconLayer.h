@@ -41,6 +41,7 @@ namespace OpenPSTD
         {
         private:
             std::unique_ptr<QOpenGLShaderProgram> program;
+            std::unique_ptr<QOpenGLShaderProgram> programIntern;
             unsigned int LineBuffers;
             unsigned int ColorBuffer;
             unsigned int lines;

@@ -141,6 +141,9 @@ namespace OpenPSTD
 
             f->glDisable(GL_CULL_FACE);
             f->glDisable(GL_TEXTURE_2D);
+            f->glEnable(GL_BLEND);
+            f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
             GLError("Viewer2D:: f->glEnable");
 
             for (int i = 0; i < this->layers.size(); i++)

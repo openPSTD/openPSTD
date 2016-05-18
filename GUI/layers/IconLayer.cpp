@@ -39,8 +39,6 @@ namespace OpenPSTD
 
         void IconLayer::InitializeGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
         {
-            QColor color(0, 255, 255, 255);
-
             f->glGenBuffers(1, &this->LineBuffers);
             f->glGenBuffers(1, &this->ColorBuffer);
 
@@ -48,6 +46,8 @@ namespace OpenPSTD
                     new std::string(":/GPU/Symbol.vert.glsl"));
             std::unique_ptr<std::string> geoFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Symbol.geo.glsl"));
+            std::unique_ptr<std::string> geoInternFile = std::unique_ptr<std::string>(
+                    new std::string(":/GPU/SymbolInternal.geo.glsl"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Symbol.frag.glsl"));
 
@@ -56,8 +56,14 @@ namespace OpenPSTD
             program->addShaderFromSourceFile(QOpenGLShader::Geometry, QString::fromStdString(*geoFile));
             program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString::fromStdString(*fragmentFile));
             program->link();
-
             program->bind();
+
+            programIntern = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
+            programIntern->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
+            programIntern->addShaderFromSourceFile(QOpenGLShader::Geometry, QString::fromStdString(*geoInternFile));
+            programIntern->addShaderFromSourceFile(QOpenGLShader::Fragment, QString::fromStdString(*fragmentFile));
+            programIntern->link();
+            programIntern->bind();
         }
 
         void IconLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
@@ -65,11 +71,12 @@ namespace OpenPSTD
             program->bind();
 
             program->enableAttributeArray("a_position");
+            program->enableAttributeArray("a_color");
+
             f->glBindBuffer(GL_ARRAY_BUFFER, this->LineBuffers);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
             GLError("a_position");
 
-            program->enableAttributeArray("a_color");
             f->glBindBuffer(GL_ARRAY_BUFFER, this->ColorBuffer);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_color"), 4, GL_FLOAT, GL_FALSE, 0, 0);
             GLError("a_color");
@@ -80,6 +87,23 @@ namespace OpenPSTD
             program->disableAttributeArray("a_position");
             program->disableAttributeArray("a_color");
 
+
+            programIntern->bind();
+            programIntern->enableAttributeArray("a_position");
+            programIntern->enableAttributeArray("a_color");
+
+            f->glBindBuffer(GL_ARRAY_BUFFER, this->LineBuffers);
+            f->glVertexAttribPointer((GLuint) programIntern->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+            GLError("a_position");
+
+            f->glBindBuffer(GL_ARRAY_BUFFER, this->ColorBuffer);
+            f->glVertexAttribPointer((GLuint) programIntern->attributeLocation("a_color"), 4, GL_FLOAT, GL_FALSE, 0, 0);
+            GLError("a_color");
+
+            f->glDrawArrays(GL_POINTS, 0, lines);
+            GLError("f->glDrawArrays");
+            programIntern->disableAttributeArray("a_position");
+            programIntern->disableAttributeArray("a_color");
         }
 
         void IconLayer::UpdateScene(std::shared_ptr<Model> const &m,
@@ -87,8 +111,6 @@ namespace OpenPSTD
         {
             if (m->documentAccess->IsChanged())
             {
-                QVector2D SizeLines(0.4, 0.4);
-                QVector2D SizeSquare(0.2, 0.2);
                 std::unique_ptr<std::vector<QVector2D>> positions(new std::vector<QVector2D>());
                 std::unique_ptr<std::vector<QVector4D>> colors(new std::vector<QVector4D>());
 
@@ -119,6 +141,8 @@ namespace OpenPSTD
             {
                 program->bind();
                 program->setUniformValue("u_view", m->view->viewMatrix);
+                programIntern->bind();
+                programIntern->setUniformValue("u_view", m->view->viewMatrix);
             }
         }
 
