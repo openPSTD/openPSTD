@@ -59,7 +59,6 @@ namespace OpenPSTD
             //interface of LongOperation and BaseOperation
             std::string GetName();
             float GetProgress();
-            bool Cancel();
             void Run(const Reciever &reciever);
             bool Started();
             bool Finished();

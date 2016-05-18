@@ -55,11 +55,6 @@ float SimulateLOperation::GetProgress()
     return this->currentFrame/(float)this->metadata.Framecount;
 }
 
-bool SimulateLOperation::Cancel()
-{
-    return false;
-}
-
 void SimulateLOperation::Run(const Reciever &reciever)
 {
     this->started = true;

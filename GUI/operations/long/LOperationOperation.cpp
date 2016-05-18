@@ -42,6 +42,29 @@ void OpenPSTD::GUI::StartLOperation::Run(const OpenPSTD::GUI::Reciever &r)
 }
 
 
+OpenPSTD::GUI::StopLOperation::StopLOperation()
+{
+
+}
+
+OpenPSTD::GUI::StopLOperation::StopLOperation(std::shared_ptr<LongOperation> LOp): LOp(LOp)
+{
+
+}
+
+void OpenPSTD::GUI::StopLOperation::Run(const Reciever &r)
+{
+    if(this->LOp)
+    {
+        this->LOp->Cancel();
+    }
+    else
+    {
+        r.Backgroundworker->StopCurrentOperation();
+    }
+}
+
+
 
 
 

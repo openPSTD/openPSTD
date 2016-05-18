@@ -48,6 +48,18 @@ namespace OpenPSTD
 
             void Run(const Reciever &r);
         };
+
+        class StopLOperation : public BaseOperation
+        {
+        private:
+            std::shared_ptr<LongOperation> LOp;
+
+        public:
+            StopLOperation();
+            StopLOperation(std::shared_ptr<LongOperation> LOp);
+
+            void Run(const Reciever &r);
+        };
     }
 }
 

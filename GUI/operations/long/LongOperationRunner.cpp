@@ -32,6 +32,11 @@ using namespace OpenPSTD::GUI;
 using namespace boost;
 using namespace std;
 
+const char *CancelLongOperationException::what() const noexcept
+{
+    return "Cancels this operation";
+}
+
 BackgroundWorker::BackgroundWorker(std::weak_ptr<ReceiverBuilder> builder)
 {
     this->builder = builder;
@@ -127,7 +132,14 @@ void BackgroundWorker::WorkerMethod()
                 std::shared_ptr<ReceiverBuilder> builder = this->builder.lock();
                 r = builder->BuildReceiver();
             }//make sure the shared_ptr to builder is removed
-            this->currentOperation->Run(r);
+            try
+            {
+                this->currentOperation->Run(r);
+            }
+            catch(CancelLongOperationException) //catches cancelation
+            {
+                std::cout << "Cancels current operation" << std::endl;
+            }
             {
                 boost::unique_lock<boost::recursive_mutex> lockCurrentOp(this->currentOperationMutex);
                 this->currentOperation = nullptr;
@@ -138,12 +150,40 @@ void BackgroundWorker::WorkerMethod()
     catch(thread_interrupted ex)
     {
         std::cout << "interupted worker thread" << std::endl;
-        //todo do something with this exception
     }
+}
+
+void BackgroundWorker::StopCurrentOperation()
+{
+    boost::unique_lock<boost::recursive_mutex> lock(this->currentOperationMutex);
+    this->currentOperation->Cancel();
+}
+
+
+LongOperation::LongOperation(): cancels(false)
+{
+
 }
 
 void LongOperation::Update()
 {
     this_thread::interruption_point();
+    if(this->cancels)
+        throw CancelLongOperationException();
 }
+
+bool LongOperation::Cancel()
+{
+    this->cancels = true;
+    return true;
+}
+
+
+
+
+
+
+
+
+
 

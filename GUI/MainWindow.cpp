@@ -148,6 +148,10 @@ namespace OpenPSTD
                                  //execute operation
                                  this->operationRunner.lock()->RunOperation(startLOpOp);
                              });
+            QObject::connect(ui->actionStopAction, &QAction::triggered, this,
+                             [&](bool checked) {
+                                 this->operationRunner.lock()->RunOperation(std::make_shared<StopLOperation>());
+                             });
 
             QObject::connect(ui->actionView_complete_scene, &QAction::triggered, this,
                              [&](bool checked) {
@@ -268,6 +272,8 @@ namespace OpenPSTD
             ui->actionSave->setEnabled(model->documentAccess->IsDocumentLoaded());
             ui->actionMove_scene->setEnabled(model->documentAccess->IsDocumentLoaded());
             ui->actionView_complete_scene->setEnabled(model->documentAccess->IsDocumentLoaded());
+
+            ui->actionStopAction->setEnabled(!worker->IsIdle());
 
             bool documentEdit = worker->IsIdle() && model->documentAccess->IsDocumentLoaded();
 

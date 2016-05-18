@@ -46,6 +46,7 @@ namespace OpenPSTD
                 "Add by Leonides Delgado from the Noun Project\n"
                 "Full Screen by iconsmind.com from the Noun Project\n"
                 "Selection Square by Thomas Helbig from the Noun Project\n"
+                "Play by Alex Fuller from the Noun Project\n"
                 "https://thenounproject.com/";
 
     }

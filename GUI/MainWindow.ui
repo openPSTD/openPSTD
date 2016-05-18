@@ -144,7 +144,9 @@
     <addaction name="actionDelete_selected"/>
     <addaction name="actionResize_domain"/>
     <addaction name="actionEdit_properties_of_domain"/>
+    <addaction name="separator"/>
     <addaction name="actionStart_simulation"/>
+    <addaction name="actionStopAction"/>
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
@@ -183,6 +185,8 @@
    <addaction name="separator"/>
    <addaction name="actionView_complete_scene"/>
    <addaction name="separator"/>
+   <addaction name="actionStopAction"/>
+   <addaction name="actionStart_simulation"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -375,8 +379,15 @@
    </property>
   </action>
   <action name="actionStart_simulation">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/Play.png</normaloff>:/Images/Play.png</iconset>
+   </property>
    <property name="text">
     <string>Start simulation</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
    </property>
   </action>
   <action name="actionApplication_Settings">
@@ -392,6 +403,21 @@
   <action name="actionExport_Image">
    <property name="text">
     <string>Image</string>
+   </property>
+  </action>
+  <action name="actionStopAction">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Images/Stop.png</normaloff>:/Images/Stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop current action</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F5</string>
    </property>
   </action>
  </widget>

@@ -47,15 +47,22 @@ namespace OpenPSTD
          */
         class LongOperation : public BaseOperation
         {
+        private:
+            /**
+             * true if the next update should throw cancel operation exception
+             */
+            bool cancels;
         protected:
             /**
              * A simple function that should be called as many times as possible
-             * whenever the state of the current thread can be aborted.
-             * This function can create a interruption, which is used for cancelation.
+             * whenever the state of the current operation can be aborted.
+             * This function can create a interruption exception(abort thread) or a cancalation exception.
              */
             void Update();
 
         public:
+            LongOperation();
+
             /**
              * Should be a thread safe function.
              * Retrieves the name of the operation.
@@ -63,7 +70,7 @@ namespace OpenPSTD
             virtual std::string GetName() = 0;
             /**
              * Should be a thread safe function.
-             * Retrieves the progress of the operation between 0 and 1. (including, 0 = nothing done, 1 = finished)
+             * Retrieves the progress of the operation between 0 and 1. (inclusive, 0 = nothing done, 1 = finished)
              */
             virtual float GetProgress() = 0;
             /**
@@ -79,10 +86,16 @@ namespace OpenPSTD
 
             /**
              * Should be a thread safe function.
-             * Cancels this operation, this has to be implemented by the operation.
+             * This makes sure this operation is canceled when the next Update is called.
              */
-            virtual bool Cancel() = 0;
+            virtual bool Cancel();
 
+        };
+
+        class CancelLongOperationException : public std::exception
+        {
+        public:
+            const char *what() const noexcept override;
         };
 
         /**
@@ -122,7 +135,6 @@ namespace OpenPSTD
              * Waits for the worker to finish.
              */
             void JoinAfterWork();
-
             /**
              * Waits for the worker to finish.
              */
@@ -132,6 +144,10 @@ namespace OpenPSTD
              * Enqueue an operation, if the queue is empty, this will immediately start.
              */
             void EnqueueOperation(std::shared_ptr<LongOperation> Op);
+            /**
+             * Stops the current operation.
+             */
+            void StopCurrentOperation();
 
             /**
              * True is the background worker does nothing.

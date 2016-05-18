@@ -19,9 +19,11 @@
         <!-- Icons -->
         <file>Images/noun_100_cc.png</file>
         <file>Images/noun_1476.png</file>
+        <file>Images/Play.png</file> 
         <file>Images/noun_33232_cc.png</file>
         <file>Images/noun_40980_cc.png</file>
         <file>Images/noun_70430_cc.png</file>
         <file>Images/noun_120460_cc.png</file>
+        <file>Images/Stop.png</file>
     </qresource>
 </RCC>
