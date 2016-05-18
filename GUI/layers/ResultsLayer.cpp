@@ -56,7 +56,7 @@ namespace OpenPSTD
 
             program->bind();
 
-            program->setUniformValue("vmin", 0.0f);
+            program->setUniformValue("vmin", -1.0f);
             program->setUniformValue("vmax", 1.0f);
             f->glUniform1i((GLuint) program->attributeLocation("values"), 0);
 
@@ -185,7 +185,7 @@ namespace OpenPSTD
 
                             f->glActiveTexture(GL_TEXTURE1);
                             f->glBindTexture(GL_TEXTURE_2D, info.texture);
-                            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, metadata.DomainMetadata[i][0],
+                            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, metadata.DomainMetadata[i][0],
                                          metadata.DomainMetadata[i][1], 0, GL_RED, GL_FLOAT, values->data());
 
                             f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -39,6 +39,17 @@ void main()
         value = vmax;
     }
 
-    value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = vec4(value, 0, 0, 1);
+    value = (value-vmin)/(vmax-vmin)*2-1;
+    float valueAbs = abs(value);
+    if(valueAbs != 0)
+        valueAbs = pow(valueAbs, 0.5);
+    if(0 < value)
+    {
+        gl_FragColor = vec4(valueAbs, 0, 0, 1);
+    }
+    else
+    {
+        gl_FragColor = vec4(0, 0, valueAbs, 1);
+    }
+
 }
