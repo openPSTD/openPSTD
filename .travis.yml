@@ -17,6 +17,8 @@ matrix:
   allow_failures:
     - os: osx
 
+cache: ccache
+
 env:
   global:
   - OPENPSTD_MAJOR_VERSION=2
