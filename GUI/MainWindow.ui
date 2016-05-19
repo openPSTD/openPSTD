@@ -139,7 +139,7 @@
     <property name="title">
      <string>Operations</string>
     </property>
-    <addaction name="actionAdd_Domain"/>
+    <addaction name="actionAdd_Receiver_Speaker"/>
     <addaction name="actionDelete_selected"/>
     <addaction name="actionResize_domain"/>
     <addaction name="actionEdit_properties_of_domain"/>
@@ -420,6 +420,11 @@
    </property>
    <property name="shortcut">
     <string>Shift+F5</string>
+   </property>
+  </action>
+  <action name="actionAdd_Receiver_Speaker">
+   <property name="text">
+    <string>Add Receiver(s) or Speaker(s)</string>
    </property>
   </action>
  </widget>

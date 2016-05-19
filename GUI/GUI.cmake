@@ -36,7 +36,8 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/MainWindow.cpp
         GUI/DomainProperties.cpp
         GUI/DocumentSettings.cpp
-        GUI/ApplicationSettings.cpp)
+        GUI/ApplicationSettings.cpp
+        GUI/AddReceiverSpeaker.cpp)
 # Resource files
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/Resources.qrc)

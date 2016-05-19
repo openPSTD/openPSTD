@@ -30,6 +30,7 @@
 #include "MainWindow.h"
 #include "AboutBoxesText.h"
 #include "ExportImage.h"
+#include "AddReceiverSpeaker.h"
 #include <QFileDialog>
 #include "operations/FileOperations.h"
 #include "operations/MouseOperations.h"
@@ -180,6 +181,7 @@ namespace OpenPSTD
                              &MainWindow::EditSelectedDomain);
             QObject::connect(ui->actionDocument_Settings, &QAction::triggered, this, &MainWindow::EditDocumentSettings);
             QObject::connect(ui->actionApplication_Settings, &QAction::triggered, this, &MainWindow::EditApplicationSettings);
+            QObject::connect(ui->actionAdd_Receiver_Speaker, &QAction::triggered, this, &MainWindow::ExecuteAddReceiverSpeaker);
             QObject::connect(ui->hsbFrame, &QScrollBar::valueChanged, this, &MainWindow::hsbFrameChanged);
         }
 
@@ -407,6 +409,16 @@ namespace OpenPSTD
                         ui_exportImage->GetFormat());
                 op->startFrame = ui_exportImage->GetStartFrame();
                 op->endFrame = ui_exportImage->GetEndFrame();
+                this->operationRunner.lock()->RunOperation(op);
+            }
+        }
+
+        void MainWindow::ExecuteAddReceiverSpeaker()
+        {
+            std::unique_ptr<AddReceiverSpeaker> ui_add(new AddReceiverSpeaker());
+            if (ui_add->exec() == QDialog::Accepted)
+            {
+                auto op = std::make_shared<CreateReceiverSpeakerOperation>(ui_add->GetOptions());
                 this->operationRunner.lock()->RunOperation(op);
             }
         }

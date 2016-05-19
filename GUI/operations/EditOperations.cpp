@@ -74,10 +74,13 @@ namespace OpenPSTD
             doc->Change();
         }
 
-        CreateReceiverSpeakerOperation::CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position) : _type(
-                type),
-                                                                                                                  _position(
-                                                                                                                          position)
+        CreateReceiverSpeakerOperation::CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position)
+                : _options(type, position)
+        {
+
+        }
+
+        CreateReceiverSpeakerOperation::CreateReceiverSpeakerOperation(Options options): _options(options)
         {
 
         }
@@ -86,17 +89,27 @@ namespace OpenPSTD
         {
             auto doc = reciever.model->documentAccess->GetDocument();
             auto conf = doc->GetSceneConf();
-            if (this->_type == OBJECT_RECEIVER)
+            QMatrix4x4 rotateMatrix;
+            rotateMatrix.scale(_options.DistanceBetween);
+            rotateMatrix.rotate(_options.Direction, 0, 0, 1);
+
+            QVector3D pos = _options.Position;
+            QVector3D dir = rotateMatrix*QVector3D(1, 0, 0);
+            for(int i = 0; i < _options.Count; i++)
             {
-                conf->Receivers.push_back(this->_position);
-            }
-            else if (this->_type == OBJECT_SPEAKER)
-            {
-                conf->Speakers.push_back(this->_position);
-            }
-            else
-            {
-                //todo throw exception here
+                if (this->_options.Type == OBJECT_RECEIVER)
+                {
+                    conf->Receivers.push_back(pos);
+                }
+                else if (this->_options.Type == OBJECT_SPEAKER)
+                {
+                    conf->Speakers.push_back(pos);
+                }
+                else
+                {
+                    //todo throw exception here
+                }
+                pos = pos + dir;
             }
 
             doc->SetSceneConf(conf);

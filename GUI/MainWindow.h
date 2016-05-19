@@ -74,9 +74,9 @@ namespace OpenPSTD
             void ChangeMouseHandler(QAction *action, std::unique_ptr<MouseStrategy> mouseHandler);
 
             void EditSelectedDomain();
-
             void EditDocumentSettings();
             void EditApplicationSettings();
+            void ExecuteAddReceiverSpeaker();
 
             void UpdateDisableWidgets(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker);
             void UpdateHsbFrame(std::shared_ptr<Model> const &model, std::shared_ptr<BackgroundWorker> worker);
