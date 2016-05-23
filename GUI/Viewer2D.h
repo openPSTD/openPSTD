@@ -47,8 +47,25 @@ namespace OpenPSTD
 {
     namespace GUI
     {
-
         class Layer;
+
+        class TextRenderer
+        {
+        private:
+            GLuint textureID;
+            GLuint textureCoordsBuffer;
+            GLuint positionsBuffer;
+            std::map<char, QRectF> textureMapping;
+            std::unique_ptr<QOpenGLShaderProgram> program;
+
+            std::map<char, QRect> GetIntegerTextureMapping();
+
+        public:
+            TextRenderer(std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
+
+            void Draw(std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f, QMatrix4x4 viewMatrix,
+                          QVector2D position, float height, std::string string, QColor color = QColor(0, 0, 0, 255));
+        };
 
         class MinMaxValue
         {
@@ -102,6 +119,8 @@ namespace OpenPSTD
             virtual void wheelEvent(QWheelEvent *qWheelEvent) override;
 
         private:
+
+            std::shared_ptr<TextRenderer> textRenderer;
             std::vector<std::shared_ptr<Layer>> layers;
             std::weak_ptr<OperationRunner> operationRunner;
             bool loaded;
@@ -113,6 +132,7 @@ namespace OpenPSTD
         {
         protected:
             bool visible;
+            std::shared_ptr<TextRenderer> textRenderer;
 
         public:
             Layer(): visible(true) {}
@@ -122,6 +142,9 @@ namespace OpenPSTD
 
             virtual void SetVisible(bool value)
             { visible = value; };
+
+            virtual void SetTextRenderer(std::shared_ptr<TextRenderer> value)
+            { textRenderer = value; };
 
             virtual void InitializeGL(QObject *context,
                                       std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f) = 0;
@@ -140,6 +163,8 @@ namespace OpenPSTD
 
             virtual MinMaxValue GetMinMax() = 0;
         };
+
+
 
     }
 }

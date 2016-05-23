@@ -32,6 +32,10 @@
 #include "main.h"
 #include "operations/InitializationOperation.h"
 
+
+#include <QPainter>
+#include <QFont>
+
 int main(int argc, char *argv[])
 {
     using namespace OpenPSTD::GUI;
