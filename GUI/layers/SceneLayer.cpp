@@ -88,7 +88,7 @@ namespace OpenPSTD
             {
                 auto info = (*this->dimensions)[i];
                 this->textRenderer->Draw(f, this->viewMatrix, info.position, 1.0f,
-                                         info.text, QColor(0, 128, 128), info.vAlign, info.hAlign);
+                                         info.text, QColor(0, 128, 128, 150), info.vAlign, info.hAlign);
             }
         }
 
