@@ -361,8 +361,33 @@ OpenPSTD::GUI::TextRenderer::TextRenderer(std::unique_ptr<QOpenGLFunctions, void
 
 void OpenPSTD::GUI::TextRenderer::Draw(std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f,
                                        QMatrix4x4 viewMatrix, QVector2D position, float height, std::string s,
-                                       QColor color)
+                                       QColor color, TextVerticalAlignment vAlign, TextHorizontalAlignment hAlign)
 {
+    double totalWidth = this->GetWidth(height, s);
+    switch(hAlign)
+    {
+        case TextHorizontalAlignment::LEFT:
+            position[0] = position[0] - (float)totalWidth;
+            break;
+        case TextHorizontalAlignment::CENTER:
+            position[0] = position[0] - (float)totalWidth/2;
+            break;
+        case TextHorizontalAlignment::RIGHT:
+            break;
+    }
+
+    switch(vAlign)
+    {
+        case TextVerticalAlignment::TOP:
+            position[1] = position[1] - (float)height;
+            break;
+        case TextVerticalAlignment::CENTER:
+            position[1] = position[1] - (float)height/2;
+            break;
+        case TextVerticalAlignment::BOTTOM:
+            break;
+    }
+
     std::vector<QVector2D> textureCoords;
     std::vector<QVector2D> positions;
     double nextCharX = 0;
@@ -521,6 +546,24 @@ std::map<char, QRect> OpenPSTD::GUI::TextRenderer::GetIntegerTextureMapping()
 
     return iTextureMapping;
 }
+
+double OpenPSTD::GUI::TextRenderer::GetWidth(float height, std::string s)
+{
+    double width = 0;
+    for (unsigned int i = 0; i < s.length(); i++)
+    {
+        char c = s[i];
+        QRectF rect = this->textureMapping[c];
+
+        double sizeFactor = height / rect.height();
+        double charWidth = rect.width() * sizeFactor;
+
+        width += charWidth;
+    }
+    return width;
+}
+
+
 
 
 

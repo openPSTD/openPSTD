@@ -50,8 +50,15 @@ namespace OpenPSTD
             public:
                 QVector2D position;
                 std::string text;
+                TextHorizontalAlignment hAlign;
+                TextVerticalAlignment vAlign;
 
-                DimensionText(QVector2D position, std::string text): position(position), text(text)
+                DimensionText(QVector2D position, std::string text, TextHorizontalAlignment hAlign,
+                              TextVerticalAlignment vAlign):
+                        position(position),
+                        text(text),
+                        hAlign(hAlign),
+                        vAlign(vAlign)
                 {}
             };
 

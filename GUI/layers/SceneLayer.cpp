@@ -86,8 +86,9 @@ namespace OpenPSTD
 
             for(int i = 0; i < this->dimensions->size(); i++)
             {
-                this->textRenderer->Draw(f, this->viewMatrix, (*this->dimensions)[i].position, 1.0f,
-                                         (*this->dimensions)[i].text, QColor(0, 128, 128));
+                auto info = (*this->dimensions)[i];
+                this->textRenderer->Draw(f, this->viewMatrix, info.position, 1.0f,
+                                         info.text, QColor(0, 128, 128), info.vAlign, info.hAlign);
             }
         }
 
@@ -210,10 +211,10 @@ namespace OpenPSTD
                 ss << fabs(left - right);
                 std::string width = ss.str();
 
-                result->push_back(DimensionText(QVector2D(left, (bottom + top) / 2), height));
-                result->push_back(DimensionText(QVector2D(right, (bottom + top) / 2), height));
-                result->push_back(DimensionText(QVector2D((left + right) / 2, top), width));
-                result->push_back(DimensionText(QVector2D((left + right) / 2, bottom), width));
+                result->push_back(DimensionText(QVector2D(left, (bottom + top) / 2), height, TextHorizontalAlignment::RIGHT, TextVerticalAlignment::CENTER));
+                result->push_back(DimensionText(QVector2D(right, (bottom + top) / 2), height, TextHorizontalAlignment::LEFT, TextVerticalAlignment::CENTER));
+                result->push_back(DimensionText(QVector2D((left + right) / 2, top), width, TextHorizontalAlignment::CENTER, TextVerticalAlignment::BOTTOM));
+                result->push_back(DimensionText(QVector2D((left + right) / 2, bottom), width, TextHorizontalAlignment::CENTER, TextVerticalAlignment::TOP));
             }
 
             return std::move(result);

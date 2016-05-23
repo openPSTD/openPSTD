@@ -49,6 +49,19 @@ namespace OpenPSTD
     {
         class Layer;
 
+        enum class TextVerticalAlignment
+        {
+            TOP,
+            CENTER,
+            BOTTOM
+        };
+        enum class TextHorizontalAlignment
+        {
+            LEFT,
+            CENTER,
+            RIGHT
+        };
+
         class TextRenderer
         {
         private:
@@ -64,7 +77,14 @@ namespace OpenPSTD
             TextRenderer(std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f);
 
             void Draw(std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f, QMatrix4x4 viewMatrix,
-                          QVector2D position, float height, std::string string, QColor color = QColor(0, 0, 0, 255));
+                      QVector2D position, float height, std::string string, QColor color = QColor(0, 0, 0, 255),
+                      TextVerticalAlignment vAlign = TextVerticalAlignment::CENTER,
+                      TextHorizontalAlignment hAlign = TextHorizontalAlignment::CENTER);
+
+            /**
+             * Gets the size in world space
+             */
+            double GetWidth(float height, std::string string);
         };
 
         class MinMaxValue
