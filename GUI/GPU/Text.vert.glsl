@@ -19,37 +19,14 @@
 
 #version 330
 
-uniform float vmin;
-uniform float vmax;
+uniform mat4 view;
+in vec2 position;
 
-in vec2 v_texcoord;
-
-uniform sampler2D values;
+in vec2 texcoord;
+out vec2 v_texcoord;
 
 void main()
 {
-    float value = texture2D(values, v_texcoord).r;
-
-    if(value < vmin)
-    {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
-
-    value = (value-vmin)/(vmax-vmin)*2-1;
-    float valueAbs = abs(value);
-    if(valueAbs != 0)
-        valueAbs = pow(valueAbs, 0.5);
-    if(0 < value)
-    {
-        gl_FragColor = vec4(valueAbs, 0, 0, 1);
-    }
-    else
-    {
-        gl_FragColor = vec4(0, 0, valueAbs, 1);
-    }
-
+    gl_Position = (view * vec4(position, 0, 1));
+    v_texcoord = texcoord;
 }

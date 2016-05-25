@@ -55,12 +55,34 @@ namespace OpenPSTD
 
         class CreateReceiverSpeakerOperation : public BaseOperation
         {
+        public:
+            struct Options
+            {
+            public:
+                Options(PstdObjectType Type, QVector3D Position): Options(Type, Position, 1, 0, 1)
+                { }
+
+                Options(PstdObjectType type, QVector3D position, int count, float direction, float distanceBetween):
+                        Type(type),
+                        Position(position),
+                        Count(count),
+                        Direction(direction),
+                        DistanceBetween(distanceBetween)
+                { }
+
+                PstdObjectType Type;
+                QVector3D Position;
+                int Count;
+                float Direction;
+                float DistanceBetween;
+            };
+
         private:
-            PstdObjectType _type;
-            QVector3D _position;
+            Options _options;
 
         public:
             CreateReceiverSpeakerOperation(PstdObjectType type, QVector3D position);
+            CreateReceiverSpeakerOperation(Options options);
 
             virtual void Run(const Reciever &reciever) override;
         };

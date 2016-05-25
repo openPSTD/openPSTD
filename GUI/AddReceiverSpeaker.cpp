@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
 // This file is part of openPSTD.                                       //
 //                                                                      //
 // openPSTD is free software: you can redistribute it and/or modify     //
@@ -17,39 +16,38 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#version 330
+//////////////////////////////////////////////////////////////////////////
+//
+// Date: 19-5-2016
+//
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
+//
+//////////////////////////////////////////////////////////////////////////
 
-uniform float vmin;
-uniform float vmax;
-
-in vec2 v_texcoord;
-
-uniform sampler2D values;
-
-void main()
+#include "AddReceiverSpeaker.h"
+namespace OpenPSTD
 {
-    float value = texture2D(values, v_texcoord).r;
+    namespace GUI
+    {
+        AddReceiverSpeaker::AddReceiverSpeaker(QWidget *parent): QDialog(parent), ui(new Ui_AddReceiverSpeaker())
+        {
+            ui->setupUi(this);
+        }
 
-    if(value < vmin)
-    {
-        value = vmin;
+        CreateReceiverSpeakerOperation::Options AddReceiverSpeaker::GetOptions()
+        {
+            return CreateReceiverSpeakerOperation::Options(
+                    ui->cbType->currentIndex() == 0?OBJECT_RECEIVER:OBJECT_SPEAKER,
+                    QVector3D((float)ui->dsbX->value(), (float)ui->dsbY->value(), 0),
+                    ui->sbCount->value(),
+                    (float)ui->dsbDirection->value(),
+                    (float)ui->dsbDistanceBetween->value());
+        }
     }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
-
-    value = (value-vmin)/(vmax-vmin)*2-1;
-    float valueAbs = abs(value);
-    if(valueAbs != 0)
-        valueAbs = pow(valueAbs, 0.5);
-    if(0 < value)
-    {
-        gl_FragColor = vec4(valueAbs, 0, 0, 1);
-    }
-    else
-    {
-        gl_FragColor = vec4(0, 0, valueAbs, 1);
-    }
-
 }
+

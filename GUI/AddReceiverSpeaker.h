@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
 // This file is part of openPSTD.                                       //
 //                                                                      //
 // openPSTD is free software: you can redistribute it and/or modify     //
@@ -17,39 +16,42 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#version 330
+//////////////////////////////////////////////////////////////////////////
+//
+// Date: 19-5-2016
+//
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
+//
+//////////////////////////////////////////////////////////////////////////
 
-uniform float vmin;
-uniform float vmax;
+#ifndef OPENPSTD_ADDRECEIVERSPEAKER_H
+#define OPENPSTD_ADDRECEIVERSPEAKER_H
 
-in vec2 v_texcoord;
+#include <ui_AddReceiverSpeaker.h>
+#include <QtWidgets/QDialog>
+#include "operations/EditOperations.h"
 
-uniform sampler2D values;
-
-void main()
+namespace OpenPSTD
 {
-    float value = texture2D(values, v_texcoord).r;
-
-    if(value < vmin)
+    namespace GUI
     {
-        value = vmin;
+        class AddReceiverSpeaker : public QDialog
+        {
+        Q_OBJECT
+        public:
+            explicit AddReceiverSpeaker(QWidget *parent = 0);
+            CreateReceiverSpeakerOperation::Options GetOptions();
+        private:
+            std::unique_ptr<Ui_AddReceiverSpeaker> ui;
+        };
     }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
-
-    value = (value-vmin)/(vmax-vmin)*2-1;
-    float valueAbs = abs(value);
-    if(valueAbs != 0)
-        valueAbs = pow(valueAbs, 0.5);
-    if(0 < value)
-    {
-        gl_FragColor = vec4(valueAbs, 0, 0, 1);
-    }
-    else
-    {
-        gl_FragColor = vec4(0, 0, valueAbs, 1);
-    }
-
 }
+
+
+
+#endif //OPENPSTD_ADDRECEIVERSPEAKER_H

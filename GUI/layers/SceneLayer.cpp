@@ -27,6 +27,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 
+#include <boost/lexical_cast.hpp>
 #include "SceneLayer.h"
 #include "GUI/Edges.h"
 
@@ -82,6 +83,13 @@ namespace OpenPSTD
 
             f->glBindTexture(GL_TEXTURE_1D, 0);
             f->glActiveTexture(GL_TEXTURE0);
+
+            for(int i = 0; i < this->dimensions->size(); i++)
+            {
+                auto info = (*this->dimensions)[i];
+                this->textRenderer->Draw(f, this->viewMatrix, info.position, 1.0f,
+                                         info.text, QColor(0, 128, 128, 150), info.vAlign, info.hAlign);
+            }
         }
 
         void SceneLayer::UpdateScene(std::shared_ptr<Model> const &m,
@@ -90,7 +98,8 @@ namespace OpenPSTD
             program->bind();
             if (m->view->IsChanged())
             {
-                program->setUniformValue("u_view", m->view->viewMatrix);
+                this->viewMatrix = m->view->viewMatrix;
+                program->setUniformValue("u_view", this->viewMatrix);
             }
 
             if (m->settings->IsChanged())
@@ -100,6 +109,8 @@ namespace OpenPSTD
 
             if (m->documentAccess->IsChanged())
             {
+                this->dimensions = GetAllEdgeText(m);
+
                 std::unique_ptr<std::vector<Edge>> edges = GetAllEdges(m);
                 std::unique_ptr<std::vector<Edge>> edgesWithoutDuplicates = RemoveDuplicateEdges(std::move(edges));
 
@@ -172,6 +183,44 @@ namespace OpenPSTD
             return std::move(result);
         };
 
+        std::unique_ptr<std::vector<SceneLayer::DimensionText>> SceneLayer::GetAllEdgeText(std::shared_ptr<Model> const &m)
+        {
+            auto conf = m->documentAccess->GetDocument()->GetSceneConf();
+            std::unique_ptr<std::vector<SceneLayer::DimensionText>> result(new std::vector<SceneLayer::DimensionText>());
+
+            for (int i = 0; i < conf->Domains.size(); i++)
+            {
+                QVector2D tl = conf->Domains[i].TopLeft;
+                QVector2D size = conf->Domains[i].Size;
+                QVector2D br = tl + size;
+
+                float left = tl[0];
+                float top = tl[1];
+
+                float right = br[0];
+                float bottom = br[1];
+
+                std::ostringstream ss;
+                ss << std::setprecision(2);
+                ss << fabs(bottom - top);
+                std::string height = ss.str();
+
+                ss.clear();
+                ss.str("");
+                ss << std::setprecision(2);
+                ss << fabs(left - right);
+                std::string width = ss.str();
+
+                result->push_back(DimensionText(QVector2D(left, (bottom + top) / 2), height, TextHorizontalAlignment::RIGHT, TextVerticalAlignment::CENTER));
+                result->push_back(DimensionText(QVector2D(right, (bottom + top) / 2), height, TextHorizontalAlignment::LEFT, TextVerticalAlignment::CENTER));
+                result->push_back(DimensionText(QVector2D((left + right) / 2, top), width, TextHorizontalAlignment::CENTER, TextVerticalAlignment::BOTTOM));
+                result->push_back(DimensionText(QVector2D((left + right) / 2, bottom), width, TextHorizontalAlignment::CENTER, TextVerticalAlignment::TOP));
+            }
+
+            return std::move(result);
+        }
+
+
         std::unique_ptr<std::vector<Edge>> SceneLayer::RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges)
         {
             std::unique_ptr<std::vector<Edge>> result(new std::vector<Edge>());
@@ -183,5 +232,6 @@ namespace OpenPSTD
             }
             return std::move(result);
         }
+
     }
 }

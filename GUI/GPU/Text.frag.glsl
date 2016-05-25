@@ -19,37 +19,12 @@
 
 #version 330
 
-uniform float vmin;
-uniform float vmax;
-
+uniform vec4 color;
 in vec2 v_texcoord;
-
-uniform sampler2D values;
+uniform sampler2D font;
 
 void main()
 {
-    float value = texture2D(values, v_texcoord).r;
-
-    if(value < vmin)
-    {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
-
-    value = (value-vmin)/(vmax-vmin)*2-1;
-    float valueAbs = abs(value);
-    if(valueAbs != 0)
-        valueAbs = pow(valueAbs, 0.5);
-    if(0 < value)
-    {
-        gl_FragColor = vec4(valueAbs, 0, 0, 1);
-    }
-    else
-    {
-        gl_FragColor = vec4(0, 0, valueAbs, 1);
-    }
-
+    float value = texture2D(font, v_texcoord).r;
+    gl_FragColor = vec4(color.rgb, color.a*value);
 }
