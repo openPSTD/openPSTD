@@ -308,7 +308,7 @@ namespace OpenPSTD {
 
                         Eigen:ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
-                        source.block(0, range_start - matrix_main_offset, full_range, result_dimension) = spatresult;
+                        source.block(range_start - matrix_main_offset, 0, full_range, result_dimension) = spatresult;
                     }
                     else {
                         WisdomCache::Planset_FFTW planset = wnd->get_fftw_planset(
@@ -329,6 +329,7 @@ namespace OpenPSTD {
                         ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
                         source.block(0, range_start - matrix_main_offset, result_dimension, ncols) = spatresult;
+                        cout << "Success" << endl;
                     }
                 }
             }

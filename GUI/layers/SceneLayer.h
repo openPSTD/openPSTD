@@ -45,16 +45,36 @@ namespace OpenPSTD
         class SceneLayer : public Layer
         {
         private:
+            struct DimensionText
+            {
+            public:
+                QVector2D position;
+                std::string text;
+                TextHorizontalAlignment hAlign;
+                TextVerticalAlignment vAlign;
+
+                DimensionText(QVector2D position, std::string text, TextHorizontalAlignment hAlign,
+                              TextVerticalAlignment vAlign):
+                        position(position),
+                        text(text),
+                        hAlign(hAlign),
+                        vAlign(vAlign)
+                {}
+            };
+
             std::unique_ptr<QOpenGLShaderProgram> program;
             unsigned int positionsBuffer;
             unsigned int valuesBuffer;
             int lines;
             float lineWidth;
+            QMatrix4x4 viewMatrix;
 
             std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);
+            std::unique_ptr<std::vector<DimensionText>> GetAllEdgeText(std::shared_ptr<Model> const &m);
 
             std::unique_ptr<std::vector<Edge>> RemoveDuplicateEdges(std::unique_ptr<std::vector<Edge>> edges);
 
+            std::unique_ptr<std::vector<DimensionText>> dimensions;
         public:
             SceneLayer();
 

@@ -16,6 +16,8 @@
         <file>GPU/Symbol.geo.glsl</file>
         <file>GPU/SymbolInternal.geo.glsl</file>
         <file>GPU/Symbol.vert.glsl</file>
+        <file>GPU/Text.frag.glsl</file>
+        <file>GPU/Text.vert.glsl</file>
 
         <!-- Icons -->
         <file>Images/noun_100_cc.png</file>
@@ -26,5 +28,8 @@
         <file>Images/noun_70430_cc.png</file>
         <file>Images/noun_120460_cc.png</file>
         <file>Images/Stop.png</file>
+
+        <!-- Font -->
+        <file>Images/arial_0.png</file>
     </qresource>
 </RCC>
