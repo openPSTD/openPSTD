@@ -105,6 +105,16 @@ namespace OpenPSTD {
                 domains1 = bottom;
                 domains2 = top;
             }
+            cout << "\n\ndomains1:\n";
+            for(auto domain : domains1) {
+                cout << *domain << "\n";
+            }
+            cout << "main domain:\n" << *this << "\n";
+            cout << "domains2:\n";
+            for(auto domain : domains2) {
+                cout << *domain << "\n";
+            }
+            cout << "\n\n";
 
             if (dest.rows() != 0) {
                 if (cd == CalcDirection::X) {
