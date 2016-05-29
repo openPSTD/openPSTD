@@ -223,6 +223,7 @@ namespace OpenPSTD {
             }
             for (auto sec_order_pml_domain: second_order_pml_list) {
                 domain_list.push_back(sec_order_pml_domain);
+                add_domain(sec_order_pml_domain);
             }
         }
 
@@ -309,7 +310,6 @@ namespace OpenPSTD {
                 shared_ptr<Domain> other_domain = domain_list.at(i);
                 if (domain->is_secondary_pml && other_domain->is_secondary_pml) {
                     // Cannot interact, since no secondary PML domains are adjacent
-                    // Cannot interact, since a regular domain does not touch a secondary PML domain
                     continue;
                 }
                 else if (other_domain->is_secondary_pml && !domain->is_pml) {
@@ -338,7 +338,7 @@ namespace OpenPSTD {
                     }
                     if (domain->is_secondary_pml != other_domain->is_secondary_pml) {
                         //
-                        continue;
+                        //continue;
                     }
                 }
                 CalcDirection bt;
