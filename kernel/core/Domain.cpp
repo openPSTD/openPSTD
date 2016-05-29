@@ -647,32 +647,32 @@ namespace OpenPSTD {
 
                 has_horizontal_attenuation = all_air_left or all_air_right;
                 needs_reversed_attenuation.push_back(all_air_left or all_air_bottom);
-                if (is_secondary_pml and is_corner_domain) {
-                    // TK: PML is the product of horizontal and vertical attenuation.
-                    create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
-                                             pml_arrays.px, pml_arrays.vx);
-                    create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
-                                             pml_arrays.py, pml_arrays.vx);
+            }
+            if (is_secondary_pml and is_corner_domain) {
+                // TK: PML is the product of horizontal and vertical attenuation.
+                create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
+                                         pml_arrays.px, pml_arrays.vx);
+                create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
+                                         pml_arrays.py, pml_arrays.vx);
+            }
+            else {
+                CalcDirection calc_dir = CalcDirection::Y;
+                if (has_horizontal_attenuation) {
+                    calc_dir = CalcDirection::X;
                 }
-                else {
-                    CalcDirection calc_dir = CalcDirection::Y;
-                    if (has_horizontal_attenuation) {
-                        calc_dir = CalcDirection::X;
-                    }
-                    switch (calc_dir) {
-                        case CalcDirection::X:
-                            create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
-                                                     pml_arrays.px, pml_arrays.vx);
-                            pml_arrays.py = ArrayXXf::Ones(size.y, size.x);//Change if unique
-                            pml_arrays.vy = ArrayXXf::Ones(size.y+1, size.x); //TODO check if x/y is correct here
-                            break;
-                        case CalcDirection::Y:
-                            create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
-                                                     pml_arrays.py, pml_arrays.vy);
-                            pml_arrays.px = ArrayXXf::Ones(size.y, size.x);//Change if unique
-                            pml_arrays.vx = ArrayXXf::Ones(size.y, size.x + 1);//Change if unique
-                            break;
-                    }
+                switch (calc_dir) {
+                    case CalcDirection::X:
+                        create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
+                                                 pml_arrays.px, pml_arrays.vx);
+                        pml_arrays.py = ArrayXXf::Ones(size.y, size.x);//Change if unique
+                        pml_arrays.vy = ArrayXXf::Ones(size.y+1, size.x); //TODO check if x/y is correct here
+                        break;
+                    case CalcDirection::Y:
+                        create_attenuation_array(calc_dir, needs_reversed_attenuation.at(0),
+                                                 pml_arrays.py, pml_arrays.vy);
+                        pml_arrays.px = ArrayXXf::Ones(size.y, size.x);//Change if unique
+                        pml_arrays.vx = ArrayXXf::Ones(size.y, size.x + 1);//Change if unique
+                        break;
                 }
             }
         }
