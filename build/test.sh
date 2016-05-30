@@ -21,6 +21,6 @@ if [ ${TARGET} != "win64" ]; then
     cat results.xml
     xsltproc build/report/TestReport.xsl results.xml
     
-    exit RESULT
+    exit ${RESULT}
 fi
 
