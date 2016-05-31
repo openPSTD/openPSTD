@@ -14,9 +14,14 @@ else()
     # GUI test files
     set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/GUI/Edges-test.cpp test/GUI/LongOperationRunner-test.cpp)
     # Kernel test files
-    set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} test/Kernel/kernel_functions.cpp
-            test/Kernel/Speaker.cpp test/Kernel/Scene.cpp test/Kernel/Geometry.cpp test/Kernel/Domain.cpp
-            test/Kernel/WisdomCache.cpp)
+    set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST}
+            test/Kernel/kernel_functions.cpp
+            test/Kernel/Speaker.cpp
+            test/Kernel/Scene.cpp
+            test/Kernel/Geometry.cpp
+            test/Kernel/Domain.cpp
+            test/Kernel/WisdomCache.cpp
+            test/Kernel/DG/Jacobi.cpp)
 endif()
 
 
