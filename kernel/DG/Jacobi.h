@@ -228,7 +228,7 @@ namespace OpenPSTD
                 // Initial values P_0(x) and P_1(x)
                 gamma0 = pow(2.0,ab1)/(ab1)*tgamma(a1)*tgamma(b1)/tgamma(ab1);
 
-                a = a.unaryExpr([gamma0](SimpleType x) { return 1.0/sqrt(gamma0); });
+                a = VectorX<SimpleType>::Constant(x.size(), 1.0/sqrt(gamma0));
 
                 if (N>0)
                 {
