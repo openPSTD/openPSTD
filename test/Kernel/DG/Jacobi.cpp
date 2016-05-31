@@ -41,7 +41,103 @@ using namespace std;
 using namespace Eigen;
 
 BOOST_AUTO_TEST_SUITE(domain)
-    BOOST_AUTO_TEST_CASE(JacobiGQ_10) {
+    BOOST_AUTO_TEST_CASE(JacobiGQ_10_F) {
+        VectorX<float> x(11);
+        VectorX<float> w(11);
+
+        x <<
+        -0.978228658146057,
+                -0.887062599768095,
+                -0.730152005574049,
+                -0.519096129206812,
+                -0.269543155952345,
+                -0.000000000000000,
+                0.269543155952345,
+                0.519096129206812,
+                0.730152005574049,
+                0.887062599768095,
+                0.978228658146057;
+
+        w <<
+        0.055668567116174,
+                0.125580369464905,
+                0.186290210927734,
+                0.233193764591990,
+                0.262804544510247,
+                0.272925086777900,
+                0.262804544510247,
+                0.233193764591990,
+                0.186290210927733,
+                0.125580369464905,
+                0.055668567116174;
+
+        auto result = JacobiGQ<float>(0, 0, 10, true);
+        BOOST_CHECK(result.X.isApprox(x, 1e-4));
+        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+    }
+
+    BOOST_AUTO_TEST_CASE(JacobiGQ_0_F) {
+        VectorX<float> x(1);
+        VectorX<float> w(1);
+
+        w << 2;
+        x << 0;
+        auto result = JacobiGQ<float>(0, 0, 0, true);
+
+        BOOST_CHECK(result.X.isApprox(x, 1e-4));
+        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+    }
+
+    BOOST_AUTO_TEST_CASE(JacobiGQ_10_1_2_F) {
+        VectorX<float> x(11);
+        VectorX<float> w(11);
+
+        w <<
+        0.001149899262705,
+                0.011115234598547,
+                0.043695749536401,
+                0.106664964259534,
+                0.188071472702823,
+                0.255700412200876,
+                0.274608570896453,
+                0.231527186198693,
+                0.146741924678359,
+                0.062045473719344,
+                0.012012445279598;
+
+        x <<
+        -0.922750750150548,
+                -0.797015360241449,
+                -0.625356093379147,
+                -0.417646665061861,
+                -0.185937243641642,
+                0.056312853705647,
+                0.295027635808207,
+                0.516334958645484,
+                0.707373276746721,
+                0.857038210757503,
+                0.956619176811086;
+
+        JacobiGQResult<float> result;
+        result = JacobiGQ<float>(1, 2, 10, true);
+        BOOST_CHECK(result.X.isApprox(x, 1e-4));
+        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+    }
+
+    BOOST_AUTO_TEST_CASE(JacobiGQ_0_1_2_F) {
+        VectorX<float> x(1);
+        VectorX<float> w(1);
+
+        w << 2;
+        x << 0.2;
+
+        auto result = JacobiGQ<float>(1, 2, 0, true);
+
+        BOOST_CHECK(result.X.isApprox(x, 1e-4));
+        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+    }
+
+    BOOST_AUTO_TEST_CASE(JacobiGQ_10_D) {
         VectorX<double> x(11);
         VectorX<double> w(11);
 
@@ -71,24 +167,24 @@ BOOST_AUTO_TEST_SUITE(domain)
         0.125580369464905,
         0.055668567116174;
 
-        auto result = JacobiGQ(0, 0, 10, true);
+        auto result = JacobiGQ<double>(0, 0, 10, true);
         BOOST_CHECK(result.X.isApprox(x));
         BOOST_CHECK(result.W.isApprox(w));
     }
 
-    BOOST_AUTO_TEST_CASE(JacobiGQ_0) {
+    BOOST_AUTO_TEST_CASE(JacobiGQ_0_D) {
         VectorX<double> x(1);
         VectorX<double> w(1);
 
         w << 2;
         x << 0;
-        auto result = JacobiGQ(0, 0, 0, true);
+        auto result = JacobiGQ<double>(0, 0, 0, true);
 
         BOOST_CHECK(result.X.isApprox(x));
         BOOST_CHECK(result.W.isApprox(w));
     }
 
-    BOOST_AUTO_TEST_CASE(JacobiGQ_10_1_2) {
+    BOOST_AUTO_TEST_CASE(JacobiGQ_10_1_2_D) {
         VectorX<double> x(11);
         VectorX<double> w(11);
 
@@ -118,20 +214,20 @@ BOOST_AUTO_TEST_SUITE(domain)
         0.857038210757503,
         0.956619176811086;
 
-        auto result = JacobiGQ(1, 2, 10, true);
+        auto result = JacobiGQ<double>(1, 2, 10, true);
 
         BOOST_CHECK(result.X.isApprox(x));
         BOOST_CHECK(result.W.isApprox(w));
     }
 
-    BOOST_AUTO_TEST_CASE(JacobiGQ_0_1_2) {
+    BOOST_AUTO_TEST_CASE(JacobiGQ_0_1_2_D) {
         VectorX<double> x(1);
         VectorX<double> w(1);
 
         w << 2;
         x << 0.2;
 
-        auto result = JacobiGQ(1, 2, 0, true);
+        auto result = JacobiGQ<double>(1, 2, 0, true);
 
         BOOST_CHECK(result.X.isApprox(x));
         BOOST_CHECK(result.W.isApprox(w));

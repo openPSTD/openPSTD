@@ -19,7 +19,7 @@ SET(SOURCE_FILES_LIB
 
 # DG
 SET(SOURCE_FILES_LIB ${SOURCE_FILES_LIB}
-        kernel/DG/Jacobi.cpp )
+        )
 
 # Mock
 SET(SOURCE_FILES_LIB ${SOURCE_FILES_LIB}
