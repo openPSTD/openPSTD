@@ -22,7 +22,8 @@ else()
             test/Kernel/Domain.cpp
             test/Kernel/WisdomCache.cpp
             test/Kernel/DG/JacobiGQ.cpp
-            test/Kernel/DG/JacobiGL.cpp)
+            test/Kernel/DG/JacobiGL.cpp
+            test/Kernel/DG/JacobiP.cpp)
 endif()
 
 

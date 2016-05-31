@@ -207,7 +207,64 @@ namespace OpenPSTD
                 return result;
             }
 
+            /**
+             * Evaluate Jacobi Polynomial of type (alpha,beta) > -1
+             * (alpha+beta <> -1) at points x for order N and
+             * returns P[1:length(x)]
+             * Note: They are normalized to be orthonormal.
+             */
+            template <typename SimpleType>
+            VectorX<SimpleType> JacobiP(VectorX<SimpleType> x, SimpleType alpha, SimpleType beta, int N)
+            {
+                SimpleType aold=0.0, anew=0.0, bnew=0.0, h1=0.0;
+                SimpleType gamma0=0.0, gamma1=0.0;
+                SimpleType ab=alpha+beta, ab1=alpha+beta+1.0, a1=alpha+1.0, b1=beta+1.0;
 
+                int Nc = x.size();
+                VectorX<SimpleType> P(x.size());
+                MatrixX<SimpleType> PL(N+1, Nc);
+                VectorX<SimpleType> prow, x_bnew;
+
+                // Initial values P_0(x) and P_1(x)
+                gamma0 = pow(2.0,ab1)/(ab1)*tgamma(a1)*tgamma(b1)/tgamma(ab1);
+
+                P = P.unaryExpr([gamma0](SimpleType x) { return 1.0/sqrt(gamma0); });
+
+                if (N>0)
+                {
+                    PL.row(0) = P;
+
+                    gamma1 = (a1)*(b1)/(ab+3.0)*gamma0;
+                    P = (((ab+2.0)*x/2.0).array() + (alpha-beta)/2.0) / sqrt(gamma1);
+
+                    if (N>1)
+                    {
+                        PL.row(1) = P;
+
+                        // Repeat value in recurrence.
+                        aold = 2.0/(2.0+ab)*sqrt((a1)*(b1)/(ab+3.0));
+
+                        // Forward recurrence using the symmetry of the recurrence.
+                        for (int i=1; i<=(N-1); ++i)
+                        {
+                            int I = i-1;
+
+                            h1 = 2.0*i+ab;
+                            anew = 2.0/(h1+2.0)*sqrt((i+1)*(i+ab1)*(i+a1)*(i+b1)/(h1+1.0)/(h1+3.0));
+                            bnew = - (SQ(alpha)-SQ(beta))/h1/(h1+2.0);
+                            x_bnew = x.array()-bnew;
+                            VectorX<SimpleType> a = PL.row(I);
+                            VectorX<SimpleType> b = PL.row(I+1);
+                            VectorX<SimpleType> tmp = 1.0/anew*( -aold*a + x_bnew.cwiseProduct(b));
+                            PL.row(I+2) = tmp;
+                            aold =anew;
+                        }
+
+                        P = PL.row(N);// last row
+                    }
+                }
+                return P;
+            }
 
         }
     }
