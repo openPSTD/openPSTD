@@ -79,4 +79,19 @@ BOOST_AUTO_TEST_SUITE(Vandermonde)
 
         BOOST_CHECK(result.isApprox(expected));
     }
+
+    BOOST_AUTO_TEST_CASE(GradVandermonde1D_2)
+    {
+        int N = 2;
+        auto r = JacobiGL<double>(0, 0, N);
+        auto result = GradVandermonde1D(N, r);
+
+        MatrixX<double> expected(N+1,N+1);
+        expected <<
+            0,   1.224744871391589,  -4.743416490252569,
+            0,   1.224744871391589,                   0,
+            0,   1.224744871391589,   4.743416490252569;
+
+        BOOST_CHECK(result.isApprox(expected));
+    }
 BOOST_AUTO_TEST_SUITE_END()

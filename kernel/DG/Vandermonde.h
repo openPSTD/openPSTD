@@ -46,13 +46,28 @@ namespace OpenPSTD
              * Initialize the 1D Vandermonde Matrix.
              */
             template <typename SimpleType>
-            MatrixX<SimpleType> Vandermonde1D(int N, VectorX<SimpleType> xp)
+            MatrixX<SimpleType> Vandermonde1D(int N, VectorX<SimpleType> r)
             {
-                MatrixX<SimpleType> result(xp.size(), N+1);
+                MatrixX<SimpleType> result(r.size(), N+1);
 
                 for (int j=1; j<=(N+1); ++j) {
                     int J = j-1;
-                    result.col(J) = JacobiP<SimpleType>(xp, 0, 0, j-1);
+                    result.col(J) = JacobiP<SimpleType>(r, 0, 0, j-1);
+                }
+                return result;
+            }
+
+            /**
+             * Initialize the 1D gradient Vandermonde Matrix.
+             */
+            template <typename SimpleType>
+            MatrixX<SimpleType> GradVandermonde1D(int N, VectorX<SimpleType> r)
+            {
+                MatrixX<SimpleType> result(r.size(), N+1);
+
+                for (int j=1; j<=(N+1); ++j) {
+                    int J = j-1;
+                    result.col(J) = GradJacobiP<SimpleType>(r, 0, 0, j-1);
                 }
                 return result;
             }
