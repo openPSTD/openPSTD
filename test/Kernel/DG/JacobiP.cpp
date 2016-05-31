@@ -80,4 +80,44 @@ BOOST_AUTO_TEST_SUITE(Jacobi_P)
 
         BOOST_CHECK(result.isApprox(expected));
     }
+
+    BOOST_AUTO_TEST_CASE(GradJacobiP_10) {
+        VectorX<double> x = VectorX<double>::LinSpaced(10, -1, 1);
+        auto result = GradJacobiP<double>(x, 0, 0, 10);
+
+        VectorX<double> expected(10);
+        expected <<
+            -178.2203692062160,
+            -001.8816899790948,
+            001.3477582147147,
+            003.6851948517467,
+            -007.7743401832188,
+            007.7743401832188,
+            -003.6851948517467,
+            -001.3477582147147,
+            001.8816899790949,
+            178.2203692062160;
+
+        BOOST_CHECK(result.isApprox(expected));
+    }
+
+    BOOST_AUTO_TEST_CASE(GradJacobiP_0) {
+        VectorX<double> x = VectorX<double>::LinSpaced(10, -1, 1);
+        auto result = GradJacobiP<double>(x, 0, 0, 0);
+
+        VectorX<double> expected(10);
+        expected <<
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0;
+
+        BOOST_CHECK(result.isApprox(expected));
+    }
 BOOST_AUTO_TEST_SUITE_END()
