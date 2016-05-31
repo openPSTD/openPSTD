@@ -165,7 +165,26 @@ namespace OpenPSTD
                 return result;
             }
 
-            //VectorXd& JacobiP(const VectorXd& x, double alpha, double beta, int N);
+            template <typename SimpleType>
+            VectorX<SimpleType> JacobiGL(SimpleType alpha, SimpleType beta, int N)
+            {
+                VectorX<SimpleType> result(N+1);
+
+                if (N==1)
+                {
+                    result << -1, 1;
+                }
+                else
+                {
+                    // calculate points
+                    auto GQ = JacobiGQ(alpha+1, beta+1, N-2, true);
+
+                    // assemble result: sandwich eigenvalues between [-1,1]
+                    result << -1, GQ.X, 1;
+                }
+
+                return result;
+            }
 
 
 
