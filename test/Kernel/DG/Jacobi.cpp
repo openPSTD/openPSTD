@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_SUITE(domain)
                 0.055668567116174;
 
         auto result = JacobiGQ<float>(0, 0, 10, true);
-        BOOST_CHECK(result.X.isApprox(x, 1e-4));
-        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+        BOOST_CHECK(result.Points.isApprox(x, 1e-4));
+        BOOST_CHECK(result.Weights.isApprox(w, 1e-4));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_0_F) {
@@ -143,8 +143,8 @@ BOOST_AUTO_TEST_SUITE(domain)
         x << 0;
         auto result = JacobiGQ<float>(0, 0, 0, true);
 
-        BOOST_CHECK(result.X.isApprox(x, 1e-4));
-        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+        BOOST_CHECK(result.Points.isApprox(x, 1e-4));
+        BOOST_CHECK(result.Weights.isApprox(w, 1e-4));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_10_1_2_F) {
@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_SUITE(domain)
 
         JacobiGQResult<float> result;
         result = JacobiGQ<float>(1, 2, 10, true);
-        BOOST_CHECK(result.X.isApprox(x, 1e-4));
-        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+        BOOST_CHECK(result.Points.isApprox(x, 1e-4));
+        BOOST_CHECK(result.Weights.isApprox(w, 1e-4));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_0_1_2_F) {
@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_SUITE(domain)
 
         auto result = JacobiGQ<float>(1, 2, 0, true);
 
-        BOOST_CHECK(result.X.isApprox(x, 1e-4));
-        BOOST_CHECK(result.W.isApprox(w, 1e-4));
+        BOOST_CHECK(result.Points.isApprox(x, 1e-4));
+        BOOST_CHECK(result.Weights.isApprox(w, 1e-4));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_10_D) {
@@ -227,8 +227,8 @@ BOOST_AUTO_TEST_SUITE(domain)
         0.055668567116174;
 
         auto result = JacobiGQ<double>(0, 0, 10, true);
-        BOOST_CHECK(result.X.isApprox(x));
-        BOOST_CHECK(result.W.isApprox(w));
+        BOOST_CHECK(result.Points.isApprox(x));
+        BOOST_CHECK(result.Weights.isApprox(w));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_0_D) {
@@ -239,8 +239,8 @@ BOOST_AUTO_TEST_SUITE(domain)
         x << 0;
         auto result = JacobiGQ<double>(0, 0, 0, true);
 
-        BOOST_CHECK(result.X.isApprox(x));
-        BOOST_CHECK(result.W.isApprox(w));
+        BOOST_CHECK(result.Points.isApprox(x));
+        BOOST_CHECK(result.Weights.isApprox(w));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_10_1_2_D) {
@@ -275,8 +275,8 @@ BOOST_AUTO_TEST_SUITE(domain)
 
         auto result = JacobiGQ<double>(1, 2, 10, true);
 
-        BOOST_CHECK(result.X.isApprox(x));
-        BOOST_CHECK(result.W.isApprox(w));
+        BOOST_CHECK(result.Points.isApprox(x));
+        BOOST_CHECK(result.Weights.isApprox(w));
     }
 
     BOOST_AUTO_TEST_CASE(JacobiGQ_0_1_2_D) {
@@ -288,8 +288,8 @@ BOOST_AUTO_TEST_SUITE(domain)
 
         auto result = JacobiGQ<double>(1, 2, 0, true);
 
-        BOOST_CHECK(result.X.isApprox(x));
-        BOOST_CHECK(result.W.isApprox(w));
+        BOOST_CHECK(result.Points.isApprox(x));
+        BOOST_CHECK(result.Weights.isApprox(w));
     }
 
 BOOST_AUTO_TEST_SUITE_END()

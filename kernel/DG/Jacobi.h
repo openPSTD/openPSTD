@@ -40,23 +40,39 @@ namespace OpenPSTD
     {
         namespace DG
         {
+            /**
+             * short hand for a Vector
+             */
             template <typename SimpleType>
             using VectorX = Eigen::Matrix<SimpleType, Eigen::Dynamic, 1>;
 
+            /**
+             * short hand for a Matrix
+             */
             template <typename SimpleType>
             using MatrixX = Eigen::Matrix<SimpleType, Eigen::Dynamic, Eigen::Dynamic>;
 
+            /**
+             * Result of the JacobiGQ function
+             */
             template <typename SimpleType>
             struct JacobiGQResult
             {
             public:
-                VectorX<SimpleType> X;
-                VectorX<SimpleType> W;
+                VectorX<SimpleType> Points;
+                VectorX<SimpleType> Weights;
             };
 
+            /**
+             * short hand for the power of two
+             */
             template <typename SimpleType>
             inline SimpleType SQ(SimpleType x) { return x*x; }
 
+            /**
+             * Compute the N'th order Gauss quadrature points and weights, associated with the Jacobi
+             * polynomial, of type (alpha,beta) > -1 ( <> -0.5).
+             */
             template <typename SimpleType>
             JacobiGQResult<SimpleType> JacobiGQ(SimpleType alpha, SimpleType beta, int N, bool sort)
             {
@@ -79,12 +95,12 @@ namespace OpenPSTD
                 {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "IncompatibleTypes"
-                    result.X = VectorX<SimpleType>(1);
-                    result.W = VectorX<SimpleType>(1);
+                    result.Points = VectorX<SimpleType>(1);
+                    result.Weights = VectorX<SimpleType>(1);
 #pragma clang diagnostic pop
 
-                    result.X << -(alpha-beta)/(alpha+beta+2.0);
-                    result.W << 2.0;
+                    result.Points << -(alpha-beta)/(alpha+beta+2.0);
+                    result.Weights << 2.0;
                     return result;
                 }
 
@@ -132,7 +148,7 @@ namespace OpenPSTD
                 // Compute quadrature by eigenvalue solve
                 // [Vr,D] = eig(J); x = diag(D);
                 Eigen::SelfAdjointEigenSolver<MatrixX<SimpleType>> es(J);
-                result.X = es.eigenvalues();
+                result.Points = es.eigenvalues();
                 Vr = es.eigenvectors();
 
                 if (sort) {
@@ -144,27 +160,32 @@ namespace OpenPSTD
                     // eigenvalues into ascending order. Target: make
                     // w=1st row of eigenvector matrix match Matlab's.
 
-                    std::vector<EigenO> sortVector(result.X.size());
-                    for(int i = 0; i < result.X.size(); i++)
+                    std::vector<EigenO> sortVector(result.Points.size());
+                    for(int i = 0; i < result.Points.size(); i++)
                     {
-                        sortVector[i].value = result.X[i];
+                        sortVector[i].value = result.Points[i];
                         sortVector[i].vector = Vr.col(i);
                     }
                     std::sort(sortVector.begin(), sortVector.end());
-                    for(int i = 0; i < result.X.size(); i++)
+                    for(int i = 0; i < result.Points.size(); i++)
                     {
-                        result.X[i] = sortVector[i].value;
+                        result.Points[i] = sortVector[i].value;
                         Vr.col(i) = sortVector[i].vector;
                     }
                 }
 
-                result.W = Vr.row(0);
-                result.W = result.W.cwiseProduct(result.W);
-                result.W *= pow(2.0,ab1) / (ab1)*tgamma(a1)*tgamma(b1)/tgamma(ab1);
+                result.Weights = Vr.row(0);
+                result.Weights = result.Weights.cwiseProduct(result.Weights);
+                result.Weights *= pow(2.0,ab1) / (ab1)*tgamma(a1)*tgamma(b1)/tgamma(ab1);
 
                 return result;
             }
 
+            /*
+             * Compute the N'th order Gauss Lobatto quadrature
+             * points, associated with the Jacobi polynomial,
+             * of type (alpha,beta) > -1 ( <> -0.5).
+             */
             template <typename SimpleType>
             VectorX<SimpleType> JacobiGL(SimpleType alpha, SimpleType beta, int N)
             {
@@ -180,7 +201,7 @@ namespace OpenPSTD
                     auto GQ = JacobiGQ(alpha+1, beta+1, N-2, true);
 
                     // assemble result: sandwich eigenvalues between [-1,1]
-                    result << -1, GQ.X, 1;
+                    result << -1, GQ.Points, 1;
                 }
 
                 return result;
