@@ -258,6 +258,21 @@ namespace OpenPSTD
                 }
                 return N==0?a:b;
             }
+
+            /**
+             * Evaluate the derivative of the orthonormal Jacobi
+             * polynomial of type (alpha,beta)>-1, at points x
+             * for order N and returns dP[1:length(xp))]
+             */
+            template <typename SimpleType>
+            VectorX<SimpleType> GradJacobiP(const VectorX<SimpleType> z, double alpha, double beta, int N)
+            {
+                if (0 == N) {
+                    return VectorX<SimpleType>::Zero(z.size());
+                } else {
+                    return sqrt(N*(N+alpha+beta+1))*JacobiP<SimpleType>(z,alpha+1,beta+1, N-1);
+                }
+            }
         }
     }
 
