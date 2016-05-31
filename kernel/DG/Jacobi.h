@@ -33,6 +33,7 @@
 #define OPENPSTD_JACOBI_H
 
 #include <Eigen/Dense>
+#include "GeneralTypes.h"
 
 namespace OpenPSTD
 {
@@ -40,18 +41,6 @@ namespace OpenPSTD
     {
         namespace DG
         {
-            /**
-             * short hand for a Vector
-             */
-            template <typename SimpleType>
-            using VectorX = Eigen::Matrix<SimpleType, Eigen::Dynamic, 1>;
-
-            /**
-             * short hand for a Matrix
-             */
-            template <typename SimpleType>
-            using MatrixX = Eigen::Matrix<SimpleType, Eigen::Dynamic, Eigen::Dynamic>;
-
             /**
              * Result of the JacobiGQ function
              */
