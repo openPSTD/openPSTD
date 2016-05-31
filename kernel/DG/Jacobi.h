@@ -222,25 +222,21 @@ namespace OpenPSTD
 
                 int Nc = x.size();
                 VectorX<SimpleType> P(x.size());
-                MatrixX<SimpleType> PL(N+1, Nc);
                 VectorX<SimpleType> prow, x_bnew;
+                VectorX<SimpleType> a(x.size()), b(x.size());
 
                 // Initial values P_0(x) and P_1(x)
                 gamma0 = pow(2.0,ab1)/(ab1)*tgamma(a1)*tgamma(b1)/tgamma(ab1);
 
-                P = P.unaryExpr([gamma0](SimpleType x) { return 1.0/sqrt(gamma0); });
+                a = a.unaryExpr([gamma0](SimpleType x) { return 1.0/sqrt(gamma0); });
 
                 if (N>0)
                 {
-                    PL.row(0) = P;
-
                     gamma1 = (a1)*(b1)/(ab+3.0)*gamma0;
-                    P = (((ab+2.0)*x/2.0).array() + (alpha-beta)/2.0) / sqrt(gamma1);
+                    b = (((ab+2.0)*x/2.0).array() + (alpha-beta)/2.0) / sqrt(gamma1);
 
                     if (N>1)
                     {
-                        PL.row(1) = P;
-
                         // Repeat value in recurrence.
                         aold = 2.0/(2.0+ab)*sqrt((a1)*(b1)/(ab+3.0));
 
@@ -253,19 +249,15 @@ namespace OpenPSTD
                             anew = 2.0/(h1+2.0)*sqrt((i+1)*(i+ab1)*(i+a1)*(i+b1)/(h1+1.0)/(h1+3.0));
                             bnew = - (SQ(alpha)-SQ(beta))/h1/(h1+2.0);
                             x_bnew = x.array()-bnew;
-                            VectorX<SimpleType> a = PL.row(I);
-                            VectorX<SimpleType> b = PL.row(I+1);
                             VectorX<SimpleType> tmp = 1.0/anew*( -aold*a + x_bnew.cwiseProduct(b));
-                            PL.row(I+2) = tmp;
+                            a = b;
+                            b = tmp;
                             aold =anew;
                         }
-
-                        P = PL.row(N);// last row
                     }
                 }
-                return P;
+                return N==0?a:b;
             }
-
         }
     }
 
