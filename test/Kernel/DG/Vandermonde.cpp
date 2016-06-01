@@ -46,7 +46,19 @@ BOOST_AUTO_TEST_SUITE(Vandermonde)
     BOOST_AUTO_TEST_CASE(Vandermonde1D_10)
     {
         int N = 10;
-        auto r = JacobiGL<double>(0, 0, N);
+        VectorX<double> r(N+1);
+        r <<
+        -1.000000000000000,
+        -0.934001430408059,
+        -0.784483473663144,
+        -0.565235326996205,
+        -0.295758135586939,
+        0.000000000000000,
+        0.295758135586939,
+        0.565235326996205,
+        0.784483473663144,
+        0.934001430408059,
+        1.000000000000000;
         auto result = Vandermonde1D(N, r);
 
         MatrixX<double> expected(N+1,N+1);
@@ -69,7 +81,8 @@ BOOST_AUTO_TEST_SUITE(Vandermonde)
     BOOST_AUTO_TEST_CASE(Vandermonde1D_2)
     {
         int N = 2;
-        auto r = JacobiGL<double>(0, 0, N);
+        VectorX<double> r(N+1);
+        r << -1, 0, 1;
         auto result = Vandermonde1D(N, r);
 
         MatrixX<double> expected(N+1,N+1);
@@ -84,7 +97,8 @@ BOOST_AUTO_TEST_SUITE(Vandermonde)
     BOOST_AUTO_TEST_CASE(GradVandermonde1D_2)
     {
         int N = 2;
-        auto r = JacobiGL<double>(0, 0, N);
+        VectorX<double> r(N+1);
+        r << -1, 0, 1;
         auto result = GradVandermonde1D(N, r);
 
         MatrixX<double> expected(N+1,N+1);
