@@ -25,7 +25,8 @@ else()
             test/Kernel/DG/JacobiGL.cpp
             test/Kernel/DG/JacobiP.cpp
             test/Kernel/DG/Vandermonde.cpp
-            test/Kernel/DG/DMatrix.cpp)
+            test/Kernel/DG/DMatrix.cpp
+            test/Kernel/DG/Lift.cpp)
 endif()
 
 
