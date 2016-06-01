@@ -40,6 +40,7 @@ using namespace OpenPSTD::Kernel::DG;
 using namespace std;
 using namespace Eigen;
 
+BOOST_AUTO_TEST_SUITE(DG)
 BOOST_AUTO_TEST_SUITE(Jacobi_GL)
     BOOST_AUTO_TEST_CASE(JacobiGL_1_D) {
         VectorX<double> x(2);
@@ -98,4 +99,5 @@ BOOST_AUTO_TEST_SUITE(Jacobi_GL)
         auto result = JacobiGL<double>(1, 2, 10);
         BOOST_CHECK(result.isApprox(x));
     }
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

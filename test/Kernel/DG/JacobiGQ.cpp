@@ -40,6 +40,7 @@ using namespace OpenPSTD::Kernel::DG;
 using namespace std;
 using namespace Eigen;
 
+BOOST_AUTO_TEST_SUITE(DG)
 BOOST_AUTO_TEST_SUITE(Jacobi_GQ)
     BOOST_AUTO_TEST_CASE(JacobiGQ_10_F) {
         VectorX<float> x(11);
@@ -233,4 +234,5 @@ BOOST_AUTO_TEST_SUITE(Jacobi_GQ)
         BOOST_CHECK(result.Weights.isApprox(w));
     }
 
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

@@ -41,6 +41,7 @@ using namespace OpenPSTD::Kernel::DG;
 using namespace std;
 using namespace Eigen;
 
+BOOST_AUTO_TEST_SUITE(DG)
 BOOST_AUTO_TEST_SUITE(Vandermonde)
     BOOST_AUTO_TEST_CASE(Vandermonde1D_10)
     {
@@ -94,4 +95,5 @@ BOOST_AUTO_TEST_SUITE(Vandermonde)
 
         BOOST_CHECK(result.isApprox(expected));
     }
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

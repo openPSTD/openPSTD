@@ -40,6 +40,7 @@ using namespace OpenPSTD::Kernel::DG;
 using namespace std;
 using namespace Eigen;
 
+BOOST_AUTO_TEST_SUITE(DG)
 BOOST_AUTO_TEST_SUITE(Jacobi_P)
     BOOST_AUTO_TEST_CASE(JacobiP_10) {
         VectorX<double> x = VectorX<double>::LinSpaced(10, -1, 1);
@@ -120,4 +121,5 @@ BOOST_AUTO_TEST_SUITE(Jacobi_P)
 
         BOOST_CHECK(result.isApprox(expected));
     }
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
