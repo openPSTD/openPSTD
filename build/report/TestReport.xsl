@@ -16,7 +16,6 @@
         <xsl:text>=== Result summary ===&#10;</xsl:text>
         <xsl:text>Test cases: </xsl:text><xsl:value-of select="count(//TestCase)"/><xsl:text>&#10;</xsl:text>
         <xsl:text>Checks: </xsl:text><xsl:value-of select="count(//Info)+count(//Warning)+count(//Error)"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>Infos: </xsl:text><xsl:value-of select="count(//Info)"/><xsl:text>&#10;</xsl:text>
         <xsl:text>Warnings: </xsl:text><xsl:value-of select="count(//Warning)"/><xsl:text>&#10;</xsl:text>
         <xsl:text>Errors: </xsl:text><xsl:value-of select="count(.//Error)"/><xsl:text>&#10;</xsl:text>
         <xsl:if test="count(.//Error) &gt; 0">
