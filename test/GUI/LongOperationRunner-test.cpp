@@ -70,6 +70,7 @@ public:
     }
 };
 
+BOOST_AUTO_TEST_SUITE(GUI)
 BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
 
     BOOST_AUTO_TEST_CASE(Constructor)
@@ -176,4 +177,5 @@ BOOST_AUTO_TEST_SUITE(GUI_Long_Operations_Runner)
         worker.JoinASAP();
     }
 
+BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
