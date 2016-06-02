@@ -1,4 +1,4 @@
-openPSTD [![Build Status](https://travis-ci.org/openPSTD/openPSTD.svg)](https://travis-ci.org/openPSTD/openPSTD)
+openPSTD [![Build Status](https://travis-ci.org/micfort/openDG.svg)](https://travis-ci.org/micfort/openDG)
 ========
 
 openPSTD is an open source initiative to provide an intuitive visual interface for the Pseudo-Spectral Time-Domain 
