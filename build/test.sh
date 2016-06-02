@@ -23,4 +23,3 @@ if [ ${TARGET} != "win64" ]; then
     
     exit ${RESULT}
 fi
-
