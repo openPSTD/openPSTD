@@ -29,8 +29,8 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENPSTD_GENERALTYPES_H
-#define OPENPSTD_GENERALTYPES_H
+#ifndef OPENPSTD_DG_GENERALTYPES_H
+#define OPENPSTD_DG_GENERALTYPES_H
 
 #include <Eigen/Dense>
 

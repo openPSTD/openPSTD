@@ -35,6 +35,7 @@
 #include <Eigen/Dense>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 #include "GeneralTypes.h"
 #include "Jacobi.h"
@@ -166,8 +167,29 @@ namespace OpenPSTD
                     }
                 }
 
-                void Calculate(SimpleType FinalTime)
+                void Calculate(SimpleType FinalTime, bool outputMatlab = false)
                 {
+                    if(outputMatlab)
+                    {
+                        std::cout << "x(:) = [";
+                        for(int i = 0; i < Elements.size(); i++)
+                        {
+                            VectorX<SimpleType> x = Elements[i]->x;
+                            x.conservativeResize(x.size()-1);
+                            std::cout << x.transpose() << " ";
+                        }
+                        std::cout << "];" << std::endl;
+
+                        std::cout << "A(:,1) = [";
+                        for(int i = 0; i < Elements.size(); i++)
+                        {
+                            VectorX<SimpleType> u = Elements[i]->u;
+                            u.conservativeResize(u.size()-1);
+                            std::cout << u.transpose() << " ";
+                        }
+                        std::cout << "];" << std::endl;
+                    }
+
                     SimpleType a = 2*M_PI;
 
                     SimpleType minDistance = Elements[0]->MinNodeDistance();
@@ -183,7 +205,19 @@ namespace OpenPSTD
 
                     for(int tstep = 0; tstep < Nsteps; tstep++)
                     {
+
                         DoTimeStep(tstep*dt, dt);
+                        if(outputMatlab)
+                        {
+                            std::cout << "A(:," << tstep+2 << ") = [";
+                            for(int i = 0; i < Elements.size(); i++)
+                            {
+                                VectorX<SimpleType> u = Elements[i]->u;
+                                u.conservativeResize(u.size()-1);
+                                std::cout << u.transpose() << " ";
+                            }
+                            std::cout << "];" << std::endl;
+                        }
                     }
                 }
             };

@@ -37,6 +37,7 @@
 
 #include <kernel/PSTDKernel.h>
 #include <kernel/MockKernel.h>
+#include <kernel/DG/DG.h>
 
 #include <shared/PSTDFile.h>
 
@@ -583,6 +584,28 @@ namespace OpenPSTD
                 return 1;
             }
         }
+
+        std::string TestCommand::GetName()
+        {
+            return "test";
+        }
+
+        std::string TestCommand::GetDescription()
+        {
+            return "USE ONLY IN DEVELOPMENT!!!";
+        }
+
+        int TestCommand::execute(int argc, const char **argv)
+        {
+            using namespace Kernel::DG;
+
+            int K = 10;
+            int N = 8;
+
+            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
+            s->Init(K, N, 0.0, 2.0);
+            s->Calculate(10, true);
+        }
     }
 }
 
@@ -595,6 +618,7 @@ int main(int argc, const char *argv[])
     commands.push_back(std::unique_ptr<EditCommand>(new EditCommand()));
     commands.push_back(std::unique_ptr<RunCommand>(new RunCommand()));
     commands.push_back(std::unique_ptr<ExportCommand>(new ExportCommand()));
+    commands.push_back(std::unique_ptr<TestCommand>(new TestCommand()));
 
     if (argc >= 2)
     {
