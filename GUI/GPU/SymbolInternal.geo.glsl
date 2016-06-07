@@ -19,7 +19,7 @@
 #version 330
 
 layout(points) in;
-layout(triangle_strip, max_vertices = 192) out;
+layout(triangle_strip, max_vertices = 48) out;
 
 uniform mat4 u_view;
 
@@ -31,7 +31,7 @@ const float PI = 3.1415926;
 void main()
 {
     float SizeCircle = 0.1;
-    int PointsInCircle = 64;
+    int PointsInCircle = 16;
 
     f_Color = vec4(v_color[0].rgb, 0.35);
 

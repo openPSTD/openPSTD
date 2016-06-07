@@ -19,7 +19,7 @@
 #version 330
 
 layout(points) in;
-layout(line_strip, max_vertices = 69) out;
+layout(line_strip, max_vertices = 21) out;
 
 uniform mat4 u_view;
 
@@ -31,7 +31,7 @@ const float PI = 3.1415926;
 void main()
 {
     float SizeCircle = 0.1;
-    int PointsInCircle = 64;
+    int PointsInCircle = 16;
     vec4 SizeLines = vec4(0.2, 0.0, 0.0, 0.0);
     vec4 SizeLines2 = vec4(0.0, 0.2, 0.0, 0.0);
 
