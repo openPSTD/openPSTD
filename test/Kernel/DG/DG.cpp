@@ -35,6 +35,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <kernel/DG/DG.h>
+#include <kernel/DG/RK.h>
 
 using namespace OpenPSTD::Kernel::DG;
 using namespace std;
@@ -200,9 +201,11 @@ BOOST_AUTO_TEST_SUITE(DG)
             int N = 8;
             MatrixX<double> fluxExpected = MatrixX<double>::Zero(2, 10);
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
+            std::shared_ptr<System1D<double>> s = std::shared_ptr<System1D<double>>(new System1D<double>()) ;
             s->Init(K, N, 0.0, 2.0);
-            s->DoRKStep(0, 0, 5.952380952380953e-04);
+            std::shared_ptr<LSERK<double>> RK = std::make_shared<LSERK<double>>();
+            RK->SetBB(s);
+            RK->ComputeRKStep(0, 5.952380952380953e-04);
 
             MatrixX<double> flux(2,10);
             for(int k = 0; k  < K; k++)
@@ -230,9 +233,11 @@ BOOST_AUTO_TEST_SUITE(DG)
                     -6.157939921949840	,	-5.787196904535160	,	-5.185736609092400	,	-4.377537359583530	,	-3.394819509666040	,	-2.276760918870530	,	-1.067935054974210	,	0.183466009499949	,	1.427552863135910	,	2.614727689021820	;
 
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
+            std::shared_ptr<System1D<double>> s = std::shared_ptr<System1D<double>>(new System1D<double>()) ;
             s->Init(K, N, 0.0, 2.0);
-            s->DoRKStep(0, 0, 5.952380952380953e-04);
+            std::shared_ptr<LSERK<double>> RK = std::make_shared<LSERK<double>>();
+            RK->SetBB(s);
+            RK->ComputeRKStep(0, 5.952380952380953e-04);
 
             MatrixX<double> RHS(9,10);
             for(int k = 0; k  < K; k++)
@@ -259,10 +264,11 @@ BOOST_AUTO_TEST_SUITE(DG)
                     -0.424439464450597	,	-0.236092532523295	,	-0.038333336838164	,	0.160954088070280	,	0.353824781424782	,	0.532589597297851	,	0.690121746609626	,	0.820140919687718	,	0.917463662403857	,	0.978210024122796	,
                     -0.415341814069467	,	-0.226340012068104	,	-0.028314745904504	,	0.170839339622502	,	0.363182599814538	,	0.541046915839004	,	0.697341398687708	,	0.825835080573409	,	0.921405323859723	,	0.980242044554133	;
 
-
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
+            std::shared_ptr<System1D<double>> s = std::shared_ptr<System1D<double>>(new System1D<double>()) ;
             s->Init(K, N, 0.0, 2.0);
-            s->Calculate(0.1);
+            std::shared_ptr<LSERK<double>> RK = std::make_shared<LSERK<double>>();
+            RK->SetBB(s);
+            RK->Calculate(0.1);
 
             MatrixX<double> u(9,10);
             for(int k = 0; k  < K; k++)

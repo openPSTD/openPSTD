@@ -604,7 +604,7 @@ namespace OpenPSTD
 
             std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
             s->Init(K, N, 0.0, 2.0);
-            s->Calculate(10, true);
+            //s->Calculate(10, true);
         }
     }
 }

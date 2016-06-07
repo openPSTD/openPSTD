@@ -43,6 +43,7 @@
 #include "DMatrix.h"
 #include "Lift.h"
 #include "GeometricFactors.h"
+#include "RK.h"
 
 namespace OpenPSTD
 {
@@ -67,52 +68,80 @@ namespace OpenPSTD
             };
 
             template <typename SimpleType>
-            struct RK {
-            public:
-                SimpleType a;
-                SimpleType b;
-                SimpleType c;
-            };
-
-            template <typename SimpleType>
-            class System1D
+            class System1D : public BlackBoxInterface<SimpleType>
             {
             public:
                 std::vector<std::shared_ptr<Element1D<SimpleType>>> Elements;
                 std::vector<std::shared_ptr<Vertex1D<SimpleType>>> Vertices;
 
-                std::vector<RK<SimpleType>> RK4;
+                virtual std::vector<MatrixX<SimpleType>> ComputeRHS(SimpleType time)
+                {
+                    SimpleType a = M_PI*2;
+                    SimpleType alpha = 1;
+
+                    for(int i = 0; i < Elements.size(); i++)
+                    {
+                        if(i == 0)
+                            Elements[i]->CalculateInput(a, alpha, time);
+                        else
+                            Elements[i]->CalculateFlux(FaceIndex1D::Left, a, alpha);
+
+                        if(i == Elements.size()-1)
+                            Elements[i]->CalculateOutput();
+                        else
+                            Elements[i]->CalculateFlux(FaceIndex1D::Right, a, alpha);
+
+                        Elements[i]->CalculateRHS(a, alpha);
+                    }
+
+                    MatrixX<SimpleType> rhs(this->Elements[0]->RHS.size(), this->Elements.size());
+                    for(int i = 0; i < rhs.cols(); i++)
+                    {
+                        rhs.col(i) = this->Elements[i]->RHS;
+                    }
+                    std::vector<MatrixX<SimpleType>> result;
+                    result.push_back(rhs);
+                    return result;
+                };
+
+                virtual void SetState(std::vector<MatrixX<SimpleType>> state)
+                {
+                    MatrixX<SimpleType> u = state[0];
+                    for(int i = 0; i < u.cols(); i++)
+                    {
+                        this->Elements[i]->u = u.col(i);
+                    }
+                };
+
+                virtual std::vector<MatrixX<SimpleType>> GetState()
+                {
+                    MatrixX<SimpleType> u(this->Elements[0]->u.size(), this->Elements.size());
+                    for(int i = 0; i < u.cols(); i++)
+                    {
+                        u.col(i) = this->Elements[i]->u;
+                    }
+                    std::vector<MatrixX<SimpleType>> result;
+                    result.push_back(u);
+                    return result;
+                };
+
+                virtual SimpleType GetMaxDT()
+                {
+                    SimpleType a = M_PI*2;
+
+                    SimpleType minDistance = Elements[0]->MinNodeDistance();
+                    for(int i = 1; i < Elements.size(); i++)
+                    {
+                        minDistance = std::min(Elements[i]->MinNodeDistance(), minDistance);
+                    }
+                    SimpleType CFL = 0.75;
+                    SimpleType dt = CFL/a*minDistance;
+                    dt = dt/2;
+                    return dt;
+                };
 
                 void Init(int K, int N, SimpleType x1, SimpleType x2)
                 {
-                    RK<double> tmp;
-
-                    //RK4 constants
-                    tmp.a = 0;
-                    tmp.b = 1432997174477.0/9575080441755.0;
-                    tmp.c = 0;
-                    RK4.push_back(tmp);
-
-                    tmp.a = -567301805773.0/1357537059087.0;
-                    tmp.b = 5161836677717.0/13612068292357.0;
-                    tmp.c = 1432997174477.0/9575080441755.0;
-                    RK4.push_back(tmp);
-
-                    tmp.a = -2404267990393.0/2016746695238.0;
-                    tmp.b = 1720146321549.0/2090206949498.0;
-                    tmp.c = 2526269341429.0/6820363962896.0;
-                    RK4.push_back(tmp);
-
-                    tmp.a = -3550918686646.0/2091501179385.0;
-                    tmp.b = 3134564353537.0/4481467310338.0;
-                    tmp.c = 2006345519317.0/3224310063776.0;
-                    RK4.push_back(tmp);
-
-                    tmp.a = -1275806237668.0/842570457699.0;
-                    tmp.b = 2277821191437.0/14882151754819.0;
-                    tmp.c = 2802321613138.0/2924317926251.0;
-                    RK4.push_back(tmp);
-
                     //Add K+1 vertices in the system
                     VectorX<SimpleType> x = VectorX<SimpleType>::LinSpaced(K+1, x1, x2);
                     for(int k = 0; k < K+1; k++)
@@ -132,94 +161,6 @@ namespace OpenPSTD
                         Elements.push_back(e);
                     }
                 }
-
-                void DoRKStep(int RKi, SimpleType T, SimpleType deltaT)
-                {
-                    SimpleType a = M_PI*2;
-                    SimpleType alpha = 1;
-
-                    for(int i = 0; i < Elements.size(); i++)
-                    {
-                        if(i == 0)
-                            Elements[i]->CalculateInput(a, alpha, T+deltaT*RK4[RKi].c);
-                        else
-                            Elements[i]->CalculateFlux(FaceIndex1D::Left, a, alpha);
-
-                        if(i == Elements.size()-1)
-                            Elements[i]->CalculateOutput();
-                        else
-                            Elements[i]->CalculateFlux(FaceIndex1D::Right, a, alpha);
-
-                        Elements[i]->CalculateRHS(a, alpha);
-                    }
-
-                    for(int i = 0; i < Elements.size(); i++)
-                    {
-                        Elements[i]->DoRKStep(deltaT, RK4[RKi].a, RK4[RKi].b);
-                    }
-                }
-
-                void DoTimeStep(SimpleType T, SimpleType deltaT)
-                {
-                    for(int RKi = 0; RKi < 5; RKi++)
-                    {
-                        DoRKStep(RKi, T, deltaT);
-                    }
-                }
-
-                void Calculate(SimpleType FinalTime, bool outputMatlab = false)
-                {
-                    if(outputMatlab)
-                    {
-                        std::cout << "x(:) = [";
-                        for(int i = 0; i < Elements.size(); i++)
-                        {
-                            VectorX<SimpleType> x = Elements[i]->x;
-                            x.conservativeResize(x.size()-1);
-                            std::cout << x.transpose() << " ";
-                        }
-                        std::cout << "];" << std::endl;
-
-                        std::cout << "A(:,1) = [";
-                        for(int i = 0; i < Elements.size(); i++)
-                        {
-                            VectorX<SimpleType> u = Elements[i]->u;
-                            u.conservativeResize(u.size()-1);
-                            std::cout << u.transpose() << " ";
-                        }
-                        std::cout << "];" << std::endl;
-                    }
-
-                    SimpleType a = 2*M_PI;
-
-                    SimpleType minDistance = Elements[0]->MinNodeDistance();
-                    for(int i = 1; i < Elements.size(); i++)
-                    {
-                        minDistance = std::min(Elements[i]->MinNodeDistance(), minDistance);
-                    }
-                    SimpleType CFL = 0.75;
-                    SimpleType dt = CFL/a*minDistance;
-                    dt = dt/2;
-                    SimpleType Nsteps = ceil(FinalTime/dt);
-                    dt = FinalTime/Nsteps;
-
-                    for(int tstep = 0; tstep < Nsteps; tstep++)
-                    {
-
-                        DoTimeStep(tstep*dt, dt);
-                        if(outputMatlab)
-                        {
-                            std::cout << "A(:," << tstep+2 << ") = [";
-                            for(int i = 0; i < Elements.size(); i++)
-                            {
-                                VectorX<SimpleType> u = Elements[i]->u;
-                                u.conservativeResize(u.size()-1);
-                                std::cout << u.transpose() << " ";
-                            }
-                            std::cout << "];" << std::endl;
-                        }
-                    }
-                }
             };
 
             template <typename SimpleType>
@@ -228,7 +169,6 @@ namespace OpenPSTD
             public:
                 VectorX<SimpleType> x;
                 VectorX<SimpleType> u;
-                VectorX<SimpleType> resu;
                 VectorX<SimpleType> RHS;
                 VectorX<SimpleType> flux;
 
@@ -277,7 +217,6 @@ namespace OpenPSTD
                     Fscale << 1/J(0,0), 1/J(J.size()-1,0);
 
                     u = x.array().sin();
-                    resu = VectorX<SimpleType>::Zero(Np);
                     RHS = VectorX<SimpleType>::Zero(Np);
                     flux = VectorX<SimpleType>::Zero(2);
                 }
@@ -313,12 +252,6 @@ namespace OpenPSTD
                 void CalculateRHS(SimpleType a, SimpleType alpha)
                 {
                     this->RHS = -a*(this->rx.cwiseProduct(Dr*u)) + LIFT*(Fscale.cwiseProduct(flux));
-                }
-
-                void DoRKStep(SimpleType deltaT, SimpleType a, SimpleType b)
-                {
-                    resu = a*resu+deltaT*RHS;
-                    u = u+b*resu;
                 }
 
                 SimpleType MinNodeDistance()
