@@ -36,6 +36,7 @@
 #include <boost/test/unit_test.hpp>
 #include <kernel/DG/DG.h>
 #include <kernel/DG/RK.h>
+#include <kernel/DG/Advec.h>
 
 using namespace OpenPSTD::Kernel::DG;
 using namespace std;
@@ -60,8 +61,8 @@ BOOST_AUTO_TEST_SUITE(DG)
                     0.188835129968113	,	0.380166031788186	,	0.556340913604151	,	0.710336238829995	,	0.836012699809313	,	0.928359972637866	,	0.983696462966651	,	0.999816079550653	,	0.976076184145059	,	0.913423211464118	,
                     0.198669330795061	,	0.389418342308651	,	0.564642473395035	,	0.717356090899523	,	0.841470984807897	,	0.932039085967226	,	0.985449729988460	,	0.999573603041505	,	0.973847630878195	,	0.909297426825682	;
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
 
             MatrixX<double> u(9,10);
             for(int k = 0; k  < K; k++)
@@ -88,9 +89,8 @@ BOOST_AUTO_TEST_SUITE(DG)
                     0.189975799541146	,	0.389975799541146	,	0.589975799541146	,	0.789975799541146	,	0.989975799541146	,	1.189975799541140	,	1.389975799541140	,	1.589975799541140	,	1.789975799541140	,	1.989975799541140	,
                     0.200000000000000	,	0.400000000000000	,	0.600000000000000	,	0.800000000000000	,	1.000000000000000	,	1.200000000000000	,	1.400000000000000	,	1.600000000000000	,	1.800000000000000	,	2.000000000000000	;
 
-
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
 
             MatrixX<double> x(9,10);
             for(int k = 0; k  < K; k++)
@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_SUITE(DG)
             0.000000000000000	,	0.200000000000000	,	0.400000000000000	,	0.600000000000000	,	0.800000000000000	,	1.000000000000000	,	1.200000000000000	,	1.400000000000000	,	1.600000000000000	,	1.800000000000000	,
                     0.200000000000000	,	0.400000000000000	,	0.600000000000000	,	0.800000000000000	,	1.000000000000000	,	1.200000000000000	,	1.400000000000000	,	1.600000000000000	,	1.800000000000000	,	2.000000000000000	;
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
 
             MatrixX<double> x(2,10);
             for(int k = 0; k  < K; k++)
@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_SUITE(DG)
                     1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	,	1.000000000000000	;
 
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
 
             MatrixX<double> x(2,10);
             for(int k = 0; k  < K; k++)
@@ -162,8 +162,8 @@ BOOST_AUTO_TEST_SUITE(DG)
                     9.999999999999970	,	9.999999999999990	,	9.999999999999940	,	9.999999999999990	,	9.999999999999940	,	9.999999999999940	,	10.000000000000000	,	9.999999999999850	,	9.999999999999850	,	10.000000000000000	,
                     10.000000000000000	,	9.999999999999940	,	9.999999999999850	,	10.000000000000000	,	9.999999999999850	,	10.000000000000200	,	9.999999999999500	,	9.999999999999850	,	10.000000000000500	,	9.999999999999140	;
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
 
             MatrixX<double> rx(9,10);
             for(int k = 0; k  < K; k++)
@@ -183,8 +183,8 @@ BOOST_AUTO_TEST_SUITE(DG)
                     9.999999999999990	,	10.000000000000000	,	10.000000000000000	,	10.000000000000000	,	10.000000000000000	,	10.000000000000300	,	10.000000000000300	,	10.000000000000300	,	10.000000000000700	,	9.999999999999760	,
                     10.000000000000000	,	9.999999999999940	,	9.999999999999850	,	10.000000000000000	,	9.999999999999850	,	10.000000000000200	,	9.999999999999500	,	9.999999999999850	,	10.000000000000500	,	9.999999999999140	;
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
 
             MatrixX<double> fscale(2,10);
             for(int k = 0; k  < K; k++)
@@ -193,27 +193,6 @@ BOOST_AUTO_TEST_SUITE(DG)
             }
 
             BOOST_CHECK(fscale.isApprox(fscaleExpected));
-        }
-
-        BOOST_AUTO_TEST_CASE(DG_Advec_step_1_RHS)
-        {
-            int K = 10;
-            int N = 8;
-            MatrixX<double> fluxExpected = MatrixX<double>::Zero(2, 10);
-
-            std::shared_ptr<System1D<double>> s = std::shared_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
-            std::shared_ptr<LSERK<double>> RK = std::make_shared<LSERK<double>>();
-            RK->SetBB(s);
-            RK->ComputeRKStep(0, 5.952380952380953e-04);
-
-            MatrixX<double> flux(2,10);
-            for(int k = 0; k  < K; k++)
-            {
-                flux.col(k) = s->Elements[k]->flux;
-            }
-
-            BOOST_CHECK(flux.isApprox(fluxExpected));
         }
 
         BOOST_AUTO_TEST_CASE(DG_Advec_step_1_flux)
@@ -233,16 +212,15 @@ BOOST_AUTO_TEST_SUITE(DG)
                     -6.157939921949840	,	-5.787196904535160	,	-5.185736609092400	,	-4.377537359583530	,	-3.394819509666040	,	-2.276760918870530	,	-1.067935054974210	,	0.183466009499949	,	1.427552863135910	,	2.614727689021820	;
 
 
-            std::shared_ptr<System1D<double>> s = std::shared_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
             std::shared_ptr<LSERK<double>> RK = std::make_shared<LSERK<double>>();
             RK->SetBB(s);
-            RK->ComputeRKStep(0, 5.952380952380953e-04);
 
             MatrixX<double> RHS(9,10);
             for(int k = 0; k  < K; k++)
             {
-                RHS.col(k) = s->Elements[k]->RHS;
+                RHS.col(k) = de->CalculateRHS(s->Elements[k], s, 0);
             }
 
             BOOST_CHECK(RHS.isApprox(RHSExpected));
@@ -264,8 +242,8 @@ BOOST_AUTO_TEST_SUITE(DG)
                     -0.424439464450597	,	-0.236092532523295	,	-0.038333336838164	,	0.160954088070280	,	0.353824781424782	,	0.532589597297851	,	0.690121746609626	,	0.820140919687718	,	0.917463662403857	,	0.978210024122796	,
                     -0.415341814069467	,	-0.226340012068104	,	-0.028314745904504	,	0.170839339622502	,	0.363182599814538	,	0.541046915839004	,	0.697341398687708	,	0.825835080573409	,	0.921405323859723	,	0.980242044554133	;
 
-            std::shared_ptr<System1D<double>> s = std::shared_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, 0.0, 2.0, de);
             std::shared_ptr<LSERK<double>> RK = std::make_shared<LSERK<double>>();
             RK->SetBB(s);
             RK->Calculate(0.1);

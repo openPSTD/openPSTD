@@ -45,7 +45,7 @@ namespace OpenPSTD
              * Compute Jacobian for the metric elements for the local mappings of the 1D elements.
              */
             template<typename SimpleType>
-            MatrixX<SimpleType> GeometricFactors1D_J(MatrixX<SimpleType> x, MatrixX<SimpleType> Dr)
+            MatrixX<SimpleType> GeometricFactors1D_J(const MatrixX<SimpleType>& x, const MatrixX<SimpleType>& Dr)
             {
                 return Dr*x;
             }
@@ -54,7 +54,7 @@ namespace OpenPSTD
              * Compute the metric elements for the local mappings of the 1D elements.
              */
             template<typename SimpleType>
-            MatrixX<SimpleType> GeometricFactors1D_rx(MatrixX<SimpleType> J)
+            MatrixX<SimpleType> GeometricFactors1D_rx(const MatrixX<SimpleType>& J)
             {
                 return J.unaryExpr([](SimpleType x){return 1/x;});
             }
@@ -64,7 +64,7 @@ namespace OpenPSTD
              * Compute the metric elements for the local mappings of the 1D elements.
              */
             template<typename SimpleType>
-            MatrixX<SimpleType> GeometricFactors1D_rx(MatrixX<SimpleType> x, MatrixX<SimpleType> Dr)
+            MatrixX<SimpleType> GeometricFactors1D_rx(const MatrixX<SimpleType>& x, const MatrixX<SimpleType>& Dr)
             {
                 return GeometricFactors1D_rx(GeometricFactors1D_J(x, Dr));
             }

@@ -38,6 +38,7 @@
 #include <kernel/PSTDKernel.h>
 #include <kernel/MockKernel.h>
 #include <kernel/DG/DG.h>
+#include <kernel/DG/Advec.h>
 
 #include <shared/PSTDFile.h>
 
@@ -602,8 +603,8 @@ namespace OpenPSTD
             int K = 10;
             int N = 8;
 
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>()) ;
-            s->Init(K, N, 0.0, 2.0);
+            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
+            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>(K, N, 0.0, 2.0, de)) ;
             //s->Calculate(10, true);
         }
     }

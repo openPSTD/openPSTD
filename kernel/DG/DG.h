@@ -68,36 +68,74 @@ namespace OpenPSTD
             };
 
             template <typename SimpleType>
-            class System1D : public BlackBoxInterface<SimpleType>
+            class DG1DDE
             {
+            public:
+                virtual void Initialize(
+                        std::shared_ptr<Element1D<SimpleType>> element) = 0;
+                virtual VectorX<SimpleType> CalculateRHS(
+                        std::shared_ptr<Element1D<SimpleType>> element,
+                        std::shared_ptr<System1D<SimpleType>> system,
+                        SimpleType time) = 0;
+                virtual SimpleType GetMaxDt(SimpleType minDistance) = 0;
+            };
+
+            template <typename SimpleType>
+            class System1D : public BlackBoxInterface<SimpleType>, public std::enable_shared_from_this<System1D<SimpleType>>
+            {
+            private:
+                int K, N;
+                std::shared_ptr<DG1DDE<SimpleType>> DE;
+
             public:
                 std::vector<std::shared_ptr<Element1D<SimpleType>>> Elements;
                 std::vector<std::shared_ptr<Vertex1D<SimpleType>>> Vertices;
 
-                virtual std::vector<MatrixX<SimpleType>> ComputeRHS(SimpleType time)
+                MatrixX<SimpleType> LIFT;
+                MatrixX<SimpleType> Dr;
+
+                System1D(int K, int N, SimpleType x1, SimpleType x2, std::shared_ptr<DG1DDE<SimpleType>> de)
                 {
-                    SimpleType a = M_PI*2;
-                    SimpleType alpha = 1;
+                    this->K = K;
+                    this->N = N;
+                    this->DE = de;
 
-                    for(int i = 0; i < Elements.size(); i++)
+                    VectorX<SimpleType> r = JacobiGL<SimpleType>(0, 0, N);
+                    MatrixX<SimpleType> V = Vandermonde1D<SimpleType>(N, r);
+                    Dr = DMatrix1D(N, r, V);
+                    LIFT = Lift1D(N+1, 2, V);
+
+                    //Add K+1 vertices in the system
+                    VectorX<SimpleType> x = VectorX<SimpleType>::LinSpaced(K+1, x1, x2);
+                    for(int k = 0; k < K+1; k++)
                     {
-                        if(i == 0)
-                            Elements[i]->CalculateInput(a, alpha, time);
-                        else
-                            Elements[i]->CalculateFlux(FaceIndex1D::Left, a, alpha);
-
-                        if(i == Elements.size()-1)
-                            Elements[i]->CalculateOutput();
-                        else
-                            Elements[i]->CalculateFlux(FaceIndex1D::Right, a, alpha);
-
-                        Elements[i]->CalculateRHS(a, alpha);
+                        std::shared_ptr<Vertex1D<SimpleType>> v = std::make_shared<Vertex1D<SimpleType>>();
+                        v->x = x[k];
+                        v->Faces = std::vector<std::weak_ptr<Face1D<SimpleType>>>();
+                        v->Faces.reserve(2);
+                        Vertices.push_back(v);
                     }
 
-                    MatrixX<SimpleType> rhs(this->Elements[0]->RHS.size(), this->Elements.size());
+                    //add K elements in the system
+                    for(int k = 0; k < K; k++)
+                    {
+                        std::shared_ptr<Element1D<SimpleType>> e = std::make_shared<Element1D<SimpleType>>();
+                        e->Init(Vertices[k], Vertices[k+1], N, Dr);
+                        Elements.push_back(e);
+                    }
+
+                    for(int k = 0; k < K; k++)
+                    {
+                        de->Initialize(Elements[k]);
+                    }
+                }
+
+                virtual std::vector<MatrixX<SimpleType>> ComputeRHS(SimpleType time)
+                {
+                    MatrixX<SimpleType> rhs(this->N+1, this->Elements.size());
                     for(int i = 0; i < rhs.cols(); i++)
                     {
-                        rhs.col(i) = this->Elements[i]->RHS;
+                        rhs.col(i) = this->DE->CalculateRHS(this->Elements[i], this->shared_from_this(), time);
                     }
                     std::vector<MatrixX<SimpleType>> result;
                     result.push_back(rhs);
@@ -115,7 +153,7 @@ namespace OpenPSTD
 
                 virtual std::vector<MatrixX<SimpleType>> GetState()
                 {
-                    MatrixX<SimpleType> u(this->Elements[0]->u.size(), this->Elements.size());
+                    MatrixX<SimpleType> u(N+1, this->Elements.size());
                     for(int i = 0; i < u.cols(); i++)
                     {
                         u.col(i) = this->Elements[i]->u;
@@ -127,40 +165,13 @@ namespace OpenPSTD
 
                 virtual SimpleType GetMaxDT()
                 {
-                    SimpleType a = M_PI*2;
-
                     SimpleType minDistance = Elements[0]->MinNodeDistance();
                     for(int i = 1; i < Elements.size(); i++)
                     {
                         minDistance = std::min(Elements[i]->MinNodeDistance(), minDistance);
                     }
-                    SimpleType CFL = 0.75;
-                    SimpleType dt = CFL/a*minDistance;
-                    dt = dt/2;
-                    return dt;
+                    return DE->GetMaxDt(minDistance);
                 };
-
-                void Init(int K, int N, SimpleType x1, SimpleType x2)
-                {
-                    //Add K+1 vertices in the system
-                    VectorX<SimpleType> x = VectorX<SimpleType>::LinSpaced(K+1, x1, x2);
-                    for(int k = 0; k < K+1; k++)
-                    {
-                        std::shared_ptr<Vertex1D<SimpleType>> v = std::make_shared<Vertex1D<SimpleType>>();
-                        v->x = x[k];
-                        v->Faces = std::vector<std::weak_ptr<Face1D<SimpleType>>>();
-                        v->Faces.reserve(2);
-                        Vertices.push_back(v);
-                    }
-
-                    //add K elements in the system
-                    for(int k = 0; k < K; k++)
-                    {
-                        std::shared_ptr<Element1D<SimpleType>> e = std::make_shared<Element1D<SimpleType>>();
-                        e->Init(Vertices[k], Vertices[k+1], N);
-                        Elements.push_back(e);
-                    }
-                }
             };
 
             template <typename SimpleType>
@@ -169,17 +180,13 @@ namespace OpenPSTD
             public:
                 VectorX<SimpleType> x;
                 VectorX<SimpleType> u;
-                VectorX<SimpleType> RHS;
-                VectorX<SimpleType> flux;
 
                 MatrixX<SimpleType> Fscale;
-                MatrixX<SimpleType> LIFT;
-                MatrixX<SimpleType> Dr;
                 MatrixX<SimpleType> rx;
 
                 std::vector<std::shared_ptr<Face1D<SimpleType>>> Faces;
 
-                void Init(std::shared_ptr<Vertex1D<SimpleType>> x1, std::shared_ptr<Vertex1D<SimpleType>> x2, int N)
+                void Init(std::shared_ptr<Vertex1D<SimpleType>> x1, std::shared_ptr<Vertex1D<SimpleType>> x2, int N, const MatrixX<SimpleType>& Dr)
                 {
                     if(x1->x > x2->x) std::swap(x1, x2);
                     int Np = N+1;
@@ -204,54 +211,16 @@ namespace OpenPSTD
                     VectorX<SimpleType> r = JacobiGL<SimpleType>(0, 0, N);
                     x = VectorX<SimpleType>::Ones(Np).array()*x1->x+(r.array()+1)/2*(x2->x-x1->x);
 
-                    MatrixX<SimpleType> V = Vandermonde1D<SimpleType>(N, r);
-                    Dr = DMatrix1D(N, r, V);
-                    LIFT = Lift1D(Np, 2, V);
-
                     MatrixX<SimpleType> X = MatrixX<SimpleType>(x.size(),1);
                     X.col(0) = x;
+
                     MatrixX<SimpleType> J = GeometricFactors1D_J<SimpleType>(X, Dr);
                     rx = GeometricFactors1D_rx<SimpleType>(J);
 
                     Fscale = VectorX<SimpleType>(2);
                     Fscale << 1/J(0,0), 1/J(J.size()-1,0);
 
-                    u = x.array().sin();
-                    RHS = VectorX<SimpleType>::Zero(Np);
-                    flux = VectorX<SimpleType>::Zero(2);
-                }
-
-                void CalculateFlux(FaceIndex1D f, SimpleType a, SimpleType alpha, SimpleType uin)
-                {
-                    int I = f==FaceIndex1D::Left?0:x.size()-1;;
-                    flux[(int)f] = (u[I]-uin)*(a*this->Faces[(int)f]->Normal[0]-(1-alpha)*abs(a*this->Faces[(int)f]->Normal[0]))/2;
-                }
-
-                void CalculateFlux(FaceIndex1D f, SimpleType a, SimpleType alpha)
-                {
-                    auto face = Faces[f==FaceIndex1D::Left?0:1];
-                    auto otherFace = face->GetOtherSideFace();
-                    std::shared_ptr<Element1D<SimpleType>> other = otherFace->Element.lock();
-                    int OtherSideIndex = f==FaceIndex1D::Right?0:other->u.size()-1;
-                    SimpleType uin = other->u[OtherSideIndex];
-                    CalculateFlux(f, a, alpha, uin);
-                }
-
-                void CalculateInput(SimpleType a, SimpleType alpha, SimpleType time)
-                {
-                    int I = 0;
-                    SimpleType uin = -sin(a*time);
-                    CalculateFlux(FaceIndex1D::Left, a, alpha, uin);
-                }
-
-                void CalculateOutput()
-                {
-                    flux[flux.size()-1] = 0;
-                }
-
-                void CalculateRHS(SimpleType a, SimpleType alpha)
-                {
-                    this->RHS = -a*(this->rx.cwiseProduct(Dr*u)) + LIFT*(Fscale.cwiseProduct(flux));
+                    u = VectorX<SimpleType>::Zero(N+1);
                 }
 
                 SimpleType MinNodeDistance()
@@ -285,6 +254,15 @@ namespace OpenPSTD
                         }
                     }
                     return std::shared_ptr<Face1D<SimpleType>>();
+                }
+
+                bool OtherSideExist()
+                {
+                    auto otherSide = this->GetOtherSideFace();
+                    if(otherSide)
+                        return true;
+                    else
+                        return false;
                 }
 
                 std::weak_ptr<Element1D<SimpleType>> Element;
