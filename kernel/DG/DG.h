@@ -73,11 +73,12 @@ namespace OpenPSTD
             public:
                 virtual void Initialize(
                         std::shared_ptr<Element1D<SimpleType>> element) = 0;
-                virtual VectorX<SimpleType> CalculateRHS(
+                virtual std::vector<VectorX<SimpleType>> CalculateRHS(
                         std::shared_ptr<Element1D<SimpleType>> element,
                         std::shared_ptr<System1D<SimpleType>> system,
                         SimpleType time) = 0;
                 virtual SimpleType GetMaxDt(SimpleType minDistance) = 0;
+                virtual SimpleType GetNumberOfVariables() = 0;
             };
 
             template <typename SimpleType>
@@ -120,7 +121,7 @@ namespace OpenPSTD
                     for(int k = 0; k < K; k++)
                     {
                         std::shared_ptr<Element1D<SimpleType>> e = std::make_shared<Element1D<SimpleType>>();
-                        e->Init(Vertices[k], Vertices[k+1], N, Dr);
+                        e->Init(Vertices[k], Vertices[k+1], N, de->GetNumberOfVariables(), Dr);
                         Elements.push_back(e);
                     }
 
@@ -132,34 +133,52 @@ namespace OpenPSTD
 
                 virtual std::vector<MatrixX<SimpleType>> ComputeRHS(SimpleType time)
                 {
-                    MatrixX<SimpleType> rhs(this->N+1, this->Elements.size());
-                    for(int i = 0; i < rhs.cols(); i++)
-                    {
-                        rhs.col(i) = this->DE->CalculateRHS(this->Elements[i], this->shared_from_this(), time);
-                    }
                     std::vector<MatrixX<SimpleType>> result;
-                    result.push_back(rhs);
+                    int nVariables = this->DE->GetNumberOfVariables();
+                    for(int j = 0; j < nVariables; j++)
+                    {
+                        result.push_back(MatrixX<SimpleType>(this->N+1, this->Elements.size()));
+                    }
+
+                    for(int i = 0; i < K; i++)
+                    {
+                        auto ElementRHS = this->DE->CalculateRHS(this->Elements[i], this->shared_from_this(), time);
+                        for(int j = 0; j < nVariables; j++)
+                        {
+                            result[j].col(i) = ElementRHS[j];
+                        }
+                    }
+
                     return result;
                 };
 
                 virtual void SetState(std::vector<MatrixX<SimpleType>> state)
                 {
-                    MatrixX<SimpleType> u = state[0];
-                    for(int i = 0; i < u.cols(); i++)
+                    //todo test if variable count is correct
+                    //int nVariables = this->DE->GetNumberOfVariables();
+                    for(int j = 0; j < state.size(); j++)
                     {
-                        this->Elements[i]->u = u.col(i);
+                        MatrixX<SimpleType> u = state[j];
+                        for(int i = 0; i < u.cols(); i++)
+                        {
+                            this->Elements[i]->u[j] = u.col(i);
+                        }
                     }
                 };
 
                 virtual std::vector<MatrixX<SimpleType>> GetState()
                 {
-                    MatrixX<SimpleType> u(N+1, this->Elements.size());
-                    for(int i = 0; i < u.cols(); i++)
-                    {
-                        u.col(i) = this->Elements[i]->u;
-                    }
+                    int nVariables = this->DE->GetNumberOfVariables();
                     std::vector<MatrixX<SimpleType>> result;
-                    result.push_back(u);
+                    for(int j = 0; j < nVariables; j++)
+                    {
+                        MatrixX<SimpleType> u(N+1, this->Elements.size());
+                        for(int i = 0; i < u.cols(); i++)
+                        {
+                            u.col(i) = this->Elements[i]->u[j];
+                        }
+                        result.push_back(u);
+                    }
                     return result;
                 };
 
@@ -179,14 +198,14 @@ namespace OpenPSTD
             {
             public:
                 VectorX<SimpleType> x;
-                VectorX<SimpleType> u;
+                std::vector<VectorX<SimpleType>> u;
 
                 MatrixX<SimpleType> Fscale;
                 MatrixX<SimpleType> rx;
 
                 std::vector<std::shared_ptr<Face1D<SimpleType>>> Faces;
 
-                void Init(std::shared_ptr<Vertex1D<SimpleType>> x1, std::shared_ptr<Vertex1D<SimpleType>> x2, int N, const MatrixX<SimpleType>& Dr)
+                void Init(std::shared_ptr<Vertex1D<SimpleType>> x1, std::shared_ptr<Vertex1D<SimpleType>> x2, int N, int nVariables, const MatrixX<SimpleType>& Dr)
                 {
                     if(x1->x > x2->x) std::swap(x1, x2);
                     int Np = N+1;
@@ -220,7 +239,10 @@ namespace OpenPSTD
                     Fscale = VectorX<SimpleType>(2);
                     Fscale << 1/J(0,0), 1/J(J.size()-1,0);
 
-                    u = VectorX<SimpleType>::Zero(N+1);
+                    for(int i = 0; i < nVariables; i++)
+                    {
+                        u.push_back(VectorX<SimpleType>::Zero(N+1));
+                    }
                 }
 
                 SimpleType MinNodeDistance()

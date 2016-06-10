@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_SUITE(DG)
             MatrixX<double> u(9,10);
             for(int k = 0; k  < K; k++)
             {
-                u.col(k) = s->Elements[k]->u;
+                u.col(k) = s->Elements[k]->u[0];
             }
 
             BOOST_CHECK(u.isApprox(uExpected));
@@ -220,7 +220,8 @@ BOOST_AUTO_TEST_SUITE(DG)
             MatrixX<double> RHS(9,10);
             for(int k = 0; k  < K; k++)
             {
-                RHS.col(k) = de->CalculateRHS(s->Elements[k], s, 0);
+                auto RHSList = de->CalculateRHS(s->Elements[k], s, 0);
+                RHS.col(k) = RHSList[0];
             }
 
             BOOST_CHECK(RHS.isApprox(RHSExpected));
@@ -251,7 +252,7 @@ BOOST_AUTO_TEST_SUITE(DG)
             MatrixX<double> u(9,10);
             for(int k = 0; k  < K; k++)
             {
-                u.col(k) = s->Elements[k]->u;
+                u.col(k) = s->Elements[k]->u[0];
             }
 
             BOOST_CHECK(u.isApprox(uExpected));

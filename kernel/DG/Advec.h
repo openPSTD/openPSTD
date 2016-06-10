@@ -52,7 +52,7 @@ namespace OpenPSTD
                     int I = f==FaceIndex1D::Left?0:element->x.size()-1;
                     SimpleType Normal = element->Faces[(int)f]->Normal[0];
 
-                    SimpleType result = (element->u[I]-uin)*(a*Normal-(1-alpha)*abs(a*Normal))/2;
+                    SimpleType result = (element->u[0][I]-uin)*(a*Normal-(1-alpha)*abs(a*Normal))/2;
 
                     return result;
                 }
@@ -63,8 +63,8 @@ namespace OpenPSTD
                     auto face = element->Faces[f==FaceIndex1D::Left?0:1];
                     auto otherFace = face->GetOtherSideFace();
                     std::shared_ptr<Element1D<SimpleType>> other = otherFace->Element.lock();
-                    int OtherSideIndex = f==FaceIndex1D::Right?0:other->u.size()-1;
-                    SimpleType uin = other->u[OtherSideIndex];
+                    int OtherSideIndex = f==FaceIndex1D::Right?0:other->u[0].size()-1;
+                    SimpleType uin = other->u[0][OtherSideIndex];
                     SimpleType result = CalculateFlux(element, f, a, alpha, uin);
                     return result;
                 }
@@ -89,9 +89,9 @@ namespace OpenPSTD
                 virtual void Initialize(
                         std::shared_ptr<Element1D<SimpleType>> element)
                 {
-                    element->u = element->x.array().sin();
+                    element->u[0] = element->x.array().sin();
                 }
-                virtual VectorX<SimpleType> CalculateRHS(
+                virtual std::vector<VectorX<SimpleType>> CalculateRHS(
                         std::shared_ptr<Element1D<SimpleType>> element,
                         std::shared_ptr<System1D<SimpleType>> system,
                         SimpleType time)
@@ -108,10 +108,12 @@ namespace OpenPSTD
                     else
                         flux[1] = CalculateOutput();
 
-                    VectorX<SimpleType> RHS = -a * (element->rx.cwiseProduct(system->Dr * element->u)) +
+                    VectorX<SimpleType> RHS = -a * (element->rx.cwiseProduct(system->Dr * element->u[0])) +
                                               system->LIFT * (element->Fscale.cwiseProduct(flux));
 
-                    return RHS;
+                    std::vector<VectorX<SimpleType>> result;
+                    result.push_back(RHS);
+                    return result;
                 }
 
                 virtual SimpleType GetMaxDt(SimpleType minDistance)
@@ -120,6 +122,11 @@ namespace OpenPSTD
                     SimpleType dt = CFL/a*minDistance;
                     dt = dt/2;
                     return dt;
+                }
+
+                virtual SimpleType GetNumberOfVariables()
+                {
+                    return 1;
                 }
             };
         }
