@@ -71,7 +71,7 @@ namespace OpenPSTD {
                     for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
                         for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
                             for (auto domain:this->scene->domain_list) {
-                                std::cout << *domain << std::endl;
+                                //std::cout << *domain << std::endl;
                                 if (not domain->is_rigid()) {
                                     if (domain->should_update[calc_dir]) {
                                         domain->calc(calc_dir, calc_type);

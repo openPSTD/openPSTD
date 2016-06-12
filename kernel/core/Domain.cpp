@@ -105,6 +105,7 @@ namespace OpenPSTD {
                 domains1 = bottom;
                 domains2 = top;
             }
+            /*//debug
             cout << "\n\ndomains1:\n";
             for(auto domain : domains1) {
                 cout << *domain << "\n";
@@ -114,7 +115,7 @@ namespace OpenPSTD {
             for(auto domain : domains2) {
                 cout << *domain << "\n";
             }
-            cout << "\n\n";
+            cout << "\n\n";*/
 
             if (dest.rows() != 0) {
                 if (cd == CalcDirection::X) {
@@ -329,7 +330,6 @@ namespace OpenPSTD {
                         ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
                         source.block(0, range_start - matrix_main_offset, result_dimension, ncols) = spatresult;
-                        cout << "Success" << endl;
                     }
                 }
             }
@@ -653,7 +653,7 @@ namespace OpenPSTD {
                 create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
                                          pml_arrays.px, pml_arrays.vx);
                 create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
-                                         pml_arrays.py, pml_arrays.vx);
+                                         pml_arrays.py, pml_arrays.vy);
             }
             else {
                 CalcDirection calc_dir = CalcDirection::Y;
