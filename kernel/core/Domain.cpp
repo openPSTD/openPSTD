@@ -178,9 +178,9 @@ namespace OpenPSTD {
                     } else {
                         //don't update the part we update now in later iterations
                         vector<int> temp_diff;
-                        set_difference(range_intersection.begin(), range_intersection.end(),
-                                         own_range.begin(), own_range.end(),
-                                         inserter(temp_diff, temp_diff.begin()));
+                        set_difference(own_range.begin(), own_range.end(),
+                                       range_intersection.begin(), range_intersection.end(),
+                                       inserter(temp_diff, temp_diff.begin()));
                         own_range = temp_diff;
                     }
 
@@ -190,8 +190,13 @@ namespace OpenPSTD {
                     int full_range = range_end-range_start;
                     int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                     int result_dimension = primary_dimension;
-                    int N_total = 2 * settings->GetWindowSize() + primary_dimension;
                     int wlen = settings->GetWindowSize();
+                    while (wlen > primary_dimension){
+                        //avoid program crashing when wlen is set too high
+                        wlen = wlen/2;
+                        //cout << "using reduced window length" << endl;
+                    }
+                    int N_total = 2 * wlen + primary_dimension;
                     ArrayXf wind = get_window_coefficients(wlen, settings->GetPatchError());
 
                     if (ct == CalculationType::PRESSURE) {
@@ -282,7 +287,6 @@ namespace OpenPSTD {
                         }
                     }
 
-                    // TODO check if get_rho_array(...) is slow and if so, cache these values somewhere
                     float max_rho = 1E10;
                     RhoArray rho_array = get_rho_array(d1 != nullptr ? d1->rho : max_rho,
                                                        this->rho,
@@ -750,7 +754,7 @@ namespace OpenPSTD {
             } else if (v.is_pml) {
                 str << " (pml)";
             }
-            str << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
+            str << ", top left " << v.top_left << ", bottom right " << v.bottom_right << " (alpha: " << v.alpha << ")";
             return str;
         }
 
