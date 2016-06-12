@@ -22,8 +22,8 @@ namespace OpenPSTD
 
             file_id = H5Fcreate(output.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-            H5Gcreate2(file_id, "/frame", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-            H5Gcreate2(file_id, "/receiver", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            hid_t frame_dir_id = H5Gcreate2(file_id, "/frame", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            hid_t receiver_dir_id = H5Gcreate2(file_id, "/receiver", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
             k.initialize_kernel(file->GetSceneConf());
             auto metadata = k.get_metadata();
@@ -41,7 +41,7 @@ namespace OpenPSTD
             for(int d : domains)
             {
                 std::string domainLoc = "/frame/" + boost::lexical_cast<std::string>(d);
-                H5Gcreate2(file_id, domainLoc.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+                hid_t frame_index_id = H5Gcreate2(file_id, domainLoc.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
                 if (startFrame == -1) startFrame = 0;
                 if (endFrame == -1) endFrame = file->GetResultsFrameCount(d) - 1;
@@ -57,6 +57,8 @@ namespace OpenPSTD
                     auto data = file->GetResultsFrame(f, d);
                     H5LTmake_dataset(file_id, location.c_str(), 2, size.data(), H5T_NATIVE_FLOAT, data->data());
                 }
+
+                H5Gclose(frame_index_id);
             }
 
             int receiverCount = file->GetResultsReceiverCount();
@@ -72,6 +74,8 @@ namespace OpenPSTD
             }
 
             /* close file */
+            H5Gclose(frame_dir_id);
+            H5Gclose(receiver_dir_id);
             H5Fclose (file_id);
         }
     }
