@@ -107,7 +107,7 @@ namespace OpenPSTD {
                         shared_ptr<Domain> pml_domain_ptr(
                                 new Domain(settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer, true,
                                            domain->wnd, default_edge_parameters, domain));
-                        cout << *pml_domain_ptr << endl;
+                        //cout << *pml_domain_ptr << endl;
                         first_order_pmls.push_back(pml_domain_ptr);
                         if (!full_overlap) {
                             pml_domain_ptr->local = true;
@@ -159,7 +159,7 @@ namespace OpenPSTD {
                                                    sec_pml_size,
                                                    true, domain->wnd, default_edge_parameters, pml_domain_ptr));
                                 second_order_pml_map[sec_pml_domain] = second_dir;
-                                cout << *sec_pml_domain << endl;
+                                //cout << *sec_pml_domain << endl;
                             }
                         }
                     }
@@ -338,7 +338,7 @@ namespace OpenPSTD {
                     }
                     if (domain->is_secondary_pml != other_domain->is_secondary_pml) {
                         //
-                        //continue;
+                        //continue; //TODO: Something is missing here
                     }
                 }
                 CalcDirection bt;
