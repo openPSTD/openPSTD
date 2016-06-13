@@ -4,19 +4,22 @@
 # Source files of the CLI and GUI(no Kernel and no Shared, they are linked)
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI} ${SOURCE_FILES_CLI})
 
+set(SOURCE_FILES_TEST_DG
+        test/Kernel/DG/DG.cpp
+        test/Kernel/DG/Advec.cpp
+        test/Kernel/DG/JacobiGQ.cpp
+        test/Kernel/DG/JacobiGL.cpp
+        test/Kernel/DG/JacobiP.cpp
+        test/Kernel/DG/Vandermonde.cpp
+        test/Kernel/DG/DMatrix.cpp
+        test/Kernel/DG/GeometricFactors.cpp
+        test/Kernel/DG/Lift.cpp)
+
 message(STATUS "${DG_TEST_ONLY}")
 if(DG_TEST_ONLY)
     message(WARNING "DG only")
     #only DG tests
-    set(SOURCE_FILES_TEST
-            test/Kernel/DG/DG.cpp
-            test/Kernel/DG/JacobiGQ.cpp
-            test/Kernel/DG/JacobiGL.cpp
-            test/Kernel/DG/JacobiP.cpp
-            test/Kernel/DG/Vandermonde.cpp
-            test/Kernel/DG/DMatrix.cpp
-            test/Kernel/DG/GeometricFactors.cpp
-            test/Kernel/DG/Lift.cpp)
+    set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST_DG})
 else()
     if(OPENPSTD_TEST_FILE)
         message(STATUS "Test file: ${OPENPSTD_TEST_FILE}")
@@ -36,15 +39,7 @@ else()
                 test/Kernel/Domain.cpp
                 test/Kernel/WisdomCache.cpp)
         # DG test files
-        set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST}
-                test/Kernel/DG/DG.cpp
-                test/Kernel/DG/JacobiGQ.cpp
-                test/Kernel/DG/JacobiGL.cpp
-                test/Kernel/DG/JacobiP.cpp
-                test/Kernel/DG/Vandermonde.cpp
-                test/Kernel/DG/DMatrix.cpp
-                test/Kernel/DG/GeometricFactors.cpp
-                test/Kernel/DG/Lift.cpp)
+        set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_TEST_DG})
     endif()
 endif()
 
