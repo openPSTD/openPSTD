@@ -51,14 +51,13 @@ namespace OpenPSTD
     {
         namespace DG
         {
-
-            template <typename SimpleType>
+            template<typename SimpleType, typename DEElementStore>
             class Element1D;
-            template<typename SimpleType>
+            template<typename SimpleType, typename DEElementStore>
             class Face1D;
-            template<typename SimpleType>
+            template<typename SimpleType, typename DEElementStore>
             class Vertex1D;
-            template <typename SimpleType>
+            template <typename SimpleType, typename DEElementStore>
             class System1D;
 
             enum class FaceIndex1D
@@ -67,30 +66,32 @@ namespace OpenPSTD
                 Right = 1
             };
 
-            template <typename SimpleType>
+            class NoElementStore{};
+
+            template <typename SimpleType, typename DEElementStore = NoElementStore>
             class DG1DDE
             {
             public:
                 virtual void Initialize(
-                        std::shared_ptr<Element1D<SimpleType>> element) = 0;
+                        std::shared_ptr<Element1D<SimpleType, DEElementStore>> element) = 0;
                 virtual std::vector<VectorX<SimpleType>> CalculateRHS(
-                        std::shared_ptr<Element1D<SimpleType>> element,
-                        std::shared_ptr<System1D<SimpleType>> system,
+                        std::shared_ptr<Element1D<SimpleType, DEElementStore>> element,
+                        std::shared_ptr<System1D<SimpleType, DEElementStore>> system,
                         SimpleType time) = 0;
                 virtual SimpleType GetMaxDt(SimpleType minDistance) = 0;
                 virtual SimpleType GetNumberOfVariables() = 0;
             };
 
-            template <typename SimpleType>
-            class System1D : public BlackBoxInterface<SimpleType>, public std::enable_shared_from_this<System1D<SimpleType>>
+            template <typename SimpleType, typename DEElementStore = NoElementStore>
+            class System1D : public BlackBoxInterface<SimpleType>, public std::enable_shared_from_this<System1D<SimpleType, DEElementStore>>
             {
             private:
                 int K, N;
-                std::shared_ptr<DG1DDE<SimpleType>> DE;
+                std::shared_ptr<DG1DDE<SimpleType>> _DE;
 
             public:
-                std::vector<std::shared_ptr<Element1D<SimpleType>>> Elements;
-                std::vector<std::shared_ptr<Vertex1D<SimpleType>>> Vertices;
+                std::vector<std::shared_ptr<Element1D<SimpleType, DEElementStore>>> Elements;
+                std::vector<std::shared_ptr<Vertex1D<SimpleType, DEElementStore>>> Vertices;
 
                 MatrixX<SimpleType> LIFT;
                 MatrixX<SimpleType> Dr;
@@ -99,7 +100,7 @@ namespace OpenPSTD
                 {
                     this->K = K;
                     this->N = N;
-                    this->DE = de;
+                    this->_DE = de;
 
                     VectorX<SimpleType> r = JacobiGL<SimpleType>(0, 0, N);
                     MatrixX<SimpleType> V = Vandermonde1D<SimpleType>(N, r);
@@ -110,9 +111,9 @@ namespace OpenPSTD
                     VectorX<SimpleType> x = VectorX<SimpleType>::LinSpaced(K+1, x1, x2);
                     for(int k = 0; k < K+1; k++)
                     {
-                        std::shared_ptr<Vertex1D<SimpleType>> v = std::make_shared<Vertex1D<SimpleType>>();
+                        std::shared_ptr<Vertex1D<SimpleType, DEElementStore>> v = std::make_shared<Vertex1D<SimpleType, DEElementStore>>();
                         v->x = x[k];
-                        v->Faces = std::vector<std::weak_ptr<Face1D<SimpleType>>>();
+                        v->Faces = std::vector<std::weak_ptr<Face1D<SimpleType, DEElementStore>>>();
                         v->Faces.reserve(2);
                         Vertices.push_back(v);
                     }
@@ -120,21 +121,21 @@ namespace OpenPSTD
                     //add K elements in the system
                     for(int k = 0; k < K; k++)
                     {
-                        std::shared_ptr<Element1D<SimpleType>> e = std::make_shared<Element1D<SimpleType>>();
+                        std::shared_ptr<Element1D<SimpleType, DEElementStore>> e = std::make_shared<Element1D<SimpleType, DEElementStore>>();
                         e->Init(Vertices[k], Vertices[k+1], N, de->GetNumberOfVariables(), Dr);
                         Elements.push_back(e);
                     }
 
                     for(int k = 0; k < K; k++)
                     {
-                        de->Initialize(Elements[k]);
+                        _DE->Initialize(Elements[k]);
                     }
                 }
 
                 virtual std::vector<MatrixX<SimpleType>> ComputeRHS(SimpleType time)
                 {
                     std::vector<MatrixX<SimpleType>> result;
-                    int nVariables = this->DE->GetNumberOfVariables();
+                    int nVariables = this->_DE->GetNumberOfVariables();
                     for(int j = 0; j < nVariables; j++)
                     {
                         result.push_back(MatrixX<SimpleType>(this->N+1, this->Elements.size()));
@@ -142,7 +143,7 @@ namespace OpenPSTD
 
                     for(int i = 0; i < K; i++)
                     {
-                        auto ElementRHS = this->DE->CalculateRHS(this->Elements[i], this->shared_from_this(), time);
+                        auto ElementRHS = this->_DE->CalculateRHS(this->Elements[i], this->shared_from_this(), time);
                         for(int j = 0; j < nVariables; j++)
                         {
                             result[j].col(i) = ElementRHS[j];
@@ -155,7 +156,7 @@ namespace OpenPSTD
                 virtual void SetState(std::vector<MatrixX<SimpleType>> state)
                 {
                     //todo test if variable count is correct
-                    //int nVariables = this->DE->GetNumberOfVariables();
+                    //int nVariables = this->_DE->GetNumberOfVariables();
                     for(int j = 0; j < state.size(); j++)
                     {
                         MatrixX<SimpleType> u = state[j];
@@ -168,7 +169,7 @@ namespace OpenPSTD
 
                 virtual std::vector<MatrixX<SimpleType>> GetState()
                 {
-                    int nVariables = this->DE->GetNumberOfVariables();
+                    int nVariables = this->_DE->GetNumberOfVariables();
                     std::vector<MatrixX<SimpleType>> result;
                     for(int j = 0; j < nVariables; j++)
                     {
@@ -189,30 +190,33 @@ namespace OpenPSTD
                     {
                         minDistance = std::min(Elements[i]->MinNodeDistance(), minDistance);
                     }
-                    return DE->GetMaxDt(minDistance);
+                    return _DE->GetMaxDt(minDistance);
                 };
             };
 
-            template <typename SimpleType>
-            class Element1D : public std::enable_shared_from_this<Element1D<SimpleType>>
+            template <typename SimpleType, typename DEElementStore>
+            class Element1D : public std::enable_shared_from_this<Element1D<SimpleType, DEElementStore>>
             {
             public:
                 VectorX<SimpleType> x;
                 std::vector<VectorX<SimpleType>> u;
+                DEElementStore DEStore;
 
                 MatrixX<SimpleType> Fscale;
                 MatrixX<SimpleType> rx;
 
-                std::vector<std::shared_ptr<Face1D<SimpleType>>> Faces;
+                std::vector<std::shared_ptr<Face1D<SimpleType, DEElementStore>>> Faces;
 
-                void Init(std::shared_ptr<Vertex1D<SimpleType>> x1, std::shared_ptr<Vertex1D<SimpleType>> x2, int N, int nVariables, const MatrixX<SimpleType>& Dr)
+                void Init(std::shared_ptr<Vertex1D<SimpleType, DEElementStore>> x1,
+                            std::shared_ptr<Vertex1D<SimpleType, DEElementStore>> x2,
+                            int N, int nVariables, const MatrixX<SimpleType>& Dr)
                 {
                     if(x1->x > x2->x) std::swap(x1, x2);
                     int Np = N+1;
 
                     //add the faces tot he element
-                    Faces.push_back(std::make_shared<Face1D<SimpleType>>());
-                    Faces.push_back(std::make_shared<Face1D<SimpleType>>());
+                    Faces.push_back(std::make_shared<Face1D<SimpleType, DEElementStore>>());
+                    Faces.push_back(std::make_shared<Face1D<SimpleType, DEElementStore>>());
 
                     Faces[0]->Normal = VectorX<SimpleType>(1);
                     Faces[0]->Normal << -1;
@@ -257,17 +261,17 @@ namespace OpenPSTD
 
             };
 
-            template<typename SimpleType>
-            class Face1D: public std::enable_shared_from_this<Face1D<SimpleType>>
+            template<typename SimpleType, typename DEElementStore>
+            class Face1D: public std::enable_shared_from_this<Face1D<SimpleType, DEElementStore>>
             {
             public:
                 VectorX<SimpleType> Normal;
 
-                std::shared_ptr<Face1D<SimpleType>> GetOtherSideFace()
+                std::shared_ptr<Face1D<SimpleType, DEElementStore>> GetOtherSideFace()
                 {
-                    std::shared_ptr<Element1D<SimpleType>> parent = Element.lock();
-                    std::shared_ptr<Face1D<SimpleType>> t = this->shared_from_this();
-                    std::shared_ptr<Vertex1D<SimpleType>> v = Vertex.lock();
+                    std::shared_ptr<Element1D<SimpleType, DEElementStore>> parent = Element.lock();
+                    std::shared_ptr<Face1D<SimpleType, DEElementStore>> t = this->shared_from_this();
+                    std::shared_ptr<Vertex1D<SimpleType, DEElementStore>> v = Vertex.lock();
                     for(int i = 0; i < v->Faces.size(); i++)
                     {
                         if(v->Faces[i].lock() != t)
@@ -275,7 +279,7 @@ namespace OpenPSTD
                             return v->Faces[i].lock();
                         }
                     }
-                    return std::shared_ptr<Face1D<SimpleType>>();
+                    return std::shared_ptr<Face1D<SimpleType, DEElementStore>>();
                 }
 
                 bool OtherSideExist()
@@ -287,16 +291,16 @@ namespace OpenPSTD
                         return false;
                 }
 
-                std::weak_ptr<Element1D<SimpleType>> Element;
-                std::weak_ptr<Vertex1D<SimpleType>> Vertex;
+                std::weak_ptr<Element1D<SimpleType, DEElementStore>> Element;
+                std::weak_ptr<Vertex1D<SimpleType, DEElementStore>> Vertex;
             };
 
-            template<typename SimpleType>
+            template<typename SimpleType, typename DEElementStore>
             class Vertex1D
             {
             public:
                 SimpleType x;
-                std::vector<std::weak_ptr<Face1D<SimpleType>>> Faces;
+                std::vector<std::weak_ptr<Face1D<SimpleType, DEElementStore>>> Faces;
             };
         }
     }

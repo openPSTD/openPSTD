@@ -46,7 +46,7 @@ namespace OpenPSTD
             class AdvecDE: public DG1DDE<SimpleType>
             {
             private:
-                SimpleType CalculateFlux(std::shared_ptr<Element1D<SimpleType>> element, FaceIndex1D f, SimpleType a,
+                SimpleType CalculateFlux(std::shared_ptr<Element1D<SimpleType, NoElementStore>> element, FaceIndex1D f, SimpleType a,
                                          SimpleType alpha, SimpleType uin)
                 {
                     int I = f==FaceIndex1D::Left?0:element->x.size()-1;
@@ -57,19 +57,19 @@ namespace OpenPSTD
                     return result;
                 }
 
-                SimpleType CalculateFlux(std::shared_ptr<Element1D<SimpleType>> element, FaceIndex1D f, SimpleType a,
+                SimpleType CalculateFlux(std::shared_ptr<Element1D<SimpleType, NoElementStore>> element, FaceIndex1D f, SimpleType a,
                                          SimpleType alpha)
                 {
                     auto face = element->Faces[f==FaceIndex1D::Left?0:1];
                     auto otherFace = face->GetOtherSideFace();
-                    std::shared_ptr<Element1D<SimpleType>> other = otherFace->Element.lock();
+                    std::shared_ptr<Element1D<SimpleType, NoElementStore>> other = otherFace->Element.lock();
                     int OtherSideIndex = f==FaceIndex1D::Right?0:other->u[0].size()-1;
                     SimpleType uin = other->u[0][OtherSideIndex];
                     SimpleType result = CalculateFlux(element, f, a, alpha, uin);
                     return result;
                 }
 
-                SimpleType CalculateInput(std::shared_ptr<Element1D<SimpleType>> element, SimpleType a,
+                SimpleType CalculateInput(std::shared_ptr<Element1D<SimpleType, NoElementStore>> element, SimpleType a,
                                           SimpleType alpha, SimpleType time)
                 {
                     int I = 0;
@@ -87,13 +87,13 @@ namespace OpenPSTD
                 SimpleType a = M_PI*2;
 
                 virtual void Initialize(
-                        std::shared_ptr<Element1D<SimpleType>> element)
+                        std::shared_ptr<Element1D<SimpleType, NoElementStore>> element)
                 {
                     element->u[0] = element->x.array().sin();
                 }
                 virtual std::vector<VectorX<SimpleType>> CalculateRHS(
-                        std::shared_ptr<Element1D<SimpleType>> element,
-                        std::shared_ptr<System1D<SimpleType>> system,
+                        std::shared_ptr<Element1D<SimpleType, NoElementStore>> element,
+                        std::shared_ptr<System1D<SimpleType, NoElementStore>> system,
                         SimpleType time)
                 {
                     VectorX<SimpleType> flux(2);
