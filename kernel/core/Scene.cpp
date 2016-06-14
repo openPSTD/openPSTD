@@ -254,7 +254,7 @@ namespace OpenPSTD {
         }
 
 
-        void Scene::add_receiver(const float x, const float y, const float z) {
+        void Scene::add_receiver(const float x, const float y, const float z, unsigned long id) {
             vector<float> grid_like_location = {x, y, z};
             shared_ptr<Domain> container(nullptr);
             for (auto domain:domain_list) {
@@ -263,7 +263,6 @@ namespace OpenPSTD {
                 }
             }
             assert(container != nullptr);
-            int id = (int) (receiver_list.size() + 1);
             shared_ptr<Receiver> receiver(new Receiver(grid_like_location, settings, id, container));
             receiver_list.push_back(receiver);
         }

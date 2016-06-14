@@ -89,7 +89,7 @@ namespace OpenPSTD {
              * @param y coordinate on grid in y dimension
              * @param x coordinate on grid in z dimension
              */
-            void add_receiver(const float x, const float y, const float z);
+            void add_receiver(const float x, const float y, const float z, unsigned long i);
 
             /**
              * Adds a speaker to the scene.
