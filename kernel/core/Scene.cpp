@@ -379,10 +379,6 @@ namespace OpenPSTD {
             domain_list.push_back(domain);
         }
 
-        Eigen::ArrayXXf Scene::get_pressure_field() {
-            return get_field('p');
-        }
-
         Eigen::ArrayXXf Scene::get_field(char field_type) {
             Eigen::ArrayXXf field(size.y, size.x);
             for (auto domain:domain_list) {

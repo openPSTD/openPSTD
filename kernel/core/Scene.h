@@ -126,12 +126,6 @@ namespace OpenPSTD {
             void apply_pml_matrices();
 
             /**
-             * Obtains the global pressure field by summing the pressure in each domain.
-             * @return: Array with pressure values
-             */
-            Eigen::ArrayXXf get_pressure_field();
-
-            /**
              * Fetch a domain with specified ID, if existing.
              * @param id: integer ID of domain.
              * @return: domain pointer if domain with id exists, else nullptr.
