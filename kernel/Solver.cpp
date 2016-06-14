@@ -98,7 +98,7 @@ namespace OpenPSTD {
                 for (auto receiver:this->scene->receiver_list) {
                     receiver->compute_local_pressure();
                     if (frame % this->settings->GetSaveNth() == 0) {
-                        this->callback->WriteFrame(frame, (int) receiver->id, this->get_receiver_pressure(receiver));
+                        this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
                     }
                 }
                 this->callback->Callback(CALLBACKSTATUS::RUNNING, "Finished frame: "+std::to_string(frame), frame);
