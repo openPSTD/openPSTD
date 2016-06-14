@@ -75,6 +75,8 @@ namespace OpenPSTD {
              */
             PSTD_FRAME_PTR get_pressure_vector(std::shared_ptr<Domain> domain);
 
+            PSTD_FRAME_PTR get_receiver_pressure(std::shared_ptr<Receiver> receiver);
+
         public:
             /**
              * Solver constructor (abstract). Initialized parameters for running the openPSTD algorithm
