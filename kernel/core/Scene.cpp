@@ -222,7 +222,6 @@ namespace OpenPSTD {
                 }
             }
             for (auto sec_order_pml_domain: second_order_pml_list) {
-                domain_list.push_back(sec_order_pml_domain);
                 add_domain(sec_order_pml_domain);
             }
         }
