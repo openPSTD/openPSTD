@@ -379,37 +379,6 @@ namespace OpenPSTD {
             domain_list.push_back(domain);
         }
 
-        Eigen::ArrayXXf Scene::get_field(char field_type) {
-            Eigen::ArrayXXf field(size.y, size.x);
-            for (auto domain:domain_list) {
-                if (not domain->is_pml) {
-                    Point offset = domain->top_left - top_left;
-                    switch (field_type) {
-                        case 'p':
-                            field.block(offset.y, offset.x, domain->size.y,
-                                        domain->size.x) += domain->current_values.p0;
-                            break;
-                        default:
-                            //No other fields are required (yet). However, leaving open for extension.
-                            break;
-                    }
-                }
-            }
-            return field;
-        }
-
-        shared_ptr<Domain> Scene::get_domain(int id) {
-            // Probably not a necessary function.
-            shared_ptr<Domain> correct_domain;
-            for (auto domain:domain_list) {
-                if (domain->id == id) {
-                    assert(correct_domain == nullptr);
-                    correct_domain = domain;
-                }
-            }
-            return correct_domain;
-        }
-
         ostream &operator<<(ostream &str, Scene const &v) {
             return str << "Scene: " << v.domain_list.size() << " domains, " << v.speaker_list.size() << " speakers, " <<
                    v.receiver_list.size() << " receivers";

@@ -126,23 +126,11 @@ namespace OpenPSTD {
             void apply_pml_matrices();
 
             /**
-             * Fetch a domain with specified ID, if existing.
-             * @param id: integer ID of domain.
-             * @return: domain pointer if domain with id exists, else nullptr.
-             */
-            std::shared_ptr<Domain> get_domain(int id);
-
-            /**
             * Returns a new domain ID integer
             */
             int get_new_id();
 
         private:
-
-            /**
-             * General field obtainer function, extensible if necessary
-             */
-            Eigen::ArrayXXf get_field(char field_type);
 
             /**
              * Helper function for add_pml_domains.
