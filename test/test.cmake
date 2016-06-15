@@ -7,6 +7,7 @@ set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI} ${SOURCE_FILES_CL
 set(SOURCE_FILES_TEST_DG
         test/Kernel/DG/DG.cpp
         test/Kernel/DG/Advec.cpp
+        test/Kernel/DG/Maxwell.cpp
         test/Kernel/DG/JacobiGQ.cpp
         test/Kernel/DG/JacobiGL.cpp
         test/Kernel/DG/JacobiP.cpp
