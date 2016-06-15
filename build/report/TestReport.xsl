@@ -100,6 +100,8 @@
         </xsl:call-template>
         <xsl:text> [ ] Line </xsl:text>
         <xsl:value-of select="@line"/>
+        <xsl:text>, check </xsl:text>
+        <xsl:value-of select="position()"/>
         <xsl:text>&#10;</xsl:text>
     </xsl:template>
 
@@ -111,6 +113,8 @@
         </xsl:call-template>
         <xsl:text> [W] Line </xsl:text>
         <xsl:value-of select="@line"/>
+        <xsl:text>, check </xsl:text>
+        <xsl:value-of select="position()"/>
         <xsl:text>&#10;</xsl:text>
     </xsl:template>
 
@@ -122,6 +126,8 @@
         </xsl:call-template>
         <xsl:text> [E] Line </xsl:text>
         <xsl:value-of select="@line"/>
+        <xsl:text>, check </xsl:text>
+        <xsl:value-of select="position()"/>
         <xsl:text>&#10;</xsl:text>
     </xsl:template>
 
@@ -133,6 +139,8 @@
         </xsl:call-template>
         <xsl:text> [X] Line </xsl:text>
         <xsl:value-of select="@line"/>
+        <xsl:text>, check </xsl:text>
+        <xsl:value-of select="position()"/>
         <xsl:text>&#10;</xsl:text>
     </xsl:template>
 
