@@ -87,7 +87,7 @@ namespace OpenPSTD
             {
             private:
                 int K, N;
-                std::shared_ptr<DG1DDE<SimpleType>> _DE;
+                std::shared_ptr<DG1DDE<SimpleType, DEElementStore>> _DE;
 
             public:
                 std::vector<std::shared_ptr<Element1D<SimpleType, DEElementStore>>> Elements;
@@ -96,7 +96,7 @@ namespace OpenPSTD
                 MatrixX<SimpleType> LIFT;
                 MatrixX<SimpleType> Dr;
 
-                System1D(int K, int N, SimpleType x1, SimpleType x2, std::shared_ptr<DG1DDE<SimpleType>> de)
+                System1D(int K, int N, SimpleType x1, SimpleType x2, std::shared_ptr<DG1DDE<SimpleType, DEElementStore>> de)
                 {
                     this->K = K;
                     this->N = N;
