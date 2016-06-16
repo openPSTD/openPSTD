@@ -211,7 +211,7 @@ namespace OpenPSTD
                     return result;
                 }
 
-                virtual SimpleType GetMaxDt(SimpleType minDistance)
+                virtual SimpleType GetMaxDt(SimpleType minDistance, int N)
                 {
                     SimpleType CFL = 1.0;
                     SimpleType dt = CFL*minDistance;

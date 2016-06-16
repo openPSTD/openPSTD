@@ -78,7 +78,7 @@ namespace OpenPSTD
                         std::shared_ptr<Element1D<SimpleType, DEElementStore>> element,
                         std::shared_ptr<System1D<SimpleType, DEElementStore>> system,
                         SimpleType time) = 0;
-                virtual SimpleType GetMaxDt(SimpleType minDistance) = 0;
+                virtual SimpleType GetMaxDt(SimpleType minDistance, int N) = 0;
                 virtual SimpleType GetNumberOfVariables() = 0;
             };
 
@@ -190,11 +190,11 @@ namespace OpenPSTD
                     {
                         minDistance = std::min(Elements[i]->MinNodeDistance(), minDistance);
                     }
-                    return _DE->GetMaxDt(minDistance);
+                    return _DE->GetMaxDt(minDistance, N);
                 };
             };
 
-            template <typename SimpleType, typename DEElementStore>
+            template <typename SimpleType, typename DEElementStore = NoElementStore>
             class Element1D : public std::enable_shared_from_this<Element1D<SimpleType, DEElementStore>>
             {
             public:
@@ -261,7 +261,7 @@ namespace OpenPSTD
 
             };
 
-            template<typename SimpleType, typename DEElementStore>
+            template<typename SimpleType, typename DEElementStore = NoElementStore>
             class Face1D: public std::enable_shared_from_this<Face1D<SimpleType, DEElementStore>>
             {
             public:
@@ -295,7 +295,7 @@ namespace OpenPSTD
                 std::weak_ptr<Vertex1D<SimpleType, DEElementStore>> Vertex;
             };
 
-            template<typename SimpleType, typename DEElementStore>
+            template<typename SimpleType, typename DEElementStore = NoElementStore>
             class Vertex1D
             {
             public:
