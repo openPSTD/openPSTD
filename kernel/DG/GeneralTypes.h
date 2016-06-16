@@ -51,6 +51,18 @@ namespace OpenPSTD
              */
             template<typename SimpleType>
             using MatrixX = Eigen::Matrix<SimpleType, Eigen::Dynamic, Eigen::Dynamic>;
+
+            /**
+             * short hand for a 1D Array
+             */
+            template<typename SimpleType>
+            using ArrayX = Eigen::Array<SimpleType, Eigen::Dynamic, 1>;
+
+            /**
+             * short hand for a 2D Array
+             */
+            template<typename SimpleType>
+            using ArrayXX = Eigen::Array<SimpleType, Eigen::Dynamic, Eigen::Dynamic>;
         }
     }
 }
