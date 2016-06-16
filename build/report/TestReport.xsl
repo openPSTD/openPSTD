@@ -19,7 +19,7 @@
         <xsl:text>Warnings: </xsl:text><xsl:value-of select="count(//Warning)"/><xsl:text>&#10;</xsl:text>
         <xsl:text>Errors: </xsl:text><xsl:value-of select="count(//Error)"/><xsl:text>&#10;</xsl:text>
         <xsl:text>Exceptions: </xsl:text><xsl:value-of select="count(//Exception)"/><xsl:text>&#10;</xsl:text>
-        <xsl:if test="count(.//Error)+count(//Exception) &gt; 0">
+        <xsl:if test="count(//Error)+count(//Exception) &gt; 0">
             <xsl:text>========================================================================================================================&#10;</xsl:text>
             <xsl:text>=== Errors                                                                                                           ===&#10;</xsl:text>
             <xsl:apply-templates select="TestSuite">
@@ -27,7 +27,7 @@
                 <xsl:with-param name="OnlyError" select="1" />
             </xsl:apply-templates>
         </xsl:if>
-        <xsl:if test="count(.//Error)+count(//Exception) = 0">
+        <xsl:if test="count(//Error)+count(//Exception) = 0">
             <xsl:text>========================================================================================================================&#10;</xsl:text>
             <xsl:text>=== Results                                                                                                          ===&#10;</xsl:text>
             <xsl:apply-templates select="TestSuite">
@@ -40,7 +40,7 @@
     <xsl:template match="TestSuite">
         <xsl:param name="depth" />
         <xsl:param name="OnlyError" />
-        <xsl:if test="not($OnlyError) or count(.//Error)+count(//Exception) &gt; 0">
+        <xsl:if test="not($OnlyError) or count(.//Error)+count(.//Exception) &gt; 0">
             <xsl:call-template name="repeat">
                 <xsl:with-param name="output" >+</xsl:with-param>
                 <xsl:with-param name="count" select="$depth" />
@@ -58,7 +58,7 @@
     <xsl:template match="TestCase">
         <xsl:param name="depth" />
         <xsl:param name="OnlyError" />
-        <xsl:if test="not($OnlyError) or count(.//Error)+count(//Exception) &gt; 0">
+        <xsl:if test="not($OnlyError) or count(.//Error)+count(.//Exception) &gt; 0">
             <xsl:call-template name="repeat">
                 <xsl:with-param name="output" >-</xsl:with-param>
                 <xsl:with-param name="count" select="$depth" />
