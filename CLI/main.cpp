@@ -38,7 +38,7 @@
 #include <kernel/PSTDKernel.h>
 #include <kernel/MockKernel.h>
 #include <kernel/DG/DG.h>
-#include <kernel/DG/Advec.h>
+#include <kernel/DG/LEE.h>
 
 #include <shared/PSTDFile.h>
 
@@ -600,12 +600,23 @@ namespace OpenPSTD
         {
             using namespace Kernel::DG;
 
-            int K = 10;
-            int N = 8;
+            int K = 58;
+            int N = 4;
 
-            std::shared_ptr<AdvecDE<double>> de = std::make_shared<AdvecDE<double>>();
-            std::unique_ptr<System1D<double>> s = std::unique_ptr<System1D<double>>(new System1D<double>(K, N, 0.0, 2.0, de)) ;
-            //s->Calculate(10, true);
+            std::shared_ptr<LinearizedEulerEquationsDE<double>> de = std::make_shared<LinearizedEulerEquationsDE<double>>();
+            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, -2.0, 0.0, de);
+            std::shared_ptr<RKF84<double>> RK = std::make_shared<RKF84<double>>();
+            RK->outputMatlab = true;
+            RK->SetBB(s);
+
+            clock_t start = clock();
+
+            RK->Calculate(0.1);
+
+            clock_t end = clock();
+            double time = (double) (end-start) / CLOCKS_PER_SEC * 1000.0;
+
+            std::cerr << "Time (ms): " << time << std::endl;
         }
     }
 }

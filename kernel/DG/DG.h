@@ -33,6 +33,7 @@
 #define OPENPSTD_DGELEMENT_H
 
 #include <Eigen/Dense>
+#include <Eigen/src/Core/IO.h>
 #include <memory>
 #include <vector>
 #include <iostream>
@@ -44,6 +45,7 @@
 #include "Lift.h"
 #include "GeometricFactors.h"
 #include "RK.h"
+
 
 namespace OpenPSTD
 {
@@ -196,6 +198,32 @@ namespace OpenPSTD
                 virtual unsigned int GetNumberOfVariables()
                 {
                     return _DE->GetNumberOfVariables();
+                };
+
+                virtual void OutputMatlabMetadata()
+                {
+                    Eigen::IOFormat MatlabFmt(Eigen::FullPrecision, Eigen::DontAlignCols, " ", ";\n", "", "", "[", "]");
+                    MatrixX<SimpleType> x(N+1, this->Elements.size());
+
+                    for(int i = 0; i < this->Elements.size(); i++)
+                    {
+                        x.col(i) = this->Elements[i]->x;
+                    }
+
+                    std::cout << 'X' << "(:,:) = ";
+                    std::cout << x.format(MatlabFmt) << ";" << std::endl;
+
+                };
+
+                virtual void OutputMatlabData(int index)
+                {
+                    std::vector<MatrixX<SimpleType>> state = GetState();
+                    Eigen::IOFormat MatlabFmt(Eigen::FullPrecision, Eigen::DontAlignCols, " ", ";\n", "", "", "[", "]");
+                    for(char i = 0; i < state.size(); i++)
+                    {
+                        std::cout << (char)('A'+i) << "(:,:," << index << ") = ";
+                        std::cout << state[i].format(MatlabFmt) << ";" << std::endl;
+                    }
                 };
             };
 

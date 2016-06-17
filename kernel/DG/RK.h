@@ -52,6 +52,8 @@ namespace OpenPSTD
                 virtual std::vector<MatrixX<SimpleType> > GetState() = 0;
                 virtual SimpleType GetMaxDT() = 0;
                 virtual unsigned int GetNumberOfVariables() = 0;
+                virtual void OutputMatlabMetadata() {}
+                virtual void OutputMatlabData(int index) {}
             };
 
             template<typename SimpleType>
@@ -59,6 +61,7 @@ namespace OpenPSTD
             {
             protected:
                 std::shared_ptr<BlackBoxInterface<SimpleType>> bb;
+
             public:
                 virtual void SetBB(std::shared_ptr<BlackBoxInterface<SimpleType>> bb){this->bb = bb;};
                 virtual void ComputeTimeStep(SimpleType deltaTime) = 0;
@@ -194,7 +197,7 @@ namespace OpenPSTD
             public:
                 bool outputMatlab;
 
-                RKF84(): Time(0), Alpha(8)
+                RKF84(): Time(0), Alpha(8), outputMatlab(false)
                 {
                     //Time iteration DG by RKF84
                     Alpha(7) = 1;
@@ -231,12 +234,23 @@ namespace OpenPSTD
                 virtual void Calculate(SimpleType FinalTime)
                 {
                     SimpleType dt = this->bb->GetMaxDT();
-                    SimpleType Nsteps = ceil(FinalTime/dt);
+                    int Nsteps = ceil(FinalTime/dt);
                     dt = FinalTime/Nsteps;
+
+                    if(outputMatlab)
+                    {
+                        this->bb->OutputMatlabMetadata();
+                        this->bb->OutputMatlabData(1);
+                    }
 
                     for(int tstep = 0; tstep < Nsteps; tstep++)
                     {
                         this->ComputeTimeStep(dt);
+
+                        if(outputMatlab)
+                        {
+                            this->bb->OutputMatlabData(tstep+2);
+                        }
                     }
                 }
 
@@ -247,6 +261,7 @@ namespace OpenPSTD
                         ComputeRKStep(RKi, deltaTime);
                     }
                     resu = this->bb->GetState();
+
                     this->Time += deltaTime;
                 };
             };
