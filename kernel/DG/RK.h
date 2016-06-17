@@ -51,6 +51,7 @@ namespace OpenPSTD
                 virtual void SetState(std::vector<MatrixX<SimpleType>> state) = 0;
                 virtual std::vector<MatrixX<SimpleType> > GetState() = 0;
                 virtual SimpleType GetMaxDT() = 0;
+                virtual unsigned int GetNumberOfVariables() = 0;
             };
 
             template<typename SimpleType>
@@ -141,7 +142,7 @@ namespace OpenPSTD
 
                     for(int i = 0; i < u.size(); i++)
                     {
-                        //the acutal RK step
+                        //the actual RK step
                         resu[i] = a*resu[i]+deltaTime*RHS[i];
                         u[i] = u[i]+b*resu[i];
                     }
@@ -168,6 +169,84 @@ namespace OpenPSTD
                     {
                         ComputeRKStep(RKi, deltaTime);
                     }
+                    this->Time += deltaTime;
+                };
+            };
+
+            template<typename SimpleType>
+            class RKF84: public RK<SimpleType>
+            {
+            private:
+                SimpleType Time;
+                VectorX<SimpleType> Alpha;
+                std::vector<MatrixX<SimpleType>> resu;
+
+                void InitializeResU()
+                {
+                    this->resu.clear();
+                    auto u = this->bb->GetState();
+                    for(int i = 0; i < u.size(); i++)
+                    {
+                        this->resu.push_back(u[i]);
+                    }
+                }
+
+            public:
+                bool outputMatlab;
+
+                RKF84(): Time(0), Alpha(8)
+                {
+                    //Time iteration DG by RKF84
+                    Alpha(7) = 1;
+                    Alpha(6) = 1.0/2.0/(Alpha(7));
+                    Alpha(5) = 1.0/6.0/(Alpha(6)*Alpha(7));
+                    Alpha(4) = 1.0/24.0/(Alpha(5)*Alpha(6)*Alpha(7));
+                    Alpha(3) = 8.02921837189987e-3/(Alpha(4)*Alpha(5)*Alpha(6)*Alpha(7));
+                    Alpha(2) = 1.10873426499598e-3/(Alpha(3)*Alpha(4)*Alpha(5)*Alpha(6)*Alpha(7));
+                    Alpha(1) = 9.46273413180222e-5/(Alpha(2)*Alpha(3)*Alpha(4)*Alpha(5)*Alpha(6)*Alpha(7));
+                    Alpha(0) = 3.68184991253961e-6/(Alpha(1)*Alpha(2)*Alpha(3)*Alpha(4)*Alpha(5)*Alpha(6)*Alpha(7));
+                }
+
+                void ComputeRKStep(int RKi, SimpleType deltaTime)
+                {
+                    //computing the RHS and getting the current state
+                    auto RHS = this->bb->ComputeRHS(this->Time+deltaTime);
+                    auto u = this->bb->GetState();
+
+                    //initialize resu if necessary
+                    if(resu.size() != u.size())
+                        this->InitializeResU();
+
+                    for(int i = 0; i < u.size(); i++)
+                    {
+                        //the actual RK step
+                        //u = dt*Alpha(RKi)*rhs + u;
+                        u[i] = deltaTime*Alpha(RKi)*RHS[i]+resu[i];
+                    }
+
+                    //update the state
+                    this->bb->SetState(u);
+                }
+
+                virtual void Calculate(SimpleType FinalTime)
+                {
+                    SimpleType dt = this->bb->GetMaxDT();
+                    SimpleType Nsteps = ceil(FinalTime/dt);
+                    dt = FinalTime/Nsteps;
+
+                    for(int tstep = 0; tstep < Nsteps; tstep++)
+                    {
+                        this->ComputeTimeStep(dt);
+                    }
+                }
+
+                virtual void ComputeTimeStep(SimpleType deltaTime)
+                {
+                    for(int RKi = 0; RKi < Alpha.size(); RKi++)
+                    {
+                        ComputeRKStep(RKi, deltaTime);
+                    }
+                    resu = this->bb->GetState();
                     this->Time += deltaTime;
                 };
             };

@@ -218,7 +218,7 @@ namespace OpenPSTD
                     return dt;
                 }
 
-                virtual SimpleType GetNumberOfVariables()
+                virtual unsigned int GetNumberOfVariables()
                 {
                     return 2;
                 }

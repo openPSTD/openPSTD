@@ -79,7 +79,7 @@ namespace OpenPSTD
                         std::shared_ptr<System1D<SimpleType, DEElementStore>> system,
                         SimpleType time) = 0;
                 virtual SimpleType GetMaxDt(SimpleType minDistance, int N) = 0;
-                virtual SimpleType GetNumberOfVariables() = 0;
+                virtual unsigned int GetNumberOfVariables() = 0;
             };
 
             template <typename SimpleType, typename DEElementStore = NoElementStore>
@@ -191,6 +191,11 @@ namespace OpenPSTD
                         minDistance = std::min(Elements[i]->MinNodeDistance(), minDistance);
                     }
                     return _DE->GetMaxDt(minDistance, N);
+                };
+
+                virtual unsigned int GetNumberOfVariables()
+                {
+                    return _DE->GetNumberOfVariables();
                 };
             };
 
