@@ -12,10 +12,13 @@ set(SOURCE_FILES_TEST_DG
         test/Kernel/DG/JacobiGQ.cpp
         test/Kernel/DG/JacobiGL.cpp
         test/Kernel/DG/JacobiP.cpp
+        test/Kernel/DG/WarpFactor.cpp
         test/Kernel/DG/Vandermonde.cpp
         test/Kernel/DG/DMatrix.cpp
         test/Kernel/DG/GeometricFactors.cpp
         test/Kernel/DG/Lift.cpp)
+
+#set(SOURCE_FILES_TEST_DG test/Kernel/DG/WarpFactor.cpp)
 
 message(STATUS "${DG_TEST_ONLY}")
 if(DG_TEST_ONLY)
