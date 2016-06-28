@@ -301,6 +301,7 @@ namespace OpenPSTD {
                 bottom_right = Point(max(bottom_right.x, domain->bottom_right.x),
                                      max(bottom_right.y, domain->bottom_right.y));
                 size = Point(bottom_right.x - top_left.x, bottom_right.y - top_left.y);
+                // Todo: Topleft, bottom right and size are never read from
             }
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 shared_ptr<Domain> other_domain = domain_list.at(i);
