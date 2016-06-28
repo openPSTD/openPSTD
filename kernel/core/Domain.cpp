@@ -71,7 +71,7 @@ namespace OpenPSTD {
                 this->rho = 1E30;
             }
             else {
-                this->rho = this->settings->GetDensityOfAir();
+                this->rho = this->settings->GetDensityOfAir()*this->impedance;
             }
             this->is_pml = is_pml;
             this->is_secondary_pml = false;
