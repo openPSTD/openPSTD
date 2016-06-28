@@ -61,7 +61,7 @@ namespace OpenPSTD {
             this->wnd = wnd;
             this->id = id;
             this->edge_param_map = edge_param_map;
-            this->alpha = alpha; // Todo: Usually 1, and barely used. Push to settings when PML domain becomes subclass
+            this->alpha = alpha; 
             //Todo: (TK): Probably wrong, especially with two neighbouring PML domains
             this->impedance = -((sqrt(1 - alpha) + 1) / (sqrt(1 - alpha) - 1));
             if (is_pml) { // Ugly... Fix when possible
@@ -69,8 +69,7 @@ namespace OpenPSTD {
             }
             if (this->is_rigid()) {
                 this->rho = 1E30;
-            }
-            else {
+            } else {
                 this->rho = this->settings->GetDensityOfAir()*this->impedance;
             }
             this->is_pml = is_pml;
