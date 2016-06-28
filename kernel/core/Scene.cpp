@@ -220,7 +220,6 @@ namespace OpenPSTD {
                 }
             }
             for (auto sec_order_pml_domain: second_order_pml_list) {
-                domain_list.push_back(sec_order_pml_domain);
                 add_domain(sec_order_pml_domain);
             }
         }
@@ -252,7 +251,7 @@ namespace OpenPSTD {
         }
 
 
-        void Scene::add_receiver(const float x, const float y, const float z) {
+        void Scene::add_receiver(const float x, const float y, const float z, unsigned long id) {
             vector<float> grid_like_location = {x, y, z};
             shared_ptr<Domain> container(nullptr);
             for (auto domain:domain_list) {
@@ -261,7 +260,6 @@ namespace OpenPSTD {
                 }
             }
             assert(container != nullptr);
-            int id = (int) (receiver_list.size() + 1);
             shared_ptr<Receiver> receiver = make_shared<Receiver>(grid_like_location, settings, id, container);
             receiver_list.push_back(receiver);
         }
@@ -377,41 +375,6 @@ namespace OpenPSTD {
                 }
             }
             domain_list.push_back(domain);
-        }
-
-        Eigen::ArrayXXf Scene::get_pressure_field() {
-            return get_field('p');
-        }
-
-        Eigen::ArrayXXf Scene::get_field(char field_type) {
-            Eigen::ArrayXXf field(size.y, size.x);
-            for (auto domain:domain_list) {
-                if (not domain->is_pml) {
-                    Point offset = domain->top_left - top_left;
-                    switch (field_type) {
-                        case 'p':
-                            field.block(offset.y, offset.x, domain->size.y,
-                                        domain->size.x) += domain->current_values.p0;
-                            break;
-                        default:
-                            //No other fields are required (yet). However, leaving open for extension.
-                            break;
-                    }
-                }
-            }
-            return field;
-        }
-
-        shared_ptr<Domain> Scene::get_domain(int id) {
-            // Probably not a necessary function.
-            shared_ptr<Domain> correct_domain;
-            for (auto domain:domain_list) {
-                if (domain->id == id) {
-                    assert(correct_domain == nullptr);
-                    correct_domain = domain;
-                }
-            }
-            return correct_domain;
         }
 
         ostream &operator<<(ostream &str, Scene const &v) {

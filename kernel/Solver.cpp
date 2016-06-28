@@ -97,7 +97,9 @@ namespace OpenPSTD {
                 this->scene->apply_pml_matrices();
                 for (auto receiver:this->scene->receiver_list) {
                     receiver->compute_local_pressure();
-                    //Todo: Write this to a file or process in callback.
+                    if (frame % this->settings->GetSaveNth() == 0) {
+                        this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
+                    }
                 }
                 this->callback->Callback(CALLBACKSTATUS::RUNNING, "Finished frame: "+std::to_string(frame), frame);
             }
@@ -160,6 +162,12 @@ namespace OpenPSTD {
                 }
             }
             return aligned_pressure;
+        }
+
+        PSTD_FRAME_PTR Solver::get_receiver_pressure(std::shared_ptr<Receiver> receiver) {
+            auto pressure_vector = std::make_shared<PSTD_FRAME>();
+            pressure_vector->push_back(receiver->received_values.back());
+            return pressure_vector;
         }
     }
 }
