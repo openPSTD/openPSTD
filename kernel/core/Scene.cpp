@@ -308,7 +308,8 @@ namespace OpenPSTD {
                     // Cannot interact, since no secondary PML domains are adjacent
                     continue;
                 }
-                else if (other_domain->is_secondary_pml && !domain->is_pml) {
+                else if (domain->is_secondary_pml && !other_domain->is_pml || 
+                         other_domain->is_secondary_pml && !domain->is_pml) {
                     // Cannot interact, since a regular domain does not touch a secondary PML domain
                     continue;
                 }
