@@ -150,9 +150,6 @@ namespace OpenPSTD {
                 d1 = (i != domains1.size()) ? domains1[i] : nullptr;
                 for (int j = 0; j != domains2.size() + 1; j++) {
                     d2 = (j != domains2.size()) ? domains2[j] : nullptr;
-                    vector<int> rho_matrix_key;
-                    if (d1!=nullptr) rho_matrix_key.push_back(d1->id);
-                    if (d2!=nullptr) rho_matrix_key.push_back(d2->id);
 
                     //The range is determined and clipped to the neighbour domain ranges
                     vector<int> range_intersection = own_range;
