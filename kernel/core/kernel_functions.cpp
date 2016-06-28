@@ -309,6 +309,10 @@ namespace OpenPSTD {
             }
             fftwf_free(in_buffer);
             fftwf_free(out_buffer);
+            if (plan == NULL || true) { //always use local plan for now, mainly debugging purposes TODO change that
+                fftwf_destroy_plan(plan);
+                fftwf_destroy_plan(plan_inv);
+            }
             return result;
         }
 
