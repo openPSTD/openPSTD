@@ -104,9 +104,9 @@ namespace OpenPSTD {
                                 break;
                         }
 
-                        shared_ptr<Domain> pml_domain_ptr(
-                                new Domain(settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer, true,
-                                           domain->wnd, default_edge_parameters, domain));
+                        shared_ptr<Domain> pml_domain_ptr = make_shared<Domain>(
+                                settings, pml_id, pml_alpha, pml_top_left, pml_size_pointer, true,
+                                domain->wnd, default_edge_parameters, domain));
                         //cout << *pml_domain_ptr << endl;
                         first_order_pmls.push_back(pml_domain_ptr);
                         if (!full_overlap) {
@@ -154,10 +154,8 @@ namespace OpenPSTD {
                                 Point sec_pml_offset(sec_x_offset, sec_y_offset);
                                 Point sec_pml_top_left = domain->top_left + pml_offset + sec_pml_offset;
                                 Point sec_pml_size(number_of_cells, number_of_cells);
-                                shared_ptr<Domain> sec_pml_domain(
-                                        new Domain(settings, second_pml_id, second_pml_alpha, sec_pml_top_left,
-                                                   sec_pml_size,
-                                                   true, domain->wnd, default_edge_parameters, pml_domain_ptr));
+                                shared_ptr<Domain> sec_pml_domain = make_shared<Domain>(settings, second_pml_id, second_pml_alpha, sec_pml_top_left,
+                                                   sec_pml_size, true, domain->wnd, default_edge_parameters, pml_domain_ptr));
                                 second_order_pml_map[sec_pml_domain] = second_dir;
                                 //cout << *sec_pml_domain << endl;
                             }
@@ -264,7 +262,7 @@ namespace OpenPSTD {
             }
             assert(container != nullptr);
             int id = (int) (receiver_list.size() + 1);
-            shared_ptr<Receiver> receiver(new Receiver(grid_like_location, settings, id, container));
+            shared_ptr<Receiver> receiver = make_shared<Receiver>(grid_like_location, settings, id, container);
             receiver_list.push_back(receiver);
         }
 
@@ -274,7 +272,7 @@ namespace OpenPSTD {
             // Put 0,0 at the actual point 0,0 instead of in the middle of the first pressure sample
             float dx_2 = 0.5; // we're in pressure grid coordinates here, so -0.5 is really 0.5
             vector<float> grid_like_location = {x - dx_2, y - dx_2, z - dx_2};
-            shared_ptr<Speaker> speaker(new Speaker(grid_like_location));
+            shared_ptr<Speaker> speaker = make_shared<Speaker>(grid_like_location));
             for (unsigned long i = 0; i < domain_list.size(); i++) {
                 speaker->addDomainContribution(domain_list.at(i));
                 // Todo: Only add when speaker in domain
@@ -371,7 +369,7 @@ namespace OpenPSTD {
                 if (is_neighbour && !other_domain_pml_for_different_domain && !domain_pml_for_different_domain) {
                     intersection = domain->get_intersection_with(other_domain, orientation);
                     if (intersection.size()) {
-                        shared_ptr<Boundary> boundary(new Boundary(domain, other_domain, bt));
+                        shared_ptr<Boundary> boundary = make_shared<Boundary>(domain, other_domain, bt));
                         boundary_list.push_back(boundary);
                         domain->add_neighbour_at(other_domain, orientation);
                         other_domain->add_neighbour_at(domain, get_opposite(orientation));
