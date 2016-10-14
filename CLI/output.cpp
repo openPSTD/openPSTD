@@ -60,7 +60,10 @@ namespace OpenPSTD
 
         void CLIOutput::Debug(std::string message)
         {
-            std::cout << message << std::endl;
+            if(this->_debugInfo)
+            {
+                std::cout << message << std::endl;
+            }
         }
     }
 }

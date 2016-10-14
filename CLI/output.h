@@ -14,8 +14,9 @@ namespace OpenPSTD
         {
         private:
             std::shared_ptr<Shared::PSTDFile> _file;
+            bool _debugInfo;
         public:
-            CLIOutput(std::shared_ptr<Shared::PSTDFile> file) : _file(file)
+            CLIOutput(std::shared_ptr<Shared::PSTDFile> file, bool debugInfo) : _file(file), _debugInfo(debugInfo)
             { };
 
             virtual void Callback(Kernel::CALLBACKSTATUS status, std::string message, int frame) override;

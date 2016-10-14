@@ -384,6 +384,7 @@ namespace OpenPSTD
                         ("gpu-accelerated,g",
                          "Use the gpu for the calculations (mutually exclusive with multithreaded)")
                         ("mock,M", "Use the mock kernel(only useful for development)")
+                        ("debug", "shows debug information(only useful for development)")
                     //("write-plot,p", "Plots are written to the output directory")
                     //("write-array,a", "Arrays are written to the output directory")
                         ;
@@ -446,7 +447,7 @@ namespace OpenPSTD
                 //configure the kernel
                 kernel->initialize_kernel(conf);
                 //create output
-                std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file);
+                std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file, vm.count("debug") > 0);
                 //run kernel
                 kernel->run(output.get());
 
