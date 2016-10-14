@@ -152,6 +152,20 @@ void BackgroundWorker::WorkerMethod()
             {
                 this->currentOperation->GetNotificationHandler()->Warning("The operation is canceled");
             }
+            catch(thread_interrupted ex)//catches en rethrows interrupted
+            {
+                throw ex;
+            }
+            catch(const std::exception& e) //catches the rest of the exceptions
+            {
+                this->currentOperation->GetNotificationHandler()->Fatal(e.what());
+            }
+            catch(...)
+            {
+                this->currentOperation->GetNotificationHandler()->Fatal("Unkown error happened (developer: all "
+                                                                                "exceptions thrown should inherit from "
+                                                                                "std::exception).");
+            }
 
             {//remove the current operation
                 boost::unique_lock<boost::recursive_mutex> lockCurrentOp(this->currentOperationMutex);

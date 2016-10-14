@@ -53,7 +53,7 @@ namespace OpenPSTD
             /**
              * An fatel error where the long operation can not continue.
              */
-            virtual void Fatel(std::string message) = 0;
+            virtual void Fatal(std::string message) = 0;
             /**
              * An simple error, the long operation may not or may continue after this error.
              */
@@ -79,7 +79,7 @@ namespace OpenPSTD
         class NullNotificationsHandler: public NotificationsHandler
         {
         public:
-            virtual void Fatel(std::string message) override {};
+            virtual void Fatal(std::string message) override {};
 
             virtual void Error(std::string message) override {};
 
