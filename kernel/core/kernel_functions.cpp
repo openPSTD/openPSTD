@@ -195,7 +195,7 @@ namespace OpenPSTD {
                 ArrayXf window_right = window.tail(wlen);
 
                 if (wlen > p1.cols() || wlen > p3.cols()) {
-                    //TODO error (or just warn) if this happens and give user feedback.
+                    std::cout << "CAREFUL: WINDOW IS BIGGER THAN SIDES" << std::endl;
                 }
 
                 ArrayXXf dom1(fft_batch, wlen);
@@ -309,6 +309,10 @@ namespace OpenPSTD {
             }
             fftwf_free(in_buffer);
             fftwf_free(out_buffer);
+            if (plan == NULL || true) { //always use local plan for now, mainly debugging purposes TODO change that
+                fftwf_destroy_plan(plan);
+                fftwf_destroy_plan(plan_inv);
+            }
             return result;
         }
 

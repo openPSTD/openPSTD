@@ -61,7 +61,7 @@ namespace OpenPSTD {
             this->wnd = wnd;
             this->id = id;
             this->edge_param_map = edge_param_map;
-            this->alpha = alpha; // Todo: Usually 1, and barely used. Push to settings when PML domain becomes subclass
+            this->alpha = alpha; 
             //Todo: (TK): Probably wrong, especially with two neighbouring PML domains
             this->impedance = -((sqrt(1 - alpha) + 1) / (sqrt(1 - alpha) - 1));
             if (is_pml) { // Ugly... Fix when possible
@@ -69,9 +69,8 @@ namespace OpenPSTD {
             }
             if (this->is_rigid()) {
                 this->rho = 1E30;
-            }
-            else {
-                this->rho = this->settings->GetDensityOfAir();
+            } else {
+                this->rho = this->settings->GetDensityOfAir()*this->impedance;
             }
             this->is_pml = is_pml;
             this->is_secondary_pml = false;
@@ -105,6 +104,7 @@ namespace OpenPSTD {
                 domains1 = bottom;
                 domains2 = top;
             }
+            /*//debug
             cout << "\n\ndomains1:\n";
             for(auto domain : domains1) {
                 cout << *domain << "\n";
@@ -114,7 +114,7 @@ namespace OpenPSTD {
             for(auto domain : domains2) {
                 cout << *domain << "\n";
             }
-            cout << "\n\n";
+            cout << "\n\n";*/
 
             if (dest.rows() != 0) {
                 if (cd == CalcDirection::X) {
@@ -149,9 +149,6 @@ namespace OpenPSTD {
                 d1 = (i != domains1.size()) ? domains1[i] : nullptr;
                 for (int j = 0; j != domains2.size() + 1; j++) {
                     d2 = (j != domains2.size()) ? domains2[j] : nullptr;
-                    vector<int> rho_matrix_key;
-                    if (d1!=nullptr) rho_matrix_key.push_back(d1->id);
-                    if (d2!=nullptr) rho_matrix_key.push_back(d2->id);
 
                     //The range is determined and clipped to the neighbour domain ranges
                     vector<int> range_intersection = own_range;
@@ -177,9 +174,9 @@ namespace OpenPSTD {
                     } else {
                         //don't update the part we update now in later iterations
                         vector<int> temp_diff;
-                        set_difference(range_intersection.begin(), range_intersection.end(),
-                                         own_range.begin(), own_range.end(),
-                                         inserter(temp_diff, temp_diff.begin()));
+                        set_difference(own_range.begin(), own_range.end(),
+                                       range_intersection.begin(), range_intersection.end(),
+                                       inserter(temp_diff, temp_diff.begin()));
                         own_range = temp_diff;
                     }
 
@@ -189,8 +186,13 @@ namespace OpenPSTD {
                     int full_range = range_end-range_start;
                     int primary_dimension = (cd == CalcDirection::X) ? size.x : size.y;
                     int result_dimension = primary_dimension;
-                    int N_total = 2 * settings->GetWindowSize() + primary_dimension;
                     int wlen = settings->GetWindowSize();
+                    while (wlen > primary_dimension){
+                        //avoid program crashing when wlen is set too high
+                        wlen = wlen/2;
+                        //cout << "using reduced window length" << endl;
+                    }
+                    int N_total = 2 * wlen + primary_dimension;
                     ArrayXf wind = get_window_coefficients(wlen, settings->GetPatchError());
 
                     if (ct == CalculationType::PRESSURE) {
@@ -281,7 +283,6 @@ namespace OpenPSTD {
                         }
                     }
 
-                    // TODO check if get_rho_array(...) is slow and if so, cache these values somewhere
                     float max_rho = 1E10;
                     RhoArray rho_array = get_rho_array(d1 != nullptr ? d1->rho : max_rho,
                                                        this->rho,
@@ -329,7 +330,6 @@ namespace OpenPSTD {
                         ArrayXXf spatresult = spatderp3(matrix_side1_indexed, matrix_main_indexed, matrix_side2_indexed, derfact,
                                                               rho_array, wind, wlen, ct, cd, planset.plan, planset.plan_inv);
                         source.block(0, range_start - matrix_main_offset, result_dimension, ncols) = spatresult;
-                        cout << "Success" << endl;
                     }
                 }
             }
@@ -653,7 +653,7 @@ namespace OpenPSTD {
                 create_attenuation_array(CalcDirection::X, needs_reversed_attenuation.at(0),
                                          pml_arrays.px, pml_arrays.vx);
                 create_attenuation_array(CalcDirection::Y, needs_reversed_attenuation.at(1),
-                                         pml_arrays.py, pml_arrays.vx);
+                                         pml_arrays.py, pml_arrays.vy);
             }
             else {
                 CalcDirection calc_dir = CalcDirection::Y;
@@ -750,7 +750,7 @@ namespace OpenPSTD {
             } else if (v.is_pml) {
                 str << " (pml)";
             }
-            str << ", top left " << v.top_left << ", bottom right " << v.bottom_right;
+            str << ", top left " << v.top_left << ", bottom right " << v.bottom_right << " (alpha: " << v.alpha << ")";
             return str;
         }
 

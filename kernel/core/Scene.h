@@ -89,7 +89,7 @@ namespace OpenPSTD {
              * @param y coordinate on grid in y dimension
              * @param x coordinate on grid in z dimension
              */
-            void add_receiver(const float x, const float y, const float z);
+            void add_receiver(const float x, const float y, const float z, unsigned long i);
 
             /**
              * Adds a speaker to the scene.
@@ -126,29 +126,11 @@ namespace OpenPSTD {
             void apply_pml_matrices();
 
             /**
-             * Obtains the global pressure field by summing the pressure in each domain.
-             * @return: Array with pressure values
-             */
-            Eigen::ArrayXXf get_pressure_field();
-
-            /**
-             * Fetch a domain with specified ID, if existing.
-             * @param id: integer ID of domain.
-             * @return: domain pointer if domain with id exists, else nullptr.
-             */
-            std::shared_ptr<Domain> get_domain(int id);
-
-            /**
             * Returns a new domain ID integer
             */
             int get_new_id();
 
         private:
-
-            /**
-             * General field obtainer function, extensible if necessary
-             */
-            Eigen::ArrayXXf get_field(char field_type);
 
             /**
              * Helper function for add_pml_domains.
