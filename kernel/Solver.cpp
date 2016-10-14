@@ -61,7 +61,7 @@ namespace OpenPSTD {
 
         // Todo: Overwrite solver for GPU/Multithreaded
         void Solver::compute_propagation() {
-            this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", -1);
+            this->callback->Info("Starting simulation");
             for (int frame = 0; frame < this->number_of_time_steps; frame++) {
                 for (auto domain:this->scene->domain_list) {
                     domain->push_values();
@@ -101,10 +101,9 @@ namespace OpenPSTD {
                         this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
                     }
                 }
-                this->callback->Callback(CALLBACKSTATUS::RUNNING, "Finished frame: "+std::to_string(frame), frame);
+                this->callback->Info("Finished frame: "+std::to_string(frame));
             }
-            this->callback->Callback(CALLBACKSTATUS::FINISHED, "Succesfully finished simulation",
-                                     this->number_of_time_steps);
+            this->callback->Info("Succesfully finished simulation");
         }
 
         void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step,
