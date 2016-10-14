@@ -21,11 +21,11 @@ namespace OpenPSTD
 
             auto meta = get_metadata();
 
-            callback->Callback(CALLBACKSTATUS::STARTING, "Starting to mock", -1);
+            callback->Info("Starting to mock");
 
             for (int i = 0; i < meta.Framecount; ++i)
             {
-                callback->Callback(CALLBACKSTATUS::RUNNING, "At frame " + boost::lexical_cast<std::string>(i), i);
+                callback->Info("At frame " + boost::lexical_cast<std::string>(i));
                 for (int j = 0; j < _conf->Domains.size(); ++j)
                 {
                     PSTD_FRAME_PTR frame;
@@ -66,7 +66,7 @@ namespace OpenPSTD
                 }
             }
 
-            callback->Callback(CALLBACKSTATUS::FINISHED, "finished mocking", -1);
+            callback->Info("Finished mocking");
         }
 
         SimulationMetadata MockKernel::get_metadata()
