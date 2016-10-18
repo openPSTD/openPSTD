@@ -31,10 +31,13 @@
 #include "MainWindow.h"
 #include "main.h"
 #include "operations/InitializationOperation.h"
+#include "operations/DialogOperations.h"
 
 
 #include <QPainter>
 #include <QFont>
+
+Q_DECLARE_METATYPE(std::string)
 
 int main(int argc, char *argv[])
 {
@@ -124,13 +127,47 @@ namespace OpenPSTD
 
         void Controller::StartUpBackgroundWorker()
         {
+            std::shared_ptr<SignalNotificationsHandler> handler = std::make_shared<SignalNotificationsHandler>();
+            connect(handler.get(), &SignalNotificationsHandler::Fatal, this, &Controller::Fatal);
+            connect(handler.get(), &SignalNotificationsHandler::Error, this, &Controller::Fatal);
+            connect(handler.get(), &SignalNotificationsHandler::Warning, this, &Controller::Warning);
+            connect(handler.get(), &SignalNotificationsHandler::Info, this, &Controller::Info);
+            connect(handler.get(), &SignalNotificationsHandler::Debug, this, &Controller::Debug);
+
+            qRegisterMetaType<std::string>();
+
             this->worker = std::make_shared<BackgroundWorker>(this->shared_from_this());
             this->worker->Start();
+            this->worker->SetDefaultNotificationHandler(handler);
         }
 
         void Controller::ShutdownBackgroundWorker()
         {
             this->worker->JoinASAP();
+        }
+
+        void Controller::Fatal(std::string message)
+        {
+            RunOperation(std::make_shared<DialogOperations>(DialogOperationsSeverity::Critical, message));
+        }
+
+        void Controller::Error(std::string message)
+        {
+            RunOperation(std::make_shared<DialogOperations>(DialogOperationsSeverity::Critical, message));
+        }
+
+        void Controller::Warning(std::string message)
+        {
+            RunOperation(std::make_shared<DialogOperations>(DialogOperationsSeverity::Warning, message));
+        }
+
+        void Controller::Info(std::string message)
+        {
+            std::cout << "Info: " << message << std::endl;
+        }
+
+        void Controller::Debug(std::string message)
+        {
         }
 
 

@@ -22,6 +22,9 @@ namespace OpenPSTD
             auto meta = get_metadata();
 
             callback->Info("Starting to mock");
+            callback->Error("Error");
+            callback->Fatal("Fatal");
+            callback->Warning("Warning");
 
             for (int i = 0; i < meta.Framecount; ++i)
             {
