@@ -160,6 +160,11 @@ void BackgroundWorker::WorkerMethod()
             {
                 this->currentOperation->GetNotificationHandler()->Fatal(e.what());
             }
+            catch(const std::string& e)
+            {
+                this->currentOperation->GetNotificationHandler()->Fatal(e + "(developer: all exceptions should inherit from "
+                        "std::exception)");
+            }
             catch(...)
             {
                 this->currentOperation->GetNotificationHandler()->Fatal("Unkown error happened (developer: all "
@@ -193,7 +198,7 @@ void BackgroundWorker::SetDefaultNotificationHandler(std::shared_ptr<Notificatio
 }
 
 
-LongOperation::LongOperation(): cancels(false), notifications(nullptr)
+LongOperation::LongOperation(): cancels(false)
 {
 
 }

@@ -42,55 +42,6 @@ namespace OpenPSTD
     {
 
         /**
-         * A notification handler. All the errors can be handled through this class. All methods are called from the
-         * runnable inside BackgroundWorker. So if there are some changes in the GUI, it should be remotly invoked.
-         * A possible implementation is to write the information to the command line or is to create a pop-up screen
-         * with the message. So the methods (except for debug) should be used sparsely.
-         */
-        class NotificationsHandler
-        {
-        public:
-            /**
-             * An fatel error where the long operation can not continue.
-             */
-            virtual void Fatal(std::string message) = 0;
-            /**
-             * An simple error, the long operation may not or may continue after this error.
-             */
-            virtual void Error(std::string message) = 0;
-            /**
-             * A warning, the long operation will continue after this, but the user should be aware of something that
-             * probably is wrong.
-             */
-            virtual void Warning(std::string message) = 0;
-            /**
-             * Information that the user should be aware of.
-             */
-            virtual void Info(std::string message) = 0;
-            /**
-             * Debug information, this can be used extensivly, and is only shown to the user if the user has chosen it.
-             */
-            virtual void Debug(std::string message) = 0;
-        };
-
-        /**
-         * A null notification handler. This handler ignores every notification.
-         */
-        class NullNotificationsHandler: public NotificationsHandler
-        {
-        public:
-            virtual void Fatal(std::string message) override {};
-
-            virtual void Error(std::string message) override {};
-
-            virtual void Warning(std::string message) override {};
-
-            virtual void Info(std::string message) override {};
-
-            virtual void Debug(std::string message) override {};
-        };
-
-        /**
          * A base class for long running operations that need to run on the background.
          * Mainly used for the OpenPSTD algorithm, but can be used for other algorithms.
          */
@@ -109,11 +60,6 @@ namespace OpenPSTD
              * This method can create a interruption exception(abort thread) or a cancalation exception.
              */
             void Update();
-
-            /**
-             * Here can all the notification go.
-             */
-            std::shared_ptr<NotificationsHandler> notifications;
 
         public:
             LongOperation();
@@ -144,20 +90,6 @@ namespace OpenPSTD
              * This makes sure this operation is canceled when the next Update is called.
              */
             virtual bool Cancel();
-
-            /**
-             * Sets the Notification handler. This should be set before the operation has started or else the behavior
-             * is undefined. The current implementation of Background worker will always set this handler to an instance
-             * before starting the operation.
-             * @param handler
-             */
-            void SetNotificationHandler(std::shared_ptr<NotificationsHandler> handler) { this->notifications = handler; };
-            /**
-             * Gets the Notification handler.
-             * @return
-             */
-            std::shared_ptr<NotificationsHandler> GetNotificationHandler(){ return this->notifications; };
-
         };
 
 
