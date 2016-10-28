@@ -201,10 +201,10 @@ namespace OpenPSTD
 
             applicationSettings->UpdateFromModel(model);
             this->UpdateDisableWidgets(model, worker);
+            this->UpdateHsbFrame(model, worker);
 
             if(model->documentAccess->IsDocumentLoaded())
             {
-                this->UpdateHsbFrame(model, worker);
                 this->fileSettings = doc->GetSceneConf()->Settings;
                 if (model->interactive->IsChanged() && model->interactive->Selection.Type == SELECTION_DOMAIN)
                 {

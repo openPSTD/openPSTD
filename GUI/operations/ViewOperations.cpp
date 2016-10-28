@@ -161,6 +161,11 @@ namespace OpenPSTD
 
         void ChangeViewingFrame::Run(const Reciever &reciever)
         {
+            if(!reciever.model->documentAccess->IsDocumentLoaded())
+            {
+                this->notifications->Error("No document loaded, so this frame can't be shown.");
+                return;
+            }
             auto doc = reciever.model->documentAccess->GetDocument();
             int min = INT_MAX;
             int max = INT_MIN;
@@ -180,6 +185,10 @@ namespace OpenPSTD
             {
                 reciever.model->interactive->visibleFrame = this->frame;
                 reciever.model->interactive->Change();
+            }
+            else
+            {
+                this->notifications->Error("Frame is not in the current file.");
             }
         }
     }
