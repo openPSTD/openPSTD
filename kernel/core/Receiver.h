@@ -59,7 +59,7 @@ namespace OpenPSTD {
             const float x;
             const float y;
             const float z;
-            int id;
+            unsigned long id;
 
             /**
              * Unrounded (grid) location
@@ -99,7 +99,7 @@ namespace OpenPSTD {
              * @param id: Unique receiver identifier
              * @param container: The domain in which the receiver is located. This should not be a PML-domain.
              */
-            Receiver(std::vector<float> location, std::shared_ptr<PSTDSettings> config, int id,
+            Receiver(std::vector<float> location, std::shared_ptr<PSTDSettings> config, unsigned long id,
                      std::shared_ptr<Domain> container);
 
             /**

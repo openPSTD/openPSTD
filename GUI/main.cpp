@@ -31,10 +31,13 @@
 #include "MainWindow.h"
 #include "main.h"
 #include "operations/InitializationOperation.h"
+#include "operations/DialogOperations.h"
 
 
 #include <QPainter>
 #include <QFont>
+
+Q_DECLARE_METATYPE(std::string)
 
 int main(int argc, char *argv[])
 {
@@ -82,6 +85,11 @@ namespace OpenPSTD
 
         void Controller::RunOperation(std::shared_ptr<BaseOperation> operation)
         {
+            if(operation->GetNotificationHandler() == nullptr)
+            {
+                operation->SetNotificationHandler(this->shared_from_this());
+            }
+
             if (runningOp)
             {
                 operation->Run(this->BuildReceiver());
@@ -89,7 +97,26 @@ namespace OpenPSTD
             else
             {
                 runningOp = true;
-                operation->Run(this->BuildReceiver());
+                try
+                {
+                    operation->Run(this->BuildReceiver());
+                }
+                catch(const std::exception& e) //catches the rest of the exceptions
+                {
+                    operation->GetNotificationHandler()->Fatal(e.what());
+                }
+                catch(const std::string& e)
+                {
+                    operation->GetNotificationHandler()->Fatal(e + "(developer: all exceptions should inherit from "
+                                                                           "std::exception)");
+                }
+                catch(...)
+                {
+                    operation->GetNotificationHandler()->Fatal("Unkown error happened (developer: all "
+                                                                                    "exceptions thrown should inherit from "
+                                                                                    "std::exception).");
+                }
+
                 runningOp = false;
                 //todo: fix that also the documentAccess itself is registered
                 //if(this->model->invalidation.IsChanged())
@@ -124,13 +151,47 @@ namespace OpenPSTD
 
         void Controller::StartUpBackgroundWorker()
         {
+            std::shared_ptr<SignalNotificationsHandler> handler = std::make_shared<SignalNotificationsHandler>();
+            connect(handler.get(), &SignalNotificationsHandler::Fatal, this, &Controller::Fatal, Qt::QueuedConnection);
+            connect(handler.get(), &SignalNotificationsHandler::Error, this, &Controller::Fatal, Qt::QueuedConnection);
+            connect(handler.get(), &SignalNotificationsHandler::Warning, this, &Controller::Warning, Qt::QueuedConnection);
+            connect(handler.get(), &SignalNotificationsHandler::Info, this, &Controller::Info, Qt::QueuedConnection);
+            connect(handler.get(), &SignalNotificationsHandler::Debug, this, &Controller::Debug, Qt::QueuedConnection);
+
+            qRegisterMetaType<std::string>();
+
             this->worker = std::make_shared<BackgroundWorker>(this->shared_from_this());
             this->worker->Start();
+            this->worker->SetDefaultNotificationHandler(handler);
         }
 
         void Controller::ShutdownBackgroundWorker()
         {
             this->worker->JoinASAP();
+        }
+
+        void Controller::Fatal(std::string message)
+        {
+            RunOperation(std::make_shared<DialogOperations>(DialogOperationsSeverity::Critical, message));
+        }
+
+        void Controller::Error(std::string message)
+        {
+            RunOperation(std::make_shared<DialogOperations>(DialogOperationsSeverity::Critical, message));
+        }
+
+        void Controller::Warning(std::string message)
+        {
+            RunOperation(std::make_shared<DialogOperations>(DialogOperationsSeverity::Warning, message));
+        }
+
+        void Controller::Info(std::string message)
+        {
+            std::cout << "Info: " << message << std::endl;
+        }
+
+        void Controller::Debug(std::string message)
+        {
         }
 
 

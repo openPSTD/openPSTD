@@ -269,7 +269,7 @@ namespace OpenPSTD {
              * @param message: Message to pass to callback handler
              * @param frame: either positive integer corresponding to time step of data or -1 when kernel is not running.
              */
-            virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
+            __attribute__((deprecated)) virtual void Callback(CALLBACKSTATUS status, std::string message, int frame) = 0;
 
             /**
              * Return pressure data of scene to callback handler.
@@ -286,6 +286,33 @@ namespace OpenPSTD {
              * @param data: a set of data points
              */
             virtual void WriteSample(int startSample, int receiver, std::vector<float> data) = 0;
+
+            /**
+             * An fatel error where the Kernel can not continue. Remark, this should be a non-blocking method. So the
+             * kernel will continue after this method.
+             */
+            virtual void Fatal(std::string message) = 0;
+            /**
+             * An simple error, the Kernel may not or may continue after this error. Remark, this should be a
+             * non-blocking method. So the kernel will continue after this method.
+             */
+            virtual void Error(std::string message) = 0;
+            /**
+             * A warning, the long operation will continue after this, but the user should be aware of something that
+             * probably is wrong. Remark, this should be a non-blocking method. So the kernel will continue after this
+             * method.
+             */
+            virtual void Warning(std::string message) = 0;
+            /**
+             * Information that the user should be aware of.Remark, this should be a non-blocking method. So the
+             * kernel will continue after this method.
+             */
+            virtual void Info(std::string message) = 0;
+            /**
+             * Debug information, this can be used extensivly, and is only shown to the user if the user has chosen it.
+             * Remark, this should be a non-blocking method. So the kernel will continue after this method.
+             */
+            virtual void Debug(std::string message) = 0;
         };
 
         /**

@@ -87,6 +87,11 @@ namespace OpenPSTD
 
         void CreateReceiverSpeakerOperation::Run(const Reciever &reciever)
         {
+            if(_options.Type != OBJECT_RECEIVER && _options.Type != OBJECT_SPEAKER)
+            {
+                this->notifications->Error("It is only possible to add speakers or receivers with this operation.");
+                return;
+            }
             auto doc = reciever.model->documentAccess->GetDocument();
             auto conf = doc->GetSceneConf();
             QMatrix4x4 rotateMatrix;
@@ -104,10 +109,6 @@ namespace OpenPSTD
                 else if (this->_options.Type == OBJECT_SPEAKER)
                 {
                     conf->Speakers.push_back(pos);
-                }
-                else
-                {
-                    //todo throw exception here
                 }
                 pos = pos + dir;
             }
@@ -129,7 +130,7 @@ namespace OpenPSTD
             }
             else
             {
-                //todo throw exception
+                this->notifications->Error("A domain should be selected.");
             }
         }
 
@@ -154,7 +155,7 @@ namespace OpenPSTD
             }
             else
             {
-                //todo throw exception
+                this->notifications->Error("An element should be selected.");
             }
             std::shared_ptr<DeselectOperation> op2(new DeselectOperation());
             reciever.operationRunner->RunOperation(op2);

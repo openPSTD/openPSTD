@@ -59,15 +59,20 @@ namespace OpenPSTD
             //interface of LongOperation and BaseOperation
             std::string GetName();
             float GetProgress();
-            void Run(const Reciever &reciever);
-            bool Started();
-            bool Finished();
+            void Run(const Reciever &reciever) override;
+            bool Started() override;
+            bool Finished() override;
 
 
             //implementation of KernelCallback
-            void Callback(OpenPSTD::Kernel::CALLBACKSTATUS status, std::string message, int frame);
-            void WriteFrame(int frame, int domain, OpenPSTD::Kernel::PSTD_FRAME_PTR data);
-            void WriteSample(int startSample, int receiver, std::vector<float> data);
+            void Callback(OpenPSTD::Kernel::CALLBACKSTATUS status, std::string message, int frame) override;
+            void WriteFrame(int frame, int domain, OpenPSTD::Kernel::PSTD_FRAME_PTR data) override;
+            void WriteSample(int startSample, int receiver, std::vector<float> data) override;
+            virtual void Fatal(std::string message) override;
+            virtual void Error(std::string message) override;
+            virtual void Warning(std::string message) override;
+            virtual void Info(std::string message) override;
+            virtual void Debug(std::string message) override;
         };
     }
 }

@@ -61,7 +61,7 @@ namespace OpenPSTD {
 
         // Todo: Overwrite solver for GPU/Multithreaded
         void Solver::compute_propagation() {
-            this->callback->Callback(CALLBACKSTATUS::STARTING, "Starting simulation", -1);
+            this->callback->Info("Starting simulation");
             for (int frame = 0; frame < this->number_of_time_steps; frame++) {
                 for (auto domain:this->scene->domain_list) {
                     domain->push_values();
@@ -71,7 +71,7 @@ namespace OpenPSTD {
                     for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
                         for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
                             for (auto domain:this->scene->domain_list) {
-                                std::cout << *domain << std::endl;
+                                //std::cout << *domain << std::endl;
                                 if (not domain->is_rigid()) {
                                     if (domain->should_update[calc_dir]) {
                                         domain->calc(calc_dir, calc_type);
@@ -97,12 +97,13 @@ namespace OpenPSTD {
                 this->scene->apply_pml_matrices();
                 for (auto receiver:this->scene->receiver_list) {
                     receiver->compute_local_pressure();
-                    //Todo: Write this to a file or process in callback.
+                    if (frame % this->settings->GetSaveNth() == 0) {
+                        this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
+                    }
                 }
-                this->callback->Callback(CALLBACKSTATUS::RUNNING, "Finished frame: "+std::to_string(frame), frame);
+                this->callback->Info("Finished frame: "+std::to_string(frame));
             }
-            this->callback->Callback(CALLBACKSTATUS::FINISHED, "Succesfully finished simulation",
-                                     this->number_of_time_steps);
+            this->callback->Info("Succesfully finished simulation");
         }
 
         void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step,
@@ -160,6 +161,12 @@ namespace OpenPSTD {
                 }
             }
             return aligned_pressure;
+        }
+
+        PSTD_FRAME_PTR Solver::get_receiver_pressure(std::shared_ptr<Receiver> receiver) {
+            auto pressure_vector = std::make_shared<PSTD_FRAME>();
+            pressure_vector->push_back(receiver->received_values.back());
+            return pressure_vector;
         }
     }
 }

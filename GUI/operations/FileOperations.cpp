@@ -49,8 +49,7 @@ namespace OpenPSTD
         void OpenFileOperation::Run(const Reciever &reciever)
         {
             if(!reciever.Backgroundworker->IsIdle())
-                std::cout << "Error: background worker is still running" << std::endl;
-                //todo give correct error
+                this->notifications->Error("Error: background worker is still running");
             else
             {
                 reciever.model->documentAccess->Open(this->filename);
@@ -66,8 +65,7 @@ namespace OpenPSTD
         void NewFileOperation::Run(const Reciever &reciever)
         {
             if(!reciever.Backgroundworker->IsIdle())
-                std::cout << "Error: background worker is still running" << std::endl;
-                //todo give correct error
+                this->notifications->Error("Error: background worker is still running");
             else
             {
                 reciever.model->documentAccess->New(this->filename);
@@ -78,8 +76,7 @@ namespace OpenPSTD
         void SaveFileOperation::Run(const Reciever &reciever)
         {
             if(!reciever.Backgroundworker->IsIdle())
-                std::cout << "Error: background worker is still running" << std::endl;
-                //todo give correct error
+                this->notifications->Error("Error: background worker is still running");
             else
                 reciever.model->documentAccess->Save();
         }
@@ -91,8 +88,7 @@ namespace OpenPSTD
         void SaveAsFileOperation::Run(const Reciever &reciever)
         {
             if(!reciever.Backgroundworker->IsIdle())
-                std::cout << "Error: background worker is still running" << std::endl;
-                //todo give correct error
+                this->notifications->Error("Error: background worker is still running");
             else
                 reciever.model->documentAccess->SaveAs(this->filename);
         }

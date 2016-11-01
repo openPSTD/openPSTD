@@ -103,23 +103,48 @@ bool SimulateLOperation::Finished()
 void SimulateLOperation::Callback(CALLBACKSTATUS status, std::string message,
                                                  int frame)
 {
+}
+
+void SimulateLOperation::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data)
+{
     this->Update();
     if(frame >= 0)
     {
         this->currentFrame = frame;
     }
-    //todo something with status and message
-}
-
-void SimulateLOperation::WriteFrame(int frame, int domain, PSTD_FRAME_PTR data)
-{
     this->pstdFileAccess->GetDocument()->SaveNextResultsFrame(domain, data);
 }
 
 void SimulateLOperation::WriteSample(int startSample, int receiver, std::vector<float> data)
 {
+    this->Update();
     Kernel::PSTD_RECEIVER_DATA_PTR data_ptr = std::make_shared<Kernel::PSTD_RECEIVER_DATA>(data);
     this->pstdFileAccess->GetDocument()->SaveReceiverData(receiver, data_ptr);
+}
+
+void SimulateLOperation::Fatal(std::string message)
+{
+    this->notifications->Fatal(message);
+}
+
+void SimulateLOperation::Error(std::string message)
+{
+    this->notifications->Error(message);
+}
+
+void SimulateLOperation::Warning(std::string message)
+{
+    this->notifications->Warning(message);
+}
+
+void SimulateLOperation::Info(std::string message)
+{
+    this->notifications->Info(message);
+}
+
+void SimulateLOperation::Debug(std::string message)
+{
+    this->notifications->Debug(message);
 }
 
 

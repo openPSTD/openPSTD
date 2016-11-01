@@ -52,11 +52,12 @@ namespace OpenPSTD
              * true if the next update should throw cancel operation exception
              */
             bool cancels;
+
         protected:
             /**
-             * A simple function that should be called as many times as possible
+             * A simple method that should be called as many times as possible
              * whenever the state of the current operation can be aborted.
-             * This function can create a interruption exception(abort thread) or a cancalation exception.
+             * This method can create a interruption exception(abort thread) or a cancalation exception.
              */
             void Update();
 
@@ -64,33 +65,34 @@ namespace OpenPSTD
             LongOperation();
 
             /**
-             * Should be a thread safe function.
+             * Should be a thread safe method.
              * Retrieves the name of the operation.
              */
             virtual std::string GetName() = 0;
             /**
-             * Should be a thread safe function.
+             * Should be a thread safe method.
              * Retrieves the progress of the operation between 0 and 1. (inclusive, 0 = nothing done, 1 = finished)
              */
             virtual float GetProgress() = 0;
             /**
-             * Should be a thread safe function.
+             * Should be a thread safe method.
              * Checks if the Operation is started. If the operation is finished, then this should still be true.
              */
             virtual bool Started(){ return this->GetProgress() == 0; };
             /**
-             * Should be a thread safe function.
+             * Should be a thread safe method.
              * Checks if the operation is already finished.
              */
             virtual bool Finished(){ return this->GetProgress() == 1; };
 
             /**
-             * Should be a thread safe function.
+             * Should be a thread safe method.
              * This makes sure this operation is canceled when the next Update is called.
              */
             virtual bool Cancel();
-
         };
+
+
 
         class CancelLongOperationException : public std::exception
         {
@@ -112,6 +114,8 @@ namespace OpenPSTD
             std::shared_ptr<LongOperation> currentOperation;
             boost::recursive_mutex currentOperationMutex;
             std::weak_ptr<ReceiverBuilder> builder;
+            boost::mutex defaultNotificationHandlerMutex;
+            std::shared_ptr<NotificationsHandler> defaultNotificationHandler;
             bool running;
 
             void WorkerMethod();
@@ -161,6 +165,8 @@ namespace OpenPSTD
              * Get the name of the current long operation.
              */
             std::string GetCurrentName();
+
+            void SetDefaultNotificationHandler(std::shared_ptr<NotificationsHandler> notificationHandler);
 
         };
     }

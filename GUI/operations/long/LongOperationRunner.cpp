@@ -40,6 +40,7 @@ const char *CancelLongOperationException::what() const noexcept
 BackgroundWorker::BackgroundWorker(std::weak_ptr<ReceiverBuilder> builder)
 {
     this->builder = builder;
+    this->defaultNotificationHandler = std::make_shared<NullNotificationsHandler>();
 }
 
 void BackgroundWorker::Start()
@@ -115,18 +116,28 @@ void BackgroundWorker::WorkerMethod()
     {
         while (running)
         {
+            //queue handler
             {
                 boost::unique_lock<boost::mutex> lock(this->queueMutex);
+                // wait while the queue is empty
                 while(this->queue.size() == 0)
                 {
-                    queueCondition.wait(lock);
+                    queueCondition.wait(lock); //will temporary unlock queue
                 }
+                //dequeue the first element in the queue
                 {
                     boost::unique_lock<boost::recursive_mutex> lockCurrentOp(this->currentOperationMutex);
                     this->currentOperation = this->queue.front();
                 }
                 this->queue.pop();
             }
+            //check for the notification handler
+            if(!this->currentOperation->GetNotificationHandler())
+            {
+                boost::unique_lock<boost::mutex> lock(this->defaultNotificationHandlerMutex);
+                this->currentOperation->SetNotificationHandler(this->defaultNotificationHandler);
+            }
+            //create a receiver
             Reciever r;
             {
                 std::shared_ptr<ReceiverBuilder> builder = this->builder.lock();
@@ -134,13 +145,34 @@ void BackgroundWorker::WorkerMethod()
             }//make sure the shared_ptr to builder is removed
             try
             {
+                //run the operation
                 this->currentOperation->Run(r);
             }
             catch(CancelLongOperationException) //catches cancelation
             {
-                std::cout << "Cancels current operation" << std::endl;
+                this->currentOperation->GetNotificationHandler()->Warning("The operation is canceled");
             }
+            catch(thread_interrupted ex)//catches en rethrows interrupted
             {
+                throw ex;
+            }
+            catch(const std::exception& e) //catches the rest of the exceptions
+            {
+                this->currentOperation->GetNotificationHandler()->Fatal(e.what());
+            }
+            catch(const std::string& e)
+            {
+                this->currentOperation->GetNotificationHandler()->Fatal(e + "(developer: all exceptions should inherit from "
+                        "std::exception)");
+            }
+            catch(...)
+            {
+                this->currentOperation->GetNotificationHandler()->Fatal("Unkown error happened (developer: all "
+                                                                                "exceptions thrown should inherit from "
+                                                                                "std::exception).");
+            }
+
+            {//remove the current operation
                 boost::unique_lock<boost::recursive_mutex> lockCurrentOp(this->currentOperationMutex);
                 this->currentOperation = nullptr;
             }
@@ -157,6 +189,12 @@ void BackgroundWorker::StopCurrentOperation()
 {
     boost::unique_lock<boost::recursive_mutex> lock(this->currentOperationMutex);
     this->currentOperation->Cancel();
+}
+
+void BackgroundWorker::SetDefaultNotificationHandler(std::shared_ptr<NotificationsHandler> notificationHandler)
+{
+    boost::unique_lock<boost::mutex> lock(this->defaultNotificationHandlerMutex);
+    this->defaultNotificationHandler = notificationHandler;
 }
 
 
@@ -177,13 +215,3 @@ bool LongOperation::Cancel()
     this->cancels = true;
     return true;
 }
-
-
-
-
-
-
-
-
-
-

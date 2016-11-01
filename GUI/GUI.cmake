@@ -11,6 +11,7 @@ set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}
         GUI/operations/SelectionOperations.cpp
         GUI/operations/LambdaOperation.cpp
         GUI/operations/SettingsOperations.cpp
+        GUI/operations/DialogOperations.cpp
         GUI/operations/long/LOperationOperation.cpp)
 # Long operations
 set(SOURCE_FILES_GUI ${SOURCE_FILES_GUI}

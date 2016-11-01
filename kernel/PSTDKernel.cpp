@@ -84,6 +84,7 @@ namespace OpenPSTD {
             scene->add_pml_domains();
             for (auto domain:scene->domain_list) {
                 domain->post_initialization();
+                cout << *domain << endl;
             }
         }
 
@@ -101,9 +102,10 @@ namespace OpenPSTD {
         void PSTDKernel::add_receivers() {
             using namespace Kernel;
             //Inconsistent: We created domains in this class, and receivers in the scene class
-            for (auto receiver: this->config->Receivers) {
+            for (unsigned long i = 0; i < this->config->Receivers.size(); i++) {
+                auto receiver = this->config->Receivers.at(i);
                 vector<float> location = scale_to_grid(receiver);
-                this->scene->add_receiver(location.at(0), location.at(1), 0);
+                this->scene->add_receiver(location.at(0), location.at(1), 0, i);
             }
         }
 

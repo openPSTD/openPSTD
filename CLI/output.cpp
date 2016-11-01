@@ -37,5 +37,33 @@ namespace OpenPSTD
             Kernel::PSTD_RECEIVER_DATA_PTR data_ptr = std::make_shared<Kernel::PSTD_RECEIVER_DATA>(data);
             _file->SaveReceiverData(receiver, data_ptr);
         }
+
+        void CLIOutput::Fatal(std::string message)
+        {
+            std::cerr << "FATAL: " << message << std::endl;
+        }
+
+        void CLIOutput::Error(std::string message)
+        {
+            std::cerr << "ERROR: " << message << std::endl;
+        }
+
+        void CLIOutput::Warning(std::string message)
+        {
+            std::cout << "WARNING: " << message << std::endl;
+        }
+
+        void CLIOutput::Info(std::string message)
+        {
+            std::cout << message << std::endl;
+        }
+
+        void CLIOutput::Debug(std::string message)
+        {
+            if(this->_debugInfo)
+            {
+                std::cout << message << std::endl;
+            }
+        }
     }
 }

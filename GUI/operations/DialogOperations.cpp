@@ -1,5 +1,4 @@
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
 // This file is part of openPSTD.                                       //
 //                                                                      //
 // openPSTD is free software: you can redistribute it and/or modify     //
@@ -16,45 +15,49 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#version 330
 
-layout(points) in;
-layout(line_strip, max_vertices = 21) out;
+//////////////////////////////////////////////////////////////////////////
+//
+// Date: 18-10-2016
+//
+//
+// Authors: M. R. Fortuin
+//
+//
+// Purpose:
+//
+//
+//////////////////////////////////////////////////////////////////////////
 
-uniform mat4 u_view;
+#include "DialogOperations.h"
+#include <QMessageBox>
 
-in vec4 v_color[];
-out vec4 f_Color;
+using namespace OpenPSTD::GUI;
 
-const float PI = 3.1415926;
-
-void main()
+DialogOperations::DialogOperations(DialogOperationsSeverity severity, std::string text): _severity(severity),
+                                                                                         _text(text)
 {
-    float SizeCircle = 0.1;
-    int PointsInCircle = 16;
-    vec4 SizeLines = vec4(0.2, 0.0, 0.0, 0.0);
-    vec4 SizeLines2 = vec4(0.0, 0.2, 0.0, 0.0);
 
-    f_Color = v_color[0];
+}
 
-    for (int i = 0; i <= PointsInCircle; i++)
+void DialogOperations::Run(const Reciever &reciever)
+{
+    QMessageBox msgBox;
+    msgBox.setText(QString::fromStdString(_text));
+    //msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    switch(_severity)
     {
-        // Angle between each side in radians
-        float ang = PI * 2.0 / PointsInCircle * i;
-
-        // Offset from center of point (0.3 to accomodate for aspect ratio)
-        vec4 offset = vec4(cos(ang) * SizeCircle, -sin(ang) * SizeCircle, 0.0, 0.0);
-        gl_Position = u_view * (gl_in[0].gl_Position + offset);
-
-        EmitVertex();
+        case DialogOperationsSeverity::Warning:
+            msgBox.setIcon(QMessageBox::Warning);
+            break;
+        case DialogOperationsSeverity::Information:
+            msgBox.setIcon(QMessageBox::Information);
+            break;
+        case DialogOperationsSeverity::Critical:
+            msgBox.setIcon(QMessageBox::Critical);
+            break;
     }
-    EndPrimitive();
-
-    gl_Position = u_view * (gl_in[0].gl_Position - SizeLines); EmitVertex();
-    gl_Position = u_view * (gl_in[0].gl_Position + SizeLines); EmitVertex();
-    EndPrimitive();
-
-    gl_Position = u_view * (gl_in[0].gl_Position - SizeLines2); EmitVertex();
-    gl_Position = u_view * (gl_in[0].gl_Position + SizeLines2); EmitVertex();
-    EndPrimitive();
+    msgBox.exec();
 }
