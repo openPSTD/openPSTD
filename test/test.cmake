@@ -17,6 +17,7 @@ set(SOURCE_FILES_TEST_DG
         test/Kernel/DG/DMatrix.cpp
         test/Kernel/DG/GeometricFactors.cpp
         test/Kernel/DG/Lift.cpp
+        test/Kernel/DG/Simplex.cpp
         test/Kernel/DG/Nodes.cpp)
 
 #set(SOURCE_FILES_TEST_DG test/Kernel/DG/WarpFactor.cpp)
