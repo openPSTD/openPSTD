@@ -35,6 +35,8 @@
 #include <Eigen/Dense>
 #include "GeneralTypes.h"
 #include "Jacobi.h"
+#include "Coordinates.h"
+#include "Simplex.h"
 
 namespace OpenPSTD
 {
@@ -68,6 +70,32 @@ namespace OpenPSTD
                 for (int j=1; j<=(N+1); ++j) {
                     int J = j-1;
                     result.col(J) = GradJacobiP<SimpleType>(r, 0, 0, j-1);
+                }
+                return result;
+            }
+
+            /**
+             * Initialize the 2D Vandermonde Matrix,  V_{ij} = phi_j(r_i, s_i);
+             * @param N
+             * @param rs
+             * @return
+             */
+            template <typename SimpleType>
+            MatrixX<SimpleType> Vandermonde2D(int N, MatrixX<SimpleType> rs)
+            {
+                MatrixX<SimpleType> result(rs.rows(), (N+1)*(N+2)/2);
+
+                // Transfer to (a,b) coordinates
+                ArrayXX<SimpleType> ab = rstoab<SimpleType>(rs.array());
+
+                int sk = 0;
+                for(int i = 0; i <= N; i++)
+                {
+                    for (int j = 0; j <= N-i; ++j)
+                    {
+                        result.col(sk) = Simplex2DP(ab, i, j);
+                        sk++;
+                    }
                 }
                 return result;
             }
