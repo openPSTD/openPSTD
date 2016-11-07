@@ -53,8 +53,10 @@ namespace OpenPSTD
              * @return
              */
             template <typename SimpleType>
-            VectorX<SimpleType> Simplex2DP(VectorX<SimpleType> a, VectorX<SimpleType> b, int i, int j)
+            VectorX<SimpleType> Simplex2DP(ArrayXX<SimpleType> ab, int i, int j)
             {
+                VectorX<SimpleType> a = ab.col(0);
+                VectorX<SimpleType> b = ab.col(1);
                 ArrayX<SimpleType> h1 = JacobiP(a, (SimpleType)0, (SimpleType)0, i);
                 ArrayX<SimpleType> h2 = JacobiP(b, (SimpleType)2*i+1, (SimpleType)0, j);
                 ArrayX<SimpleType> tmp = b.unaryExpr([i](SimpleType x){return std::pow(1-x, i); });
