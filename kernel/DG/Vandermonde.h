@@ -100,6 +100,46 @@ namespace OpenPSTD
                 return result;
             }
 
+            template <typename SimpleType>
+            struct GradVandermonde2DResult
+            {
+            public:
+                MatrixX<SimpleType> V2Dr;
+                MatrixX<SimpleType> V2Ds;
+            };
+
+            /**
+             * Initialize the gradient of the modal basis (i,j) at (r,s) at order N
+             * @param N order
+             * @param rs rs positions
+             * @return the gradiant of the model basis
+             */
+            template <typename SimpleType>
+            GradVandermonde2DResult<SimpleType> GradVandermonde2D(int N, MatrixX<SimpleType> rs)
+            {
+                GradVandermonde2DResult<SimpleType> result;
+
+                result.V2Dr = MatrixX<SimpleType>(rs.rows(), (N+1)*(N+2)/2);
+                result.V2Ds = MatrixX<SimpleType>(rs.rows(), (N+1)*(N+2)/2);
+
+                //% find tensor-product coordinates
+                ArrayXX<SimpleType> ab = rstoab<SimpleType>(rs.array());
+
+                //% Initialize matrices
+                int sk = 0;
+                for(int i = 0; i <= N; i++)
+                {
+                    for (int j = 0; j <= N-i; ++j)
+                    {
+                        auto gradSimplexResult = GradSimplex2DP(ab, i, j);
+                        result.V2Dr.col(sk) = gradSimplexResult.dmodedr;
+                        result.V2Ds.col(sk) = gradSimplexResult.dmodeds;
+                        sk++;
+                    }
+                }
+                return result;
+            }
+
         }
     }
 }
