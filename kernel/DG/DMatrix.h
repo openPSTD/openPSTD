@@ -51,7 +51,40 @@ namespace OpenPSTD
             {
                 MatrixX<SimpleType> Vr = GradVandermonde1D(N, r);
                 //return Vr.cwiseQuotient(V);
-                return Vr*V.inverse();
+                return Vr*V.fullPivLu().inverse();
+            }
+
+
+            template <typename SimpleType>
+            struct DMatrices2DResult
+            {
+            public:
+                MatrixX<SimpleType> Dr;
+                MatrixX<SimpleType> Ds;
+            };
+
+            /**
+             * Initialize the (r,s) differentiation matrices
+             * on the simplex, evaluated at (r,s) at order N
+             * @param N
+             * @param rs
+             * @param V
+             * @return
+             */
+            template <typename SimpleType>
+            DMatrices2DResult<SimpleType> DMatrices2D(int N, MatrixX<SimpleType> rs, MatrixX<SimpleType> V)
+            {
+                DMatrices2DResult<SimpleType> result;
+
+                //[Vr, Vs] = GradVandermonde2D(N, r, s);
+                GradVandermonde2DResult<SimpleType> gradV = GradVandermonde2D(N, rs);
+
+                //Dr = Vr/V; Ds = Vs/V;
+                MatrixX<SimpleType> vInv = V.fullPivLu().inverse();
+                result.Dr = gradV.V2Dr*vInv;
+                result.Ds = gradV.V2Ds*vInv;
+
+                return result;
             }
         }
     }
