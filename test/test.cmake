@@ -5,22 +5,22 @@
 set(SOURCE_FILES_TEST ${SOURCE_FILES_TEST} ${SOURCE_FILES_GUI} ${SOURCE_FILES_CLI})
 
 set(SOURCE_FILES_TEST_DG
-        test/Kernel/DG/DG.cpp
-        test/Kernel/DG/Advec.cpp
-        test/Kernel/DG/Maxwell.cpp
-        test/Kernel/DG/LEE.cpp
-        test/Kernel/DG/JacobiGQ.cpp
-        test/Kernel/DG/JacobiGL.cpp
-        test/Kernel/DG/JacobiP.cpp
-        test/Kernel/DG/WarpFactor.cpp
-        test/Kernel/DG/Vandermonde.cpp
+        #test/Kernel/DG/DG.cpp
+        #test/Kernel/DG/Advec.cpp
+        #test/Kernel/DG/Maxwell.cpp
+        #test/Kernel/DG/LEE.cpp
+        #test/Kernel/DG/JacobiGQ.cpp
+        #test/Kernel/DG/JacobiGL.cpp
+        #test/Kernel/DG/JacobiP.cpp
+        #test/Kernel/DG/WarpFactor.cpp
+        #test/Kernel/DG/Vandermonde.cpp
         test/Kernel/DG/DMatrix.cpp
-        test/Kernel/DG/GeometricFactors.cpp
-        test/Kernel/DG/Lift.cpp
-        test/Kernel/DG/Simplex.cpp
-        test/Kernel/DG/Coordinates.cpp
-        test/Kernel/DG/Nodes.cpp
-        test/Kernel/DG/Grad.cpp
+        #test/Kernel/DG/GeometricFactors.cpp
+        #test/Kernel/DG/Lift.cpp
+        #test/Kernel/DG/Simplex.cpp
+        #test/Kernel/DG/Coordinates.cpp
+        #test/Kernel/DG/Nodes.cpp
+        #test/Kernel/DG/Grad.cpp
         )
 
 #set(SOURCE_FILES_TEST_DG test/Kernel/DG/WarpFactor.cpp)

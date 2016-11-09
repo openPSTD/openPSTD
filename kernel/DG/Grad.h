@@ -52,6 +52,9 @@ namespace OpenPSTD
                 VectorX<SimpleType> uy;
             };
 
+            /**
+             * Compute 2D gradient field of scalar u
+             */
             template <typename SimpleType>
             Grad2DResult<SimpleType> Grad2D(
                     MatrixX<SimpleType> Dr,
