@@ -19,7 +19,9 @@ set(SOURCE_FILES_TEST_DG
         test/Kernel/DG/Lift.cpp
         test/Kernel/DG/Simplex.cpp
         test/Kernel/DG/Coordinates.cpp
-        test/Kernel/DG/Nodes.cpp)
+        test/Kernel/DG/Nodes.cpp
+        test/Kernel/DG/Grad.cpp
+        )
 
 #set(SOURCE_FILES_TEST_DG test/Kernel/DG/WarpFactor.cpp)
 
