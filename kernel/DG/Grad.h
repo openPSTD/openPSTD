@@ -35,8 +35,6 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include "GeneralTypes.h"
-#include "Jacobi.h"
-
 
 namespace OpenPSTD
 {
