@@ -69,6 +69,53 @@ namespace OpenPSTD
                 return GeometricFactors1D_rx(GeometricFactors1D_J(x, Dr));
             }
 
+
+            template<typename SimpleType>
+            struct GeometricFactors2DResult {
+                MatrixX<SimpleType> rx;
+                MatrixX<SimpleType> sx;
+                MatrixX<SimpleType> ry;
+                MatrixX<SimpleType> sy;
+                MatrixX<SimpleType> J;
+            };
+
+            /**
+             * Compute the metric elements for the local mappings of the elements
+             * @param x
+             * @param y
+             * @param Dr
+             * @param Ds
+             * @return
+             */
+            template<typename SimpleType>
+            GeometricFactors2DResult<SimpleType> GeometricFactors2D(const MatrixX<SimpleType>& x, const MatrixX<SimpleType>& y, const MatrixX<SimpleType>& Dr, const MatrixX<SimpleType>& Ds)
+            {
+                GeometricFactors2DResult<SimpleType> result;
+                // xr = Dr*x;
+                // xs = Ds*x;
+                // yr = Dr*y;
+                // ys = Ds*y;
+                ArrayXX<SimpleType> xr = Dr*x;
+                ArrayXX<SimpleType> xs = Ds*x;
+                ArrayXX<SimpleType> yr = Dr*y;
+                ArrayXX<SimpleType> ys = Ds*y;
+
+                // J = -xs.*yr + xr.*ys;
+                ArrayXX<SimpleType> J = -xs*yr + xr*ys; //this is done so that J is a array in place of a matrix
+                result.J = J;
+
+                // rx = ys./J;
+                // sx =-yr./J;
+                // ry =-xs./J;
+                // sy = xr./J;
+                result.rx =  ys/J;
+                result.sx = -yr/J;
+                result.ry = -xs/J;
+                result.sy =  xr/J;
+
+                return result;
+            }
+
         }
     }
 }
