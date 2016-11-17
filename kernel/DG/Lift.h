@@ -42,7 +42,6 @@ namespace OpenPSTD
     {
         namespace DG
         {
-            const float NODETOL = 1e-8f;
             /**
              * Compute surface integral term in DG formulation.
              * @param Np: Number of points in an element

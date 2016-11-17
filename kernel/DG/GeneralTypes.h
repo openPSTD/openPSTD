@@ -40,6 +40,8 @@ namespace OpenPSTD
     {
         namespace DG
         {
+            const float NODETOL = 1e-8f;
+
             /**
              * short hand for a Vector
              */
