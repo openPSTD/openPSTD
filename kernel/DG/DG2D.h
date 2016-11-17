@@ -94,7 +94,7 @@ namespace OpenPSTD
                 MatrixX<SimpleType> Ds;
                 MatrixX<SimpleType> rs;
 
-                System1D(int N, VectorX<SimpleType> x1, VectorX<SimpleType> x2, std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> de)
+                System2D(int N, VectorX<SimpleType> x1, VectorX<SimpleType> x2, std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> de)
                 {
                     this->N = N;
                     this->_DE = de;
@@ -449,6 +449,9 @@ namespace OpenPSTD
 
                 void CalcFscale(int N, const MatrixX<SimpleType> &rs)
                 {
+                    VectorX<SimpleType> r = rs.col(0);
+                    VectorX<SimpleType> s = rs.col(1);
+
                     int Nfp = N+1;
                     this->Fscale = VectorX<SimpleType>(3*Nfp);
 
