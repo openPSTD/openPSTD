@@ -92,6 +92,7 @@ namespace OpenPSTD
                 MatrixX<SimpleType> LIFT;
                 MatrixX<SimpleType> Dr;
                 MatrixX<SimpleType> Ds;
+                MatrixX<SimpleType> rs;
 
                 System1D(int N, VectorX<SimpleType> x1, VectorX<SimpleType> x2, std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> de)
                 {
@@ -99,15 +100,15 @@ namespace OpenPSTD
                     this->_DE = de;
 
                     // Compute nodal set
-                    MatrixX<SimpleType> xy = Nodes2D(N);
-                    MatrixX<SimpleType> rs = xytors(N);
+                    MatrixX<SimpleType> xy = Nodes2D<SimpleType>(N);
+                    MatrixX<SimpleType> rs = xytors<SimpleType>(N);
 
                     // Build reference element matrices
-                    V = Vandermonde2D(N,r,s);
-                    auto DMatrices = DMatrices2D(N, rs, V);
+                    MatrixX<SimpleType> V = Vandermonde2D<SimpleType>(N,rs);
+                    auto DMatrices = DMatrices2D<SimpleType>(N, rs, V);
                     this->Dr = DMatrices.Dr;
                     this->Ds = DMatrices.Ds;
-                    this->LIFT = Lift2D(N, 3, V, rs);
+                    this->LIFT = Lift2D<SimpleType>(N, 3, V, rs);
                 }
 
                 void BuildSquareGrid(VectorX<SimpleType> x1, VectorX<SimpleType> x2, SimpleType rectSize)
@@ -163,6 +164,11 @@ namespace OpenPSTD
                         }
                     }
 
+                    for (int i = 0; i < Edges.size(); ++i)
+                    {
+                        Edges[i]->RegisterEdgeWithVertices();
+                    }
+
                     for (int j = 0; j < heightElements; ++j)
                     {
                         for (int i = 0; i < widthElements; ++i)
@@ -173,7 +179,7 @@ namespace OpenPSTD
                             v.push_back(this->Vertices[widthVertices * (j + 1) + (i + 1)]);
                             auto tr = std::make_shared<Element2D<SimpleType, DEElementStore>>();
                             Element.push_back(tr);
-                            tr->init(v, N, de->GetNumberOfVariables(), rs, Dr, Ds);
+                            tr->init(v, N, _DE->GetNumberOfVariables(), rs, Dr, Ds);
 
                             v.clear();
                             v.push_back(this->Vertices[widthVertices * (j + 0) + (i + 0)]);
@@ -181,13 +187,13 @@ namespace OpenPSTD
                             v.push_back(this->Vertices[widthVertices * (j + 1) + (i + 0)]);
                             auto bl = std::make_shared<Element2D<SimpleType, DEElementStore>>();
                             Element.push_back(bl);
-                            bl->init(v, N, de->GetNumberOfVariables(), rs, Dr, Ds);
+                            bl->init(v, N, _DE->GetNumberOfVariables(), rs, Dr, Ds);
                         }
                     }
 
                     for(int k = 0; k < Element.size(); k++)
                     {
-                        _DE->Initialize(Elements[k]);
+                        _DE->Initialize(this->Element[k]);
                     }
                 }
 
@@ -244,8 +250,7 @@ namespace OpenPSTD
 
                 virtual SimpleType GetMaxDT()
                 {
-                    //todo implement DTScale
-                    VectorX<SimpleType> dtscale(Element.size());
+                    VectorX<SimpleType> dtscale = CalculateDTScale();
                     return _DE->GetMaxDt(dtscale, N);
                 };
 
@@ -253,9 +258,19 @@ namespace OpenPSTD
                 {
                     return _DE->GetNumberOfVariables();
                 };
+
+                VectorX<SimpleType> CalculateDTScale()
+                {
+                    VectorX<SimpleType> dtscale(this->Element.size());
+                    for (int i = 0; i < this->Element.size(); ++i)
+                    {
+                        dtscale[i] = this->Element[i]->GetDTScale();
+                    }
+                    return dtscale;
+                }
             };
 
-            template<typename SimpleType, typename DEElementStore>
+            template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
             class Element2D : public std::enable_shared_from_this<Element2D<SimpleType, DEElementStore>>
             {
             public:
@@ -268,45 +283,62 @@ namespace OpenPSTD
                 VectorX<SimpleType> ry;
                 VectorX<SimpleType> sy;
                 VectorX<SimpleType> J;
+                VectorX<SimpleType> nx;
+                VectorX<SimpleType> ny;
+                VectorX<SimpleType> sJ;
+                VectorX<SimpleType> Fscale;
                 std::vector<VectorX<SimpleType>> u;
                 DEElementStore DEStore;
-                MatrixX<SimpleType> Fscale;
 
+                /**
+                 *
+                 * @param v counter clockwise ordered
+                 * @param N
+                 * @param nVariables
+                 * @param rs
+                 * @param Dr
+                 * @param Ds
+                 */
                 void init(std::vector<std::shared_ptr<Vertex2D<SimpleType, DEElementStore>>> v, int N, int nVariables,
                           const MatrixX<SimpleType> &rs, const MatrixX<SimpleType> &Dr, const MatrixX<SimpleType> &Ds)
                 {
                     for(int i = 0; i < v.size(); i++)
                     {
                         this->Vertices.push_back(v[i]);
+
+                        std::shared_ptr<Edge2D<SimpleType, DEElementStore>> edge = v[i]->FindEdgeTo(
+                                v[(i + 1) % v.size()]);
+
                         auto f = std::make_shared<Face2D<SimpleType, DEElementStore>>();
                         Faces.push_back(f);
                         f->Element = this->shared_from_this();
-                        //todo fix normals
-                        //f->Normal = ;
-                        f->Edge = v[i].FindEdgeTo(v[(i+1)%v.size()]);
+
+                        f->Edge = edge;
+                        edge->Faces.push_back(f);
                     }
 
                     ArrayX<SimpleType> r = rs.col(0);
                     ArrayX<SimpleType> s = rs.col(1);
                     //x = 0.5*(-(r+s)*VX(va)+(1+r)*VX(vb)+(1+s)*VX(vc));
                     x = 0.5*(
-                            -(r+s)*this->Vertices[0]->Position[0]
-                            +(r+1)*this->Vertices[1]->Position[0]
-                            +(s+1)*this->Vertices[2]->Position[0]);
+                            -(r+s)*this->Vertices[0].lock()->Position[0]
+                            +(r+1)*this->Vertices[1].lock()->Position[0]
+                            +(s+1)*this->Vertices[2].lock()->Position[0]);
                     //y = 0.5*(-(r+s)*VY(va)+(1+r)*VY(vb)+(1+s)*VY(vc));
                     y = 0.5*(
-                            -(r+s)*this->Vertices[0]->Position[1]
-                            +(r+1)*this->Vertices[1]->Position[1]
-                            +(s+1)*this->Vertices[2]->Position[1]);
+                            -(r+s)*this->Vertices[0].lock()->Position[1]
+                            +(r+1)*this->Vertices[1].lock()->Position[1]
+                            +(s+1)*this->Vertices[2].lock()->Position[1]);
 
-                    auto geometric = GeometricFactors2D(x, y, Dr, Ds);
+                    auto geometric = GeometricFactors2D<SimpleType>(x, y, Dr, Ds);
                     this->J = geometric.J;
                     this->rx = geometric.rx;
                     this->sx = geometric.sx;
                     this->ry = geometric.ry;
                     this->sy = geometric.sy;
 
-                    //todo calculate Fscale
+                    this->CalcNormal(N, rs, Dr, Ds);
+                    this->CalcFscale(N, rs);
 
                     for(int i = 0; i < nVariables; i++)
                     {
@@ -314,18 +346,150 @@ namespace OpenPSTD
                     }
                 }
 
-                MatrixX<SimpleType> CalcNormals()
+                SimpleType GetDTScale()
                 {
-                    return MatrixX<SimpleType>();
+                    SimpleType len1 = std::sqrt(std::pow(Vertices[0].lock()->Position[0]-Vertices[1].lock()->Position[0], 2)+
+                                                std::pow(Vertices[0].lock()->Position[1]-Vertices[1].lock()->Position[1], 2));
+                    SimpleType len2 = std::sqrt(std::pow(Vertices[1].lock()->Position[0]-Vertices[2].lock()->Position[0], 2)+
+                                                std::pow(Vertices[1].lock()->Position[1]-Vertices[2].lock()->Position[1], 2));
+                    SimpleType len3 = std::sqrt(std::pow(Vertices[2].lock()->Position[0]-Vertices[0].lock()->Position[0], 2)+
+                                                std::pow(Vertices[2].lock()->Position[1]-Vertices[0].lock()->Position[1], 2));
+                    SimpleType sper = (len1+len2+len3)/2.0;
+                    SimpleType Area = std::sqrt(sper*(sper-len1)*(sper-len2)*(sper-len3));
+
+                    return Area/sper;
+                }
+
+            private:
+                void CalcNormal(int N, const MatrixX<SimpleType> &rs, const MatrixX<SimpleType> &Dr, const MatrixX<SimpleType> &Ds)
+                {
+                    int Nfp = N+1;
+
+                    VectorX<SimpleType> xr = Dr*x;
+                    VectorX<SimpleType> yr = Dr*y;
+                    VectorX<SimpleType> xs = Ds*x;
+                    VectorX<SimpleType> ys = Ds*y;
+
+                    VectorX<SimpleType> r = rs.col(0);
+                    VectorX<SimpleType> s = rs.col(1);
+
+                    int j = 0;
+                    VectorX<SimpleType> fxr(3*Nfp);
+                    VectorX<SimpleType> fyr(3*Nfp);
+                    VectorX<SimpleType> fxs(3*Nfp);
+                    VectorX<SimpleType> fys(3*Nfp);
+
+                    //face 1
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(s(i)+1) < NODETOL) //fmask1   = find( abs(s+1) < NODETOL)';
+                        {
+                            fxr(j) = xr(i);
+                            fyr(j) = yr(i);
+                            fxs(j) = xs(i);
+                            fys(j) = ys(i);
+                            j++;
+                        }
+                    }
+
+                    //face 2
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(r(i)+s(i)) < NODETOL) //fmask2   = find( abs(r+s) < NODETOL)';
+                        {
+                            fxr(j) = xr(i);
+                            fyr(j) = yr(i);
+                            fxs(j) = xs(i);
+                            fys(j) = ys(i);
+                            j++;
+                        }
+                    }
+
+                    //face 3
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(r(i)+1) < NODETOL) //fmask3   = find( abs(r+1) < NODETOL)';
+                        {
+                            fxr(j) = xr(i);
+                            fyr(j) = yr(i);
+                            fxs(j) = xs(i);
+                            fys(j) = ys(i);
+                            j++;
+                        }
+                    }
+
+                    ArrayX<SimpleType> nx(3*Nfp);
+                    ArrayX<SimpleType> ny(3*Nfp);
+
+                    //% face 1
+                    //nx(fid1, :) =  fyr(fid1, :); ny(fid1, :) = -fxr(fid1, :);
+                    nx.segment(0*Nfp, Nfp) = fyr.segment(0*Nfp, Nfp);
+                    ny.segment(0*Nfp, Nfp) = -fxr.segment(0*Nfp, Nfp);
+
+                    //% face 2
+                    //nx(fid2, :) =  fys(fid2, :)-fyr(fid2, :); ny(fid2, :) = -fxs(fid2, :)+fxr(fid2, :);
+                    nx.segment(1*Nfp, Nfp) = fys.segment(1*Nfp, Nfp)-fyr.segment(1*Nfp, Nfp);
+                    ny.segment(1*Nfp, Nfp) = -fxs.segment(1*Nfp, Nfp)+fxr.segment(1*Nfp, Nfp);
+
+                    //% face 3
+                    //nx(fid3, :) = -fys(fid3, :); ny(fid3, :) =  fxs(fid3, :);
+                    nx.segment(2*Nfp, Nfp) = -fys.segment(2*Nfp, Nfp);
+                    ny.segment(2*Nfp, Nfp) = fxs.segment(2*Nfp, Nfp);
+
+                    // % normalise
+                    // sJ = sqrt(nx.*nx+ny.*ny); nx = nx./sJ; ny = ny./sJ;
+                    ArrayX<SimpleType> sJ = (nx.square()+ny.square()).sqrt();
+                    nx = nx/sJ;
+                    ny = ny/sJ;
+
+                    this->nx = nx;
+                    this->ny = ny;
+                    this->sJ = sJ;
+                }
+
+                void CalcFscale(int N, const MatrixX<SimpleType> &rs)
+                {
+                    int Nfp = N+1;
+                    this->Fscale = VectorX<SimpleType>(3*Nfp);
+
+                    int j = 0;
+
+                    //face 1
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(s(i)+1) < NODETOL) //fmask1   = find( abs(s+1) < NODETOL)';
+                        {
+                            this->Fscale(j) = sJ(j)/J(i);
+                            j++;
+                        }
+                    }
+
+                    //face 2
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(r(i)+s(i)) < NODETOL) //fmask2   = find( abs(r+s) < NODETOL)';
+                        {
+                            this->Fscale(j) = sJ(j)/J(i);
+                            j++;
+                        }
+                    }
+
+                    //face 3
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(r(i)+1) < NODETOL) //fmask3   = find( abs(r+1) < NODETOL)';
+                        {
+                            this->Fscale(j) = sJ(j)/J(i);
+                            j++;
+                        }
+                    }
                 }
             };
 
-            template<typename SimpleType, typename DEElementStore>
+            template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
             class Face2D: public std::enable_shared_from_this<Face2D<SimpleType, DEElementStore>>
             {
             public:
-                VectorX<SimpleType> Normal;
-
                 std::weak_ptr<Element2D<SimpleType, DEElementStore>> Element;
                 std::weak_ptr<Edge2D<SimpleType, DEElementStore>> Edge;
 
@@ -337,7 +501,7 @@ namespace OpenPSTD
                     {
                         if(e->Faces[i].lock() != t)
                         {
-                            return v->Faces[i].lock();
+                            return e->Faces[i].lock();
                         }
                     }
                     return std::shared_ptr<Face2D<SimpleType, DEElementStore>>();
@@ -353,17 +517,22 @@ namespace OpenPSTD
                 }
             };
 
-            template<typename SimpleType, typename DEElementStore>
-            class Edge2D: public std::enable_shared_from_this<System2D<SimpleType, DEElementStore>>
+            template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
+            class Edge2D: public std::enable_shared_from_this<Edge2D<SimpleType, DEElementStore>>
             {
             public:
                 Edge2D(std::weak_ptr<Vertex2D<SimpleType, DEElementStore>> v1, std::weak_ptr<Vertex2D<SimpleType, DEElementStore>> v2)
                 {
                     this->v1 = v1;
                     this->v2 = v2;
+                }
 
-                    this->v1.lock()->Edges.push_back(this->shared_from_this());
-                    this->v2.lock()->Edges.push_back(this->shared_from_this());
+                void RegisterEdgeWithVertices()
+                {
+                    auto v1s = this->v1.lock();
+                    v1s->Edges.push_back(this->shared_from_this());
+                    auto v2s = this->v2.lock();
+                    v2s->Edges.push_back(this->shared_from_this());
                 }
 
                 std::vector<std::weak_ptr<Face2D<SimpleType, DEElementStore>>> Faces;
@@ -373,21 +542,27 @@ namespace OpenPSTD
 
                 bool IsConnectedTo(std::weak_ptr<Vertex2D<SimpleType, DEElementStore>> v)
                 {
-                    return v == v1 || v == v2;
+                    return v.lock() == v1.lock() || v.lock() == v2.lock();
                 }
             };
 
-            template<typename SimpleType, typename DEElementStore>
+            template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
             class Vertex2D
             {
             public:
                 VectorX<SimpleType> Position;
                 std::vector<std::weak_ptr<Edge2D<SimpleType, DEElementStore>>> Edges;
 
-                std::shared_ptr<Edge2D<SimpleType, DEElementStore>> FindEdgeTo(Vertex2D v)
+                std::shared_ptr<Edge2D<SimpleType, DEElementStore>> FindEdgeTo(std::shared_ptr<Vertex2D<SimpleType, DEElementStore>> v)
                 {
-                    auto it = std::find(Edges.begin(), Edges.end(), [v](const Edge2D & e) { return e.IsConnectedTo(v); });
-                    return it->lock();
+                    for (int i = 0; i < Edges.size(); ++i)
+                    {
+                        if(Edges[i].lock()->IsConnectedTo(v))
+                        {
+                            return Edges[i].lock();
+                        }
+                    }
+                    return std::shared_ptr<Edge2D<SimpleType, DEElementStore>>();
                 };
             };
         }
