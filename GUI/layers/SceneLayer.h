@@ -66,7 +66,6 @@ namespace OpenPSTD
             unsigned int positionsBuffer;
             unsigned int valuesBuffer;
             int lines;
-            float lineWidth;
             QMatrix4x4 viewMatrix;
 
             std::unique_ptr<std::vector<Edge>> GetAllEdges(std::shared_ptr<Model> const &m);

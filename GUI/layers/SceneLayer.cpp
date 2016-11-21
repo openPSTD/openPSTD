@@ -52,16 +52,21 @@ namespace OpenPSTD
                     new std::string(":/GPU/Scene2D.vert"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Scene2D.frag"));
+            std::unique_ptr<std::string> geometricFile = std::unique_ptr<std::string>(
+                    new std::string(":/GPU/Line.geo.glsl"));
+
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
             program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
             program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString::fromStdString(*fragmentFile));
+            program->addShaderFromSourceFile(QOpenGLShader::Geometry, QString::fromStdString(*geometricFile));
             program->link();
 
             program->bind();
 
             program->setUniformValue("vmin", 0.0f);
             program->setUniformValue("vmax", 1.0f);
+            program->setUniformValue("thickness", 0.05f);
         }
 
         void SceneLayer::PaintGL(QObject *context, std::unique_ptr<QOpenGLFunctions, void (*)(void *)> const &f)
@@ -70,19 +75,25 @@ namespace OpenPSTD
 
             program->enableAttributeArray("a_position");
             f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+            GLError("SceneLayer f->glBindBuffer");
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+            GLError("SceneLayer f->glVertexAttribPointer");
 
             program->enableAttributeArray("a_value");
             f->glBindBuffer(GL_ARRAY_BUFFER, this->valuesBuffer);
+            GLError("SceneLayer f->glBindBuffer");
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_value"), 1, GL_FLOAT, GL_FALSE, 0, 0);
+            GLError("SceneLayer f->glVertexAttribPointer");
 
-            f->glLineWidth(5.0f);
             f->glDrawArrays(GL_LINES, 0, lines * 2);
+            GLError("SceneLayer f->glDrawArrays");
             program->disableAttributeArray("a_position");
             program->disableAttributeArray("a_value");
 
             f->glBindTexture(GL_TEXTURE_1D, 0);
+            GLError("SceneLayer f->glBindTexture");
             f->glActiveTexture(GL_TEXTURE0);
+            GLError("SceneLayer f->glActiveTexture");
 
             for(int i = 0; i < this->dimensions->size(); i++)
             {
@@ -104,7 +115,7 @@ namespace OpenPSTD
 
             if (m->settings->IsChanged())
             {
-                this->lineWidth = m->settings->visual.EdgeSize;
+                program->setUniformValue("thickness", m->settings->visual.EdgeSize);
             }
 
             if (m->documentAccess->IsChanged())

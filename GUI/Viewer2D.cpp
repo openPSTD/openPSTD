@@ -96,6 +96,12 @@ namespace OpenPSTD
             this->layers.push_back(std::make_shared<SceneLayer>());
             this->layers.push_back(std::make_shared<IconLayer>());
             this->layers.push_back(std::make_shared<InteractiveLayer>());
+
+            QSurfaceFormat format;
+            format.setProfile(QSurfaceFormat::CoreProfile);
+            format.setVersion(3, 3);
+            format.setSamples(4);
+            this->setFormat(format);
         }
 
         void Viewer2D::SetOperationRunner(std::weak_ptr<OperationRunner> operationRunner)
@@ -144,11 +150,16 @@ namespace OpenPSTD
             f->glClearColor(0, 0, 0, 1);
 
             f->glDisable(GL_CULL_FACE);
-            f->glDisable(GL_TEXTURE_2D);
+            GLError("Viewer2D:: f->glDisable(GL_CULL_FACE)");
             f->glEnable(GL_BLEND);
+            GLError("Viewer2D:: f->glEnable(GL_BLEND)");
             f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            GLError("Viewer2D:: F->glBlendFunc");
 
-            GLError("Viewer2D:: f->glEnable");
+            _vao = new QOpenGLVertexArrayObject( this );
+            _vao->create();
+            _vao->bind();
+
 
             textRenderer = std::make_shared<TextRenderer>(f);
 
@@ -392,8 +403,8 @@ void OpenPSTD::GUI::TextRenderer::Draw(std::unique_ptr<QOpenGLFunctions, void (*
     std::vector<QVector2D> positions;
     double nextCharX = 0;
 
-    textureCoords.reserve(s.length() * 4);
-    positions.reserve(s.length() * 4);
+    textureCoords.reserve(s.length() * 6);
+    positions.reserve(s.length() * 6);
 
     for (unsigned int i = 0; i < s.length(); i++)
     {
@@ -409,13 +420,24 @@ void OpenPSTD::GUI::TextRenderer::Draw(std::unique_ptr<QOpenGLFunctions, void (*
 
         nextCharX += rect.width() * sizeFactor;
 
-        positions.push_back(QVector2D((float) left, (float) top));
-        positions.push_back(QVector2D((float) right, (float) top));
-        positions.push_back(QVector2D((float) right, (float) bottom));
-        positions.push_back(QVector2D((float) left, (float) bottom));
+        QVector2D tl = QVector2D((float) left, (float) top);
+        QVector2D tr = QVector2D((float) right, (float) top);
+        QVector2D bl = QVector2D((float) left, (float) bottom);
+        QVector2D br = QVector2D((float) right, (float) bottom);
+
+        positions.push_back(tl);
+        positions.push_back(tr);
+        positions.push_back(bl);
+
+        positions.push_back(tr);
+        positions.push_back(br);
+        positions.push_back(bl);
 
         //top and bottom is replaced, this is due the fact that the screen is upside down, because of the file format
         textureCoords.push_back(QVector2D(rect.bottomLeft()));
+        textureCoords.push_back(QVector2D(rect.bottomRight()));
+        textureCoords.push_back(QVector2D(rect.topLeft()));
+
         textureCoords.push_back(QVector2D(rect.bottomRight()));
         textureCoords.push_back(QVector2D(rect.topRight()));
         textureCoords.push_back(QVector2D(rect.topLeft()));
@@ -428,17 +450,27 @@ void OpenPSTD::GUI::TextRenderer::Draw(std::unique_ptr<QOpenGLFunctions, void (*
     program->setUniformValue("color", color);
 
     f->glBindBuffer(GL_ARRAY_BUFFER, this->textureCoordsBuffer);
+    GLError("TextRenderer f->glBindBuffer");
     f->glBufferData(GL_ARRAY_BUFFER, textureCoords.size() * sizeof(QVector2D), textureCoords.data(), GL_STREAM_DRAW);
+    GLError("TextRenderer f->glBufferData");
     f->glVertexAttribPointer((GLuint) program->attributeLocation("texcoord"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+    GLError("TextRenderer f->glVertexAttribPointer");
 
     f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+    GLError("TextRenderer f->glBindBuffer");
     f->glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(QVector2D), positions.data(), GL_STREAM_DRAW);
+    GLError("TextRenderer f->glBufferData");
     f->glVertexAttribPointer((GLuint) program->attributeLocation("position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+    GLError("TextRenderer f->glVertexAttribPointer");
 
     f->glActiveTexture(GL_TEXTURE0);
-    f->glBindTexture(GL_TEXTURE_2D, this->textureID);
+    GLError("TextRenderer f->glActiveTexture");
 
-    f->glDrawArrays(GL_QUADS, 0, positions.size());
+    f->glBindTexture(GL_TEXTURE_2D, this->textureID);
+    GLError("TextRenderer f->glBindTexture");
+
+    f->glDrawArrays(GL_TRIANGLES, 0, positions.size());
+    GLError("TextRenderer f->glDrawArrays");
 
     program->disableAttributeArray("texcoord");
     program->disableAttributeArray("position");

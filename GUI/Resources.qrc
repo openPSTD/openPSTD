@@ -5,7 +5,7 @@
         <file>GPU/Debug2D.frag</file>
         <file>GPU/Debug2D.vert</file>
         <file>GPU/Grid.frag.glsl</file>
-        <file>GPU/Grid.vert.glsl</file>
+        <file>GPU/Grid.vert.glsl</file> 
         <file>GPU/Interactive.frag.glsl</file>
         <file>GPU/Interactive.vert.glsl</file>
         <file>GPU/Scene2D.frag</file>
@@ -18,6 +18,7 @@
         <file>GPU/Symbol.vert.glsl</file>
         <file>GPU/Text.frag.glsl</file>
         <file>GPU/Text.vert.glsl</file>
+        <file>GPU/Line.geo.glsl</file>
 
         <!-- Icons -->
         <file>Images/noun_100_cc.png</file>

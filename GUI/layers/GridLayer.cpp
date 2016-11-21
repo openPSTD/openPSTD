@@ -50,10 +50,12 @@ namespace OpenPSTD
                     new std::string(":/GPU/Grid.vert.glsl"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Grid.frag.glsl"));
+            std::unique_ptr<std::string> geometricFile = std::unique_ptr<std::string>(new std::string(":/GPU/Line.geo.glsl"));
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
             program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
             program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString::fromStdString(*fragmentFile));
+            program->addShaderFromSourceFile(QOpenGLShader::Geometry, QString::fromStdString(*geometricFile));
             program->link();
 
             program->bind();
@@ -67,14 +69,22 @@ namespace OpenPSTD
             program->enableAttributeArray("a_position");
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->positionsBuffer);
+            GLError("GridLayer f->glBindBuffer");
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-            f->glLineWidth(1.0f);
+            GLError("GridLayer f->glVertexAttribPointer");
+            program->setUniformValue("thickness", 0.01f);
+            GLError("GridLayer f->glLineWidth");
             f->glDrawArrays(GL_LINES, 0, lines * 2);
+            GLError("GridLayer f->glDrawArrays");
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->originPositionsBuffer);
+            GLError("GridLayer f->glBindBuffer");
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-            f->glLineWidth(2.5f);
+            GLError("GridLayer f->glVertexAttribPointer");
+            program->setUniformValue("thickness", 0.03f);
+            GLError("GridLayer f->glLineWidth2");
             f->glDrawArrays(GL_LINES, 0, 2 * 2);
+            GLError("GridLayer f->glDrawArrays");
 
             program->disableAttributeArray("a_position");
         }
@@ -127,7 +137,7 @@ namespace OpenPSTD
             QVector3D gridSpacingPoint = this->worldMatrix * QVector3D(this->gridSpacing, 0, 0);
             float distance = (center - gridSpacingPoint).length();
             float x = 1;
-            while (0.01 > distance * x)
+            while (0.05 > distance * x)
             {
                 x *= 2;
             }
