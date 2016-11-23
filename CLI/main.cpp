@@ -37,8 +37,8 @@
 
 #include <kernel/PSTDKernel.h>
 #include <kernel/MockKernel.h>
-#include <kernel/DG/DG.h>
-#include <kernel/DG/LEE.h>
+#include <kernel/DG/DG2D.h>
+#include <kernel/DG/LEE2D.h>
 
 #include <shared/PSTDFile.h>
 
@@ -601,11 +601,18 @@ namespace OpenPSTD
         {
             using namespace Kernel::DG;
 
-            int K = 58;
-            int N = 4;
+            int N = 5;
 
-            std::shared_ptr<LinearizedEulerEquationsDE<double>> de = std::make_shared<LinearizedEulerEquationsDE<double>>();
-            std::shared_ptr<System1D<double>> s = std::make_shared<System1D<double>>(K, N, -2.0, 0.0, de);
+            VectorX<double> x1(2);
+            VectorX<double> x2(2);
+
+            x1 << -1, -1;
+            x2 <<  1,  1;
+
+
+            std::shared_ptr<LinearizedEulerEquationsDE2D<double>> de = std::make_shared<LinearizedEulerEquationsDE2D<double>>();
+            std::shared_ptr<System2D<double, LinearizedEuler2DDEElement<double>>> s = std::make_shared<System2D<double, LinearizedEuler2DDEElement<double>>>(N, de);
+            s->BuildSquareGrid(x1, x2, 0.2);
             std::shared_ptr<RKF84<double>> RK = std::make_shared<RKF84<double>>();
             RK->outputMatlab = true;
             RK->SetBB(s);

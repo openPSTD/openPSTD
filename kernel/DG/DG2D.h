@@ -67,8 +67,10 @@ namespace OpenPSTD
             template <typename SimpleType, typename DEElementStore = DG2DNoElementStore>
             class DG2DDE
             {
+            public:
                 virtual void Initialize(
-                        std::shared_ptr<Element2D<SimpleType, DEElementStore>> element) = 0;
+                        std::shared_ptr<Element2D<SimpleType, DEElementStore>> element,
+                        std::shared_ptr<System2D<SimpleType, DEElementStore>> system) = 0;
                 virtual std::vector<VectorX<SimpleType>> CalculateRHS(
                         std::shared_ptr<Element2D<SimpleType, DEElementStore>> element,
                         std::shared_ptr<System2D<SimpleType, DEElementStore>> system,
@@ -84,6 +86,16 @@ namespace OpenPSTD
                 int K, N;
                 std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> _DE;
 
+                VectorX<SimpleType> CalculateDTScale()
+                {
+                    VectorX<SimpleType> dtscale(this->Element.size());
+                    for (int i = 0; i < this->Element.size(); ++i)
+                    {
+                        dtscale[i] = this->Element[i]->GetDTScale();
+                    }
+                    return dtscale;
+                }
+
             public:
                 std::vector<std::shared_ptr<Vertex2D<SimpleType, DEElementStore>>> Vertices;
                 std::vector<std::shared_ptr<Edge2D<SimpleType, DEElementStore>>> Edges;
@@ -94,14 +106,14 @@ namespace OpenPSTD
                 MatrixX<SimpleType> Ds;
                 MatrixX<SimpleType> rs;
 
-                System2D(int N, VectorX<SimpleType> x1, VectorX<SimpleType> x2, std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> de)
+                System2D(int N, std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> de)
                 {
                     this->N = N;
                     this->_DE = de;
 
                     // Compute nodal set
                     MatrixX<SimpleType> xy = Nodes2D<SimpleType>(N);
-                    MatrixX<SimpleType> rs = xytors<SimpleType>(N);
+                    this->rs = xytors<SimpleType>(xy);
 
                     // Build reference element matrices
                     MatrixX<SimpleType> V = Vandermonde2D<SimpleType>(N,rs);
@@ -124,9 +136,7 @@ namespace OpenPSTD
                     {
                         for (int i = 0; i < widthVertices; ++i)
                         {
-                            auto v = std::make_shared<Vertex2D<SimpleType, DEElementStore>>();
-                            v->Position[0] = x1[0] + i * rectSize;
-                            v->Position[1] = x1[1] + j * rectSize;
+                            auto v = std::make_shared<Vertex2D<SimpleType, DEElementStore>>(x1[0] + i * rectSize, x1[1] + j * rectSize);
                             this->Vertices.push_back(v);
                         }
                     }
@@ -146,17 +156,17 @@ namespace OpenPSTD
                                     this->Vertices[widthVertices * (j + 0) + (i + 1)],
                                     this->Vertices[widthVertices * (j + 1) + (i + 1)]);
                             Edges.push_back(r);
-                            if (j == 0)
+                            auto b = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
+                                    this->Vertices[widthVertices * (j + 1) + (i + 1)],
+                                    this->Vertices[widthVertices * (j + 1) + (i + 0)]);
+                            Edges.push_back(b);
+                            if (i == 0)
                             {
-                                auto b = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                        this->Vertices[widthVertices * (j + 1) + (i + 1)],
-                                        this->Vertices[widthVertices * (j + 1) + (i + 0)]);
-                                Edges.push_back(b);
+                                auto l = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
+                                        this->Vertices[widthVertices * (j + 1) + (i + 0)],
+                                        this->Vertices[widthVertices * (j + 0) + (i + 0)]);
+                                Edges.push_back(l);
                             }
-                            auto l = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                    this->Vertices[widthVertices * (j + 1) + (i + 0)],
-                                    this->Vertices[widthVertices * (j + 0) + (i + 0)]);
-                            Edges.push_back(l);
                             auto d = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
                                     this->Vertices[widthVertices * (j + 0) + (i + 0)],
                                     this->Vertices[widthVertices * (j + 1) + (i + 1)]);
@@ -193,7 +203,7 @@ namespace OpenPSTD
 
                     for(int k = 0; k < Element.size(); k++)
                     {
-                        _DE->Initialize(this->Element[k]);
+                        _DE->Initialize(this->Element[k], this->shared_from_this());
                     }
                 }
 
@@ -203,12 +213,12 @@ namespace OpenPSTD
                     int nVariables = this->_DE->GetNumberOfVariables();
                     for(int j = 0; j < nVariables; j++)
                     {
-                        result.push_back(MatrixX<SimpleType>(this->N+1, this->Elements.size()));
+                        result.push_back(MatrixX<SimpleType>(this->GetNp(), this->Element.size()));
                     }
 
                     for(int i = 0; i < Element.size(); i++)
                     {
-                        auto ElementRHS = this->_DE->CalculateRHS(this->Elements[i], this->shared_from_this(), time);
+                        auto ElementRHS = this->_DE->CalculateRHS(this->Element[i], this->shared_from_this(), time);
                         for(int j = 0; j < nVariables; j++)
                         {
                             result[j].col(i) = ElementRHS[j];
@@ -227,7 +237,7 @@ namespace OpenPSTD
                         MatrixX<SimpleType> u = state[j];
                         for(int i = 0; i < u.cols(); i++)
                         {
-                            this->Elements[i]->u[j] = u.col(i);
+                            this->Element[i]->u[j] = u.col(i);
                         }
                     }
                 };
@@ -238,10 +248,10 @@ namespace OpenPSTD
                     std::vector<MatrixX<SimpleType>> result;
                     for(int j = 0; j < nVariables; j++)
                     {
-                        MatrixX<SimpleType> u(N+1, this->Elements.size());
+                        MatrixX<SimpleType> u(this->GetNp(), this->Element.size());
                         for(int i = 0; i < u.cols(); i++)
                         {
-                            u.col(i) = this->Elements[i]->u[j];
+                            u.col(i) = this->Element[i]->u[j];
                         }
                         result.push_back(u);
                     }
@@ -259,15 +269,50 @@ namespace OpenPSTD
                     return _DE->GetNumberOfVariables();
                 };
 
-                VectorX<SimpleType> CalculateDTScale()
+                unsigned int GetN()
                 {
-                    VectorX<SimpleType> dtscale(this->Element.size());
-                    for (int i = 0; i < this->Element.size(); ++i)
-                    {
-                        dtscale[i] = this->Element[i]->GetDTScale();
-                    }
-                    return dtscale;
+                    return this->N;
                 }
+
+                unsigned int GetNp()
+                {
+                    return (this->N+1)*(this->N+2)/2;
+                }
+
+                unsigned int GetNfp()
+                {
+                    return this->N+1;
+                }
+
+                virtual void OutputMatlabMetadata()
+                {
+                    Eigen::IOFormat MatlabFmt(Eigen::FullPrecision, Eigen::DontAlignCols, " ", ";\n", "", "", "[", "]");
+
+                    MatrixX<SimpleType> x(this->GetNp(), this->Element.size());
+                    MatrixX<SimpleType> y(this->GetNp(), this->Element.size());
+                    for(int i = 0; i < this->Element.size(); i++)
+                    {
+                        x.col(i) = this->Element[i]->x;
+                        y.col(i) = this->Element[i]->y;
+                    }
+
+                    std::cout << 'X' << "(:,:) = ";
+                    std::cout << x.format(MatlabFmt) << ";" << std::endl;
+
+                    std::cout << 'Y' << "(:,:) = ";
+                    std::cout << y.format(MatlabFmt) << ";" << std::endl;
+                };
+
+                virtual void OutputMatlabData(int index)
+                {
+                    std::vector<MatrixX<SimpleType>> state = GetState();
+                    Eigen::IOFormat MatlabFmt(Eigen::FullPrecision, Eigen::DontAlignCols, " ", ";\n", "", "", "[", "]");
+                    for(char i = 0; i < state.size(); i++)
+                    {
+                        std::cout << (char)('A'+i) << "(:,:," << index << ") = ";
+                        std::cout << state[i].format(MatlabFmt) << ";" << std::endl;
+                    }
+                };
             };
 
             template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
@@ -342,7 +387,34 @@ namespace OpenPSTD
 
                     for(int i = 0; i < nVariables; i++)
                     {
-                        u.push_back(VectorX<SimpleType>::Zero(N+1));
+                        u.push_back(VectorX<SimpleType>::Zero(rs.rows()));
+                    }
+
+                    //face 1
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(s(i)+1) < NODETOL) //fmask1   = find( abs(s+1) < NODETOL)';
+                        {
+                            Faces[0]->NodesOnFace.push_back(i);
+                        }
+                    }
+
+                    //face 2
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(r(i)+s(i)) < NODETOL) //fmask2   = find( abs(r+s) < NODETOL)';
+                        {
+                            Faces[1]->NodesOnFace.push_back(i);
+                        }
+                    }
+
+                    //face 3
+                    for(int i = 0; i < rs.rows(); i++)
+                    {
+                        if(std::abs(r(i)+1) < NODETOL) //fmask3   = find( abs(r+1) < NODETOL)';
+                        {
+                            Faces[2]->NodesOnFace.push_back(i);
+                        }
                     }
                 }
 
@@ -358,6 +430,54 @@ namespace OpenPSTD
                     SimpleType Area = std::sqrt(sper*(sper-len1)*(sper-len2)*(sper-len3));
 
                     return Area/sper;
+                }
+
+                VectorX<SimpleType> GetFaceInternalValues(int i)
+                {
+                    std::vector<VectorX<SimpleType>> values;
+                    for (int j = 0; j < Faces.size(); ++j)
+                    {
+                        values.push_back(Faces[j]->GetValuesOfNodes(i));
+                    }
+
+                    int count = 0;
+                    for (int j = 0; j < values.size(); ++j)
+                    {
+                        count += values[j].size();
+                    }
+
+                    VectorX<SimpleType> result(count);
+                    count = 0;
+                    for (int j = 0; j < values.size(); ++j)
+                    {
+                        result.segment(count, values[j].size()) = values[j];
+                        count += values[j].size();
+                    }
+                    return result;
+                }
+
+                VectorX<SimpleType> GetFaceExternalValues(int i)
+                {
+                    std::vector<VectorX<SimpleType>> values;
+                    for (int j = 0; j < Faces.size(); ++j)
+                    {
+                        values.push_back(Faces[j]->GetValuesOfOtherSide(i));
+                    }
+
+                    int count = 0;
+                    for (int j = 0; j < values.size(); ++j)
+                    {
+                        count += values[j].size();
+                    }
+
+                    VectorX<SimpleType> result(count);
+                    count = 0;
+                    for (int j = 0; j < values.size(); ++j)
+                    {
+                        result.segment(count, values[j].size()) = values[j];
+                        count += values[j].size();
+                    }
+                    return result;
                 }
 
             private:
@@ -496,6 +616,8 @@ namespace OpenPSTD
                 std::weak_ptr<Element2D<SimpleType, DEElementStore>> Element;
                 std::weak_ptr<Edge2D<SimpleType, DEElementStore>> Edge;
 
+                std::vector<int> NodesOnFace;
+
                 std::shared_ptr<Face2D<SimpleType, DEElementStore>> GetOtherSideFace()
                 {
                     std::shared_ptr<Face2D<SimpleType, DEElementStore>> t = this->shared_from_this();
@@ -517,6 +639,29 @@ namespace OpenPSTD
                         return true;
                     else
                         return false;
+                }
+
+                VectorX<SimpleType> GetValuesOfNodes(int i)
+                {
+                    VectorX<SimpleType> result(NodesOnFace.size());
+                    auto e = Element.lock();
+                    for (int j = 0; j < NodesOnFace.size(); ++j)
+                    {
+                        result[j] = e->u[i](NodesOnFace[j]);
+                    }
+                    return result;
+                }
+
+                VectorX<SimpleType> GetValuesOfOtherSide(int i)
+                {
+                    if (OtherSideExist())
+                    {
+                        return GetOtherSideFace()->GetValuesOfNodes(i);
+                    }
+                    else
+                    {
+                        return VectorX<SimpleType>::Constant(NodesOnFace.size(), nan(""));
+                    }
                 }
             };
 
@@ -555,6 +700,12 @@ namespace OpenPSTD
             public:
                 VectorX<SimpleType> Position;
                 std::vector<std::weak_ptr<Edge2D<SimpleType, DEElementStore>>> Edges;
+
+                Vertex2D(SimpleType x, SimpleType y)
+                    :Position(2)
+                {
+                    Position << x, y;
+                }
 
                 std::shared_ptr<Edge2D<SimpleType, DEElementStore>> FindEdgeTo(std::shared_ptr<Vertex2D<SimpleType, DEElementStore>> v)
                 {

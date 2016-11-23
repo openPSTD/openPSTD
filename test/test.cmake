@@ -10,6 +10,7 @@ set(SOURCE_FILES_TEST_DG
         test/Kernel/DG/Advec.cpp
         test/Kernel/DG/Maxwell.cpp
         test/Kernel/DG/LEE.cpp
+        test/Kernel/DG/LEE2D.cpp
         test/Kernel/DG/JacobiGQ.cpp
         test/Kernel/DG/JacobiGL.cpp
         test/Kernel/DG/JacobiP.cpp
@@ -24,7 +25,7 @@ set(SOURCE_FILES_TEST_DG
         test/Kernel/DG/Grad.cpp
         )
 
-#set(SOURCE_FILES_TEST_DG test/Kernel/DG/DG2D.cpp)
+#set(SOURCE_FILES_TEST_DG test/Kernel/DG/DG2D.cpp test/Kernel/DG/LEE2D.cpp)
 
 message(STATUS "${DG_TEST_ONLY}")
 if(DG_TEST_ONLY)
