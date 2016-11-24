@@ -39,6 +39,7 @@
 #include <kernel/MockKernel.h>
 #include <kernel/DG/DG2D.h>
 #include <kernel/DG/LEE2D.h>
+#include <kernel/DG/DG2DBuilders.h>
 
 #include <shared/PSTDFile.h>
 
@@ -609,10 +610,9 @@ namespace OpenPSTD
             x1 << -1, -1;
             x2 <<  1,  1;
 
-
             std::shared_ptr<LinearizedEulerEquationsDE2D<double>> de = std::make_shared<LinearizedEulerEquationsDE2D<double>>();
-            std::shared_ptr<System2D<double, LinearizedEuler2DDEElement<double>>> s = std::make_shared<System2D<double, LinearizedEuler2DDEElement<double>>>(N, de);
-            s->BuildSquareGrid(x1, x2, 0.2);
+            SquareGridBuilder<double, LinearizedEuler2DDEElement<double>> builder(x1, x2, 0.2);
+            std::shared_ptr<System2D<double, LinearizedEuler2DDEElement<double>>> s = builder.Build(N, de);
             std::shared_ptr<RKF84<double>> RK = std::make_shared<RKF84<double>>();
             RK->outputMatlab = true;
             RK->SetBB(s);

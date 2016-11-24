@@ -35,6 +35,8 @@
 #include <Eigen/Dense>
 #include <Eigen/src/Core/IO.h>
 #include <memory>
+#include <vector>
+#include <iostream>
 
 #include "GeneralTypes.h"
 #include "RK.h"
@@ -123,86 +125,11 @@ namespace OpenPSTD
                     this->LIFT = Lift2D<SimpleType>(N, 3, V, rs);
                 }
 
-                void BuildSquareGrid(VectorX<SimpleType> x1, VectorX<SimpleType> x2, SimpleType rectSize)
+                void InitializeElements()
                 {
-                    //build "unstructured" grid
-                    int widthElements = (x2[0]-x1[0])/rectSize;
-                    int heightElements = (x2[1]-x1[1])/rectSize;
-
-                    int widthVertices = widthElements + 1;
-                    int heightVertices = heightElements + 1;
-
-                    for (int j = 0; j < heightVertices; ++j)
-                    {
-                        for (int i = 0; i < widthVertices; ++i)
-                        {
-                            auto v = std::make_shared<Vertex2D<SimpleType, DEElementStore>>(x1[0] + i * rectSize, x1[1] + j * rectSize);
-                            this->Vertices.push_back(v);
-                        }
-                    }
-
-                    for (int j = 0; j < heightElements; ++j)
-                    {
-                        for (int i = 0; i < widthElements; ++i)
-                        {
-                            if (j == 0)
-                            {
-                                auto t = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                        this->Vertices[widthVertices * (j + 0) + (i + 0)],
-                                        this->Vertices[widthVertices * (j + 0) + (i + 1)]);
-                                Edges.push_back(t);
-                            }
-                            auto r = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                    this->Vertices[widthVertices * (j + 0) + (i + 1)],
-                                    this->Vertices[widthVertices * (j + 1) + (i + 1)]);
-                            Edges.push_back(r);
-                            auto b = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                    this->Vertices[widthVertices * (j + 1) + (i + 1)],
-                                    this->Vertices[widthVertices * (j + 1) + (i + 0)]);
-                            Edges.push_back(b);
-                            if (i == 0)
-                            {
-                                auto l = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                        this->Vertices[widthVertices * (j + 1) + (i + 0)],
-                                        this->Vertices[widthVertices * (j + 0) + (i + 0)]);
-                                Edges.push_back(l);
-                            }
-                            auto d = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
-                                    this->Vertices[widthVertices * (j + 0) + (i + 0)],
-                                    this->Vertices[widthVertices * (j + 1) + (i + 1)]);
-                            Edges.push_back(d);
-                        }
-                    }
-
-                    for (int i = 0; i < Edges.size(); ++i)
-                    {
-                        Edges[i]->RegisterEdgeWithVertices();
-                    }
-
-                    for (int j = 0; j < heightElements; ++j)
-                    {
-                        for (int i = 0; i < widthElements; ++i)
-                        {
-                            std::vector<std::shared_ptr<Vertex2D<SimpleType, DEElementStore>>> v;
-                            v.push_back(this->Vertices[widthVertices * (j + 0) + (i + 0)]);
-                            v.push_back(this->Vertices[widthVertices * (j + 0) + (i + 1)]);
-                            v.push_back(this->Vertices[widthVertices * (j + 1) + (i + 1)]);
-                            auto tr = std::make_shared<Element2D<SimpleType, DEElementStore>>();
-                            Element.push_back(tr);
-                            tr->init(v, N, _DE->GetNumberOfVariables(), rs, Dr, Ds);
-
-                            v.clear();
-                            v.push_back(this->Vertices[widthVertices * (j + 0) + (i + 0)]);
-                            v.push_back(this->Vertices[widthVertices * (j + 1) + (i + 1)]);
-                            v.push_back(this->Vertices[widthVertices * (j + 1) + (i + 0)]);
-                            auto bl = std::make_shared<Element2D<SimpleType, DEElementStore>>();
-                            Element.push_back(bl);
-                            bl->init(v, N, _DE->GetNumberOfVariables(), rs, Dr, Ds);
-                        }
-                    }
-
                     for(int k = 0; k < Element.size(); k++)
                     {
+                        this->Element[k]->InitVariables(this->shared_from_this(), N, _DE->GetNumberOfVariables(), rs, Dr, Ds);
                         _DE->Initialize(this->Element[k], this->shared_from_this());
                     }
                 }
@@ -335,24 +262,21 @@ namespace OpenPSTD
                 std::vector<VectorX<SimpleType>> u;
                 DEElementStore DEStore;
 
-                /**
-                 *
-                 * @param v counter clockwise ordered
-                 * @param N
-                 * @param nVariables
-                 * @param rs
-                 * @param Dr
-                 * @param Ds
-                 */
-                void init(std::vector<std::shared_ptr<Vertex2D<SimpleType, DEElementStore>>> v, int N, int nVariables,
-                          const MatrixX<SimpleType> &rs, const MatrixX<SimpleType> &Dr, const MatrixX<SimpleType> &Ds)
+                Element2D(std::vector<std::shared_ptr<Vertex2D<SimpleType, DEElementStore>>> v)
                 {
                     for(int i = 0; i < v.size(); i++)
                     {
                         this->Vertices.push_back(v[i]);
+                    }
+                }
 
-                        std::shared_ptr<Edge2D<SimpleType, DEElementStore>> edge = v[i]->FindEdgeTo(
-                                v[(i + 1) % v.size()]);
+                void InitVariables(std::shared_ptr<System2D<SimpleType, DEElementStore>> system, int N, int nVariables,
+                                   const MatrixX<SimpleType> &rs, const MatrixX<SimpleType> &Dr, const MatrixX<SimpleType> &Ds)
+                {
+                    for(int i = 0; i < this->Vertices.size(); i++)
+                    {
+                        std::shared_ptr<Edge2D<SimpleType, DEElementStore>> edge =
+                                this->Vertices[i].lock()->FindEdgeToOrCreate(system, this->Vertices[(i + 1) % this->Vertices.size()].lock());
 
                         auto f = std::make_shared<Face2D<SimpleType, DEElementStore>>();
                         Faces.push_back(f);
@@ -695,7 +619,7 @@ namespace OpenPSTD
             };
 
             template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
-            class Vertex2D
+            class Vertex2D: public std::enable_shared_from_this<Vertex2D<SimpleType, DEElementStore>>
             {
             public:
                 VectorX<SimpleType> Position;
@@ -706,6 +630,26 @@ namespace OpenPSTD
                 {
                     Position << x, y;
                 }
+
+                std::shared_ptr<Edge2D<SimpleType, DEElementStore>> FindEdgeToOrCreate(
+                        std::shared_ptr<System2D<SimpleType, DEElementStore>> system,
+                        std::shared_ptr<Vertex2D<SimpleType, DEElementStore>> v)
+                {
+                    for (int i = 0; i < Edges.size(); ++i)
+                    {
+                        if (Edges[i].lock()->IsConnectedTo(v))
+                        {
+                            return Edges[i].lock();
+                        }
+                    }
+                    //no edges are found
+                    //create new edge
+                    std::shared_ptr<Edge2D<SimpleType, DEElementStore>> result = std::make_shared<Edge2D<SimpleType, DEElementStore>>(
+                            this->shared_from_this(), v);
+                    result->RegisterEdgeWithVertices();
+                    system->Edges.push_back(result);
+                    return result;
+                };
 
                 std::shared_ptr<Edge2D<SimpleType, DEElementStore>> FindEdgeTo(std::shared_ptr<Vertex2D<SimpleType, DEElementStore>> v)
                 {
