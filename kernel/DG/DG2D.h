@@ -288,6 +288,7 @@ namespace OpenPSTD
 
                     ArrayX<SimpleType> r = rs.col(0);
                     ArrayX<SimpleType> s = rs.col(1);
+
                     //x = 0.5*(-(r+s)*VX(va)+(1+r)*VX(vb)+(1+s)*VX(vc));
                     x = 0.5*(
                             -(r+s)*this->Vertices[0].lock()->Position[0]
@@ -625,8 +626,13 @@ namespace OpenPSTD
                 VectorX<SimpleType> Position;
                 std::vector<std::weak_ptr<Edge2D<SimpleType, DEElementStore>>> Edges;
 
+                Vertex2D(VectorX<SimpleType> p)
+                    :Position(p)
+                {
+                }
+
                 Vertex2D(SimpleType x, SimpleType y)
-                    :Position(2)
+                        :Position(2)
                 {
                     Position << x, y;
                 }

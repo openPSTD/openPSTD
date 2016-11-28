@@ -33,6 +33,8 @@
 #define OPENPSTD_DG2DBUILDERS_H
 
 #include <Eigen/Dense>
+#include <memory>
+#include <vector>
 #include "DG2D.h"
 
 namespace OpenPSTD
@@ -41,6 +43,48 @@ namespace OpenPSTD
     {
         namespace DG
         {
+            /*template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
+            class DG2DBuilder
+            {
+            public:
+                virtual std::shared_ptr<System2D<SimpleType, DEElementStore> > Build(int N, std::shared_ptr<DG2DDE<SimpleType, DEElementStore> > de) = 0;
+            };*/
+
+            template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
+            class SimpleDG2DBuilder
+            {
+            public:
+                std::vector<OpenPSTD::Kernel::DG::VectorX<SimpleType>> Vertices;
+                std::vector<std::vector<int>> Elements;
+
+                std::shared_ptr<OpenPSTD::Kernel::DG::System2D<SimpleType, DEElementStore>> Build(
+                        int N, std::shared_ptr<OpenPSTD::Kernel::DG::DG2DDE<SimpleType, DEElementStore>> de)
+                {
+                    std::shared_ptr<System2D<SimpleType, DEElementStore>> system = std::make_shared<System2D<SimpleType, DEElementStore>>(N, de);
+                    for (int i = 0; i < Vertices.size(); ++i)
+                    {
+                        auto v = std::make_shared<Vertex2D<SimpleType, DEElementStore>>(Vertices[i]);
+                        system->Vertices.push_back(v);
+                    }
+
+                    for (int i = 0; i < Elements.size(); ++i)
+                    {
+                        std::vector<std::shared_ptr<Vertex2D<SimpleType, DEElementStore>>> v;
+                        for (int j = 0; j < Elements[i].size(); ++j)
+                        {
+                            v.push_back(system->Vertices[Elements[i][j]]);
+                        }
+                        auto element = std::make_shared<Element2D<SimpleType, DEElementStore>>(v);
+                        system->Element.push_back(element);
+                    }
+
+                    system->InitializeElements();
+                    return system;
+                }
+            };
+
+
+
             template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
             class SquareGridBuilder
             {
@@ -55,7 +99,8 @@ namespace OpenPSTD
 
                 }
 
-                std::shared_ptr<System2D<SimpleType, DEElementStore>> Build(int N, std::shared_ptr<DG2DDE<SimpleType, DEElementStore>> de)
+                std::shared_ptr<OpenPSTD::Kernel::DG::System2D<SimpleType, DEElementStore>> Build(
+                        int N, std::shared_ptr<OpenPSTD::Kernel::DG::DG2DDE<SimpleType, DEElementStore>> de)
                 {
                     std::shared_ptr<System2D<SimpleType, DEElementStore>> system =
                             std::make_shared<System2D<SimpleType, DEElementStore>>(N, de);

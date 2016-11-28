@@ -72,11 +72,6 @@ namespace OpenPSTD
                 SimpleType Zimp;
                 SimpleType Yimp;
 
-                const int IndexPX=0;
-                const int IndexPY=1;
-                const int IndexVX=2;
-                const int IndexVY=3;
-
                 VectorX<SimpleType> atan2(VectorX<SimpleType> x, VectorX<SimpleType> y)
                 {
                     VectorX<SimpleType> result(x.size());
@@ -87,6 +82,11 @@ namespace OpenPSTD
                     return result;
                 }
             public:
+                const static int IndexPX=0;
+                const static int IndexPY=1;
+                const static int IndexVX=2;
+                const static int IndexVY=3;
+
                 SimpleType rho;
                 SimpleType alpha;
                 //% Toulorge thesis. Error magnitude: (1) Emag=1dB; (2) Emag=0.1dB; (3) Emag=0.01dB; (4) Emag=0.001dB; (5) Emag=0.0001dB;
@@ -130,13 +130,14 @@ namespace OpenPSTD
                     VectorX<SimpleType> y = element->y;
 
                     //p_DG = AMP*exp(-bx_gau*((x-b_gau_x).^2 + (y-b_gau_y).^2));
-                    ArrayX<SimpleType> p = AMP*exp((-bx_gau*((x.array()-b_gau_x).square() + (y.array()-b_gau_y).square())));
+                    ArrayX<SimpleType> p = AMP*Eigen::exp((-bx_gau*((x.array()-b_gau_x).square() + (y.array()-b_gau_y).square())));
 
                     //[THETA,R] = cart2pol(x-b_gau_x,y-b_gau_y);
-                    ArrayX<SimpleType> THETA = atan2(x, y);
+                    ArrayX<SimpleType> THETA = atan2((y.array()-b_gau_y), (x.array()-b_gau_x));
                     //R is not used so calculation is useless
                     //px_DG = cos(THETA).^2.*p_DG;
                     element->u[IndexPX] = cos(THETA).square()*p;
+
                     //py_DG = p_DG-px_DG;
                     element->u[IndexPY] = p-element->u[IndexPX].array();
                     //vx_DG = zeros(Np, K);
