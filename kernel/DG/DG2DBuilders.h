@@ -75,6 +75,7 @@ namespace OpenPSTD
                             v.push_back(system->Vertices[Elements[i][j]]);
                         }
                         auto element = std::make_shared<Element2D<SimpleType, DEElementStore>>(v);
+                        element->index = i;
                         system->Element.push_back(element);
                     }
 
@@ -122,6 +123,8 @@ namespace OpenPSTD
                         }
                     }
 
+                    int index = 0;
+
                     for (int j = 0; j < heightElements; ++j)
                     {
                         for (int i = 0; i < widthElements; ++i)
@@ -131,6 +134,7 @@ namespace OpenPSTD
                             v.push_back(system->Vertices[widthVertices * (j + 0) + (i + 1)]);
                             v.push_back(system->Vertices[widthVertices * (j + 1) + (i + 1)]);
                             auto tr = std::make_shared<Element2D<SimpleType, DEElementStore>>(v);
+                            tr->index = index++;
                             system->Element.push_back(tr);
 
                             v.clear();
@@ -138,6 +142,7 @@ namespace OpenPSTD
                             v.push_back(system->Vertices[widthVertices * (j + 1) + (i + 1)]);
                             v.push_back(system->Vertices[widthVertices * (j + 1) + (i + 0)]);
                             auto bl = std::make_shared<Element2D<SimpleType, DEElementStore>>(v);
+                            bl->index = index++;
                             system->Element.push_back(bl);
                         }
                     }

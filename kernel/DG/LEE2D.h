@@ -100,7 +100,7 @@ namespace OpenPSTD
                         c(c),
                         rho(rho),
                         Precision(precision),
-                        alpha(0)
+                        alpha(1.0)
                 {
                     //given in toulorge thesis for optimized RK
                     CFL_Values <<
@@ -166,24 +166,11 @@ namespace OpenPSTD
                     ArrayX<SimpleType> dvx = element->GetFaceInternalValues(IndexVX) - element->GetFaceExternalValues(IndexVX);
                     ArrayX<SimpleType> dvy = element->GetFaceInternalValues(IndexVY) - element->GetFaceExternalValues(IndexVY);
 
-
                     // Impose REFLECTIVE boundary conditions
-                    if(element->DEStore.Reflection)
-                    {
-                        //reflection
-                        dpx = isNaN(dpx).select(0, dpx);
-                        dpy = isNaN(dpy).select(0, dpx);
-                        dvx = isNaN(dvx).select(2*element->GetFaceInternalValues(IndexVX), dpx);
-                        dvy = isNaN(dvy).select(2*element->GetFaceInternalValues(IndexVY), dpx);
-                    }
-                    else
-                    {
-                        //absorption
-                        dpx = isNaN(dpx).select(element->GetFaceInternalValues(IndexPX), dpx);
-                        dpy = isNaN(dpy).select(element->GetFaceInternalValues(IndexPY), dpx);
-                        dvx = isNaN(dvx).select(element->GetFaceInternalValues(IndexVX), dpx);
-                        dvy = isNaN(dvy).select(element->GetFaceInternalValues(IndexVY), dpx);
-                    }
+                    dpx = isNaN(dpx).select(0, dpx);
+                    dpy = isNaN(dpy).select(0, dpy);
+                    dvx = isNaN(dvx).select(2*element->GetFaceInternalValues(IndexVX), dvx);
+                    dvy = isNaN(dvy).select(2*element->GetFaceInternalValues(IndexVY), dvy);
 
                     // evaluate upwind fluxes
                     ArrayX<SimpleType> ndotdv =  nx*dvx+ny*dvy;
