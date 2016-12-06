@@ -36,9 +36,6 @@
 #include "DG2D.h"
 #include "Grad.h"
 
-//should be included last
-#include "TemplateMacros.h"
-
 namespace OpenPSTD
 {
     namespace Kernel
