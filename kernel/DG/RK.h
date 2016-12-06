@@ -34,6 +34,7 @@
 
 #include <memory>
 #include <vector>
+#include "iostream"
 
 #include "GeneralTypes.h"
 
@@ -295,6 +296,21 @@ namespace OpenPSTD
                     this->Time += deltaTime;
                 };
             };
+
+            extern template class OutputInterface<double>;
+            extern template class OutputInterface<float>;
+
+            extern template class BlackBoxInterface<double>;
+            extern template class BlackBoxInterface<float>;
+
+            extern template class RK<double>;
+            extern template class RK<float>;
+
+            extern template class LSERK<double>;
+            extern template class LSERK<float>;
+
+            extern template class RKF84<double>;
+            extern template class RKF84<float>;
         }
     }
 }

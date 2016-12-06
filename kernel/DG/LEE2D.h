@@ -36,18 +36,15 @@
 #include "DG2D.h"
 #include "Grad.h"
 
+//should be included last
+#include "TemplateMacros.h"
+
 namespace OpenPSTD
 {
     namespace Kernel
     {
         namespace DG
         {
-            template<typename SimpleType>
-            class LinearizedEuler2DDEElement
-            {
-            public:
-                bool Reflection;
-            };
             template <typename SimpleType>
             ArrayX<SimpleType> isNaN(ArrayX<SimpleType> a)
             {
@@ -63,7 +60,7 @@ namespace OpenPSTD
             }
 
             template <typename SimpleType>
-            class LinearizedEulerEquationsDE2D: public DG2DDE<SimpleType, LinearizedEuler2DDEElement<SimpleType>>
+            class LinearizedEulerEquationsDE2D: public DG2DDE<SimpleType>
             {
             private:
                 MatrixX<SimpleType> CFL_Values;
@@ -116,8 +113,8 @@ namespace OpenPSTD
                     Yimp = 1 / Zimp;
                 }
 
-                virtual void Initialize(std::shared_ptr<Element2D<SimpleType, LinearizedEuler2DDEElement<SimpleType>>> element,
-                                        std::shared_ptr<System2D<SimpleType, LinearizedEuler2DDEElement<SimpleType>>> system)
+                virtual void Initialize(std::shared_ptr<Element2D<SimpleType>> element,
+                                        std::shared_ptr<System2D<SimpleType>> system)
                 {
                     //todo fix all of these variables
                     SimpleType freq_spatial = c/0.0025;
@@ -147,8 +144,8 @@ namespace OpenPSTD
                 };
 
                 virtual std::vector<VectorX<SimpleType>> CalculateRHS(
-                        std::shared_ptr<Element2D<SimpleType, LinearizedEuler2DDEElement<SimpleType>>> element,
-                        std::shared_ptr<System2D<SimpleType, LinearizedEuler2DDEElement<SimpleType>>> system,
+                        std::shared_ptr<Element2D<SimpleType>> element,
+                        std::shared_ptr<System2D<SimpleType>> system,
                         SimpleType time)
                 {
                     // Getting the fields
@@ -217,6 +214,9 @@ namespace OpenPSTD
                 }
             };
 
+
+            extern template class LinearizedEulerEquationsDE2D<double>;
+            extern template class LinearizedEulerEquationsDE2D<float>;
         }
     }
 }

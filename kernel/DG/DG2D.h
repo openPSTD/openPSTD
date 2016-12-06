@@ -750,6 +750,25 @@ namespace OpenPSTD
                     return std::shared_ptr<Edge2D<SimpleType, DEElementStore>>();
                 };
             };
+
+
+            extern template class DG2DDE<double>;
+            extern template class DG2DDE<float>;
+
+            extern template class System2D<double>;
+            extern template class System2D<float>;
+
+            extern template class Element2D<double>;
+            extern template class Element2D<float>;
+
+            extern template class Face2D<double>;
+            extern template class Face2D<float>;
+
+            extern template class Edge2D<double>;
+            extern template class Edge2D<float>;
+
+            extern template class Vertex2D<double>;
+            extern template class Vertex2D<float>;
         }
     }
 }

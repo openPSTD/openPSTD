@@ -19,6 +19,10 @@ SET(SOURCE_FILES_LIB
 
 # DG
 SET(SOURCE_FILES_LIB ${SOURCE_FILES_LIB}
+        kernel/DG/DG2D.cpp
+        kernel/DG/DG2DBuilders.cpp
+        kernel/DG/LEE2D.cpp
+        kernel/DG/RK.cpp
         )
 
 # Mock

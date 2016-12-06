@@ -318,9 +318,9 @@ BOOST_AUTO_TEST_SUITE(DG)
             }
 
             int N;
-            SimpleDG2DBuilder<double, LinearizedEuler2DDEElement<double>> builder;
+            SimpleDG2DBuilder<double> builder;
             std::shared_ptr<LinearizedEulerEquationsDE2D<double>> de;
-            std::shared_ptr<System2D<double, LinearizedEuler2DDEElement<double>>> s;
+            std::shared_ptr<System2D<double>> s;
         };
 
 

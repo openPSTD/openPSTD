@@ -84,8 +84,6 @@ namespace OpenPSTD
                 }
             };
 
-
-
             template<typename SimpleType, typename DEElementStore = DG2DNoElementStore>
             class SquareGridBuilder
             {
@@ -151,6 +149,13 @@ namespace OpenPSTD
                     return system;
                 }
             };
+
+
+            extern template class SimpleDG2DBuilder<double>;
+            extern template class SimpleDG2DBuilder<float>;
+
+            extern template class SquareGridBuilder<double>;
+            extern template class SquareGridBuilder<float>;
         }
     }
 }
