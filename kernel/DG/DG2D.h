@@ -242,10 +242,8 @@ namespace OpenPSTD
                     }
                 }
 
-                virtual void OutputMatlabMetadata()
+                virtual void OutputMatlabMetadata(std::shared_ptr<OutputInterface<SimpleType>> output)
                 {
-                    Eigen::IOFormat MatlabFmt(Eigen::FullPrecision, Eigen::DontAlignCols, " ", ";\n", "", "", "[", "]");
-
                     MatrixX<SimpleType> x(this->GetNp(), this->Element.size());
                     MatrixX<SimpleType> y(this->GetNp(), this->Element.size());
                     for(int i = 0; i < this->Element.size(); i++)
@@ -254,21 +252,16 @@ namespace OpenPSTD
                         y.col(i) = this->Element[i]->y;
                     }
 
-                    std::cout << 'X' << "(:,:) = ";
-                    std::cout << x.format(MatlabFmt) << ";" << std::endl;
-
-                    std::cout << 'Y' << "(:,:) = ";
-                    std::cout << y.format(MatlabFmt) << ";" << std::endl;
+                    output->WriteMetadata("X", x);
+                    output->WriteMetadata("Y", y);
                 };
 
-                virtual void OutputMatlabData(int index)
+                virtual void OutputMatlabData(std::shared_ptr<OutputInterface<SimpleType>> output, int index)
                 {
                     std::vector<MatrixX<SimpleType>> state = GetState();
-                    Eigen::IOFormat MatlabFmt(Eigen::FullPrecision, Eigen::DontAlignCols, " ", ";\n", "", "", "[", "]");
                     for(char i = 0; i < state.size(); i++)
                     {
-                        std::cout << (char)('A'+i) << "(:,:," << index << ") = ";
-                        std::cout << state[i].format(MatlabFmt) << ";" << std::endl;
+                        output->WriteData(i, index, state[i]);
                     }
                 };
             };
@@ -622,7 +615,7 @@ namespace OpenPSTD
                     }
                     else
                     {
-                        return VectorX<SimpleType>::Constant(NodesOnOtherFace.size(), nan(""));
+                        return VectorX<SimpleType>::Constant(NodesOnFace.size(), nan(""));
                     }
                 }
 

@@ -44,6 +44,14 @@ namespace OpenPSTD
         namespace DG
         {
             template<typename SimpleType>
+            class OutputInterface
+            {
+            public:
+                virtual void WriteMetadata(std::string name, MatrixX<SimpleType> data) = 0;
+                virtual void WriteData(int name, int index, MatrixX<SimpleType> state) = 0;
+            };
+
+            template<typename SimpleType>
             class BlackBoxInterface
             {
             public:
@@ -52,18 +60,21 @@ namespace OpenPSTD
                 virtual std::vector<MatrixX<SimpleType> > GetState() = 0;
                 virtual SimpleType GetMaxDT() = 0;
                 virtual unsigned int GetNumberOfVariables() = 0;
-                virtual void OutputMatlabMetadata() {}
-                virtual void OutputMatlabData(int index) {}
+                virtual void OutputMatlabMetadata(std::shared_ptr<OutputInterface<SimpleType>> output) {}
+                virtual void OutputMatlabData(std::shared_ptr<OutputInterface<SimpleType>> output, int index) {}
             };
+
 
             template<typename SimpleType>
             class RK
             {
             protected:
                 std::shared_ptr<BlackBoxInterface<SimpleType>> bb;
+                std::shared_ptr<OutputInterface<SimpleType>> output;
 
             public:
                 virtual void SetBB(std::shared_ptr<BlackBoxInterface<SimpleType>> bb){this->bb = bb;};
+                virtual void SetOutput(std::shared_ptr<OutputInterface<SimpleType>> output){this->output = output;};
                 virtual void ComputeTimeStep(SimpleType deltaTime) = 0;
                 virtual void Calculate(SimpleType FinalTime) = 0;
             };
@@ -160,9 +171,25 @@ namespace OpenPSTD
                     SimpleType Nsteps = ceil(FinalTime/dt);
                     dt = FinalTime/Nsteps;
 
+                    if(this->output)
+                    {
+                        this->bb->OutputMatlabMetadata(this->output);
+                        this->bb->OutputMatlabData(this->output, 1);
+                    }
+
                     for(int tstep = 0; tstep < Nsteps; tstep++)
                     {
                         this->ComputeTimeStep(dt);
+
+                        if(this->output)
+                        {
+                            this->bb->OutputMatlabData(this->output, tstep+2);
+
+                            if(tstep % 100 == 0)
+                            {
+                                std::cout << tstep << "/" << Nsteps << std::endl;
+                            }
+                        }
                     }
                 }
 
@@ -195,9 +222,7 @@ namespace OpenPSTD
                 }
 
             public:
-                bool outputMatlab;
-
-                RKF84(): Time(0), Alpha(8), outputMatlab(false)
+                RKF84(): Time(0), Alpha(8)
                 {
                     //Time iteration DG by RKF84
                     Alpha(7) = 1;
@@ -237,19 +262,24 @@ namespace OpenPSTD
                     int Nsteps = ceil(FinalTime/dt);
                     dt = FinalTime/Nsteps;
 
-                    if(outputMatlab)
+                    if(this->output)
                     {
-                        this->bb->OutputMatlabMetadata();
-                        this->bb->OutputMatlabData(1);
+                        this->bb->OutputMatlabMetadata(this->output);
+                        this->bb->OutputMatlabData(this->output, 1);
                     }
 
                     for(int tstep = 0; tstep < Nsteps; tstep++)
                     {
                         this->ComputeTimeStep(dt);
 
-                        if(outputMatlab)
+                        if(this->output)
                         {
-                            this->bb->OutputMatlabData(tstep+2);
+                            this->bb->OutputMatlabData(this->output, tstep+2);
+
+                            if(tstep % 100 == 0)
+                            {
+                                std::cout << tstep << "/" << Nsteps << std::endl;
+                            }
                         }
                     }
                 }

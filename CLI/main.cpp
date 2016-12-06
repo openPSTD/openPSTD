@@ -614,7 +614,6 @@ namespace OpenPSTD
             SquareGridBuilder<double, LinearizedEuler2DDEElement<double>> builder(x1, x2, 0.2);
             std::shared_ptr<System2D<double, LinearizedEuler2DDEElement<double>>> s = builder.Build(N, de);
             std::shared_ptr<RKF84<double>> RK = std::make_shared<RKF84<double>>();
-            RK->outputMatlab = true;
             RK->SetBB(s);
 
             clock_t start = clock();
