@@ -611,8 +611,8 @@ namespace OpenPSTD
             x2 <<  1,  1;
 
             std::shared_ptr<LinearizedEulerEquationsDE2D<double>> de = std::make_shared<LinearizedEulerEquationsDE2D<double>>();
-            SquareGridBuilder<double, LinearizedEuler2DDEElement<double>> builder(x1, x2, 0.2);
-            std::shared_ptr<System2D<double, LinearizedEuler2DDEElement<double>>> s = builder.Build(N, de);
+            SquareGridBuilder<double> builder(x1, x2, 0.2);
+            std::shared_ptr<System2D<double>> s = builder.Build(N, de);
             std::shared_ptr<RKF84<double>> RK = std::make_shared<RKF84<double>>();
             RK->SetBB(s);
 
