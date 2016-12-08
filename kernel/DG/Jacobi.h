@@ -254,7 +254,7 @@ namespace OpenPSTD
              * for order N and returns dP[1:length(xp))]
              */
             template <typename SimpleType>
-            VectorX<SimpleType> GradJacobiP(const VectorX<SimpleType> z, double alpha, double beta, int N)
+            VectorX<SimpleType> GradJacobiP(const VectorX<SimpleType> z, SimpleType alpha, SimpleType beta, int N)
             {
                 if (0 == N) {
                     return VectorX<SimpleType>::Zero(z.size());
@@ -262,6 +262,22 @@ namespace OpenPSTD
                     return sqrt(N*(N+alpha+beta+1))*JacobiP<SimpleType>(z,alpha+1,beta+1, N-1);
                 }
             }
+
+
+            extern template JacobiGQResult<float> JacobiGQ(float alpha, float beta, int N, bool sort);
+            extern template JacobiGQResult<double> JacobiGQ(double alpha, double beta, int N, bool sort);
+
+            extern template VectorX<float> JacobiGL(float alpha, float beta, int N);
+            extern template VectorX<double> JacobiGL(double alpha, double beta, int N);
+
+            extern template VectorX<float> JacobiP(VectorX<float> x, float alpha, float beta, int N);
+            extern template VectorX<double> JacobiP(VectorX<double> x, double alpha, double beta, int N);
+
+            extern template VectorX<float> GradJacobiP(const VectorX<float> z, float alpha, float beta, int N);
+            extern template VectorX<double> GradJacobiP(const VectorX<double> z, double alpha, double beta, int N);
+
+            extern template struct JacobiGQResult<float>;
+            extern template struct JacobiGQResult<double>;
         }
     }
 

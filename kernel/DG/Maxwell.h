@@ -161,8 +161,8 @@ namespace OpenPSTD
                     Zimpm << this->GetMin(IndexZimp, left, element), this->GetMin(IndexZimp, right, element);
                     Zimpp << this->GetPlus(IndexZimp, left, element), this->GetPlus(IndexZimp, right, element);
                     //Yimpm(:) = 1./Zimpm(:); Yimpp(:) = 1./Zimpp(:);
-                    Yimpm = VectorX<double>::Ones(Zimpm.size()).cwiseQuotient(Zimpm);
-                    Yimpp = VectorX<double>::Ones(Zimpp.size()).cwiseQuotient(Zimpp);
+                    Yimpm = VectorX<SimpleType>::Ones(Zimpm.size()).cwiseQuotient(Zimpm);
+                    Yimpp = VectorX<SimpleType>::Ones(Zimpp.size()).cwiseQuotient(Zimpp);
 
                     //Ebc = -E(vmapB); dE (mapB) = E(vmapB) - Ebc;
                     SimpleType Ebc, Hbc;
@@ -223,6 +223,27 @@ namespace OpenPSTD
                     return 2;
                 }
             };
+
+            extern template class MaxwellDEElement<float>;
+            extern template class MaxwellDEElement<double>;
+
+            extern template class MaxwellDE<float>;
+            extern template class MaxwellDE<double>;
+
+            extern template class DG1DDE<double, MaxwellDEElement<double>>;
+            extern template class DG1DDE<float, MaxwellDEElement<double>>;
+
+            extern template class System1D<double, MaxwellDEElement<double>>;
+            extern template class System1D<float, MaxwellDEElement<double>>;
+
+            extern template class Element1D<double, MaxwellDEElement<double>>;
+            extern template class Element1D<float, MaxwellDEElement<double>>;
+
+            extern template class Face1D<double, MaxwellDEElement<double>>;
+            extern template class Face1D<float, MaxwellDEElement<double>>;
+
+            extern template class Vertex1D<double, MaxwellDEElement<double>>;
+            extern template class Vertex1D<float, MaxwellDEElement<double>>;
         }
     }
 }

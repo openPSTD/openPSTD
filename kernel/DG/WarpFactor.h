@@ -91,6 +91,10 @@ namespace OpenPSTD
 
                 return warp;
             }
+
+            extern template ArrayX<float> WarpFactor(int N, VectorX<float> rout);
+            extern template ArrayX<double> WarpFactor(int N, VectorX<double> rout);
+
         }
     }
 }

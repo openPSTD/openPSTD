@@ -86,6 +86,15 @@ namespace OpenPSTD
 
                 return result;
             }
+
+            extern template MatrixX<float> DMatrix1D(int N, VectorX<float> r, MatrixX<float> V);
+            extern template MatrixX<double> DMatrix1D(int N, VectorX<double> r, MatrixX<double> V);
+
+            extern template DMatrices2DResult<float> DMatrices2D(int N, MatrixX<float> rs, MatrixX<float> V);
+            extern template DMatrices2DResult<double> DMatrices2D(int N, MatrixX<double> rs, MatrixX<double> V);
+
+            extern template struct DMatrices2DResult<float>;
+            extern template struct DMatrices2DResult<double>;
         }
     }
 }

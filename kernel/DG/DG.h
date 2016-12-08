@@ -287,7 +287,8 @@ namespace OpenPSTD
                     SimpleType minValue = fabs(x[0]-x[1]);
                     for(int i = 1; i < x.size()-1; i++)
                     {
-                        minValue = std::min(fabs(x[i]-x[i+1]), minValue);
+                        SimpleType next = fabs(x[i]-x[i+1]);
+                        minValue = std::min(next, minValue);
                     }
                     return minValue;
                 }
@@ -335,6 +336,22 @@ namespace OpenPSTD
                 SimpleType x;
                 std::vector<std::weak_ptr<Face1D<SimpleType, DEElementStore>>> Faces;
             };
+
+            extern template class DG1DDE<double>;
+            extern template class DG1DDE<float>;
+
+            extern template class System1D<double>;
+            extern template class System1D<float>;
+
+            extern template class Element1D<double>;
+            extern template class Element1D<float>;
+
+            extern template class Face1D<double>;
+            extern template class Face1D<float>;
+
+            extern template class Vertex1D<double>;
+            extern template class Vertex1D<float>;
+
         }
     }
 }

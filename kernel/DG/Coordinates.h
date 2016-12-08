@@ -82,6 +82,12 @@ namespace OpenPSTD
 
                 return rs;
             }
+
+            extern template ArrayXX<double> xytors(ArrayXX<double> xy);
+            extern template ArrayXX<float> xytors(ArrayXX<float> xy);
+
+            extern template ArrayXX<double> rstoab(ArrayXX<double> xy);
+            extern template ArrayXX<float> rstoab(ArrayXX<float> xy);
         }
     }
 }

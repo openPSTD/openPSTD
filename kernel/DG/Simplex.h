@@ -120,6 +120,15 @@ namespace OpenPSTD
             }
 
 
+            extern template VectorX<float> Simplex2DP(ArrayXX<float> ab, int i, int j);
+            extern template VectorX<double> Simplex2DP(ArrayXX<double> ab, int i, int j);
+
+            extern template GradSimplex2DPResult<float> GradSimplex2DP(ArrayXX<float> ab, int id, int jd);
+            extern template GradSimplex2DPResult<double> GradSimplex2DP(ArrayXX<double> ab, int id, int jd);
+
+            extern template struct GradSimplex2DPResult<float>;
+            extern template struct GradSimplex2DPResult<double>;
+
         }
     }
 }

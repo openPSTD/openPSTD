@@ -116,6 +116,22 @@ namespace OpenPSTD
                 return result;
             }
 
+            extern template MatrixX<float> GeometricFactors1D_J(const MatrixX<float>& x, const MatrixX<float>& Dr);
+            extern template MatrixX<double> GeometricFactors1D_J(const MatrixX<double>& x, const MatrixX<double>& Dr);
+
+            extern template MatrixX<float> GeometricFactors1D_rx(const MatrixX<float>& J);
+            extern template MatrixX<double> GeometricFactors1D_rx(const MatrixX<double>& J);
+
+            extern template MatrixX<float> GeometricFactors1D_rx(const MatrixX<float>& x, const MatrixX<float>& Dr);
+            extern template MatrixX<double> GeometricFactors1D_rx(const MatrixX<double>& x, const MatrixX<double>& Dr);
+
+            extern template struct GeometricFactors2DResult<float>;
+            extern template struct GeometricFactors2DResult<double>;
+
+            extern template GeometricFactors2DResult<float> GeometricFactors2D(const MatrixX<float>& x, const MatrixX<float>& y, const MatrixX<float>& Dr, const MatrixX<float>& Ds);
+            extern template GeometricFactors2DResult<double> GeometricFactors2D(const MatrixX<double>& x, const MatrixX<double>& y, const MatrixX<double>& Dr, const MatrixX<double>& Ds);
+
+
         }
     }
 }

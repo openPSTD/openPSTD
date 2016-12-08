@@ -244,6 +244,9 @@ namespace OpenPSTD
                     return 2;
                 }
             };
+
+            extern template class LinearizedEulerEquationsDE<float>;
+            extern template class LinearizedEulerEquationsDE<double>;
         }
     }
 }

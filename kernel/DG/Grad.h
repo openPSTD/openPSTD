@@ -72,6 +72,26 @@ namespace OpenPSTD
 
                 return result;
             }
+
+            extern template Grad2DResult<float> Grad2D(
+                                                        MatrixX<float> Dr,
+                                                        MatrixX<float> Ds,
+                                                        VectorX<float> rx,
+                                                        VectorX<float> ry,
+                                                        VectorX<float> sx,
+                                                        VectorX<float> sy,
+                                                        VectorX<float> u);
+            extern template Grad2DResult<double> Grad2D(
+                                                        MatrixX<double> Dr,
+                                                        MatrixX<double> Ds,
+                                                        VectorX<double> rx,
+                                                        VectorX<double> ry,
+                                                        VectorX<double> sx,
+                                                        VectorX<double> sy,
+                                                        VectorX<double> u);
+
+            extern template struct Grad2DResult<float>;
+            extern template struct Grad2DResult<double>;
         }
     }
 }

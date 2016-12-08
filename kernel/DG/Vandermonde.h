@@ -140,6 +140,21 @@ namespace OpenPSTD
                 return result;
             }
 
+            extern template MatrixX<float> Vandermonde1D(int N, VectorX<float> r);
+            extern template MatrixX<double> Vandermonde1D(int N, VectorX<double> r);
+
+            extern template MatrixX<float> GradVandermonde1D(int N, VectorX<float> r);
+            extern template MatrixX<double> GradVandermonde1D(int N, VectorX<double> r);
+
+            extern template MatrixX<float> Vandermonde2D(int N, MatrixX<float> rs);
+            extern template MatrixX<double> Vandermonde2D(int N, MatrixX<double> rs);
+
+            extern template GradVandermonde2DResult<float> GradVandermonde2D(int N, MatrixX<float> rs);
+            extern template GradVandermonde2DResult<double> GradVandermonde2D(int N, MatrixX<double> rs);
+
+            extern template struct GradVandermonde2DResult<float>;
+            extern template struct GradVandermonde2DResult<double>;
+
         }
     }
 }

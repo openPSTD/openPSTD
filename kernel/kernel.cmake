@@ -19,10 +19,24 @@ SET(SOURCE_FILES_LIB
 
 # DG
 SET(SOURCE_FILES_LIB ${SOURCE_FILES_LIB}
+        kernel/DG/Advec.cpp
+        kernel/DG/Coordinates.cpp
+        kernel/DG/DG.cpp
         kernel/DG/DG2D.cpp
         kernel/DG/DG2DBuilders.cpp
+        kernel/DG/DMatrix.cpp
+        kernel/DG/GeometricFactors.cpp
+        kernel/DG/Grad.cpp
+        kernel/DG/Jacobi.cpp
+        kernel/DG/LEE.cpp
         kernel/DG/LEE2D.cpp
+        kernel/DG/Lift.cpp
+        kernel/DG/Maxwell.cpp
+        kernel/DG/Nodes.cpp
         kernel/DG/RK.cpp
+        kernel/DG/Simplex.cpp
+        kernel/DG/Vandermonde.cpp
+        kernel/DG/WarpFactor.cpp
         )
 
 # Mock

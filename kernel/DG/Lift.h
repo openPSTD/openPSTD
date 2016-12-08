@@ -164,6 +164,12 @@ namespace OpenPSTD
                 //LIFT = V*(V'*Emat);
                 return V*(V.transpose()*Emat);
             }
+
+            extern template MatrixX<float> Lift1D(int Np, int NFaces, MatrixX<float> V);
+            extern template MatrixX<double> Lift1D(int Np, int NFaces, MatrixX<double> V);
+
+            extern template MatrixX<float> Lift2D(int N, int NFaces, MatrixX<float> V, MatrixX<float> rs);
+            extern template MatrixX<double> Lift2D(int N, int NFaces, MatrixX<double> V, MatrixX<double> rs);
         }
     }
 }

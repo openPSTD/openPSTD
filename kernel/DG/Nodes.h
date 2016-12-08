@@ -113,6 +113,10 @@ namespace OpenPSTD
                 result << x, y;
                 return result;
             }
+
+            extern template ArrayXX<float> Nodes2D(int N);
+            extern template ArrayXX<double> Nodes2D(int N);
+
         }
     }
 }

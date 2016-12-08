@@ -129,6 +129,9 @@ namespace OpenPSTD
                     return 1;
                 }
             };
+
+            extern template class AdvecDE<double>;
+            extern template class AdvecDE<float>;
         }
     }
 }
