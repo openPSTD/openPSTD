@@ -20,7 +20,9 @@
 
 in vec4 f_Color;
 
+out vec4 color;
+
 void main()
 {
-    gl_FragColor = f_Color;
+    color = f_Color;
 }

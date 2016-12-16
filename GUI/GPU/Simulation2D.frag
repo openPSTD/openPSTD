@@ -26,6 +26,8 @@ in vec2 v_texcoord;
 
 uniform sampler2D values;
 
+out vec4 color;
+
 void main()
 {
     float value = texture2D(values, v_texcoord).r;
@@ -45,11 +47,11 @@ void main()
         valueAbs = pow(valueAbs, 0.5);
     if(0 < value)
     {
-        gl_FragColor = vec4(valueAbs, 0, 0, 1);
+        color = vec4(valueAbs, 0, 0, 1);
     }
     else
     {
-        gl_FragColor = vec4(0, 0, valueAbs, 1);
+        color = vec4(0, 0, valueAbs, 1);
     }
 
 }

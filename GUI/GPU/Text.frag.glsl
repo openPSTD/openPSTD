@@ -23,8 +23,10 @@ uniform vec4 color;
 in vec2 v_texcoord;
 uniform sampler2D font;
 
+out vec4 screen_color;
+
 void main()
 {
     float value = texture2D(font, v_texcoord).r;
-    gl_FragColor = vec4(color.rgb, color.a*value);
+    screen_color = vec4(color.rgb, color.a*value);
 }
