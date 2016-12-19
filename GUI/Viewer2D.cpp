@@ -333,9 +333,9 @@ OpenPSTD::GUI::TextRenderer::TextRenderer(std::unique_ptr<QOpenGLFunctions, void
     std::map<char, QRect> iTextureMapping = this->GetIntegerTextureMapping();
 
     std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
-            new std::string(":/GPU/Text.vert.glsl"));
+            new std::string(":/GPU/Text.vert"));
     std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
-            new std::string(":/GPU/Text.frag.glsl"));
+            new std::string(":/GPU/Text.frag"));
 
     program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
     program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));

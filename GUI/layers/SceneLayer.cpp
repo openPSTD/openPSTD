@@ -53,7 +53,7 @@ namespace OpenPSTD
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
                     new std::string(":/GPU/Scene2D.frag"));
             std::unique_ptr<std::string> geometricFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Line.geo.glsl"));
+                    new std::string(":/GPU/Line.geom"));
 
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));

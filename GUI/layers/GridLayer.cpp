@@ -47,10 +47,10 @@ namespace OpenPSTD
             f->glGenBuffers(1, &this->originPositionsBuffer);
 
             std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Grid.vert.glsl"));
+                    new std::string(":/GPU/Grid.vert"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Grid.frag.glsl"));
-            std::unique_ptr<std::string> geometricFile = std::unique_ptr<std::string>(new std::string(":/GPU/Line.geo.glsl"));
+                    new std::string(":/GPU/Grid.frag"));
+            std::unique_ptr<std::string> geometricFile = std::unique_ptr<std::string>(new std::string(":/GPU/Line.geom"));
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
             program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
