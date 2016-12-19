@@ -112,6 +112,7 @@ namespace OpenPSTD {
 
         void MultiThreadSolver::compute_propagation() {
             this->callback->Info("Starting simulation (multi-thread solver)");
+            this->callback->Info("Computing frame 0");
 
             fftwf_init_threads();
             fftwf_plan_with_nthreads(1); // the internal threading overhead of FFTW is only worth it for fftlen > 1024
@@ -122,18 +123,28 @@ namespace OpenPSTD {
                     //std::cout << *domain << std::endl;
                 }
                 for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
-                    for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
-                        for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
-                            for (auto domain:this->scene->domain_list) {
-                                //std::cout << *domain << std::endl;
-                                if (not domain->is_rigid()) {
-                                    if (domain->should_update[calc_dir]) {
-                                        domain->calc(calc_dir, calc_type);
+                    #pragma omp parallel
+                    {
+                        #pragma omp single nowait
+                        {
+                            for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
+                                for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
+                                    for (auto domain:this->scene->domain_list) {
+                                        //std::cout << *domain << std::endl;
+                                        #pragma omp task
+                                        {
+                                            if (not domain->is_rigid()) {
+                                                if (domain->should_update[calc_dir]) {
+                                                    domain->calc(calc_dir, calc_type);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
                     for (auto domain:this->scene->domain_list) {
                         if (not domain->is_rigid()) {
                             this->update_field_values(domain, rk_step, frame);
@@ -155,7 +166,9 @@ namespace OpenPSTD {
                         this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
                     }
                 }
-                this->callback->Info("Finished frame: \n"+std::to_string(frame));
+                this->callback->Debug("Finished frame: " + std::to_string(frame) + " ");
+                std::string movestring = ("\033[AFinished frame: " + std::to_string(frame) + " ");
+                this->callback->Info(movestring);
             }
             this->callback->Info("Succesfully finished simulation");
         }

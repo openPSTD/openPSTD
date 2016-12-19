@@ -178,9 +178,10 @@ namespace OpenPSTD {
                 int ostride = istride;
                 int idist = fft_length; //distance between first element of different arrays
                 int odist = (fft_length / 2) + 1;
+                #pragma omp critical
                 plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch, in_buffer, NULL, istride, idist,
                                                out_buffer, NULL, ostride, odist, FFTW_ESTIMATE);
-
+                #pragma omp critical
                 plan_inv = fftwf_plan_many_dft_c2r(1, shape, fft_batch, out_buffer, NULL, ostride, odist,
                                                    in_buffer, NULL, istride, idist, FFTW_ESTIMATE);
             }

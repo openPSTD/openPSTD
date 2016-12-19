@@ -103,7 +103,7 @@ namespace OpenPSTD {
             Discretization discretize_wave_numbers(float dx, int N); //Todo: Needs a better name
 
             /**
-             * Create new planset for given fftw length, batch size
+             * Create new planset for given fftw length, batch size. Not thread safe!
              * @param: fft_length: Length of the planned FFT
              * @param fft_batch_size: Batch size of the planned FFT
              */
