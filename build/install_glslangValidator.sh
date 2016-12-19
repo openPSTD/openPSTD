@@ -7,10 +7,6 @@ cd glslang
 cmake -G Unix\ Makefiles ./
 make glslangValidator
 
-ls -al
-
-cp glslangValidator ../
+cp StandAlone/glslangValidator ../
 
 cd ..
-
-ls -al
