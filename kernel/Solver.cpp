@@ -58,10 +58,14 @@ namespace OpenPSTD {
                 scene, callback) {
         }
 
-
-        // Todo: Overwrite solver for GPU/Multithreaded
         void Solver::compute_propagation() {
+            Kernel::debug("!! NO SOLVER IMPLEMENTATION WAS SELECTED !! ");
+            this->callback->Error("!! NO SOLVER IMPLEMENTATION WAS SELECTED !! ");
+        }
+
+        void SingleThreadSolver::compute_propagation() {
             this->callback->Info("Starting simulation");
+
             for (int frame = 0; frame < this->number_of_time_steps; frame++) {
                 for (auto domain:this->scene->domain_list) {
                     domain->push_values();
@@ -104,6 +108,78 @@ namespace OpenPSTD {
                 this->callback->Info("Finished frame: "+std::to_string(frame));
             }
             this->callback->Info("Succesfully finished simulation");
+        }
+
+        void MultiThreadSolver::compute_propagation() {
+            this->callback->Info("Starting simulation (multi-thread solver)");
+            this->callback->Info("Computing frame 0");
+
+            fftwf_init_threads();
+            fftwf_plan_with_nthreads(1); // the internal threading overhead of FFTW is only worth it for fftlen > 1024
+
+            for (int frame = 0; frame < this->number_of_time_steps; frame++) {
+                for (auto domain:this->scene->domain_list) {
+                    domain->push_values();
+                    //std::cout << *domain << std::endl;
+                }
+                for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
+                    #pragma omp parallel
+                    {
+                        #pragma omp single nowait
+                        {
+                            for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
+                                for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
+                                    for (auto domain:this->scene->domain_list) {
+                                        //std::cout << *domain << std::endl;
+                                        #pragma omp task
+                                        {
+                                            if (not domain->is_rigid()) {
+                                                if (domain->should_update[calc_dir]) {
+                                                    domain->calc(calc_dir, calc_type);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for (auto domain:this->scene->domain_list) {
+                        if (not domain->is_rigid()) {
+                            this->update_field_values(domain, rk_step, frame);
+                        }
+                    }
+                    for (auto domain:this->scene->domain_list) {
+                        domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
+                    }
+                }
+                for (auto domain:this->scene->domain_list) {
+                    if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
+                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector(domain));
+                    }
+                }
+                this->scene->apply_pml_matrices();
+                for (auto receiver:this->scene->receiver_list) {
+                    receiver->compute_local_pressure();
+                    if (frame % this->settings->GetSaveNth() == 0) {
+                        this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
+                    }
+                }
+                this->callback->Debug("Finished frame: " + std::to_string(frame) + " ");
+                std::string movestring = ("\033[AFinished frame: " + std::to_string(frame) + " ");
+                this->callback->Info(movestring);
+            }
+            this->callback->Info("Succesfully finished simulation");
+        }
+
+        void GPUSingleThreadSolver::compute_propagation() {
+            this->callback->Error("!! GPU SOLVER NOT YET IMPLEMENTED !! ");
+            //TODO
+        }
+        void GPUMultiThreadSolver::compute_propagation() {
+            this->callback->Error("!! GPU+MCPU SOLVER NOT YET IMPLEMENTED !! ");
+            //TODO
         }
 
         void Solver::update_field_values(std::shared_ptr<Domain> domain, unsigned long rk_step,

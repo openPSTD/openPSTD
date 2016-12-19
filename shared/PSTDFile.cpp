@@ -47,7 +47,7 @@ namespace OpenPSTD
     {
         using namespace std;
 
-#define PSTD_FILE_VERSION 3
+#define PSTD_FILE_VERSION 4
 
 #define PSTD_FILE_PREFIX_SCENE 1
 
@@ -84,8 +84,12 @@ namespace OpenPSTD
 
         OPENPSTD_SHARED_EXPORT const char *PSTDFileVersionException::what() const noexcept
         {
-            return ("Wrong version: " + boost::lexical_cast<std::string>(FileVersion) + "(expected: " +
-                    boost::lexical_cast<std::string>(PSTD_FILE_VERSION) + ")").c_str();
+
+            std::string str = ("Wrong version: " + boost::lexical_cast<std::string>(FileVersion) + "(expected: " +
+                    boost::lexical_cast<std::string>(PSTD_FILE_VERSION) + ")");
+            char* c_str = new char[str.length()];
+            strcpy(c_str, str.data());
+            return c_str;
         }
 
         OPENPSTD_SHARED_EXPORT PSTDFileIOException::PSTDFileIOException(int unqlite_error, PSTDFile_Key_t key, std::string action)

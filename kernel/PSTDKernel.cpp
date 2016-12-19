@@ -38,6 +38,11 @@ namespace OpenPSTD {
 //-----------------------------------------------------------------------------
 // interface of the kernel
 
+        PSTDKernel::PSTDKernel(bool GPU, bool MCPU) {
+            this->GPU = GPU;
+            this->MCPU = MCPU;
+        }
+
         void PSTDKernel::initialize_kernel(std::shared_ptr<PSTDConfiguration> config) {
             using namespace Kernel;
             debug("Initializing kernel");
@@ -114,7 +119,9 @@ namespace OpenPSTD {
                 throw PSTDKernelNotConfiguredException();
 
             using namespace Kernel;
-            int solver_num = this->config->Settings.GetGPUAccel() + (this->config->Settings.GetMultiThread() << 1);
+            int solver_num = 0;
+            if(this->GPU) solver_num++;
+            if(this->MCPU) solver_num += 2;
             std::shared_ptr<Kernel::Solver> solver;
             switch (solver_num) {
                 case 0:
