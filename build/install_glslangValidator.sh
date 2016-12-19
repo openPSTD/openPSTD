@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-mkdir glslangValidator
-cd glslangValidator
-
 git clone https://github.com/KhronosGroup/glslang.git
+
+cd glslang
+
 cmake -G Unix\ Makefiles ./
 make glslangValidator
 
