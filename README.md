@@ -3,7 +3,7 @@ openPSTD [![Build Status](https://travis-ci.org/openPSTD/openPSTD.svg)](https://
 
 openPSTD is an open source initiative to provide an intuitive visual interface for the Pseudo-Spectral Time-Domain 
 method to simulate the propagation of sound. Documentation on openPSTD can be found 
-[here](http://www.openpstd.org/wiki/index.php/Main_Page). Version 1.0 and 1.1 of openPSTD are written in Python and 
+[here](http://www.openpstd.org/wiki/index.php/OpenPSTD). Version 1.0 and 1.1 of openPSTD are written in Python and 
 these are released as Blender plugins; for instruction on installation, see **Installation**.
 
 A C++ port of openPSTD is currently under development and will be released as a standalone application. The current
