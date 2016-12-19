@@ -16,17 +16,6 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////
-//
-// Date:
-//
-//
-// Authors:
-//
-//
-//////////////////////////////////////////////////////////////////////////
-
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -380,9 +369,8 @@ namespace OpenPSTD
                 desc.add_options()
                         ("help,h", "produce help message")
                         ("scene-file,f", po::value<std::string>(), "The scene file that has to be used (required)")
-                        ("multithreaded,m", "use the multi-threaded solver (mutually exclusive with gpu accelerated)")
-                        ("gpu-accelerated,g",
-                         "Use the gpu for the calculations (mutually exclusive with multithreaded)")
+                        ("multithreaded,m", "Use the multi-threaded solver")
+                        ("gpu-accelerated,g", "Use the gpu for the calculations")
                         ("mock,M", "Use the mock kernel(only useful for development)")
                         ("debug", "shows debug information(only useful for development)")
                     //("write-plot,p", "Plots are written to the output directory")
@@ -408,11 +396,15 @@ namespace OpenPSTD
                     return 1;
                 }
 
-                if (vm.count("multithreaded") > 0 && vm.count("gpu-accelerated") > 0)
+                bool GPU = false, MCPU = false;
+                if (vm.count("multithreaded") > 0)
                 {
-                    std::cerr << "multithreaded and gpu accelerated options are mutually exclusive" << std::endl;
-                    std::cout << desc << std::endl;
-                    return 1;
+                    MCPU = true;
+                }
+
+                if (vm.count("gpu-accelerated") > 0)
+                {
+                    GPU = true;
                 }
 
                 if (vm.count("mock") > 0 && (vm.count("multithreaded") > 0 || vm.count("gpu-accelerated") > 0))
@@ -442,7 +434,7 @@ namespace OpenPSTD
                 else
                 {
                     //use the real kernel
-                    kernel = std::unique_ptr<Kernel::PSTDKernel>(new Kernel::PSTDKernel());
+                    kernel = std::unique_ptr<Kernel::PSTDKernel>(new Kernel::PSTDKernel(GPU, MCPU));
                 }
                 //configure the kernel
                 kernel->initialize_kernel(conf);
