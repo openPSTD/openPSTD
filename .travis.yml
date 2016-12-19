@@ -52,7 +52,6 @@ before_script:
 script:
 - compile.sh
 - test.sh
-- test_shaders.sh
 
 after_success:
 - upload_webdav.sh

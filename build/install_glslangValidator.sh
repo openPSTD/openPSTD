@@ -3,7 +3,7 @@
 mkdir glslangValidator
 cd glslangValidator
 
-git clone git@github.com:KhronosGroup/glslang.git
+git clone https://github.com/KhronosGroup/glslang.git
 cmake -G Unix\ Makefiles ./
 make glslangValidator
 
