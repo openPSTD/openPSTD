@@ -33,13 +33,13 @@ before_install:
 - install_add_repo.sh
 
 install:
+- install_glslangValidator.sh
 - install_fftw.sh
 - install_hdf5.sh
 - install_xsltproc.sh
 - install_eigen.sh
 - install_boost.sh
 - install_Qt55.sh
-- install_glslangValidator.sh
 
 before_script:
 - uname -r

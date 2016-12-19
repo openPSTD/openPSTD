@@ -8,6 +8,7 @@ cmake -G Unix\ Makefiles ./
 make glslangValidator
 
 ls -al
+ls -al StandAlone
 
 cp glslangValidator ../
 
