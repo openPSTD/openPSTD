@@ -73,10 +73,6 @@ namespace OpenPSTD {
             int PMLCells;
             /// Subsampling size of the simulation results.
             int SaveNth;
-            /// Enable GPU-acceleration
-            bool gpu;
-            /// Enable CPU-acceleration
-            bool multithread;
             /// Window coefficients for attenuating the sound
             Eigen::ArrayXf window;
 
@@ -99,8 +95,6 @@ namespace OpenPSTD {
                 ar & spectral_interpolation;
                 ar & PMLCells;
                 ar & SaveNth;
-                ar & gpu;
-                ar & multithread;
             }
 
             float GetGridSpacing();
@@ -158,14 +152,6 @@ namespace OpenPSTD {
             void SetWaveLength(float value);
 
             float GetTimeStep();
-
-            bool GetGPUAccel();
-
-            void SetGPUAccel(bool value);
-
-            bool GetMultiThread();
-
-            void SetMultiThread(bool value);
 
             std::vector<float> GetRKCoefficients();
 

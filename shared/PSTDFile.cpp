@@ -47,7 +47,7 @@ namespace OpenPSTD
     {
         using namespace std;
 
-#define PSTD_FILE_VERSION 3
+#define PSTD_FILE_VERSION 4
 
 #define PSTD_FILE_PREFIX_SCENE 1
 
