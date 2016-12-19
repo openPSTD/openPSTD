@@ -114,9 +114,6 @@ namespace OpenPSTD {
             this->callback->Info("Starting simulation (multi-thread solver)");
             this->callback->Info("Computing frame 0");
 
-            fftwf_init_threads();
-            fftwf_plan_with_nthreads(1); // the internal threading overhead of FFTW is only worth it for fftlen > 1024
-
             for (int frame = 0; frame < this->number_of_time_steps; frame++) {
                 for (auto domain:this->scene->domain_list) {
                     domain->push_values();
