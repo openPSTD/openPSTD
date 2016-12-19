@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_SUITE(scene)
         config->Speakers.clear();
         config->Speakers.push_back(QVector3D(4.1, 5.1, 0));
         BOOST_CHECK(config->Domains.size() == 1);
-        Kernel::PSTDKernel kernel = Kernel::PSTDKernel();
+        Kernel::PSTDKernel kernel = Kernel::PSTDKernel(false, false);
         kernel.initialize_kernel(config);
         auto scene = kernel.get_scene();
         return scene;
