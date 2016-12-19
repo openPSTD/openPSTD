@@ -53,8 +53,7 @@ namespace OpenPSTD {
             float freqMax;
             /// Density of medium (default: air)
             float rho;
-            /// Patch error
-            // Todo: What is this?
+            /// Patch error (maximum allowed, window depends on this)
             float patcherror;
             /// Time step coefficient used in computing the RK time step size
             float tfactRK;
