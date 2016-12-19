@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
 
-wget https://cvs.khronos.org/svn/repos/ogl/trunk/ecosystem/public/sdk/tools/glslang/Install/Linux/glslangValidator
-chmod 777 glslangValidator
+mkdir glslangValidator
+cd glslangValidator
+
+git clone git@github.com:KhronosGroup/glslang.git
+cmake -G Unix\ Makefiles ./
+make glslangValidator
+
+ls -al
+
+cp glslangValidator ../
+
+cd ..
+
+ls -al
