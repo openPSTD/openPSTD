@@ -18,9 +18,34 @@
 //////////////////////////////////////////////////////////////////////////
 #version 330
 
-in vec2 a_position;
+layout(lines) in;
+layout(triangle_strip, max_vertices = 4) out;
+
+uniform mat4 u_view;
+
+uniform float thickness;
+
+in float v_value[];
+out float g_value;
 
 void main()
 {
-    gl_Position = vec4(a_position, 0, 1);
+    g_value = v_value[0];
+
+    vec4 p0 = gl_in[0].gl_Position;
+    vec4 p1 = gl_in[1].gl_Position;
+
+    vec4 line = (p1-p0);
+    vec4 normal = vec4(normalize(vec2(-line.y, line.x)), 0, 0);
+
+    vec4 a = p0 - thickness * normal;
+    vec4 b = p0 + thickness * normal;
+    vec4 c = p1 - thickness * normal;
+    vec4 d = p1 + thickness * normal;
+
+    gl_Position = u_view*b; EmitVertex();
+    gl_Position = u_view*d; EmitVertex();
+    gl_Position = u_view*a; EmitVertex();
+    gl_Position = u_view*c; EmitVertex();
+    EndPrimitive();
 }

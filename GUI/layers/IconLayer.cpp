@@ -43,13 +43,13 @@ namespace OpenPSTD
             f->glGenBuffers(1, &this->ColorBuffer);
 
             std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Symbol.vert.glsl"));
+                    new std::string(":/GPU/Symbol.vert"));
             std::unique_ptr<std::string> geoFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Symbol.geo.glsl"));
+                    new std::string(":/GPU/Symbol.geom"));
             std::unique_ptr<std::string> geoInternFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/SymbolInternal.geo.glsl"));
+                    new std::string(":/GPU/SymbolInternal.geom"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Symbol.frag.glsl"));
+                    new std::string(":/GPU/Symbol.frag"));
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
             program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));

@@ -46,9 +46,9 @@ namespace OpenPSTD
             f->glGenBuffers(1, &this->selectionBuffer);
 
             std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Interactive.vert.glsl"));
+                    new std::string(":/GPU/Interactive.vert"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Interactive.frag.glsl"));
+                    new std::string(":/GPU/Interactive.frag"));
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
             program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
