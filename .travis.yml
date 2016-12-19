@@ -39,6 +39,7 @@ install:
 - install_eigen.sh
 - install_boost.sh
 - install_Qt55.sh
+- install_glslangValidator.sh
 
 before_script:
 - uname -r
@@ -51,6 +52,7 @@ before_script:
 script:
 - compile.sh
 - test.sh
+- test_shaders.sh
 
 after_success:
 - upload_webdav.sh
