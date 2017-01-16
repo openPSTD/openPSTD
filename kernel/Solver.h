@@ -22,7 +22,7 @@
 //      2-11-15
 //
 // Authors:
-//      Louis van Harten, Omar Richardson
+//      Louis van Harten, Omar Richardson, Michiel Fortuin
 //
 // Purpose:
 //      The openPSTD solver. Subclasses should implement the various
@@ -91,7 +91,7 @@ namespace OpenPSTD {
              * Runs until the simulation is finished, but meanwhile makes calls to the callback.
              * A more badass name is welcome
              */
-            virtual void compute_propagation();
+            virtual void compute_propagation() = 0;
         };
 
         /**
@@ -109,12 +109,24 @@ namespace OpenPSTD {
              * Single threaded implementation of the simulation solver
              */
             void compute_propagation();
+
+            /**
+             * compute a single timestep
+             * @param frame
+             */
+            virtual void compute_timestep(int frame);
+            /**
+             * compute a single RK step
+             * @param frame
+             * @param rk_step
+             */
+            virtual void compute_rk_step(int frame, int rk_step);
         };
 
         /**
          * Solver that exploits the multiple CPU cores of a machine
          */
-        class MultiThreadSolver : public Solver {
+        class MultiThreadSolver : public SingleThreadSolver {
         public:
             /**
              * Multithreaded solver. This instance employs multiple CPU's
@@ -122,10 +134,7 @@ namespace OpenPSTD {
              */
             MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
 
-            /**
-             * Multi-threaded implementation of the simulation solver
-             */
-            void compute_propagation();
+            void compute_rk_step(int frame, int rk_step) override;
         };
 
         /**
