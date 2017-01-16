@@ -10,6 +10,7 @@ mkdir -p $APP/$APP.AppDir/usr/
 cd $APP
 
 wget -q https://github.com/probonopd/AppImages/raw/master/functions.sh
+sudo chmod +x functions.sh
 ./functions.sh
 
 cd $APP.AppDir
