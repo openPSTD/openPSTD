@@ -180,10 +180,11 @@ namespace OpenPSTD {
         map<Kernel::Direction, Kernel::EdgeParameters> PSTDKernel::translate_edge_parameters(DomainConf domain) {
             using namespace Kernel;
             map<Direction, EdgeParameters> edge_parameters;
+            // Internal matrices are flipped, so T/B switch
             edge_parameters[Direction::LEFT] = {domain.L.LR, domain.L.Absorption};
             edge_parameters[Direction::RIGHT] = {domain.R.LR, domain.R.Absorption};
-            edge_parameters[Direction::BOTTOM] = {domain.B.LR, domain.B.Absorption};
-            edge_parameters[Direction::TOP] = {domain.T.LR, domain.T.Absorption};
+            edge_parameters[Direction::TOP] = {domain.B.LR, domain.B.Absorption};
+            edge_parameters[Direction::BOTTOM] = {domain.T.LR, domain.T.Absorption};
             return edge_parameters;
         }
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+if [ $TRAVIS_OS_NAME = "linux" ]; then
 
 export ARCH=$(arch)
 
@@ -39,3 +40,5 @@ generate_type2_appimage
 
 transfer ../out/*
 echo "AppImage has been uploaded to the URL above; later use GitHub Releases for permanent storage"
+
+fi #}if linux
