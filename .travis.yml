@@ -56,3 +56,4 @@ script:
 
 after_success:
 - upload_webdav.sh
+- appimage.sh
