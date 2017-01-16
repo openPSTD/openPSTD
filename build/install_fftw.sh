@@ -12,8 +12,8 @@ else
         wget http://www.fftw.org/fftw-3.3.5.tar.gz
         tar -xzf fftw-3.3.5.tar.gz
         cd fftw-3.3.5
-        ./configure --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2 --enable-generic-simd128 
-        make
+        ./configure --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2 --enable-generic-simd128 > /dev/null
+        make > /dev/null
         sudo make install
     else
         echo running on mac os x
@@ -22,8 +22,8 @@ else
         wget http://www.fftw.org/fftw-3.3.5.tar.gz
         tar -xzf fftw-3.3.5.tar.gz
         cd fftw-3.3.5
-        ./configure --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2 --enable-generic-simd128 CXX="g++ -stdlib=libstdc++ -arch i386 -arch x86_64"
-        make
+        ./configure --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2 --enable-generic-simd128 CXX="g++ -stdlib=libstdc++ -arch i386 -arch x86_64" > /dev/null
+        make > /dev/null
         sudo make install
     fi
 fi
