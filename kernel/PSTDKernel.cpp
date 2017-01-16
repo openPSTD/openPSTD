@@ -30,6 +30,9 @@
 
 #include <signal.h>
 #include "PSTDKernel.h"
+#include <ext/string_conversions.h>
+#include <cstdio>
+#include <boost/lexical_cast.hpp>
 
 namespace OpenPSTD {
     namespace Kernel {
@@ -70,7 +73,7 @@ namespace OpenPSTD {
             int domain_id_int = 0;
             vector<shared_ptr<Kernel::Domain>> domains;
             for (auto domain: this->config->Domains) {
-                Kernel::debug("Initializing domain " + to_string(domain_id_int));
+                Kernel::debug("Initializing domain " + boost::lexical_cast<std::string>(domain_id_int));
                 vector<float> tl = scale_to_grid(domain.TopLeft);
                 vector<float> s = scale_to_grid(domain.Size);
                 Kernel::Point grid_top_left((int) tl.at(0), (int) tl.at(1));
@@ -99,7 +102,7 @@ namespace OpenPSTD {
             //Inconsistent: We created domains in this class, and speakers in the scene class
             for (auto speaker: this->config->Speakers) {
                 vector<float> location = scale_to_grid(speaker);
-                debug("Initializing Speaker (" + to_string(location.at(0)) + ", " + to_string(location.at(1)) + ")");
+                debug("Initializing Speaker (" + boost::lexical_cast<std::string>(location.at(0)) + ", " + boost::lexical_cast<std::string>(location.at(1)) + ")");
                 this->scene->add_speaker(location.at(0), location.at(1), 0); // Z-coordinate is 0
             }
         }

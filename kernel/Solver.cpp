@@ -27,6 +27,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Solver.h"
+#include <boost/lexical_cast.hpp>
 
 namespace OpenPSTD {
     namespace Kernel {
@@ -34,8 +35,8 @@ namespace OpenPSTD {
             this->scene = scene;
             this->settings = scene->settings;
             this->callback = callback;
-            Kernel::debug("Number of render time: " + std::to_string(this->settings->GetRenderTime()));
-            Kernel::debug("Number of time step: " + std::to_string(this->settings->GetTimeStep()));
+            Kernel::debug("Number of render time: " + boost::lexical_cast<std::string>(this->settings->GetRenderTime()));
+            Kernel::debug("Number of time step: " + boost::lexical_cast<std::string>(this->settings->GetTimeStep()));
 
             this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
         }
@@ -105,7 +106,7 @@ namespace OpenPSTD {
                         this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
                     }
                 }
-                this->callback->Info("Finished frame: "+std::to_string(frame));
+                this->callback->Info("Finished frame: " + boost::lexical_cast<std::string>(frame));
             }
             this->callback->Info("Succesfully finished simulation");
         }
@@ -163,8 +164,8 @@ namespace OpenPSTD {
                         this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
                     }
                 }
-                this->callback->Debug("Finished frame: " + std::to_string(frame) + " ");
-                std::string movestring = ("\033[AFinished frame: " + std::to_string(frame) + " ");
+                this->callback->Debug("Finished frame: " + boost::lexical_cast<std::string>(frame) + " ");
+                std::string movestring = ("\033[AFinished frame: " + boost::lexical_cast<std::string>(frame) + " ");
                 this->callback->Info(movestring);
             }
             this->callback->Info("Succesfully finished simulation");
@@ -201,27 +202,27 @@ namespace OpenPSTD {
                                                                        (domain->l_values.Lvy * domain->rho * c1_square);
 
             /*if (!domain->is_pml) {
-                this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + std::to_string(rk_step), 0);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING, "Subframe " + boost::lexical_cast<std::string>(rk_step), 0);
                 //write_array_to_file(domain->l_values.Lpx, "pressure_deriv_x", frame * 6 + rk_step);
                 //write_array_to_file(domain->l_values.Lpy, "pressure_deriv_y", frame * 6 + rk_step);
                 //write_array_to_file(domain->l_values.Lvx, "velocity_deriv_x", frame * 6 + rk_step);
                 //write_array_to_file(domain->l_values.Lvy, "velocity_deriv_y", frame * 6 + rk_step);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "vx0 max: " + std::to_string(domain->current_values.vx0.maxCoeff()), 0);
+                                         "vx0 max: " + boost::lexical_cast<std::string>(domain->current_values.vx0.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "vy0 max: " + std::to_string(domain->current_values.vy0.maxCoeff()), 0);
+                                         "vy0 max: " + boost::lexical_cast<std::string>(domain->current_values.vy0.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "px0 max: " + std::to_string(domain->current_values.px0.maxCoeff()), 0);
+                                         "px0 max: " + boost::lexical_cast<std::string>(domain->current_values.px0.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "py0 max: " + std::to_string(domain->current_values.py0.maxCoeff()), 0);
+                                         "py0 max: " + boost::lexical_cast<std::string>(domain->current_values.py0.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "Lpx max: " + std::to_string(domain->l_values.Lpx.maxCoeff()), 0);
+                                         "Lpx max: " + boost::lexical_cast<std::string>(domain->l_values.Lpx.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "Lpy max: " + std::to_string(domain->l_values.Lpy.maxCoeff()), 0);
+                                         "Lpy max: " + boost::lexical_cast<std::string>(domain->l_values.Lpy.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "Lvx max: " + std::to_string(domain->l_values.Lvx.maxCoeff()), 0);
+                                         "Lvx max: " + boost::lexical_cast<std::string>(domain->l_values.Lvx.maxCoeff()), 0);
                 this->callback->Callback(CALLBACKSTATUS::RUNNING,
-                                         "Lvy max: " + std::to_string(domain->l_values.Lvy.maxCoeff()), 0);
+                                         "Lvy max: " + boost::lexical_cast<std::string>(domain->l_values.Lvy.maxCoeff()), 0);
             }*/
         }
 
