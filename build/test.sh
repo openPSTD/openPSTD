@@ -13,7 +13,7 @@ if [ ${TARGET} != "win64" ]; then
     echo Dependencies for OpenPSTD-test
     ${DEPENDENCY_CHECKER} OpenPSTD-test
 
-    ./OpenPSTD-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=no --catch_system_errors=yes --build_info=yes
+    ./OpenPSTD-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=no --catch_system_errors=yes --build_info=yes -t DG,GUI
     RESULT=$?
     
     echo testing result: ${RESULT}
