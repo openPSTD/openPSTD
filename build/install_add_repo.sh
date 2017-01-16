@@ -12,6 +12,6 @@ else
         echo ============================================================================
         sudo apt-get update -qq
     else
-        sudo brew update >/dev/null
+        brew update >/dev/null
     fi
 fi
