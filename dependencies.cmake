@@ -41,10 +41,13 @@ endif ()
 
 #------------------------------------
 # OpenMP
-find_package(OpenMP)
+#find_package(OpenMP)
+message(STATUS "OpenMP found ${OPENMP_FOUND}")
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    message(STATUS "OpenMP c_flags ${OpenMP_C_FLAGS}")
+    message(STATUS "OpenMP cxx_flags ${OpenMP_CXX_FLAGS}")
 endif()
 
 #------------------------------------
@@ -58,7 +61,10 @@ set(Qt5_FIRST 1)
 set(Qt5_FOUND 0)
 macro(loadQtPackage QtModule)
     # set the correct path
-    set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
+    if (Qt5_DIR)
+        set(${QtModule}_DIR "${Qt5_DIR}/${Qt5_CMAKE}/${QtModule}")
+    endif()
+
     # message about location
     message(STATUS "Qt5 ${QtModule} dir: ${${QtModule}_DIR}")
     # load package
