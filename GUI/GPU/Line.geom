@@ -16,6 +16,9 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+
+//Line.geom
+
 #version 330
 
 layout(lines) in;

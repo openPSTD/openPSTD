@@ -26,6 +26,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "WisdomCache.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
@@ -74,7 +75,7 @@ namespace OpenPSTD {
         }
 
         WisdomCache::Planset_FFTW WisdomCache::get_fftw_planset(int fft_length, int fft_batch_size) {
-            std::string plan_key = std::to_string(fft_length).append(",").append(std::to_string(fft_batch_size));
+            std::string plan_key = boost::lexical_cast<std::string>(fft_length).append(",").append(boost::lexical_cast<std::string>(fft_batch_size));
             auto search = this->cached_fftw_plans.find(plan_key);
             if (search != this->cached_fftw_plans.end()) {
                 return search->second;
@@ -118,7 +119,7 @@ namespace OpenPSTD {
             string number_repr;
             for (auto iterator = v.computed_discretization.begin();
                  iterator != v.computed_discretization.end(); iterator++) {
-                number_repr += "n = 2^" + to_string(iterator->first) + " ";
+                number_repr += "n = 2^" + boost::lexical_cast<std::string>(iterator->first) + " ";
             }
             return str << "Wavenumberdiscretizations: " << number_repr;
         }
