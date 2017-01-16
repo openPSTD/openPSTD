@@ -30,7 +30,7 @@ out vec4 color;
 
 void main()
 {
-    float value = texture2D(values, v_texcoord).r;
+    float value = texture(values, v_texcoord).r;
 
     if(value < vmin)
     {

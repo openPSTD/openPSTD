@@ -27,6 +27,6 @@ out vec4 screen_color;
 
 void main()
 {
-    float value = texture2D(font, v_texcoord).r;
+    float value = texture(font, v_texcoord).r;
     screen_color = vec4(color.rgb, color.a*value);
 }
