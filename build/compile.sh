@@ -18,8 +18,8 @@ else
         QT5DIR=/opt/qt55
         PACKAGE=TGZ
 
-        FFTLIBPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.a
-        FFTSOPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so
+        FFTLIBPATH=/usr/local/lib/libfftw3f.a
+        FFTSOPATH=/usr/local/lib/libfftw3f.so
 
         HDF5LIBPATH=$PWD/hdf5-1.8.17/hdf5/lib/libhdf5.a
         HDF5HLLIBPATH=$PWD/hdf5-1.8.17/hdf5/lib/libhdf5_hl.a
@@ -29,7 +29,7 @@ else
         PACKAGE=Bundle
 
         FFTLIBPATH=/usr/local/lib/libfftw3f.a
-        FFTSOPATH=""
+        FFTSOPATH=/usr/local/lib/libfftw3f.so
 
         HDF5LIBPATH=/usr/local/Cellar/hdf5/1.8.16_1/lib/libhdf5.a
         HDF5HLLIBPATH=/usr/local/Cellar/hdf5/1.8.16_1/lib/libhdf5_hl.a

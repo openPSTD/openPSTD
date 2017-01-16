@@ -71,7 +71,7 @@ namespace OpenPSTD
             }
 
         public:
-            float EdgeSize = 5.0f;
+            float EdgeSize = 0.05f;
         };
 
 

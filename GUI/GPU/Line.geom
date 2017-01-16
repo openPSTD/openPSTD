@@ -16,42 +16,36 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-
 #version 330
 
-uniform float vmin;
-uniform float vmax;
+layout(lines) in;
+layout(triangle_strip, max_vertices = 4) out;
 
-in vec2 v_texcoord;
+uniform mat4 u_view;
 
-uniform sampler2D values;
+uniform float thickness;
 
-out vec4 color;
+in float v_value[];
+out float g_value;
 
 void main()
 {
-    float value = texture(values, v_texcoord).r;
+    g_value = v_value[0];
 
-    if(value < vmin)
-    {
-        value = vmin;
-    }
-    else if(value > vmax)
-    {
-        value = vmax;
-    }
+    vec4 p0 = gl_in[0].gl_Position;
+    vec4 p1 = gl_in[1].gl_Position;
 
-    value = (value-vmin)/(vmax-vmin)*2-1;
-    float valueAbs = abs(value);
-    if(valueAbs != 0)
-        valueAbs = pow(valueAbs, 0.5);
-    if(0 < value)
-    {
-        color = vec4(valueAbs, 0, 0, 1);
-    }
-    else
-    {
-        color = vec4(0, 0, valueAbs, 1);
-    }
+    vec4 line = (p1-p0);
+    vec4 normal = vec4(normalize(vec2(-line.y, line.x)), 0, 0);
 
+    vec4 a = p0 - thickness * normal;
+    vec4 b = p0 + thickness * normal;
+    vec4 c = p1 - thickness * normal;
+    vec4 d = p1 + thickness * normal;
+
+    gl_Position = u_view*b; EmitVertex();
+    gl_Position = u_view*d; EmitVertex();
+    gl_Position = u_view*a; EmitVertex();
+    gl_Position = u_view*c; EmitVertex();
+    EndPrimitive();
 }

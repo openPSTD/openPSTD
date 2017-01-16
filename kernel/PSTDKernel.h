@@ -51,6 +51,8 @@ namespace OpenPSTD {
          */
         class PSTDKernel : public KernelInterface {
         private:
+            bool GPU, MCPU;
+
             /// Configuration file from which the simulation is created
             std::shared_ptr<PSTDConfiguration> config;
             /// Settings derived from the configuration
@@ -117,6 +119,8 @@ namespace OpenPSTD {
 
 
         public:
+
+            PSTDKernel(bool GPU, bool MCPU);
 
             /**
              * Sets the configuration,

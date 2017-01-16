@@ -22,11 +22,13 @@
 uniform float vmin;
 uniform float vmax;
 
-in float v_value;
+in float g_value;
+
+out vec4 color;
 
 void main()
 {
-    float value = v_value;
+    float value = g_value;
 
     if(value < vmin)
     {
@@ -38,5 +40,5 @@ void main()
     }
 
     value = (value-vmin)/(vmax-vmin);
-    gl_FragColor = vec4(0, value, 0, 1);
+    color = vec4(0, value, 0, 1);
 }

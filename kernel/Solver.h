@@ -36,6 +36,7 @@
 #include "KernelInterface.h"
 #include "core/Scene.h"
 #include "PSTDKernel.h"
+#include <fftw3.h>
 
 namespace OpenPSTD {
     namespace Kernel {
@@ -49,13 +50,12 @@ namespace OpenPSTD {
          * The time integration is performed with a RK6 method described in <paper>.
          */
         class Solver {
-        private:
+        protected:
             /// Parameters and settings
             std::shared_ptr<PSTDSettings> settings;
             /// Scene (initialized before passed to the solver)
             std::shared_ptr<Scene> scene;
 
-        protected:
             KernelCallback *callback;
             /**
              * The final number of computed frames
@@ -91,7 +91,7 @@ namespace OpenPSTD {
              * Runs until the simulation is finished, but meanwhile makes calls to the callback.
              * A more badass name is welcome
              */
-            void compute_propagation();
+            virtual void compute_propagation();
         };
 
         /**
@@ -104,6 +104,11 @@ namespace OpenPSTD {
              * @see Solver
              */
             SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+
+            /**
+             * Single threaded implementation of the simulation solver
+             */
+            void compute_propagation();
         };
 
         /**
@@ -116,6 +121,11 @@ namespace OpenPSTD {
              * @see Solver
              */
             MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+
+            /**
+             * Multi-threaded implementation of the simulation solver
+             */
+            void compute_propagation();
         };
 
         /**
@@ -128,6 +138,11 @@ namespace OpenPSTD {
              * @see Solver
              */
             GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+
+            /**
+             * GPU-enabled implementation of the simulation solver
+             */
+            void compute_propagation();
         };
 
         /**
@@ -140,6 +155,11 @@ namespace OpenPSTD {
              * @see Solver
              */
             GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+
+            /**
+             * GPU-enabled and multi-threaded implementation of the simulation solver
+             */
+            void compute_propagation();
         };
     }
 }

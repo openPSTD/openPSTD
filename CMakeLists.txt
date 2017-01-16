@@ -41,6 +41,9 @@ set(EIGEN_INCLUDE "" CACHE PATH "The lib of eigen")
 set(FFTWF_LIBRARY "" CACHE PATH "The lib of fftw3f")
 set(FFTWF_INCLUDE_DIR "" CACHE PATH "The include dirs of fftw3f")
 set(FFTWF_SHARED_OBJECT "" CACHE PATH "The dll/so file of fftw3f")
+#set(FFTWF_OMP_LIBRARY "" CACHE PATH "The lib of fftw3f")
+#set(FFTWF_OMP_INCLUDE_DIR "" CACHE PATH "The include dirs of fftw3f")
+#set(FFTWF_OMP_SHARED_OBJECT "" CACHE PATH "The dll/so file of fftw3f")
 set(HDF5_INCLUDE "" CACHE PATH "The include dirs of HDF5")
 set(HDF5_LIBRARY "" CACHE PATH "The lib of HDF5")
 set(HDF5_HL_LIBRARY "" CACHE PATH "The lib of HDF5 HL")
@@ -75,6 +78,7 @@ include(dependencies.cmake)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 # boost test framework flag
 add_definitions(-DBOOST_TEST_DYN_LINK)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #------------------------------------
 # parts

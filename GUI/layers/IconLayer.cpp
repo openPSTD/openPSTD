@@ -43,13 +43,13 @@ namespace OpenPSTD
             f->glGenBuffers(1, &this->ColorBuffer);
 
             std::unique_ptr<std::string> vertexFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Symbol.vert.glsl"));
+                    new std::string(":/GPU/Symbol.vert"));
             std::unique_ptr<std::string> geoFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Symbol.geo.glsl"));
+                    new std::string(":/GPU/Symbol.geom"));
             std::unique_ptr<std::string> geoInternFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/SymbolInternal.geo.glsl"));
+                    new std::string(":/GPU/SymbolInternal.geom"));
             std::unique_ptr<std::string> fragmentFile = std::unique_ptr<std::string>(
-                    new std::string(":/GPU/Symbol.frag.glsl"));
+                    new std::string(":/GPU/Symbol.frag"));
 
             program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram(nullptr));
             program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString::fromStdString(*vertexFile));
@@ -75,15 +75,15 @@ namespace OpenPSTD
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->LineBuffers);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-            GLError("a_position");
+            GLError("IconLayer a_position");
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->ColorBuffer);
             f->glVertexAttribPointer((GLuint) program->attributeLocation("a_color"), 4, GL_FLOAT, GL_FALSE, 0, 0);
-            GLError("a_color");
+            GLError("IconLayer a_color");
 
             f->glLineWidth(1.0f);
             f->glDrawArrays(GL_POINTS, 0, lines);
-            GLError("f->glDrawArrays");
+            GLError("IconLayer f->glDrawArrays");
             program->disableAttributeArray("a_position");
             program->disableAttributeArray("a_color");
 
@@ -94,14 +94,14 @@ namespace OpenPSTD
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->LineBuffers);
             f->glVertexAttribPointer((GLuint) programIntern->attributeLocation("a_position"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-            GLError("a_position");
+            GLError("IconLayer a_position");
 
             f->glBindBuffer(GL_ARRAY_BUFFER, this->ColorBuffer);
             f->glVertexAttribPointer((GLuint) programIntern->attributeLocation("a_color"), 4, GL_FLOAT, GL_FALSE, 0, 0);
-            GLError("a_color");
+            GLError("IconLayer a_color");
 
             f->glDrawArrays(GL_POINTS, 0, lines);
-            GLError("f->glDrawArrays");
+            GLError("IconLayer f->glDrawArrays");
             programIntern->disableAttributeArray("a_position");
             programIntern->disableAttributeArray("a_color");
         }

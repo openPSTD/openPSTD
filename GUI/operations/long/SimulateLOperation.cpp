@@ -78,7 +78,8 @@ void SimulateLOperation::Run(const Reciever &reciever)
     }
     else
     {
-        kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel());
+        kernel = std::unique_ptr<PSTDKernel>(new PSTDKernel(reciever.model->settings->GPUAcceleration,
+                                                            reciever.model->settings->CPUAcceleration));
     }
 
     kernel->initialize_kernel(conf);

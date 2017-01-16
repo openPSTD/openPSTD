@@ -17,8 +17,7 @@ if [ ${TARGET} != "win64" ]; then
     RESULT=$?
     
     echo testing result: ${RESULT}
-    
-    cat results.xml
+
     xsltproc build/report/TestReport.xsl results.xml
     
     exit ${RESULT}

@@ -16,15 +16,13 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-
 #version 330
 
-uniform vec4 color;
-in vec2 v_texcoord;
-uniform sampler2D font;
+in vec4 f_Color;
+
+out vec4 color;
 
 void main()
 {
-    float value = texture2D(font, v_texcoord).r;
-    gl_FragColor = vec4(color.rgb, color.a*value);
+    color = f_Color;
 }

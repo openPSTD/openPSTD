@@ -42,6 +42,7 @@
 #include <QOpenGLTexture>
 #include "operations/BaseOperation.h"
 #include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 
 namespace OpenPSTD
 {
@@ -140,6 +141,7 @@ namespace OpenPSTD
 
         private:
 
+            QOpenGLVertexArrayObject * _vao;
             std::shared_ptr<TextRenderer> textRenderer;
             std::vector<std::shared_ptr<Layer>> layers;
             std::weak_ptr<OperationRunner> operationRunner;

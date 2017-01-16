@@ -26,7 +26,7 @@ out float v_value;
 
 void main()
 {
-    gl_Position = (u_view * vec4(a_position, 0, 1));
+    gl_Position = vec4(a_position, 0, 1);
 
     v_value = a_value;
 }

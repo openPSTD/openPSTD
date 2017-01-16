@@ -122,22 +122,6 @@ namespace OpenPSTD {
             this->spectral_interpolation = value;
         }
 
-        bool PSTDSettings::GetGPUAccel() {
-            return this->gpu;
-        }
-
-        void PSTDSettings::SetGPUAccel(bool value) {
-            this->gpu = value;
-        }
-
-        bool PSTDSettings::GetMultiThread() {
-            return this->multithread;
-        }
-
-        void PSTDSettings::SetMultiThread(bool value) {
-            this->multithread = value;
-        }
-
         float PSTDSettings::GetTimeStep() {
             return this->tfactRK * this->gridSpacing / this->c1;
         }

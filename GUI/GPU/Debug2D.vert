@@ -17,6 +17,8 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#version 330
+
 uniform mat3 u_view;
 attribute vec4 a_color;
 attribute vec2 a_position;

@@ -18,10 +18,11 @@
 //////////////////////////////////////////////////////////////////////////
 #version 330
 
-uniform mat4 u_view;
-in vec2 a_position;
+uniform vec4 u_color;
+
+out vec4 color;
 
 void main()
 {
-    gl_Position = (u_view * vec4(a_position, 0, 1));
+    color = u_color;
 }

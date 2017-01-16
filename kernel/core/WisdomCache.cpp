@@ -21,7 +21,7 @@
 // Date: 29-9-15
 //
 //
-// Authors: Omar Richardson
+// Authors: Omar Richardson, Louis van Harten
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -92,12 +92,16 @@ namespace OpenPSTD {
             int ostride = istride;
             int idist = fft_length; //distance between first element of different arrays
             int odist = idist;
-            fftwf_plan plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch_size, NULL, NULL, istride, idist,
+            fftwf_plan plan = 0;
+            #pragma omp critical
+            plan = fftwf_plan_many_dft_r2c(1, shape, fft_batch_size, NULL, NULL, istride, idist,
                                                       NULL, NULL, ostride, odist, FFTW_ESTIMATE);
             idist = (fft_length / 2) + 1;
             odist = idist;
             int ishape[] = {fft_length / 2 + 1};
-            fftwf_plan plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch_size, NULL, NULL, ostride, odist,
+            fftwf_plan plan_inv = 0;
+            #pragma omp critical
+            plan_inv = fftwf_plan_many_dft_c2r(1, ishape, fft_batch_size, NULL, NULL, ostride, odist,
                                                           NULL, NULL, istride, idist, FFTW_ESTIMATE);
             Planset_FFTW result;
             result.plan = plan;

@@ -4,20 +4,21 @@
         <!-- OpenGL resources -->
         <file>GPU/Debug2D.frag</file>
         <file>GPU/Debug2D.vert</file>
-        <file>GPU/Grid.frag.glsl</file>
-        <file>GPU/Grid.vert.glsl</file>
-        <file>GPU/Interactive.frag.glsl</file>
-        <file>GPU/Interactive.vert.glsl</file>
+        <file>GPU/Grid.frag</file>
+        <file>GPU/Grid.vert</file>
+        <file>GPU/Interactive.frag</file>
+        <file>GPU/Interactive.vert</file>
         <file>GPU/Scene2D.frag</file>
         <file>GPU/Scene2D.vert</file>
         <file>GPU/Simulation2D.frag</file>
         <file>GPU/Simulation2D.vert</file>
-        <file>GPU/Symbol.frag.glsl</file>
-        <file>GPU/Symbol.geo.glsl</file>
-        <file>GPU/SymbolInternal.geo.glsl</file>
-        <file>GPU/Symbol.vert.glsl</file>
-        <file>GPU/Text.frag.glsl</file>
-        <file>GPU/Text.vert.glsl</file>
+        <file>GPU/Symbol.frag</file>
+        <file>GPU/Symbol.geom</file>
+        <file>GPU/SymbolInternal.geom</file>
+        <file>GPU/Symbol.vert</file>
+        <file>GPU/Text.frag</file>
+        <file>GPU/Text.vert</file>
+        <file>GPU/Line.geom</file>
 
         <!-- Icons -->
         <file>Images/noun_100_cc.png</file>

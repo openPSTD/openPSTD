@@ -18,9 +18,10 @@
 //////////////////////////////////////////////////////////////////////////
 #version 330
 
-in vec4 f_Color;
-
+in vec2 a_position;
+out float v_value;
 void main()
 {
-    gl_FragColor = f_Color;
+    v_value = 0;
+    gl_Position = vec4(a_position, 0, 1);
 }

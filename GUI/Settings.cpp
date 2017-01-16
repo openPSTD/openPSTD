@@ -57,7 +57,7 @@ std::string GetFilename();
         return GetConfigDir() + "\\" + filename;
     }
 
-#elif BOOST_OS_LINUX
+#elif BOOST_OS_LINUX || BOOST_OS_CYGWIN
     std::string configDir = "~/.OpenPSTD";
     std::string filename = "~/.OpenPSTD/config.xml";
 
