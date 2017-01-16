@@ -16,6 +16,9 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+
+//Interactive.vert
+
 #version 330
 
 uniform mat4 u_view;

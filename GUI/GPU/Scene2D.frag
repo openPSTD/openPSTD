@@ -16,6 +16,9 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+
+//Scene2D.frag
+
 #version 330
 
 

@@ -16,6 +16,9 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+
+//Symbol.frag
+
 #version 330
 
 in vec4 f_Color;

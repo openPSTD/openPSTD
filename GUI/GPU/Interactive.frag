@@ -16,6 +16,9 @@
 // along with openPSTD.  If not, see <http://www.gnu.org/licenses/>.    //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+
+//Interactive.frag
+
 #version 330
 
 uniform vec4 u_color;
