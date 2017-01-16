@@ -76,6 +76,16 @@ namespace OpenPSTD
 
             int execute(int argc, const char *argv[]) override;
         };
+
+        class TestCommand : public Command
+        {
+        public:
+            std::string GetName() override;
+
+            std::string GetDescription() override;
+
+            int execute(int argc, const char *argv[]) override;
+        };
     }
 }
 #endif //OPENPSTD_MAIN_CLI_H_H

@@ -48,6 +48,7 @@ set(HDF5_INCLUDE "" CACHE PATH "The include dirs of HDF5")
 set(HDF5_LIBRARY "" CACHE PATH "The lib of HDF5")
 set(HDF5_HL_LIBRARY "" CACHE PATH "The lib of HDF5 HL")
 
+set(DG_TEST_ONLY "OFF" CACHE BOOL "Only the DG tests")
 
 SET(OPENPSTD_VERSION_MAJOR 0 CACHE STRING "Major version number")
 SET(OPENPSTD_VERSION_MINOR 0 CACHE STRING "Minor version number")
@@ -77,6 +78,7 @@ include(dependencies.cmake)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 # boost test framework flag
 add_definitions(-DBOOST_TEST_DYN_LINK)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #------------------------------------
 # parts

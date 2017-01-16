@@ -26,6 +26,9 @@
 
 #include <kernel/PSTDKernel.h>
 #include <kernel/MockKernel.h>
+#include <kernel/DG/DG2D.h>
+#include <kernel/DG/LEE2D.h>
+#include <kernel/DG/DG2DBuilders.h>
 
 #include <shared/PSTDFile.h>
 
@@ -576,6 +579,44 @@ namespace OpenPSTD
                 return 1;
             }
         }
+
+        std::string TestCommand::GetName()
+        {
+            return "test";
+        }
+
+        std::string TestCommand::GetDescription()
+        {
+            return "USE ONLY IN DEVELOPMENT!!!";
+        }
+
+        int TestCommand::execute(int argc, const char **argv)
+        {
+            using namespace Kernel::DG;
+
+            int N = 5;
+
+            VectorX<double> x1(2);
+            VectorX<double> x2(2);
+
+            x1 << -1, -1;
+            x2 <<  1,  1;
+
+            std::shared_ptr<LinearizedEulerEquationsDE2D<double>> de = std::make_shared<LinearizedEulerEquationsDE2D<double>>();
+            SquareGridBuilder<double> builder(x1, x2, 0.2);
+            std::shared_ptr<System2D<double>> s = builder.Build(N, de);
+            std::shared_ptr<RKF84<double>> RK = std::make_shared<RKF84<double>>();
+            RK->SetBB(s);
+
+            clock_t start = clock();
+
+            RK->Calculate(0.1);
+
+            clock_t end = clock();
+            double time = (double) (end-start) / CLOCKS_PER_SEC * 1000.0;
+
+            std::cerr << "Time (ms): " << time << std::endl;
+        }
     }
 }
 
@@ -588,6 +629,7 @@ int main(int argc, const char *argv[])
     commands.push_back(std::unique_ptr<EditCommand>(new EditCommand()));
     commands.push_back(std::unique_ptr<RunCommand>(new RunCommand()));
     commands.push_back(std::unique_ptr<ExportCommand>(new ExportCommand()));
+    commands.push_back(std::unique_ptr<TestCommand>(new TestCommand()));
 
     if (argc >= 2)
     {
