@@ -35,7 +35,7 @@ namespace OpenPSTD
                                      int endFrame)
         {
             Kernel::MockKernel k;
-            k.initialize_kernel(file->GetResultsSceneConf());
+            k.initialize_kernel(file->GetResultsSceneConf(), std::make_shared<OpenPSTD::Kernel::KernelCallbackLog>());
             auto metadata = k.get_metadata();
 
             if (domains.size() == 0)

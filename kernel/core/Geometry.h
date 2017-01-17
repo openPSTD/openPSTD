@@ -63,6 +63,12 @@ namespace OpenPSTD {
              * Points with negative entries are well defined.
              */
             friend Point operator-(Point a, Point b);
+
+            /**
+             * Create string representation of a Point
+             * @return
+             */
+            std::string ToString() const;
         };
 
         /** String representation for points

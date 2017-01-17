@@ -26,6 +26,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Domain.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -744,19 +745,27 @@ namespace OpenPSTD {
         }
 
         ostream &operator<<(ostream &str, Domain const &v) {
-            str << "Domain " << v.id;
-            if (v.is_secondary_pml) {
-                str << " (sec_pml)";
-            } else if (v.is_pml) {
-                str << " (pml)";
-            }
-            str << ", top left " << v.top_left << ", bottom right " << v.bottom_right << " (alpha: " << v.alpha << ")";
+            str << v.ToString();
             return str;
         }
 
         void Domain::post_initialization() {
             compute_number_of_neighbours();
             find_update_directions();
+        }
+
+        string Domain::ToString() const
+        {
+            std::string str = "";
+            str += "Domain " + boost::lexical_cast<std::string>(this->id);
+            if (is_secondary_pml) {
+                str += " (sec_pml)";
+            } else if (is_pml) {
+                str += " (pml)";
+            }
+            str += ", top left " + top_left.ToString() + ", bottom right " + bottom_right.ToString() + " (alpha: " + boost::lexical_cast<std::string>(alpha) + ")";
+
+            return str;
         }
     }
 }

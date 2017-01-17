@@ -41,13 +41,16 @@ endif ()
 
 #------------------------------------
 # OpenMP
-#find_package(OpenMP)
-message(STATUS "OpenMP found ${OPENMP_FOUND}")
+find_package(OpenMP)
+
 if (OPENMP_FOUND)
+    message(STATUS "OpenMP found: YES")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     message(STATUS "OpenMP c_flags ${OpenMP_C_FLAGS}")
     message(STATUS "OpenMP cxx_flags ${OpenMP_CXX_FLAGS}")
+else()
+    message(STATUS "OpenMP found: NO")
 endif()
 
 #------------------------------------
