@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_SUITE(domain)
         config->Speakers.push_back(QVector3D(4.1, 5.1, 0));
         BOOST_CHECK(config->Domains.size() == 1);
         Kernel::PSTDKernel kernel = Kernel::PSTDKernel(false, false);
-        kernel.initialize_kernel(config);
+        kernel.initialize_kernel(config, std::make_shared<OpenPSTD::Kernel::KernelCallbackLog>());
         auto scene = kernel.get_scene();
         return scene;
     }
