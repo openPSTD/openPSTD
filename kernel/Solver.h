@@ -22,7 +22,7 @@
 //      2-11-15
 //
 // Authors:
-//      Louis van Harten, Omar Richardson
+//      Louis van Harten, Omar Richardson, Michiel Fortuin
 //
 // Purpose:
 //      The openPSTD solver. Subclasses should implement the various
@@ -56,7 +56,7 @@ namespace OpenPSTD {
             /// Scene (initialized before passed to the solver)
             std::shared_ptr<Scene> scene;
 
-            KernelCallback *callback;
+            std::shared_ptr<KernelCallback> callback;
             /**
              * The final number of computed frames
              */
@@ -84,14 +84,14 @@ namespace OpenPSTD {
              * @param callback: Pointer to callback function
              * @return: New solver object.
              */
-            Solver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            Solver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * Start the simulation solver.
              * Runs until the simulation is finished, but meanwhile makes calls to the callback.
              * A more badass name is welcome
              */
-            virtual void compute_propagation();
+            virtual void compute_propagation() = 0;
         };
 
         /**
@@ -103,29 +103,38 @@ namespace OpenPSTD {
              * Default constructor. Blocking call: will not return before the solver is done.
              * @see Solver
              */
-            SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            SingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * Single threaded implementation of the simulation solver
              */
             void compute_propagation();
+
+            /**
+             * compute a single timestep
+             * @param frame
+             */
+            virtual void compute_timestep(int frame);
+            /**
+             * compute a single RK step
+             * @param frame
+             * @param rk_step
+             */
+            virtual void compute_rk_step(int frame, int rk_step);
         };
 
         /**
          * Solver that exploits the multiple CPU cores of a machine
          */
-        class MultiThreadSolver : public Solver {
+        class MultiThreadSolver : public SingleThreadSolver {
         public:
             /**
              * Multithreaded solver. This instance employs multiple CPU's
              * @see Solver
              */
-            MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            MultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
-            /**
-             * Multi-threaded implementation of the simulation solver
-             */
-            void compute_propagation();
+            void compute_rk_step(int frame, int rk_step) override;
         };
 
         /**
@@ -137,7 +146,7 @@ namespace OpenPSTD {
              * GPU solver. This instance runs the PSTD computations on the graphics card
              * @see Solver
              */
-            GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            GPUSingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * GPU-enabled implementation of the simulation solver
@@ -154,7 +163,7 @@ namespace OpenPSTD {
              * Multithreaded GPU solver. This instance employs both multiple CPU's as well as the graphics card.
              * @see Solver
              */
-            GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            GPUMultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * GPU-enabled and multi-threaded implementation of the simulation solver

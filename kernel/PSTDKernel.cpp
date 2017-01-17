@@ -46,26 +46,27 @@ namespace OpenPSTD {
             this->MCPU = MCPU;
         }
 
-        void PSTDKernel::initialize_kernel(std::shared_ptr<PSTDConfiguration> config) {
+        void PSTDKernel::initialize_kernel(std::shared_ptr<PSTDConfiguration> config, std::shared_ptr<KernelCallbackLog> callbackLog) {
+            this->callbackLog = callbackLog;
             using namespace Kernel;
-            debug("Initializing kernel");
+            callbackLog->Debug("Initializing kernel");
             this->config = config;
             this->settings = make_shared<PSTDSettings>(config->Settings);
             this->wnd = make_shared<WisdomCache>();
             this->scene = make_shared<Scene>(this->settings);
             this->initialize_scene();
-            debug("Finished initializing kernel");
+            callbackLog->Debug("Finished initializing kernel");
         }
 
 
         void PSTDKernel::initialize_scene() {
             using namespace Kernel;
-            debug("Initializing scene");
+            callbackLog->Debug("Initializing scene");
             this->add_domains();
             this->add_speakers();
             this->add_receivers();
             scene->compute_pml_matrices();
-            debug("Finished initializing");
+            callbackLog->Debug("Finished initializing");
         }
 
 
@@ -73,7 +74,7 @@ namespace OpenPSTD {
             int domain_id_int = 0;
             vector<shared_ptr<Kernel::Domain>> domains;
             for (auto domain: this->config->Domains) {
-                Kernel::debug("Initializing domain " + boost::lexical_cast<std::string>(domain_id_int));
+                callbackLog->Debug("Initializing domain " + boost::lexical_cast<std::string>(domain_id_int));
                 vector<float> tl = scale_to_grid(domain.TopLeft);
                 vector<float> s = scale_to_grid(domain.Size);
                 Kernel::Point grid_top_left((int) tl.at(0), (int) tl.at(1));
@@ -92,7 +93,7 @@ namespace OpenPSTD {
             scene->add_pml_domains();
             for (auto domain:scene->domain_list) {
                 domain->post_initialization();
-                cout << *domain << endl;
+                this->callbackLog->Debug(domain->ToString());
             }
         }
 
@@ -102,7 +103,7 @@ namespace OpenPSTD {
             //Inconsistent: We created domains in this class, and speakers in the scene class
             for (auto speaker: this->config->Speakers) {
                 vector<float> location = scale_to_grid(speaker);
-                debug("Initializing Speaker (" + boost::lexical_cast<std::string>(location.at(0)) + ", " + boost::lexical_cast<std::string>(location.at(1)) + ")");
+                callbackLog->Debug("Initializing Speaker (" + boost::lexical_cast<std::string>(location.at(0)) + ", " + boost::lexical_cast<std::string>(location.at(1)) + ")");
                 this->scene->add_speaker(location.at(0), location.at(1), 0); // Z-coordinate is 0
             }
         }
@@ -117,7 +118,7 @@ namespace OpenPSTD {
             }
         }
 
-        void PSTDKernel::run(KernelCallback *callback) {
+        void PSTDKernel::run(std::shared_ptr<KernelCallback> callback) {
             if (!config)
                 throw PSTDKernelNotConfiguredException();
 
@@ -180,10 +181,11 @@ namespace OpenPSTD {
         map<Kernel::Direction, Kernel::EdgeParameters> PSTDKernel::translate_edge_parameters(DomainConf domain) {
             using namespace Kernel;
             map<Direction, EdgeParameters> edge_parameters;
+            // Internal matrices are flipped, so T/B switch
             edge_parameters[Direction::LEFT] = {domain.L.LR, domain.L.Absorption};
             edge_parameters[Direction::RIGHT] = {domain.R.LR, domain.R.Absorption};
-            edge_parameters[Direction::BOTTOM] = {domain.B.LR, domain.B.Absorption};
-            edge_parameters[Direction::TOP] = {domain.T.LR, domain.T.Absorption};
+            edge_parameters[Direction::TOP] = {domain.B.LR, domain.B.Absorption};
+            edge_parameters[Direction::BOTTOM] = {domain.T.LR, domain.T.Absorption};
             return edge_parameters;
         }
 

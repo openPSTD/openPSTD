@@ -36,14 +36,14 @@ namespace OpenPSTD
             /**
              * Sets the configuration.
              */
-            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) override;
+            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config, std::shared_ptr<KernelCallbackLog> callbackLog) override;
 
             /**
              * Runs the kernel. The callback has a single function that informs the rest of the
              * application of the progress of the kernel.
              * Must first be configured, else a PSTDKernelNotConfiguredException is thrown.
              */
-            virtual void run(KernelCallback *callback) override;
+            virtual void run(std::shared_ptr<KernelCallback> callback) override;
 
             /**
              * Query the kernel for metadata about the simulation that is configured.

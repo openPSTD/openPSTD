@@ -25,7 +25,7 @@ namespace OpenPSTD
             hid_t frame_dir_id = H5Gcreate2(file_id, "/frame", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
             hid_t receiver_dir_id = H5Gcreate2(file_id, "/receiver", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-            k.initialize_kernel(file->GetSceneConf());
+            k.initialize_kernel(file->GetSceneConf(), std::make_shared<OpenPSTD::Kernel::KernelCallbackLog>());
             auto metadata = k.get_metadata();
 
             if (domains.size() == 0)

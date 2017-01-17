@@ -22,7 +22,7 @@
 //      2-11-15
 //
 // Authors:
-//      Louis van Harten, Omar Richardson
+//      Louis van Harten, Omar Richardson, Michiel Fortuin
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -31,144 +31,123 @@
 
 namespace OpenPSTD {
     namespace Kernel {
-        Solver::Solver(std::shared_ptr<Scene> scene, KernelCallback *callback) {
+        Solver::Solver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback) {
             this->scene = scene;
             this->settings = scene->settings;
             this->callback = callback;
-            Kernel::debug("Number of render time: " + boost::lexical_cast<std::string>(this->settings->GetRenderTime()));
-            Kernel::debug("Number of time step: " + boost::lexical_cast<std::string>(this->settings->GetTimeStep()));
+            this->callback->Debug("Number of render time: " + boost::lexical_cast<std::string>(this->settings->GetRenderTime()));
+            this->callback->Debug("Size of time step: " + boost::lexical_cast<std::string>(this->settings->GetTimeStep()));
 
             this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
         }
 
-        SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
+        SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback) : Solver::Solver(
                 scene, callback) {
         }
 
-        GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
+        GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback)
                 : Solver::Solver(scene, callback) {
         }
 
-        MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
+        MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback) : SingleThreadSolver::SingleThreadSolver(
                 scene,
                 callback) {
         }
 
-        GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
+        GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback)
                 : Solver::Solver(
                 scene, callback) {
-        }
-
-        void Solver::compute_propagation() {
-            Kernel::debug("!! NO SOLVER IMPLEMENTATION WAS SELECTED !! ");
-            this->callback->Error("!! NO SOLVER IMPLEMENTATION WAS SELECTED !! ");
         }
 
         void SingleThreadSolver::compute_propagation() {
             this->callback->Info("Starting simulation");
 
             for (int frame = 0; frame < this->number_of_time_steps; frame++) {
-                for (auto domain:this->scene->domain_list) {
-                    domain->push_values();
-                    //std::cout << *domain << std::endl;
-                }
-                for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
-                    for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
-                        for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
-                            for (auto domain:this->scene->domain_list) {
-                                //std::cout << *domain << std::endl;
-                                if (not domain->is_rigid()) {
-                                    if (domain->should_update[calc_dir]) {
-                                        domain->calc(calc_dir, calc_type);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    for (auto domain:this->scene->domain_list) {
-                        if (not domain->is_rigid()) {
-                            this->update_field_values(domain, rk_step, frame);
-                        }
-                    }
-                    for (auto domain:this->scene->domain_list) {
-                        domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
-                    }
-                }
-                for (auto domain:this->scene->domain_list) {
-                    if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
-                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector(domain));
-                    }
-                }
-                this->scene->apply_pml_matrices();
-                for (auto receiver:this->scene->receiver_list) {
-                    receiver->compute_local_pressure();
-                    if (frame % this->settings->GetSaveNth() == 0) {
-                        this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
-                    }
-                }
-                this->callback->Info("Finished frame: " + boost::lexical_cast<std::string>(frame));
+                compute_timestep(frame);
             }
             this->callback->Info("Succesfully finished simulation");
         }
 
-        void MultiThreadSolver::compute_propagation() {
-            this->callback->Info("Starting simulation (multi-thread solver)");
-            this->callback->Info("Computing frame 0");
-
-            for (int frame = 0; frame < this->number_of_time_steps; frame++) {
-                for (auto domain:this->scene->domain_list) {
-                    domain->push_values();
-                    //std::cout << *domain << std::endl;
+        void SingleThreadSolver::compute_timestep(int frame)
+        {
+            for (auto domain:this->scene->domain_list) {
+                domain->push_values();
+                //std::cout << *domain << std::endl;
+            }
+            for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
+                compute_rk_step(frame, rk_step);
+            }
+            for (auto domain:this->scene->domain_list) {
+                if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
+                    this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector(domain));
                 }
-                for (unsigned long rk_step = 0; rk_step < 6; rk_step++) {
-                    #pragma omp parallel
-                    {
-                        #pragma omp single nowait
-                        {
-                            for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
-                                for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
-                                    for (auto domain:this->scene->domain_list) {
-                                        //std::cout << *domain << std::endl;
-                                        #pragma omp task
-                                        {
-                                            if (not domain->is_rigid()) {
-                                                if (domain->should_update[calc_dir]) {
-                                                    domain->calc(calc_dir, calc_type);
-                                                }
-                                            }
+            }
+            this->scene->apply_pml_matrices();
+            for (auto receiver:this->scene->receiver_list) {
+                receiver->compute_local_pressure();
+                if (frame % this->settings->GetSaveNth() == 0) {
+                    this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
+                }
+            }
+            this->callback->Info("Finished frame: " + boost::lexical_cast<std::string>(frame));
+        }
+
+        void SingleThreadSolver::compute_rk_step(int frame, int rk_step)
+        {
+            for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
+                for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
+                    for (auto domain:this->scene->domain_list) {
+                        //std::cout << *domain << std::endl;
+                        if (not domain->is_rigid()) {
+                            if (domain->should_update[calc_dir]) {
+                                domain->calc(calc_dir, calc_type);
+                            }
+                        }
+                    }
+                }
+            }
+            for (auto domain:this->scene->domain_list) {
+                if (not domain->is_rigid()) {
+                    this->update_field_values(domain, rk_step, frame);
+                }
+            }
+            for (auto domain:this->scene->domain_list) {
+                domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
+            }
+        }
+
+        void MultiThreadSolver::compute_rk_step(int frame, int rk_step)
+        {
+            #pragma omp parallel
+            {
+                #pragma omp single nowait
+                {
+                    for (Kernel::CalcDirection calc_dir: Kernel::all_calc_directions) {
+                        for (Kernel::CalculationType calc_type: Kernel::all_calculation_types) {
+                            for (auto domain:this->scene->domain_list) {
+                                //std::cout << *domain << std::endl;
+                                #pragma omp task
+                                {
+                                    if (not domain->is_rigid()) {
+                                        if (domain->should_update[calc_dir]) {
+                                            domain->calc(calc_dir, calc_type);
                                         }
                                     }
                                 }
                             }
                         }
                     }
-
-                    for (auto domain:this->scene->domain_list) {
-                        if (not domain->is_rigid()) {
-                            this->update_field_values(domain, rk_step, frame);
-                        }
-                    }
-                    for (auto domain:this->scene->domain_list) {
-                        domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
-                    }
                 }
-                for (auto domain:this->scene->domain_list) {
-                    if (frame % this->settings->GetSaveNth() == 0 and not domain->is_pml) {
-                        this->callback->WriteFrame(frame, domain->id, this->get_pressure_vector(domain));
-                    }
-                }
-                this->scene->apply_pml_matrices();
-                for (auto receiver:this->scene->receiver_list) {
-                    receiver->compute_local_pressure();
-                    if (frame % this->settings->GetSaveNth() == 0) {
-                        this->callback->WriteSample(frame, (int) receiver->id, *this->get_receiver_pressure(receiver));
-                    }
-                }
-                this->callback->Debug("Finished frame: " + boost::lexical_cast<std::string>(frame) + " ");
-                std::string movestring = ("\033[AFinished frame: " + boost::lexical_cast<std::string>(frame) + " ");
-                this->callback->Info(movestring);
             }
-            this->callback->Info("Succesfully finished simulation");
+
+            for (auto domain:this->scene->domain_list) {
+                if (not domain->is_rigid()) {
+                    this->update_field_values(domain, rk_step, frame);
+                }
+            }
+            for (auto domain:this->scene->domain_list) {
+                domain->current_values.p0 = domain->current_values.px0 + domain->current_values.py0;
+            }
         }
 
         void GPUSingleThreadSolver::compute_propagation() {

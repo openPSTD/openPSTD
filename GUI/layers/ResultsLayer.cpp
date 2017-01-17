@@ -120,7 +120,7 @@ namespace OpenPSTD
                 Kernel::SimulationMetadata metadata;
                 {
                     Kernel::MockKernel k;
-                    k.initialize_kernel(conf);
+                    k.initialize_kernel(conf, std::make_shared<OpenPSTD::Kernel::KernelCallbackLog>());
                     metadata = k.get_metadata();
                 }
 

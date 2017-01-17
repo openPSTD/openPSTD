@@ -9,12 +9,12 @@ namespace OpenPSTD
 {
     namespace Kernel
     {
-        void MockKernel::initialize_kernel(std::shared_ptr<PSTDConfiguration> config)
+        void MockKernel::initialize_kernel(std::shared_ptr<PSTDConfiguration> config, std::shared_ptr<KernelCallbackLog> callbackLog)
         {
             _conf = config;
         }
 
-        void MockKernel::run(KernelCallback *callback)
+        void MockKernel::run(std::shared_ptr<KernelCallback> callback)
         {
             if (!_conf)
                 throw PSTDKernelNotConfiguredException();
