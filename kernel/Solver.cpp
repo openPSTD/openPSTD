@@ -31,7 +31,7 @@
 
 namespace OpenPSTD {
     namespace Kernel {
-        Solver::Solver(std::shared_ptr<Scene> scene, KernelCallback *callback) {
+        Solver::Solver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback) {
             this->scene = scene;
             this->settings = scene->settings;
             this->callback = callback;
@@ -41,20 +41,20 @@ namespace OpenPSTD {
             this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
         }
 
-        SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : Solver::Solver(
+        SingleThreadSolver::SingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback) : Solver::Solver(
                 scene, callback) {
         }
 
-        GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
+        GPUSingleThreadSolver::GPUSingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback)
                 : Solver::Solver(scene, callback) {
         }
 
-        MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback) : SingleThreadSolver::SingleThreadSolver(
+        MultiThreadSolver::MultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback) : SingleThreadSolver::SingleThreadSolver(
                 scene,
                 callback) {
         }
 
-        GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback)
+        GPUMultiThreadSolver::GPUMultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback)
                 : Solver::Solver(
                 scene, callback) {
         }

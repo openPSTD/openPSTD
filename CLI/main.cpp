@@ -444,7 +444,7 @@ namespace OpenPSTD
                 //create output
                 std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file, vm.count("debug") > 0);
                 //run kernel
-                kernel->run(output.get());
+                kernel->run(output);
 
                 file->Commit();
                 return 0;

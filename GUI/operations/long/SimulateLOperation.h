@@ -44,7 +44,8 @@ namespace OpenPSTD
         /**
          * Basic long operation for runnning the OpenPSTD kernel
          */
-        class SimulateLOperation : public LongOperation, public OpenPSTD::Kernel::KernelCallback
+        class SimulateLOperation : public LongOperation, public OpenPSTD::Kernel::KernelCallback,
+                                   public std::enable_shared_from_this<SimulateLOperation>
         {
         private:
             std::shared_ptr<OpenPSTD::Shared::PSTDFileAccess> pstdFileAccess;

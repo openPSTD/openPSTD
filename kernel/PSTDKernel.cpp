@@ -117,7 +117,7 @@ namespace OpenPSTD {
             }
         }
 
-        void PSTDKernel::run(KernelCallback *callback) {
+        void PSTDKernel::run(std::shared_ptr<KernelCallback> callback) {
             if (!config)
                 throw PSTDKernelNotConfiguredException();
 

@@ -338,7 +338,7 @@ namespace OpenPSTD {
              * application of the progress of the kernel.
              * Must first be configured, else a PSTDKernelNotConfiguredException is thrown.
              */
-            virtual void run(KernelCallback *callback) = 0;
+            virtual void run(std::shared_ptr<KernelCallback> callback) = 0;
 
             /**
              * Query the kernel for metadata about the simulation that is configured.

@@ -56,7 +56,7 @@ namespace OpenPSTD {
             /// Scene (initialized before passed to the solver)
             std::shared_ptr<Scene> scene;
 
-            KernelCallback *callback;
+            std::shared_ptr<KernelCallback> callback;
             /**
              * The final number of computed frames
              */
@@ -84,7 +84,7 @@ namespace OpenPSTD {
              * @param callback: Pointer to callback function
              * @return: New solver object.
              */
-            Solver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            Solver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * Start the simulation solver.
@@ -103,7 +103,7 @@ namespace OpenPSTD {
              * Default constructor. Blocking call: will not return before the solver is done.
              * @see Solver
              */
-            SingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            SingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * Single threaded implementation of the simulation solver
@@ -132,7 +132,7 @@ namespace OpenPSTD {
              * Multithreaded solver. This instance employs multiple CPU's
              * @see Solver
              */
-            MultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            MultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             void compute_rk_step(int frame, int rk_step) override;
         };
@@ -146,7 +146,7 @@ namespace OpenPSTD {
              * GPU solver. This instance runs the PSTD computations on the graphics card
              * @see Solver
              */
-            GPUSingleThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            GPUSingleThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * GPU-enabled implementation of the simulation solver
@@ -163,7 +163,7 @@ namespace OpenPSTD {
              * Multithreaded GPU solver. This instance employs both multiple CPU's as well as the graphics card.
              * @see Solver
              */
-            GPUMultiThreadSolver(std::shared_ptr<Scene> scene, KernelCallback *callback);
+            GPUMultiThreadSolver(std::shared_ptr<Scene> scene, std::shared_ptr<KernelCallback> callback);
 
             /**
              * GPU-enabled and multi-threaded implementation of the simulation solver

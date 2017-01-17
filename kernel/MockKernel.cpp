@@ -14,7 +14,7 @@ namespace OpenPSTD
             _conf = config;
         }
 
-        void MockKernel::run(KernelCallback *callback)
+        void MockKernel::run(std::shared_ptr<KernelCallback> callback)
         {
             if (!_conf)
                 throw PSTDKernelNotConfiguredException();

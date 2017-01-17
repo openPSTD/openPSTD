@@ -133,7 +133,7 @@ namespace OpenPSTD {
              * Runs the kernel. The callback has a single function that informs the rest of the
              * application of the progress of the kernel.
              */
-            void run(KernelCallback *callback) override;
+            void run(std::shared_ptr<KernelCallback> callback) override;
 
             /**
              * Query the kernel for metadata about the simulation that is configured.

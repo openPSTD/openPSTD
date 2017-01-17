@@ -87,7 +87,7 @@ void SimulateLOperation::Run(const Reciever &reciever)
     //get metadata
     metadata = kernel->get_metadata();
     //execute kernel
-    kernel->run(this);
+    kernel->run(this->shared_from_this());
     this->finished = true;
 }
 
