@@ -45,9 +45,8 @@ void main()
 
     value = (value-vmin)/(vmax-vmin)*2-1;
     //value is between -1 and +1
-    //+1 because everything is below zero
-    //3.32 is a factor to make sure that if value is 1 then the result is also 1 (3.32 = 1/(log(1+1)/log(10)) )
-    float result = 3.32*log(abs(value+1))/log(10);
+    //+1 because everything is below zero, log(50) to show more clearly the result
+    float result = log(abs(value))/log(50)+1;
     //create a hot color map
     color = vec4(clamp(result*3, 0, 1), clamp(result*3-1.0/3.0, 0, 1), clamp(result*3-2.0/3.0, 0, 1), 1);
 }
