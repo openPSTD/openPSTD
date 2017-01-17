@@ -36,7 +36,7 @@ namespace OpenPSTD
             /**
              * Sets the configuration.
              */
-            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) override;
+            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config, std::shared_ptr<KernelCallbackLog> callbackLog) override;
 
             /**
              * Runs the kernel. The callback has a single function that informs the rest of the

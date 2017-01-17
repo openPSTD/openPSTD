@@ -82,7 +82,7 @@ void SimulateLOperation::Run(const Reciever &reciever)
                                                             reciever.model->settings->CPUAcceleration));
     }
 
-    kernel->initialize_kernel(conf);
+    kernel->initialize_kernel(conf, this->shared_from_this());
 
     //get metadata
     metadata = kernel->get_metadata();

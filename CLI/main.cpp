@@ -439,10 +439,12 @@ namespace OpenPSTD
                     //use the real kernel
                     kernel = std::unique_ptr<Kernel::PSTDKernel>(new Kernel::PSTDKernel(GPU, MCPU));
                 }
-                //configure the kernel
-                kernel->initialize_kernel(conf);
                 //create output
                 std::shared_ptr<Kernel::KernelCallback> output = std::make_shared<CLIOutput>(file, vm.count("debug") > 0);
+
+                //configure the kernel
+                kernel->initialize_kernel(conf, output); //output is used, because that can also be used as log
+
                 //run kernel
                 kernel->run(output);
 

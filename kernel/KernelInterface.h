@@ -240,13 +240,43 @@ namespace OpenPSTD {
             }
         };
 
+        class KernelCallbackLog {
+        public:
+            /**
+             * An fatel error where the Kernel can not continue. Remark, this should be a non-blocking method. So the
+             * kernel will continue after this method.
+             */
+            virtual void Fatal(std::string message){};
+            /**
+             * An simple error, the Kernel may not or may continue after this error. Remark, this should be a
+             * non-blocking method. So the kernel will continue after this method.
+             */
+            virtual void Error(std::string message){};
+            /**
+             * A warning, the long operation will continue after this, but the user should be aware of something that
+             * probably is wrong. Remark, this should be a non-blocking method. So the kernel will continue after this
+             * method.
+             */
+            virtual void Warning(std::string message){};
+            /**
+             * Information that the user should be aware of.Remark, this should be a non-blocking method. So the
+             * kernel will continue after this method.
+             */
+            virtual void Info(std::string message){};
+            /**
+             * Debug information, this can be used extensivly, and is only shown to the user if the user has chosen it.
+             * Remark, this should be a non-blocking method. So the kernel will continue after this method.
+             */
+            virtual void Debug(std::string message){};
+        };
+
         /**
          * Callback interface for communication with the CLI or the GUI
          *
          * This callback is passed to the kernel to return simulation information to the requester.
          * Main use case is passing the observed pressure values, the warnings and the errors.
          */
-        class KernelCallback {
+        class KernelCallback : public KernelCallbackLog {
         public:
             /**
              * This callback will be called with information how far the kernel is progressed.
@@ -271,33 +301,6 @@ namespace OpenPSTD {
              * @param data: a set of data points
              */
             virtual void WriteSample(int startSample, int receiver, std::vector<float> data) = 0;
-
-            /**
-             * An fatel error where the Kernel can not continue. Remark, this should be a non-blocking method. So the
-             * kernel will continue after this method.
-             */
-            virtual void Fatal(std::string message) = 0;
-            /**
-             * An simple error, the Kernel may not or may continue after this error. Remark, this should be a
-             * non-blocking method. So the kernel will continue after this method.
-             */
-            virtual void Error(std::string message) = 0;
-            /**
-             * A warning, the long operation will continue after this, but the user should be aware of something that
-             * probably is wrong. Remark, this should be a non-blocking method. So the kernel will continue after this
-             * method.
-             */
-            virtual void Warning(std::string message) = 0;
-            /**
-             * Information that the user should be aware of.Remark, this should be a non-blocking method. So the
-             * kernel will continue after this method.
-             */
-            virtual void Info(std::string message) = 0;
-            /**
-             * Debug information, this can be used extensivly, and is only shown to the user if the user has chosen it.
-             * Remark, this should be a non-blocking method. So the kernel will continue after this method.
-             */
-            virtual void Debug(std::string message) = 0;
         };
 
         /**
@@ -330,8 +333,9 @@ namespace OpenPSTD {
         public:
             /**
              * Sets the configuration.
+             * @param callback is for the logging purposes only
              */
-            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) = 0;
+            virtual void initialize_kernel(std::shared_ptr<PSTDConfiguration> config, std::shared_ptr<KernelCallbackLog> callbackLog) = 0;
 
             /**
              * Runs the kernel. The callback has a single function that informs the rest of the

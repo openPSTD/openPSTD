@@ -35,8 +35,8 @@ namespace OpenPSTD {
             this->scene = scene;
             this->settings = scene->settings;
             this->callback = callback;
-            Kernel::debug("Number of render time: " + boost::lexical_cast<std::string>(this->settings->GetRenderTime()));
-            Kernel::debug("Number of time step: " + boost::lexical_cast<std::string>(this->settings->GetTimeStep()));
+            this->callback->Debug("Number of render time: " + boost::lexical_cast<std::string>(this->settings->GetRenderTime()));
+            this->callback->Debug("Size of time step: " + boost::lexical_cast<std::string>(this->settings->GetTimeStep()));
 
             this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
         }

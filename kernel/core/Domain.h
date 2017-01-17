@@ -316,6 +316,12 @@ namespace OpenPSTD {
              */
             Eigen::ArrayXXf extended_zeros(int x, int y, int z = 0);
 
+            /**
+             * Create a string representation of a domain
+             * @return
+             */
+            std::string ToString() const;
+
         private:
             void initialize_domain(std::shared_ptr<PSTDSettings> settings, int id, const float alpha,
                                    Point top_left, Point size, const bool is_pml,

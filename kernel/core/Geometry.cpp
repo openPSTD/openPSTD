@@ -27,6 +27,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Geometry.h"
+#include <boost/lexical_cast.hpp>
 
 namespace OpenPSTD
 {
@@ -47,9 +48,14 @@ namespace OpenPSTD
             return Point(a.x - b.x, a.y - b.y, a.z - b.z);
         }
 
+        std::string Point::ToString() const
+        {
+            return "Point(" + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y) + ")";
+        }
+
         std::ostream &operator<<(std::ostream &str, Point const &v)
         {
-            str << "Point(" << v.x << "," << v.y << ")";
+            str << v.ToString();
             return str;
         }
     }

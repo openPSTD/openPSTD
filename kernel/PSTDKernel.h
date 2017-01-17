@@ -61,6 +61,8 @@ namespace OpenPSTD {
             std::shared_ptr<Kernel::Scene> scene;
             /// Standard alpha
             const float default_alpha = 1.f;
+            /// Log callback
+            std::shared_ptr<KernelCallbackLog> callbackLog;
 
             /**
              * Call the necessary methods to initialize the scene.
@@ -127,7 +129,7 @@ namespace OpenPSTD {
              * also initializes the kernel and the scene, constructs the domains and sets the parameters.
              * @param config: Configuration file from the PSTDFile
              */
-            void initialize_kernel(std::shared_ptr<PSTDConfiguration> config) override;
+            void initialize_kernel(std::shared_ptr<PSTDConfiguration> config, std::shared_ptr<KernelCallbackLog> callbackLog) override;
 
             /**
              * Runs the kernel. The callback has a single function that informs the rest of the
