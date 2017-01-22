@@ -45,6 +45,7 @@
 #include "mouse/MouseCreateDomainStrategy.h"
 #include "mouse/MouseCreateSpeakerReceiverStrategy.h"
 #include <QMessageBox>
+#include <QSpinBox>
 
 namespace OpenPSTD
 {
@@ -167,15 +168,22 @@ namespace OpenPSTD
                              });
 
             QObject::connect(ui->actionShow_grid, &QAction::triggered, this,
-                             [&](bool checked) {
+                             [this](bool checked) {
                                  std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([checked](const Reciever &reciever) {
                                      reciever.model->interactive->GridVisible = checked;
                                      reciever.model->interactive->Change();
                                  });
                                  this->operationRunner.lock()->RunOperation(op);
-
                              });
 
+            QObject::connect(ui->dsbMinLogValue, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this,
+                             [this](double d) {
+                                 std::shared_ptr<LambdaOperation> op = std::make_shared<LambdaOperation>([d](const Reciever &reciever) {
+                                     reciever.model->interactive->MinLogScale = d;
+                                     reciever.model->interactive->Change();
+                                 });
+                                 this->operationRunner.lock()->RunOperation(op);
+                             });
 
             QObject::connect(ui->actionEdit_properties_of_domain, &QAction::triggered, this,
                              &MainWindow::EditSelectedDomain);
