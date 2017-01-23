@@ -18,6 +18,7 @@ cd $APP.AppDir
 
 sudo chown -R $USER /app/
 cp -r /app/* ./usr/
+BINARY=./usr/bin/OpenPSTD-gui
 
 get_icon
 get_apprun
@@ -25,10 +26,15 @@ get_desktop
 
 copy_deps
 
+# Delete dangerous libraries; see
+# https://github.com/probonopd/AppImages/blob/master/excludelist
+delete_blacklisted
+
 get_desktopintegration $LOWERAPP
 
 GLIBC_NEEDED=$(glibc_needed)
 VERSION=${RELEASE_VERSION}-glibc$GLIBC_NEEDED
+echo $VERSION > ../VERSION
 
 # Patch away absolute paths 
 find usr/ -type f -exec sed -i -e 's|/usr|././|g' {} \;
@@ -38,6 +44,7 @@ cd ..
 mkdir -p ../out/
 generate_type2_appimage
 
+# Upload the AppDir 
 transfer ../out/*
 echo "AppImage has been uploaded to the URL above; later use GitHub Releases for permanent storage"
 
