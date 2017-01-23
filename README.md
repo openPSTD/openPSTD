@@ -24,11 +24,11 @@ install the add-on by clicking on the 'Install from File...' button in the User 
 Blender. Blender 2.70 or newer is required to run the add-on.
 
 Some additional work is required to enable GPU acceleration. For a detailed explanation, refer to the relevant page
-on the wiki [here.](http://www.openpstd.org/wiki/index.php/Getting_started_with_OpenPSTD#Installing_openPSTD_v1.1)
+on the wiki [here.](http://www.openpstd.org/wiki/index.php/Getting_started_with_OpenPSTD_v1.1#Installing_openPSTD_v1.1)
 
 Resources
 =========
 
 Website: [http://openpstd.org/](http://openpstd.org/)
 
-Documentation: [http://www.openpstd.org/wiki/index.php/Main_Page](http://www.openpstd.org/wiki/index.php/Main_Page)
+Documentation: [http://www.openpstd.org/wiki/index.php/Main_Page](http://www.openpstd.org/wiki/index.php/OpenPSTD)
