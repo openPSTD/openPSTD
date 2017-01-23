@@ -58,6 +58,7 @@ namespace OpenPSTD
 
             program->setUniformValue("vmin", -1.0f);
             program->setUniformValue("vmax", 1.0f);
+            program->setUniformValue("v_log_min", -60.0f);
             f->glUniform1i((GLuint) program->attributeLocation("values"), 0);
 
             std::vector<QVector2D> texCoords;
@@ -113,6 +114,9 @@ namespace OpenPSTD
 
             if (m->documentAccess->IsChanged() || m->interactive->IsChanged())
             {
+                program->bind();
+                program->setUniformValue("v_log_min", m->interactive->MinLogScale);
+
                 auto doc = m->documentAccess->GetDocument();
                 auto conf = doc->GetResultsSceneConf();
                 int frame = m->interactive->visibleFrame;

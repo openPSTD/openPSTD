@@ -81,6 +81,7 @@ namespace OpenPSTD
                 SelectionType Type;
             } Selection;
 
+            float MinLogScale = -60.0f;
             int visibleFrame = -1;
             bool GridVisible = true;
         };
