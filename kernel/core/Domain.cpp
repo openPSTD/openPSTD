@@ -205,7 +205,42 @@ namespace OpenPSTD {
                     }
 
                     ArrayXXf matrix_main, matrix_side1, matrix_side2;
-                    if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
+                    // Changed piece of code start
+
+                    if (ct == CalculationType::VELOCITY) {
+                        if (d1 == nullptr ) {
+                            d1 = shared_from_this();
+                            if (cd == CalcDirection::X) {
+                                matrix_side1 = extended_zeros(0, 1);
+                            } else {
+                                matrix_side1 = extended_zeros(1, 0);
+                            }
+                        }
+                        if (d2 == nullptr ) {
+                            d2 = shared_from_this();
+                            if (cd == CalcDirection::X) {
+                                matrix_side2 = extended_zeros(0, 1);
+                            } else {
+                                matrix_side2 = extended_zeros(1, 0);
+                            }
+                        }
+                    } else {
+                        if (d1 == nullptr ) {
+                            d1 = shared_from_this();
+
+                            matrix_side1 = extended_zeros(0, 0);
+
+                        }
+                        if (d2 == nullptr ) {
+                            d2 = shared_from_this();
+
+                            matrix_side2 = extended_zeros(0, 0);
+
+                        }
+                    }
+
+                    // Changed piece of code end. Below piece of original code commented
+                    /*if (ct == CalculationType::VELOCITY && d1 == nullptr && d2 == nullptr) {
                         // For a PML layer parallel to its interface direction the matrix is concatenated with zeros
                         // a PML domain can also have a neighbour, see:
                         //   |             |
@@ -229,7 +264,7 @@ namespace OpenPSTD {
                         if (d2 == nullptr) {
                             d2 = shared_from_this();
                         }
-                    }
+                    }*/
 
                     if (ct == CalculationType::PRESSURE) {
                         matrix_main = current_values.p0;
