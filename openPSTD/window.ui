@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Window</class>
+ <widget class="QMainWindow" name="Window">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1024</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>OpenPSTD</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../icons/logo.png</normaloff>../icons/logo.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuOpenPSTD">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuModule">
+    <property name="title">
+     <string>Module</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuScene">
+    <property name="title">
+     <string>Scene</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuOperate">
+    <property name="title">
+     <string>Operate</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+   </widget>
+   <addaction name="menuOpenPSTD"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuModule"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuScene"/>
+   <addaction name="menuView"/>
+   <addaction name="menuOperate"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSelect"/>
+   <addaction name="actionMoveScene"/>
+   <addaction name="actionAddDomain"/>
+   <addaction name="actionAddSource"/>
+   <addaction name="actionAddReceiver"/>
+   <addaction name="separator"/>
+   <addaction name="actionstop"/>
+   <addaction name="actionstart"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSelect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/select.png</normaloff>../icons/select.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select</string>
+   </property>
+   <property name="toolTip">
+    <string>Select</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionMoveScene">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/move.png</normaloff>../icons/move.png</iconset>
+   </property>
+   <property name="text">
+    <string>MoveScene</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Scene</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
+   </property>
+  </action>
+  <action name="actionAddDomain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/adddomain.png</normaloff>../icons/adddomain.png</iconset>
+   </property>
+   <property name="text">
+    <string>AddDomain</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Domain</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
+   </property>
+  </action>
+  <action name="actionAddSource">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/source.png</normaloff>../icons/source.png</iconset>
+   </property>
+   <property name="text">
+    <string>AddSource</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Source</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionAddReceiver">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/receiver.png</normaloff>../icons/receiver.png</iconset>
+   </property>
+   <property name="text">
+    <string>AddReceiver</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Receiver</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string/>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionstop">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/stop.png</normaloff>../icons/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop Simulation</string>
+   </property>
+  </action>
+  <action name="actionstart">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/start.png</normaloff>../icons/start.png</iconset>
+   </property>
+   <property name="text">
+    <string>start</string>
+   </property>
+   <property name="toolTip">
+    <string>Start Simulation</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
