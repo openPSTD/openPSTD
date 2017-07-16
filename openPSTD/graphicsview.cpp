@@ -13,6 +13,9 @@ GraphicsView::GraphicsView(QWidget* parent) : QGraphicsView(parent) {
     
     // Create a new Renderer
     renderer = new Renderer(scene);
+    
+    // Enable mouse tracking
+    setMouseTracking(true);
 }
 
 /**

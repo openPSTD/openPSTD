@@ -27,13 +27,18 @@ SOURCES += \
         main.cpp \
         window.cpp \
     graphicsview.cpp \
-    renderer.cpp
+    renderer.cpp \
+    eventhandler.cpp \
+    domain.cpp
 
 HEADERS += \
         window.h \
     graphicsview.h \
     renderer.h \
-    state.h
+    state.h \
+    eventhandler.h \
+    domain.h \
+    model.h
 
 FORMS += \
         window.ui

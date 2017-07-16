@@ -8,6 +8,19 @@
 Renderer::Renderer(QGraphicsScene* scene) {
     // Save reference variables locally
     this->scene = scene;
+    
+    // Create a new Model instance
+    model = new Model();
+    
+    // Create a new EventHandler instance
+    eh = new EventHandler(model);
+    
+    // Update the width and height according to the scene
+    width = scene->sceneRect().width();
+    height = scene->sceneRect().height();
+    
+    // Create an initial pixels array
+    pixels = new QImage(1024, 768, QImage::Format_RGB32);
 }
 
 /**
@@ -20,6 +33,19 @@ void Renderer::draw() {
     
     // Draw the background grid
     drawGrid();
+    
+    // Draw all domains
+    std::vector<Domain> domains = model->domains;
+    for (int i = 0; i < domains.size(); i++) {
+        domains[i].draw(pixels);
+    }
+    
+    // Draw the pixels array
+    QPixmap qpm = QPixmap::fromImage(*pixels);
+    scene->addPixmap(qpm);
+    
+    // Reset the pixels array
+    pixels = new QImage(width, height, QImage::Format_RGB32);
 }
 
 /**
@@ -30,9 +56,8 @@ void Renderer::draw() {
  * @param button  The mouse button that was pressed
  */
 void Renderer::mousePress(int x, int y, Qt::MouseButton button) {
-    if (button == Qt::LeftButton) {
-        std::cout << "press" << std::endl;
-    }
+    // Delegate event to EventHandler
+    eh->mousePress(x, y, button);
 }
 
 /**
@@ -43,9 +68,8 @@ void Renderer::mousePress(int x, int y, Qt::MouseButton button) {
  * @param button  The mouse button that was pressed
  */
 void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
-    if (button == Qt::LeftButton) {
-        std::cout << "release" << std::endl;
-    }
+    // Delegate event to EventHandler
+    eh->mouseRelease(x, y, button);
 }
 
 /**
@@ -55,9 +79,8 @@ void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
  * @param y  The y position of the mouse
  */
 void Renderer::mouseDrag(int x, int y) {
-    if (state == MOVE) {
-        std::cout << "drag" << std::endl;
-    }
+    // Delegate event to EventHandler
+    eh->mouseDrag(x, y);
 }
 
 /**
@@ -74,6 +97,10 @@ void Renderer::setDimensions(int width, int height) {
     // Update the dimension of the scene to match the QGraphicsView
     scene->setSceneRect(0, 0, width, height);
     
+    // Create a new pixels array with the new dimensions
+    delete pixels;
+    pixels = new QImage(width, height, QImage::Format_RGB32);
+    
     // Redraw the scene
     draw();
 }
@@ -82,13 +109,23 @@ void Renderer::setDimensions(int width, int height) {
  * Draws a background grid on the scene.
  */
 void Renderer::drawGrid() {
-    // Draw all horizontal lines
-    for (int i = 0; i < height; i += gridsize) {
-        scene->addLine(0, i, width, i);
-    }
-    
-    // Draw all vertical lines
-    for (int i = 0; i < width; i += gridsize) {
-        scene->addLine(i, 0, i, height);
+    // Loop through all pixels
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            // Vertical line
+            if (x % gridsize == 0) {
+                pixels->setPixelColor(QPoint(x, y), gridColor);
+                continue;
+            }
+            
+            // Horizontal line
+            if (y % gridsize == 0) {
+                pixels->setPixelColor(QPoint(x, y), gridColor);
+                continue;
+            }
+            
+            // Background
+            pixels->setPixelColor(QPoint(x, y), bgColor);
+        }
     }
 }

@@ -4,7 +4,8 @@
 #include <QGraphicsScene>
 #include <QSpinBox>
 #include <iostream>
-#include "state.h"
+#include "model.h"
+#include "eventhandler.h"
 
 /**
  * Handles all drawing and eventhandling of the QGraphicsScene.
@@ -25,15 +26,21 @@ public:
     // Set methods for private variables
     inline void setState(State state) {
         std::cout << "State: " << state << std::endl;
-        this->state = state;
+        model->state = state;
     }
     void setDimensions(int width, int height);
 private:
     // Class instance variables
     QGraphicsScene* scene;
+    QImage* pixels;
+    Model* model;
+    EventHandler* eh;
+    
+    // Settings variables
+    QColor gridColor = QColor(Qt::GlobalColor::red);
+    QColor bgColor = QColor(Qt::GlobalColor::white);
     
     // State variables
-    State state;
     int width;
     int height;
     int gridsize;
