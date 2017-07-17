@@ -3,7 +3,14 @@ language: cpp
 os:
  - linux
 
-before-script:
+env:
+  global:
+    - QTDIR=/opt/qt55
+
+install:
+ - ./install.sh
+
+before_script:
  - qmake --version
 
 script:
