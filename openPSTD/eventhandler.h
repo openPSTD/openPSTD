@@ -3,6 +3,7 @@
 
 #include "model.h"
 #include "state.h"
+#include "settings.h"
 
 /**
  * Event handling class.
@@ -18,6 +19,9 @@ public:
     void mousePress(int x, int y, Qt::MouseButton button);
     void mouseRelease(int x, int y, Qt::MouseButton button);
     void mouseDrag(int x, int y);
+    
+    // Get method for current mouse position
+    QPoint getMousePos() { return QPoint(mouseX, mouseY); }
 private:
     // Reference to the Model
     Model* model;
@@ -25,6 +29,8 @@ private:
     // State variables
     time_t startAddDomainTime;
     bool addingDomain;
+    int mouseX;
+    int mouseY;
     
     // Private event handling methods
     void addDomainStart(int x, int y);

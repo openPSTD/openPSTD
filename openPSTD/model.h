@@ -2,8 +2,10 @@
 #define MODEL_H
 
 #include <vector>
+#include <math.h>
 #include "state.h"
 #include "domain.h"
+#include "settings.h"
 
 /**
  * Representation of the current scene.
@@ -19,6 +21,11 @@ public:
     // Vector of all domains
     std::vector<Domain> domains;
     Domain* lastDomain() { return &domains[domains.size() - 1]; }
+    
+    // Size of the background grid
+    int gridsize;
+    QPoint clampGrid(int x, int y);
+    bool isOnGrid(int x, int y);
 };
 
 #endif

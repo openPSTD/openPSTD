@@ -29,7 +29,8 @@ SOURCES += \
     graphicsview.cpp \
     renderer.cpp \
     eventhandler.cpp \
-    domain.cpp
+    domain.cpp \
+    model.cpp
 
 HEADERS += \
         window.h \
@@ -38,7 +39,8 @@ HEADERS += \
     state.h \
     eventhandler.h \
     domain.h \
-    model.h
+    model.h \
+    settings.h
 
 FORMS += \
         window.ui

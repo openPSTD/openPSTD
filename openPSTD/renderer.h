@@ -3,9 +3,11 @@
 
 #include <QGraphicsScene>
 #include <QSpinBox>
+#include <QTime>
 #include <iostream>
 #include "model.h"
 #include "eventhandler.h"
+#include "settings.h"
 
 /**
  * Handles all drawing and eventhandling of the QGraphicsScene.
@@ -36,19 +38,19 @@ private:
     Model* model;
     EventHandler* eh;
     
-    // Settings variables
-    QColor gridColor = QColor(Qt::GlobalColor::red);
-    QColor bgColor = QColor(Qt::GlobalColor::white);
-    
     // State variables
     int width;
     int height;
-    int gridsize;
+    QFont fpsFont;
+    QTime time;
+    int numframes;
+    int fps;
     
     // Private drawing methods
     void drawGrid();
+    void drawCursor(int x, int y);
 public slots:
-    void setGridSize(int gridsize) { this->gridsize = gridsize; }
+    void setGridSize(int gridsize) { model->gridsize = gridsize; }
 };
 
 #endif

@@ -21,6 +21,14 @@ Renderer::Renderer(QGraphicsScene* scene) {
     
     // Create an initial pixels array
     pixels = new QImage(1024, 768, QImage::Format_RGB32);
+    
+    // Initialize fps counter
+    fpsFont.setPixelSize(18);
+    fpsFont.setBold(false);
+    fpsFont.setFamily("Monospace");
+    numframes = 0;
+    fps = 0;
+    time.start();
 }
 
 /**
@@ -36,8 +44,16 @@ void Renderer::draw() {
     
     // Draw all domains
     std::vector<Domain> domains = model->domains;
-    for (int i = 0; i < domains.size(); i++) {
+    for (unsigned int i = 0; i < domains.size(); i++) {
         domains[i].draw(pixels);
+    }
+    
+    // Draw cursor if adding domain
+    if (model->state == ADDDOMAIN) {
+        QPoint pos = eh->getMousePos();
+        QPoint clamped = model->clampGrid(pos.x(), pos.y());
+        if (clamped != QPoint(-1, -1)) pos = clamped;
+        drawCursor(clamped.x(), clamped.y());
     }
     
     // Draw the pixels array
@@ -46,6 +62,16 @@ void Renderer::draw() {
     
     // Reset the pixels array
     pixels = new QImage(width, height, QImage::Format_RGB32);
+    
+    // Update fps
+    if (numframes++ >= 20) {
+        fps = 20 * 1000.0 / time.elapsed();
+        time.restart();
+        numframes = 0;
+    }
+    
+    // Draw fps
+    scene->addText(QString(std::to_string(fps).c_str()), fpsFont);
 }
 
 /**
@@ -112,14 +138,8 @@ void Renderer::drawGrid() {
     // Loop through all pixels
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            // Vertical line
-            if (x % gridsize == 0) {
-                pixels->setPixelColor(QPoint(x, y), gridColor);
-                continue;
-            }
-            
-            // Horizontal line
-            if (y % gridsize == 0) {
+            // Check if this point is on the grid
+            if (model->isOnGrid(x, y)) {
                 pixels->setPixelColor(QPoint(x, y), gridColor);
                 continue;
             }
@@ -127,5 +147,30 @@ void Renderer::drawGrid() {
             // Background
             pixels->setPixelColor(QPoint(x, y), bgColor);
         }
+    }
+}
+
+/**
+ * Draws a cursor at the given x, y coordinates.
+ * 
+ * @param x  The x coordinate at which to draw the cursor
+ * @param y  The y coordinate at which to draw the cursor
+ */
+void Renderer::drawCursor(int x, int y) {
+    // Length of each of the cursor's legs
+    int d = 5;
+    
+    // Draw a horizontal line
+    for (int i = x - d; i < x + d; i++) {
+        if (i < 0 || i >= width) continue;
+        if (y < 0 || y >= height) break;
+        pixels->setPixelColor(i, y, Qt::GlobalColor::green);
+    }
+    
+    // Draw a vertical line
+    for (int j = y - d; j < y + d; j++) {
+        if (x < 0 || x >= width) break;
+        if (j < 0 || j >= height) continue;
+        pixels->setPixelColor(x, j, Qt::GlobalColor::green);
     }
 }

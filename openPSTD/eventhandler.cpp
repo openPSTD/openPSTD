@@ -50,7 +50,7 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
         // Check for click and immediate release
         time_t t1;
         time(&t1);
-        if (difftime(t1, startAddDomainTime) > 0.3 && addingDomain) {
+        if (difftime(t1, startAddDomainTime) > 0.2 && addingDomain) {
             // Stop the domain here
             addDomainStop(x, y);
             addingDomain = false;
@@ -65,6 +65,10 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
  * @param y  The y coordinate of the mouse
  */
 void EventHandler::mouseDrag(int x, int y) {
+    // Update mouse position variables
+    mouseX = x;
+    mouseY = y;
+    
     // Update the new domain
     if (model->state == ADDDOMAIN && addingDomain) {
         addDomainStop(x, y);
@@ -78,8 +82,22 @@ void EventHandler::mouseDrag(int x, int y) {
  * @param y  The y coordinate of the first corner of the domain
  */
 void EventHandler::addDomainStart(int x, int y) {
+    // Clamp the coordinates to the grid
+    int px, py;
+    QPoint gridPoint = model->clampGrid(x, y);
+    int dx = gridPoint.x() - x;
+    int dy = gridPoint.y() - y;
+    int dsqrd = dx * dx + dy * dy;
+    if (dsqrd < clampDist * clampDist) {
+        px = gridPoint.x();
+        py = gridPoint.y();
+    } else {
+        px = x;
+        py = y;
+    }
+    
     // Create a new Domain instance
-    Domain d(x, y, x, y);
+    Domain d(px, py, px, py);
     
     // Add the new domain to the model
     model->domains.push_back(d);
@@ -93,7 +111,21 @@ void EventHandler::addDomainStart(int x, int y) {
  * @param y  The y coordinate of the second corner of the domain
  */
 void EventHandler::addDomainStop(int x, int y) {
+    // Clamp the coordinates to the grid
+    int px, py;
+    QPoint gridPoint = model->clampGrid(x, y);
+    int dx = gridPoint.x() - x;
+    int dy = gridPoint.y() - y;
+    int dsqrd = dx * dx + dy * dy;
+    if (dsqrd < clampDist * clampDist) {
+        px = gridPoint.x();
+        py = gridPoint.y();
+    } else {
+        px = x;
+        py = y;
+    }
+    
     // Update the end coordinates of the newest model
-    model->lastDomain()->setX1(x);
-    model->lastDomain()->setY1(y);
+    model->lastDomain()->setX1(px);
+    model->lastDomain()->setY1(py);
 }
