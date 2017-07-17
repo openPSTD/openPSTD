@@ -139,12 +139,12 @@ void Renderer::drawGrid() {
         for (int x = 0; x < width; x++) {
             // Check if this point is on the grid
             if (model->isOnGrid(x, y)) {
-                pixels->setPixelColor(QPoint(x, y), gridColor);
+                pixels->setPixel(QPoint(x, y), gridColor);
                 continue;
             }
             
             // Background
-            pixels->setPixelColor(QPoint(x, y), bgColor);
+            pixels->setPixel(QPoint(x, y), bgColor);
         }
     }
 }
@@ -163,13 +163,13 @@ void Renderer::drawCursor(int x, int y) {
     for (int i = x - d; i < x + d; i++) {
         if (i < 0 || i >= width) continue;
         if (y < 0 || y >= height) break;
-        pixels->setPixelColor(i, y, Qt::GlobalColor::green);
+        pixels->setPixel(i, y, cursorColor);
     }
     
     // Draw a vertical line
     for (int j = y - d; j < y + d; j++) {
         if (x < 0 || x >= width) break;
         if (j < 0 || j >= height) continue;
-        pixels->setPixelColor(x, j, Qt::GlobalColor::green);
+        pixels->setPixel(x, j, cursorColor);
     }
 }

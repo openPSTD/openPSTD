@@ -30,26 +30,26 @@ void Domain::draw(QImage* pixels) {
     int maxy = std::max(y0, y1);
     
     // Draw left wall
-    QColor cleft(Qt::GlobalColor::blue);
+    QRgb cleft = qRgb(0, 0, 255);
     for (int y = miny; y < maxy; y++) {
-        pixels->setPixelColor(minx, y, cleft);
+        pixels->setPixel(minx, y, cleft);
     }
     
     // Draw right wall
-    QColor cright(Qt::GlobalColor::blue);
+    QRgb cright = qRgb(0, 0, 255);
     for (int y = miny; y < maxy; y++) {
-        pixels->setPixelColor(maxx, y, cright);
+        pixels->setPixel(maxx, y, cright);
     }
     
     // Draw top wall
-    QColor ctop(Qt::GlobalColor::blue);
+    QRgb ctop = qRgb(0, 0, 255);
     for (int x = minx; x < maxx; x++) {
-        pixels->setPixelColor(x, miny, ctop);
+        pixels->setPixel(x, miny, ctop);
     }
     
     // Draw bottom wall
-    QColor cbottom(Qt::GlobalColor::blue);
+    QRgb cbottom = qRgb(0, 0, 255);
     for (int x = minx; x < maxx; x++) {
-        pixels->setPixelColor(x, maxy, cbottom);
+        pixels->setPixel(x, maxy, cbottom);
     }
 }
