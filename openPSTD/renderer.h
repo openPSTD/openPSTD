@@ -5,6 +5,7 @@
 #include <QSpinBox>
 #include <QTime>
 #include <iostream>
+#include <string>
 #include "model.h"
 #include "eventhandler.h"
 #include "settings.h"

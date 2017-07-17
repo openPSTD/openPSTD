@@ -3,6 +3,9 @@ language: cpp
 os:
  - linux
 
+before-script:
+ - qmake --version
+
 script:
  - ./compile.sh
  - ./build/openPSTD test
