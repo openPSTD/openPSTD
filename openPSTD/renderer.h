@@ -15,7 +15,7 @@
 class Renderer {
 public:
     // Constructor
-    Renderer(QGraphicsScene* scene);
+    Renderer(QGraphicsScene* scene, Model* model);
     
     // Drawing method
     void draw();

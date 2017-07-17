@@ -17,6 +17,7 @@ public:
     explicit GraphicsView(QWidget* parent = 0);
     
     Renderer* renderer;
+    Model* model;
 protected:
     void paintEvent(QPaintEvent* event);
     void resizeEvent(QResizeEvent* event);

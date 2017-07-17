@@ -20,13 +20,13 @@ class Window : public QMainWindow {
     Q_OBJECT
 public:
     explicit Window(QWidget* parent = 0);
+    Ui::Window* ui;
+    GraphicsView* view;
     ~Window();
 protected:
     void paintEvent(QPaintEvent* event);
 private:
-    Ui::Window* ui;
     QSpinBox* sbGridSize;
-    GraphicsView* view;
 public slots:
     inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
     inline void slot_select() { view->renderer->setState(SELECT); }

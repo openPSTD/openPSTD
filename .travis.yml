@@ -1,0 +1,8 @@
+language: cpp
+
+os:
+ - linux
+
+script:
+ - ./compile.sh
+ - ./build/openPSTD test

@@ -11,8 +11,11 @@ GraphicsView::GraphicsView(QWidget* parent) : QGraphicsView(parent) {
     scene = new QGraphicsScene();
     setScene(scene);
     
+    // Create a new Model instance
+    model = new Model();
+    
     // Create a new Renderer
-    renderer = new Renderer(scene);
+    renderer = new Renderer(scene, model);
     
     // Enable mouse tracking
     setMouseTracking(true);

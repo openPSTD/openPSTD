@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,7 +30,8 @@ SOURCES += \
     renderer.cpp \
     eventhandler.cpp \
     domain.cpp \
-    model.cpp
+    model.cpp \
+    testmaintoolbar.cpp
 
 HEADERS += \
         window.h \
@@ -40,7 +41,8 @@ HEADERS += \
     eventhandler.h \
     domain.h \
     model.h \
-    settings.h
+    settings.h \
+    testmaintoolbar.h
 
 FORMS += \
         window.ui

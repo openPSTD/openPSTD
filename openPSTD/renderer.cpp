@@ -4,13 +4,12 @@
  * Constructor.
  * 
  * @param scene  A reference to the scene to draw to
+ * @param model  A reference to the Model instance
  */
-Renderer::Renderer(QGraphicsScene* scene) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model) {
     // Save reference variables locally
     this->scene = scene;
-    
-    // Create a new Model instance
-    model = new Model();
+    this->model = model;
     
     // Create a new EventHandler instance
     eh = new EventHandler(model);
