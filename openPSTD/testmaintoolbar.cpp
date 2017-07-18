@@ -3,7 +3,7 @@
 /**
  * Constructor.
  * 
- * @param window  The main window
+ * @param window  A reference to the main window
  */
 TestMainToolbar::TestMainToolbar(Window* window) {
     // Save reference variables locally

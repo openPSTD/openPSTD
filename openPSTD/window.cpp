@@ -25,6 +25,9 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
+    // Set initial model variables
+    view->model->showFPS = ui->actionFPS_counter->isChecked();
+    
     // Create a QSpinBox for the grid size
     sbGridSize = new QSpinBox();
     sbGridSize->setMinimum(5);
@@ -56,6 +59,9 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionAddDomain, SIGNAL(triggered(bool)), this, SLOT(slot_adddomain()));
     connect(ui->actionAddSource, SIGNAL(triggered(bool)), this, SLOT(slot_addsource()));
     connect(ui->actionAddReceiver, SIGNAL(triggered(bool)), this, SLOT(slot_addreceiver()));
+    
+    // Connect actions in view menu
+    connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
 }
 
 /**

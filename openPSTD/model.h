@@ -26,6 +26,9 @@ public:
     int gridsize;
     QPoint clampGrid(int x, int y);
     bool isOnGrid(int x, int y);
+    
+    // FPS counter
+    bool showFPS;
 };
 
 #endif

@@ -33,7 +33,8 @@ SOURCES += \
     eventhandler.cpp \
     domain.cpp \
     model.cpp \
-    testmaintoolbar.cpp
+    testmaintoolbar.cpp \
+    testmenuview.cpp
 
 HEADERS += \
         window.h \
@@ -44,7 +45,8 @@ HEADERS += \
     domain.h \
     model.h \
     settings.h \
-    testmaintoolbar.h
+    testmaintoolbar.h \
+    testmenuview.h
 
 FORMS += \
         window.ui

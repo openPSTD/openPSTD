@@ -70,7 +70,9 @@ void Renderer::draw() {
     }
     
     // Draw fps
-    scene->addText(QString(std::to_string(fps).c_str()), fpsFont);
+    if (model->showFPS) {
+        scene->addText(QString(std::to_string(fps).c_str()), fpsFont);
+    }
 }
 
 /**
