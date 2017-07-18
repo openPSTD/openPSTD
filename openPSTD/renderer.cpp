@@ -31,6 +31,15 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model) {
 }
 
 /**
+ * Destructor.
+ */
+Renderer::~Renderer() {
+    // Delete class instance variables
+    delete pixels;
+    delete eh;
+}
+
+/**
  * Drawing method.
  * Redraws the scene.
  */
@@ -60,6 +69,7 @@ void Renderer::draw() {
     scene->addPixmap(qpm);
     
     // Reset the pixels array
+    delete pixels;
     pixels = new QImage(width, height, QImage::Format_RGB32);
     
     // Update fps
@@ -71,7 +81,8 @@ void Renderer::draw() {
     
     // Draw fps
     if (model->showFPS) {
-        scene->addText(QString(std::to_string(fps).c_str()), fpsFont);
+        QGraphicsTextItem* fpsText = scene->addText(QString(std::to_string(fps).c_str()), fpsFont);
+        fpsText->setPos(QPoint(0, height - 22));
     }
 }
 

@@ -22,6 +22,16 @@ GraphicsView::GraphicsView(QWidget* parent) : QGraphicsView(parent) {
 }
 
 /**
+ * Destructor.
+ */
+GraphicsView::~GraphicsView() {
+    // Delete class instance variables
+    delete renderer;
+    delete model;
+    delete scene;
+}
+
+/**
  * PaintEvent for the QGraphicsView widget.
  * 
  * @param event  A reference to the QPaintEvent

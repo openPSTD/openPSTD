@@ -3,6 +3,8 @@
 
 #include <QGraphicsScene>
 #include <QSpinBox>
+#include <QPainter>
+#include <QGraphicsTextItem>
 #include <QTime>
 #include <iostream>
 #include <string>
@@ -15,8 +17,9 @@
  */
 class Renderer {
 public:
-    // Constructor
+    // Constructor, destructor
     Renderer(QGraphicsScene* scene, Model* model);
+    ~Renderer();
     
     // Drawing method
     void draw();

@@ -11,12 +11,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->setupUi(this);
     
     // Add a spacer to the main toolbar
-    QWidget* spacer = new QWidget();
+    spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->mainToolBar->addWidget(spacer);
     
     // Add a label for the grid size spinbox
-    QLabel* lGridSize = new QLabel();
+    lGridSize = new QLabel();
     lGridSize->setText("Grid size:");
     ui->mainToolBar->addWidget(lGridSize);
     
@@ -45,7 +45,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     this->move(x, y);
     
     // Create a QActionGroup for the toolbar buttons
-    QActionGroup* qagMainToolbar = new QActionGroup(parent);
+    qagMainToolbar = new QActionGroup(parent);
     qagMainToolbar->addAction(ui->actionSelect);
     qagMainToolbar->addAction(ui->actionMoveScene);
     qagMainToolbar->addAction(ui->actionAddDomain);
@@ -68,6 +68,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
  * Destructor.
  */
 Window::~Window() {
+    // Delete class instance variables
+    delete qagMainToolbar;
+    delete sbGridSize;
+    delete view;
+    delete lGridSize;
+    delete spacer;
     delete ui;
 }
 

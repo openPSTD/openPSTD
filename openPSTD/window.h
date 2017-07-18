@@ -26,7 +26,10 @@ public:
 protected:
     void paintEvent(QPaintEvent* event);
 private:
+    QWidget* spacer;
+    QLabel* lGridSize;
     QSpinBox* sbGridSize;
+    QActionGroup* qagMainToolbar;
 public slots:
     inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
     inline void slot_select() { view->renderer->setState(SELECT); }
