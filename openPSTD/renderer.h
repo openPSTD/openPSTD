@@ -28,7 +28,6 @@ public:
     
     // Set methods for private variables
     inline void setState(State state) {
-        std::cout << "State: " << state << std::endl;
         model->state = state;
     }
     void setDimensions(int width, int height);

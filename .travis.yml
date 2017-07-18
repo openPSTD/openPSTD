@@ -2,6 +2,9 @@ language: cpp
 sudo: required
 dist: trusty
 
+notifications:
+  email: false
+
 os:
  - linux
 
@@ -14,9 +17,7 @@ install:
 
 before_script:
  - qmake --version
- - "export DISPLAY=:99.0"
- - "sh -e /etc/init.d/xvfb start"
- - sleep 3
+ - ./opendisplay.sh
 
 script:
  - ./compile.sh

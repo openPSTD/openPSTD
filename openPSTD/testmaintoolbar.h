@@ -14,7 +14,11 @@ public:
 private:
     Window* window;
 private slots:
+    void select();
+    void move();
     void addDomain();
+    void addSource();
+    void addReceiver();
 };
 
 #endif
