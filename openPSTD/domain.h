@@ -15,6 +15,10 @@ public:
     // Drawing method
     void draw(QImage* pixels);
     
+    // Get methods for the domain's corner coordinates
+    int getX0() { return x0; }
+    int getY0() { return y0; }
+    
     // Set methods for the domain's corner coordinates
     void setX1(int x1) { this->x1 = x1; }
     void setY1(int y1) { this->y1 = y1; }

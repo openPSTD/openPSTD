@@ -32,7 +32,6 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
             // Start adding a new domain
             addDomainStart(x, y);
             addingDomain = true;
-            time(&startAddDomainTime);
         }
     }
 }
@@ -48,9 +47,10 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
     // Finish the new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check for click and immediate release
-        time_t t1;
-        time(&t1);
-        if (difftime(t1, startAddDomainTime) > 0.2 && addingDomain) {
+        int dx = std::abs(x - model->lastDomain()->getX0());
+        int dy = std::abs(y - model->lastDomain()->getY0());
+        int dist2 = dx * dx + dy * dy;
+        if (dist2 > 100 && addingDomain) {
             // Stop the domain here
             addDomainStop(x, y);
             addingDomain = false;

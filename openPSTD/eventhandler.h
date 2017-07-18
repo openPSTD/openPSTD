@@ -27,7 +27,6 @@ private:
     Model* model;
     
     // State variables
-    time_t startAddDomainTime;
     bool addingDomain;
     int mouseX;
     int mouseY;

@@ -44,6 +44,22 @@ void TestMainToolbar::addDomain() {
     
     // Verify that the model's state was correctly updated
     QVERIFY(window->view->model->state == ADDDOMAIN);
+    
+    // Draw a new domain by clicking and dragging the mouse
+    unsigned int numdomains = window->view->model->domains.size();
+    QTest::mousePress(window->view->viewport(), Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(100, 100));
+    QTest::mouseRelease(window->view->viewport(), Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(200, 300));
+    
+    // Verify that a new domain has been added
+    QVERIFY(window->view->model->domains.size() == numdomains + 1);
+    
+    // Draw a new domain by clicking twice
+    numdomains = window->view->model->domains.size();
+    QTest::mouseClick(window->view->viewport(), Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(150, 150));
+    QTest::mouseClick(window->view->viewport(), Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(250, 200));
+    
+    // Verify that a new domain has been added
+    QVERIFY(window->view->model->domains.size() == numdomains + 1);
 }
 
 /**
