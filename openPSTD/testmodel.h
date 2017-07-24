@@ -17,8 +17,8 @@ private:
     Window* window;
     Model* model;
 private slots:
-    void testClampGrid();
-    void testIsOnGrid();
+    void clampGrid();
+    void isOnGrid();
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <iostream>
 #include "renderer.h"
+#include "settings.h"
 
 /**
  * Custom QGraphicsView widget for drawing the main frame.
@@ -14,7 +15,7 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0);
+    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0);
     ~GraphicsView();
     
     Renderer* renderer;

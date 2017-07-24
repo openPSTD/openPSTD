@@ -75,6 +75,10 @@
     <property name="title">
      <string>Settings</string>
     </property>
+    <addaction name="actionGrid_color"/>
+    <addaction name="actionBackground_color"/>
+    <addaction name="actionZoom_color"/>
+    <addaction name="actionFPS_color"/>
    </widget>
    <widget class="QMenu" name="menuScene">
     <property name="title">
@@ -280,6 +284,26 @@
    </property>
    <property name="text">
     <string>FPS counter</string>
+   </property>
+  </action>
+  <action name="actionGrid_color">
+   <property name="text">
+    <string>Grid color</string>
+   </property>
+  </action>
+  <action name="actionBackground_color">
+   <property name="text">
+    <string>Background color</string>
+   </property>
+  </action>
+  <action name="actionZoom_color">
+   <property name="text">
+    <string>Zoom color</string>
+   </property>
+  </action>
+  <action name="actionFPS_color">
+   <property name="text">
+    <string>FPS color</string>
    </property>
   </action>
  </widget>

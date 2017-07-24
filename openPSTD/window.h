@@ -8,6 +8,7 @@
 #include <QDesktopWidget>
 #include <QGraphicsScene>
 #include <QTimer>
+#include <QColorDialog>
 #include "renderer.h"
 #include "graphicsview.h"
 #include "ui_window.h"
@@ -22,6 +23,7 @@ public:
     explicit Window(QWidget* parent = 0);
     Ui::Window* ui;
     GraphicsView* view;
+    Settings* settings;
     ~Window();
     
     QSpinBox* sbGridSize;
@@ -41,7 +43,14 @@ public slots:
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
     inline void slot_addsource() { view->renderer->setState(ADDSOURCE); }
     inline void slot_addreceiver() { view->renderer->setState(ADDRECEIVER); }
-    inline void slot_fpscounter() { view->model->showFPS = ui->actionFPS_counter->isChecked(); }
+    inline void slot_fpscounter() {
+        view->model->showFPS = ui->actionFPS_counter->isChecked();
+        ui->actionFPS_color->setEnabled(view->model->showFPS);
+    }
+    void slot_gridcolor();
+    void slot_bgcolor();
+    void slot_zoomcolor();
+    void slot_fpscolor();
 };
 
 #endif

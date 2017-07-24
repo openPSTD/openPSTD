@@ -11,6 +11,7 @@
 #include "model.h"
 #include "eventhandler.h"
 #include "settings.h"
+#include "grid.h"
 
 /**
  * Handles all drawing and eventhandling of the QGraphicsScene.
@@ -18,7 +19,7 @@
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model);
+    Renderer(QGraphicsScene* scene, Model* model, Settings* settings);
     ~Renderer();
     
     // Drawing method
@@ -37,13 +38,15 @@ public:
 private:
     // Class instance variables
     QGraphicsScene* scene;
-    QImage* pixels;
     Model* model;
+    Settings* settings;
+    QImage* pixels;
     EventHandler* eh;
     
     // State variables
     int width;
     int height;
+    QImage image;
     QFont fpsFont;
     QTime time;
     int numframes;

@@ -5,14 +5,16 @@
  * 
  * @param scene  A reference to the scene to draw to
  * @param model  A reference to the Model instance
+ * @param settings  A reference to the Settings instance
  */
-Renderer::Renderer(QGraphicsScene* scene, Model* model) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings) {
     // Save reference variables locally
     this->scene = scene;
     this->model = model;
+    this->settings = settings;
     
     // Create a new EventHandler instance
-    eh = new EventHandler(model);
+    eh = new EventHandler(model, settings);
     
     // Update the width and height according to the scene
     width = scene->sceneRect().width();
@@ -20,6 +22,10 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model) {
     
     // Create an initial pixels array
     pixels = new QImage(1024, 768, QImage::Format_RGB32);
+    
+    // Load the cursor image
+    image = QImage("../icons/cursor.png");
+    if (image.isNull()) std::cerr << "Cursor image not found" << std::endl;
     
     // Initialize fps counter
     fpsFont.setPixelSize(18);
@@ -59,7 +65,7 @@ void Renderer::draw() {
     // Draw cursor if adding domain
     if (model->state == ADDDOMAIN) {
         QPoint pos = eh->getMousePos();
-        QPoint clamped = model->clampGrid(pos.x(), pos.y());
+        QPoint clamped = Grid::clampGrid(pos.x(), pos.y(), model, settings);
         if (clamped != QPoint(-1, -1)) pos = clamped;
         drawCursor(clamped.x(), clamped.y());
     }
@@ -78,7 +84,7 @@ void Renderer::draw() {
     
     // Draw fps
     if (model->showFPS) {
-        drawText(std::to_string(fps), 5, height - 19, 14, fpsColor);
+        drawText(std::to_string(fps), 5, height - 19, 14, settings->fpsColor);
     }
     
     // Draw the pixels array
@@ -155,13 +161,13 @@ void Renderer::drawGrid() {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             // Check if this point is on the grid
-            if (model->isOnGrid(x, y)) {
-                pixels->setPixel(QPoint(x, y), gridColor);
+            if (Grid::isOnGrid(x, y, model)) {
+                pixels->setPixel(QPoint(x, y), settings->gridColor);
                 continue;
             }
             
             // Background
-            pixels->setPixel(QPoint(x, y), bgColor);
+            pixels->setPixel(QPoint(x, y), settings->bgColor);
         }
     }
 }
@@ -173,31 +179,22 @@ void Renderer::drawGrid() {
  * @param y  The y coordinate at which to draw the cursor
  */
 void Renderer::drawCursor(int x, int y) {
-    // Length of each of the cursor's legs
-    int d = 5;
-    
-    // Draw a horizontal line
-    for (int i = x - d; i < x + d; i++) {
-        if (i < 0 || i >= width) continue;
-        if (y < 0 || y >= height) break;
-        pixels->setPixel(i, y, cursorColor);
-    }
-    
-    // Draw a vertical line
-    for (int j = y - d; j < y + d; j++) {
-        if (x < 0 || x >= width) break;
-        if (j < 0 || j >= height) continue;
-        pixels->setPixel(x, j, cursorColor);
-    }
+    // Draw the cursor image at the given coordinates
+    QPainter p;
+    p.begin(pixels);
+    p.drawImage(x-5, y-5, image);
+    p.end();
 }
 
 void Renderer::drawZoom(int zoomaim) {
+    // Draw the zoom level reference line
     int width = model->zoom * zoomaim;
     for (int i = 0; i < width; i++) {
-        pixels->setPixel(i, 5, zoomColor);
+        pixels->setPixel(i, 5, settings->zoomColor);
     }
     
-    drawText(std::to_string(zoomaim) + " mm", 5, 10, 14, zoomColor);
+    // Draw the current zoom level text
+    drawText(std::to_string(zoomaim) + " mm", 5, 10, 14, settings->zoomColor);
 }
 
 void Renderer::drawText(std::string text, int x, int y, int size, QRgb color) {

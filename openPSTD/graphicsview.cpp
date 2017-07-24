@@ -5,8 +5,9 @@
  * Creates a new QGraphicsScene for the QGraphicsView.
  * 
  * @param parent  A reference to the parent widget
+ * @param settings  A reference to the Settings instance
  */
-GraphicsView::GraphicsView(QWidget* parent) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, Settings* settings) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
@@ -15,7 +16,7 @@ GraphicsView::GraphicsView(QWidget* parent) : QGraphicsView(parent) {
     model = new Model();
     
     // Create a new Renderer
-    renderer = new Renderer(scene, model);
+    renderer = new Renderer(scene, model, settings);
     
     // Enable mouse tracking
     setMouseTracking(true);

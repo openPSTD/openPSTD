@@ -24,8 +24,6 @@ public:
     
     // Size of the background grid
     int gridsize; // In mm
-    QPoint clampGrid(int x, int y);
-    bool isOnGrid(int x, int y);
     
     // Zoom level
     int zoom; // In mm / pixel

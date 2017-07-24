@@ -15,8 +15,11 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->mainToolBar->addWidget(spacer);
     
+    // Create a settings instance
+    settings = new Settings();
+    
     // Create a GraphicsView for the main frame
-    view = new GraphicsView(this);
+    view = new GraphicsView(this, settings);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -83,6 +86,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionAddSource, SIGNAL(triggered(bool)), this, SLOT(slot_addsource()));
     connect(ui->actionAddReceiver, SIGNAL(triggered(bool)), this, SLOT(slot_addreceiver()));
     
+    // Connect actions in settings menu
+    connect(ui->actionGrid_color, SIGNAL(triggered(bool)), this, SLOT(slot_gridcolor()));
+    connect(ui->actionBackground_color, SIGNAL(triggered(bool)), this, SLOT(slot_bgcolor()));
+    connect(ui->actionZoom_color, SIGNAL(triggered(bool)), this, SLOT(slot_zoomcolor()));
+    connect(ui->actionFPS_color, SIGNAL(triggered(bool)), this, SLOT(slot_fpscolor()));
+    
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
 }
@@ -92,6 +101,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
  */
 Window::~Window() {
     // Delete class instance variables
+    delete settings;
     delete qagMainToolbar;
     delete sbGridSize;
     delete view;
@@ -108,4 +118,40 @@ Window::~Window() {
 void Window::paintEvent(QPaintEvent* event) {
     QMainWindow::paintEvent(event);
     view->renderer->draw();
+}
+
+/**
+ * Callback method for the grid color action in the settings menu.
+ * Opens a color picker dialog and saves the new color.
+ */
+void Window::slot_gridcolor() {
+    QColor color = QColorDialog::getColor(settings->gridColor, this, "Choose a grid color");
+    if (color.isValid()) settings->gridColor = color.rgb();
+}
+
+/**
+ * Callback method for the background color action in the settings menu.
+ * Opens a color picker dialog and saves the new color.
+ */
+void Window::slot_bgcolor() {
+    QColor color = QColorDialog::getColor(settings->bgColor, this, "Choose a background color");
+    if (color.isValid()) settings->bgColor = color.rgb();
+}
+
+/**
+ * Callback method for the zoom color action in the settings menu.
+ * Opens a color picker dialog and saves the new color.
+ */
+void Window::slot_zoomcolor() {
+    QColor color = QColorDialog::getColor(settings->zoomColor, this, "Choose a zoom color");
+    if (color.isValid()) settings->zoomColor = color.rgb();
+}
+
+/**
+ * Callback method for the fps color action in the settings menu.
+ * Opens a color picker dialog and saves the new color.
+ */
+void Window::slot_fpscolor() {
+    QColor color = QColorDialog::getColor(settings->fpsColor, this, "Choose an FPS color");
+    if (color.isValid()) settings->fpsColor = color.rgb();
 }

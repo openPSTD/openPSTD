@@ -32,7 +32,6 @@ SOURCES += \
     renderer.cpp \
     eventhandler.cpp \
     domain.cpp \
-    model.cpp \
     testmaintoolbar.cpp \
     testmenuview.cpp \
     testmodel.cpp
@@ -48,7 +47,8 @@ HEADERS += \
     settings.h \
     testmaintoolbar.h \
     testmenuview.h \
-    testmodel.h
+    testmodel.h \
+    grid.h
 
 FORMS += \
         window.ui

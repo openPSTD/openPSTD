@@ -4,10 +4,12 @@
  * Constructor.
  * 
  * @param model  A reference to the Model
+ * @param settings  A reference to the Settings instance
  */
-EventHandler::EventHandler(Model* model) {
-    // Save reference to Model locally
+EventHandler::EventHandler(Model* model, Settings* settings) {
+    // Save reference variables locally
     this->model = model;
+    this->settings = settings;
     
     // Set initial state variable values
     addingDomain = false;
@@ -84,7 +86,7 @@ void EventHandler::mouseDrag(int x, int y) {
 void EventHandler::addDomainStart(int x, int y) {
     // Clamp the coordinates to the grid
     int px, py;
-    QPoint gridPoint = model->clampGrid(x, y);
+    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
     if (gridPoint == QPoint(-1, -1)) {
         px = x;
         py = y;
@@ -110,7 +112,7 @@ void EventHandler::addDomainStart(int x, int y) {
 void EventHandler::addDomainStop(int x, int y) {
     // Clamp the coordinates to the grid
     int px, py;
-    QPoint gridPoint = model->clampGrid(x, y);
+    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
     if (gridPoint == QPoint(-1, -1)) {
         px = x;
         py = y;
