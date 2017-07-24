@@ -35,6 +35,14 @@ private:
     QLabel* lGridSize;
     QLabel* lZoom;
     QActionGroup* qagMainToolbar;
+    
+    // Creates a QPixmap of a single given color
+    inline QPixmap color2pixmap(QRgb color) {
+        QPixmap result(12, 12);
+        result.fill(color);
+        return result;
+    }
+
 public slots:
     inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
     inline void slot_zoom(int zoom) { view->model->zoom = zoom; }

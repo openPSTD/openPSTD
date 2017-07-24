@@ -63,6 +63,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(sbGridSize);
     connect(sbGridSize, SIGNAL(valueChanged(int)), this, SLOT(slot_gridsize(int)));
     
+    // Set action icons in settings menu
+    ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
+    ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
+    ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
+    ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
+    
     // Center main window on screen
     QDesktopWidget* desktop = QApplication::desktop();
     QRect screen = desktop->availableGeometry(desktop->primaryScreen());
@@ -127,6 +133,7 @@ void Window::paintEvent(QPaintEvent* event) {
 void Window::slot_gridcolor() {
     QColor color = QColorDialog::getColor(settings->gridColor, this, "Choose a grid color");
     if (color.isValid()) settings->gridColor = color.rgb();
+    ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
 }
 
 /**
@@ -136,6 +143,7 @@ void Window::slot_gridcolor() {
 void Window::slot_bgcolor() {
     QColor color = QColorDialog::getColor(settings->bgColor, this, "Choose a background color");
     if (color.isValid()) settings->bgColor = color.rgb();
+    ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
 }
 
 /**
@@ -145,6 +153,7 @@ void Window::slot_bgcolor() {
 void Window::slot_zoomcolor() {
     QColor color = QColorDialog::getColor(settings->zoomColor, this, "Choose a zoom color");
     if (color.isValid()) settings->zoomColor = color.rgb();
+    ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
 }
 
 /**
@@ -154,4 +163,5 @@ void Window::slot_zoomcolor() {
 void Window::slot_fpscolor() {
     QColor color = QColorDialog::getColor(settings->fpsColor, this, "Choose an FPS color");
     if (color.isValid()) settings->fpsColor = color.rgb();
+    ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
 }
