@@ -1,8 +1,8 @@
 #include <QApplication>
 #include "window.h"
-#include "testmaintoolbar.h"
-#include "testmenuview.h"
-#include "testmodel.h"
+#include "test/testmaintoolbar.h"
+#include "test/testmenuview.h"
+#include "test/testmodel.h"
 
 int main(int argc, char** argv) {
     // Create QApplication and Window instances

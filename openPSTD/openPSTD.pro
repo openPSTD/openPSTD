@@ -32,9 +32,9 @@ SOURCES += \
     renderer.cpp \
     eventhandler.cpp \
     domain.cpp \
-    testmaintoolbar.cpp \
-    testmenuview.cpp \
-    testmodel.cpp
+    test/testmaintoolbar.cpp \
+    test/testmenuview.cpp \
+    test/testmodel.cpp
 
 HEADERS += \
         window.h \
@@ -45,9 +45,9 @@ HEADERS += \
     domain.h \
     model.h \
     settings.h \
-    testmaintoolbar.h \
-    testmenuview.h \
-    testmodel.h \
+    test/testmaintoolbar.h \
+    test/testmenuview.h \
+    test/testmodel.h \
     grid.h
 
 FORMS += \
