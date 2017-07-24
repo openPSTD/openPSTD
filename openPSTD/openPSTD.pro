@@ -34,7 +34,8 @@ SOURCES += \
     domain.cpp \
     model.cpp \
     testmaintoolbar.cpp \
-    testmenuview.cpp
+    testmenuview.cpp \
+    testmodel.cpp
 
 HEADERS += \
         window.h \
@@ -46,7 +47,8 @@ HEADERS += \
     model.h \
     settings.h \
     testmaintoolbar.h \
-    testmenuview.h
+    testmenuview.h \
+    testmodel.h
 
 FORMS += \
         window.ui

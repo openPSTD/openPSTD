@@ -85,15 +85,12 @@ void EventHandler::addDomainStart(int x, int y) {
     // Clamp the coordinates to the grid
     int px, py;
     QPoint gridPoint = model->clampGrid(x, y);
-    int dx = gridPoint.x() - x;
-    int dy = gridPoint.y() - y;
-    int dsqrd = dx * dx + dy * dy;
-    if (dsqrd < clampDist * clampDist) {
-        px = gridPoint.x();
-        py = gridPoint.y();
-    } else {
+    if (gridPoint == QPoint(-1, -1)) {
         px = x;
         py = y;
+    } else {
+        px = gridPoint.x();
+        py = gridPoint.y();
     }
     
     // Create a new Domain instance
@@ -114,15 +111,12 @@ void EventHandler::addDomainStop(int x, int y) {
     // Clamp the coordinates to the grid
     int px, py;
     QPoint gridPoint = model->clampGrid(x, y);
-    int dx = gridPoint.x() - x;
-    int dy = gridPoint.y() - y;
-    int dsqrd = dx * dx + dy * dy;
-    if (dsqrd < clampDist * clampDist) {
-        px = gridPoint.x();
-        py = gridPoint.y();
-    } else {
+    if (gridPoint == QPoint(-1, -1)) {
         px = x;
         py = y;
+    } else {
+        px = gridPoint.x();
+        py = gridPoint.y();
     }
     
     // Update the end coordinates of the newest model

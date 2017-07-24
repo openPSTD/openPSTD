@@ -40,8 +40,8 @@ void GraphicsView::paintEvent(QPaintEvent* event) {
     // Pass the new dimensions to the renderer
     QGraphicsView::paintEvent(event);
     renderer->setDimensions(
-        geometry().width() - 4,
-        geometry().height() - 4
+        geometry().width() - 2,
+        geometry().height() - 2
     );
 }
 

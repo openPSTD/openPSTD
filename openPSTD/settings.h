@@ -15,4 +15,9 @@ static const QRgb cursorColor = qRgb(0, 255, 0);
 // Clamping distance for the cursor
 static const int clampDist = 10;
 
+// Color of the zoom level reference
+static const QRgb zoomColor = qRgb(0, 0, 0);
+
+static const QRgb fpsColor = qRgb(0, 0, 255);
+
 #endif

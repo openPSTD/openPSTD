@@ -23,9 +23,12 @@ public:
     Domain* lastDomain() { return &domains[domains.size() - 1]; }
     
     // Size of the background grid
-    int gridsize;
+    int gridsize; // In mm
     QPoint clampGrid(int x, int y);
     bool isOnGrid(int x, int y);
+    
+    // Zoom level
+    int zoom; // In mm / pixel
     
     // FPS counter
     bool showFPS;

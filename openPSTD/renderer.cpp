@@ -64,13 +64,10 @@ void Renderer::draw() {
         drawCursor(clamped.x(), clamped.y());
     }
     
-    // Draw the pixels array
-    QPixmap qpm = QPixmap::fromImage(*pixels);
-    scene->addPixmap(qpm);
-    
-    // Reset the pixels array
-    delete pixels;
-    pixels = new QImage(width, height, QImage::Format_RGB32);
+    // Draw zoom level reference
+    int zoomaim = model->gridsize - model->gridsize % 10;
+    if (zoomaim == 0) zoomaim = 10;
+    drawZoom(zoomaim);
     
     // Update fps
     if (numframes++ >= 20) {
@@ -81,9 +78,16 @@ void Renderer::draw() {
     
     // Draw fps
     if (model->showFPS) {
-        QGraphicsTextItem* fpsText = scene->addText(QString(std::to_string(fps).c_str()), fpsFont);
-        fpsText->setPos(QPoint(0, height - 22));
+        drawText(std::to_string(fps), 5, height - 19, 14, fpsColor);
     }
+    
+    // Draw the pixels array
+    QPixmap qpm = QPixmap::fromImage(*pixels);
+    scene->addPixmap(qpm);
+    
+    // Reset the pixels array
+    delete pixels;
+    pixels = new QImage(width, height, QImage::Format_RGB32);
 }
 
 /**
@@ -185,4 +189,22 @@ void Renderer::drawCursor(int x, int y) {
         if (j < 0 || j >= height) continue;
         pixels->setPixel(x, j, cursorColor);
     }
+}
+
+void Renderer::drawZoom(int zoomaim) {
+    int width = model->zoom * zoomaim;
+    for (int i = 0; i < width; i++) {
+        pixels->setPixel(i, 5, zoomColor);
+    }
+    
+    drawText(std::to_string(zoomaim) + " mm", 5, 10, 14, zoomColor);
+}
+
+void Renderer::drawText(std::string text, int x, int y, int size, QRgb color) {
+    QPainter p;
+    p.begin(pixels);
+    p.setPen(QPen(color));
+    p.setFont(QFont("Times", size));
+    p.drawText(x, y + size, QString(text.c_str()));
+    p.end();
 }

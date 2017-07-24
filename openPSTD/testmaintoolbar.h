@@ -19,6 +19,8 @@ private slots:
     void addDomain();
     void addSource();
     void addReceiver();
+    void zoom();
+    void gridSize();
 };
 
 #endif

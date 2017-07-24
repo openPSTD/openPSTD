@@ -11,8 +11,8 @@
  */
 QPoint Model::clampGrid(int x, int y) {
     // Compute the coordinates of the nearest grid corner
-    int gridx = gridsize * round((double) x / gridsize);
-    int gridy = gridsize * round((double) y / gridsize);
+    int gridx = (gridsize * zoom) * round((double) x / (gridsize * zoom));
+    int gridy = (gridsize * zoom) * round((double) y / (gridsize * zoom));
     
     // Compute the distance to this point from the given point
     int dx = std::abs(gridx - x);
@@ -35,5 +35,5 @@ QPoint Model::clampGrid(int x, int y) {
  */
 bool Model::isOnGrid(int x, int y) {
     // Return whether or not the given point is on a grid edge
-    return (x % gridsize == 0 || y % gridsize == 0);
+    return (x % (zoom * gridsize) == 0 || y % (zoom * gridsize) == 0);
 }

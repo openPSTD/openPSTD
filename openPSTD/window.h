@@ -23,15 +23,19 @@ public:
     Ui::Window* ui;
     GraphicsView* view;
     ~Window();
+    
+    QSpinBox* sbGridSize;
+    QSpinBox* sbZoom;
 protected:
     void paintEvent(QPaintEvent* event);
 private:
     QWidget* spacer;
     QLabel* lGridSize;
-    QSpinBox* sbGridSize;
+    QLabel* lZoom;
     QActionGroup* qagMainToolbar;
 public slots:
     inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
+    inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
     inline void slot_select() { view->renderer->setState(SELECT); }
     inline void slot_move() { view->renderer->setState(MOVE); }
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }

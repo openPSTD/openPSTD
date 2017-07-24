@@ -85,3 +85,29 @@ void TestMainToolbar::addReceiver() {
     // Verify that the model's state was correctly updated
     QVERIFY(window->view->model->state == ADDRECEIVER);
 }
+
+/**
+ * Verifies that the model's state is correctly updated
+ * once the value of the zoom spinbox was changed.
+ */
+void TestMainToolbar::zoom() {
+    // Change the value of the zoom spinbox
+    int value = window->sbZoom->value();
+    window->sbZoom->setValue(value + 1);
+    
+    // Verify that the model's state was correctly updated
+    QVERIFY(window->sbZoom->value() == value + 1);
+}
+
+/**
+ * Verifies that the model's state is correctly updated
+ * once the value of the grid size spinbox was changed.
+ */
+void TestMainToolbar::gridSize() {
+    // Change the value of the grid size spinbox
+    int value = window->sbGridSize->value();
+    window->sbGridSize->setValue(value + 1);
+    
+    // Verify that the model's state was correctly updated
+    QVERIFY(window->sbGridSize->value() == value + 1);
+}

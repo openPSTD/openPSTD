@@ -2,6 +2,7 @@
 #include "window.h"
 #include "testmaintoolbar.h"
 #include "testmenuview.h"
+#include "testmodel.h"
 
 int main(int argc, char** argv) {
     // Create QApplication and Window instances
@@ -19,6 +20,9 @@ int main(int argc, char** argv) {
         
         TestMenuView menuView(&window);
         status |= QTest::qExec(&menuView, argcm, argv);
+        
+        TestModel model(&window);
+        status |= QTest::qExec(&model, argcm, argv);
         
         return status;
     } else {
