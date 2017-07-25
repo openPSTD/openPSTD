@@ -9,6 +9,7 @@
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QColorDialog>
+#include <QInputDialog>
 #include "renderer.h"
 #include "graphicsview.h"
 #include "ui_window.h"
@@ -59,6 +60,7 @@ public slots:
     void slot_bgcolor();
     void slot_zoomcolor();
     void slot_fpscolor();
+    void slot_clampdist();
 };
 
 #endif

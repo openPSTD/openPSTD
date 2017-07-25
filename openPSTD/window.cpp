@@ -97,6 +97,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionBackground_color, SIGNAL(triggered(bool)), this, SLOT(slot_bgcolor()));
     connect(ui->actionZoom_color, SIGNAL(triggered(bool)), this, SLOT(slot_zoomcolor()));
     connect(ui->actionFPS_color, SIGNAL(triggered(bool)), this, SLOT(slot_fpscolor()));
+    connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
     
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
@@ -164,4 +165,18 @@ void Window::slot_fpscolor() {
     QColor color = QColorDialog::getColor(settings->fpsColor, this, "Choose an FPS color");
     if (color.isValid()) settings->fpsColor = color.rgb();
     ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
+}
+
+/**
+ * Callback method for the clamp distance action in the settings menu.
+ * Opens an input dialog and saves the new clamp distance.
+ */
+void Window::slot_clampdist() {
+    int clampdist = QInputDialog::getInt(
+        this,
+        "Choose a clamp distance",
+        "Choose a clamp distance\nSet to zero to disable clamping",
+        5
+    );
+    settings->clampDist = clampdist;
 }
