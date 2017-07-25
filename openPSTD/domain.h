@@ -3,6 +3,8 @@
 
 #include <QImage>
 #include <QPen>
+#include <QPainter>
+#include <iostream>
 
 /**
  * Representation of a single domain.
@@ -13,7 +15,7 @@ public:
     Domain(int x0, int y0, int x1, int y1);
     
     // Drawing method
-    void draw(QImage* pixels);
+    void draw(QImage* pixels, int zoom);
     
     // Get methods for the domain's corner coordinates
     int getX0() { return x0; }
@@ -28,6 +30,16 @@ private:
     int x1;
     int y0;
     int y1;
+    
+    // Private drawing methods
+    enum Side {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM
+    };
+    void drawWallLength(int x0, int y0, int x1, int y1, QImage* pixels, int zoom, Side side);
+    void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
 };
 
 #endif

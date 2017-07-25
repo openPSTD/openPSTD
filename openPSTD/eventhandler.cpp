@@ -49,8 +49,8 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
     // Finish the new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check for click and immediate release
-        int dx = std::abs(x - model->lastDomain()->getX0());
-        int dy = std::abs(y - model->lastDomain()->getY0());
+        int dx = std::abs(x - model->lastDomain()->getX0() * model->zoom);
+        int dy = std::abs(y - model->lastDomain()->getY0() * model->zoom);
         int dist2 = dx * dx + dy * dy;
         if (dist2 > 100 && addingDomain) {
             // Stop the domain here
@@ -96,7 +96,12 @@ void EventHandler::addDomainStart(int x, int y) {
     }
     
     // Create a new Domain instance
-    Domain d(px, py, px, py);
+    Domain d(
+        px / model->zoom,
+        py / model->zoom,
+        px / model->zoom,
+        py / model->zoom
+    );
     
     // Add the new domain to the model
     model->domains.push_back(d);
@@ -122,6 +127,6 @@ void EventHandler::addDomainStop(int x, int y) {
     }
     
     // Update the end coordinates of the newest model
-    model->lastDomain()->setX1(px);
-    model->lastDomain()->setY1(py);
+    model->lastDomain()->setX1(px / model->zoom);
+    model->lastDomain()->setY1(py / model->zoom);
 }

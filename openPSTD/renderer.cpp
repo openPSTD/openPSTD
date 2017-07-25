@@ -59,7 +59,7 @@ void Renderer::draw() {
     // Draw all domains
     std::vector<Domain> domains = model->domains;
     for (unsigned int i = 0; i < domains.size(); i++) {
-        domains[i].draw(pixels);
+        domains[i].draw(pixels, model->zoom);
     }
     
     // Draw cursor if adding domain
@@ -186,6 +186,11 @@ void Renderer::drawCursor(int x, int y) {
     p.end();
 }
 
+/**
+ * Draws a zoom level reference with given size.
+ * 
+ * @param zoomaim  The size for the zoom level reference
+ */
 void Renderer::drawZoom(int zoomaim) {
     // Draw the zoom level reference line
     int width = model->zoom * zoomaim;
@@ -197,11 +202,20 @@ void Renderer::drawZoom(int zoomaim) {
     drawText(std::to_string(zoomaim) + " mm", 5, 10, 14, settings->zoomColor);
 }
 
+/**
+ * Draws a string to the current pixels array.
+ * 
+ * @param text  The text to draw
+ * @param x  The x position to draw at
+ * @param y  The y position to draw at
+ * @param size  The font size to draw with
+ * @param color  The color to draw in
+ */
 void Renderer::drawText(std::string text, int x, int y, int size, QRgb color) {
     QPainter p;
     p.begin(pixels);
     p.setPen(QPen(color));
-    p.setFont(QFont("Times", size));
+    p.setFont(QFont("Monospace", size));
     p.drawText(x, y + size, QString(text.c_str()));
     p.end();
 }
