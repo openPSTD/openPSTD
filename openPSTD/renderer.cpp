@@ -199,7 +199,7 @@ void Renderer::drawZoom(int zoomaim) {
     }
     
     // Draw the current zoom level text
-    drawText(std::to_string(zoomaim) + " mm", 5, 10, 14, settings->zoomColor);
+    drawText(std::to_string(zoomaim) + " m", 5, 10, 14, settings->zoomColor);
 }
 
 /**

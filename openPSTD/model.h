@@ -23,10 +23,10 @@ public:
     Domain* lastDomain() { return &domains[domains.size() - 1]; }
     
     // Size of the background grid
-    int gridsize; // In mm
+    int gridsize; // In m
     
     // Zoom level
-    int zoom; // In mm / pixel
+    int zoom; // In pixels / m
     
     // FPS counter
     bool showFPS;

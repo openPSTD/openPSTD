@@ -29,7 +29,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     // Add a label for the zoom level spinbox
     lZoom = new QLabel();
     lZoom->setText("Zoom level:");
-    lZoom->setToolTip("In mm / pixel");
+    lZoom->setToolTip("In pixels / m");
     ui->mainToolBar->addWidget(lZoom);
     
     // Create a QSpinBox for the zoom level
@@ -37,7 +37,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     sbZoom->setMinimum(5);
     sbZoom->setMaximum(50);
     sbZoom->setValue(5);
-    sbZoom->setToolTip("In mm / pixel");
+    sbZoom->setToolTip("In pixels / m");
     view->model->zoom = 5;
     ui->mainToolBar->addWidget(sbZoom);
     connect(sbZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
@@ -49,7 +49,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     // Add a label for the grid size spinbox
     lGridSize = new QLabel();
     lGridSize->setText("Grid size:");
-    lGridSize->setToolTip("In mm");
+    lGridSize->setToolTip("In m");
     ui->mainToolBar->addWidget(lGridSize);
     
     // Create a QSpinBox for the grid size
@@ -57,7 +57,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     sbGridSize->setMinimum(5);
     sbGridSize->setMaximum(50);
     sbGridSize->setValue(25);
-    sbGridSize->setToolTip("In mm");
+    sbGridSize->setToolTip("In m");
     view->renderer->setGridSize(25);
     view->model->zoom = 5;
     ui->mainToolBar->addWidget(sbGridSize);

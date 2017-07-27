@@ -3,6 +3,7 @@
 #include "test/testmaintoolbar.h"
 #include "test/testmenuview.h"
 #include "test/testmodel.h"
+#include "test/testadddomain.h"
 
 int main(int argc, char** argv) {
     // Create QApplication and Window instances
@@ -23,6 +24,9 @@ int main(int argc, char** argv) {
         
         TestModel model(&window);
         status |= QTest::qExec(&model, argcm, argv);
+        
+        TestAddDomain addDomain(&window);
+        status |= QTest::qExec(&addDomain, argcm, argv);
         
         return status;
     } else {
