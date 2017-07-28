@@ -99,6 +99,9 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionFPS_color, SIGNAL(triggered(bool)), this, SLOT(slot_fpscolor()));
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
     
+    // Connect actions in scene menu
+    connect(ui->actionClear_all, SIGNAL(triggered(bool)), this, SLOT(slot_clearscene()));
+    
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
 }
@@ -179,4 +182,12 @@ void Window::slot_clampdist() {
         5
     );
     settings->clampDist = clampdist;
+}
+
+/**
+ * Callback method for the clear scene action in the scene menu.
+ * Removes all domains, sources, and receivers from the model.
+ */
+void Window::slot_clearscene() {
+    view->model->domains.clear();
 }

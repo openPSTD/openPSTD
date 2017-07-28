@@ -1,6 +1,7 @@
 #include <QApplication>
 #include "window.h"
 #include "test/testmaintoolbar.h"
+#include "test/testmenuscene.h"
 #include "test/testmenuview.h"
 #include "test/testmodel.h"
 #include "test/testadddomain.h"
@@ -18,6 +19,9 @@ int main(int argc, char** argv) {
         
         TestMainToolbar mainToolbar(&window);
         status |= QTest::qExec(&mainToolbar, argcm, argv);
+        
+        TestMenuScene menuScene(&window);
+        status |= QTest::qExec(&menuScene, argcm, argv);
         
         TestMenuView menuView(&window);
         status |= QTest::qExec(&menuView, argcm, argv);

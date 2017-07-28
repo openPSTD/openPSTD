@@ -86,6 +86,7 @@
     <property name="title">
      <string>Scene</string>
     </property>
+    <addaction name="actionClear_all"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -311,6 +312,11 @@
   <action name="actionClamp_distance">
    <property name="text">
     <string>Clamp distance</string>
+   </property>
+  </action>
+  <action name="actionClear_all">
+   <property name="text">
+    <string>Clear all</string>
    </property>
   </action>
  </widget>
