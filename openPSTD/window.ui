@@ -100,6 +100,14 @@
     <property name="title">
      <string>Operate</string>
     </property>
+    <addaction name="actionSelect"/>
+    <addaction name="actionMoveScene"/>
+    <addaction name="actionAddDomain"/>
+    <addaction name="actionAddSource"/>
+    <addaction name="actionAddReceiver"/>
+    <addaction name="separator"/>
+    <addaction name="actionstop"/>
+    <addaction name="actionstart"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
