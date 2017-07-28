@@ -6,6 +6,7 @@
 #include "state.h"
 #include "domain.h"
 #include "source.h"
+#include "receiver.h"
 #include "settings.h"
 
 /**
@@ -25,6 +26,9 @@ public:
     
     // Vector of all sources
     std::vector<Source> sources;
+    
+    // Vector of all receivers
+    std::vector<Receiver> receivers;
     
     // Size of the background grid
     int gridsize; // In m

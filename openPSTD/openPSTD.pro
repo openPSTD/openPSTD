@@ -39,7 +39,9 @@ SOURCES += \
     test/testadddomain.cpp \
     test/testmenuscene.cpp \
     source.cpp \
-    test/testaddsource.cpp
+    test/testaddsource.cpp \
+    receiver.cpp \
+    test/testaddreceiver.cpp
 
 HEADERS += \
         window.h \
@@ -58,7 +60,9 @@ HEADERS += \
     test/testadddomain.h \
     test/testmenuscene.h \
     source.h \
-    test/testaddsource.h
+    test/testaddsource.h \
+    receiver.h \
+    test/testaddreceiver.h
 
 FORMS += \
         window.ui

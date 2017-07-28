@@ -8,6 +8,7 @@
  * Tests the functionality of the add source state.
  */
 class TestAddSource : public QObject {
+    Q_OBJECT
 public:
     TestAddSource(Window* window);
 private:

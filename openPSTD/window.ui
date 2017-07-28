@@ -80,6 +80,7 @@
     <addaction name="actionZoom_color"/>
     <addaction name="actionFPS_color"/>
     <addaction name="actionSource_color"/>
+    <addaction name="actionReceiver_color"/>
     <addaction name="separator"/>
     <addaction name="actionClamp_distance"/>
    </widget>
@@ -323,6 +324,11 @@
   <action name="actionSource_color">
    <property name="text">
     <string>Source color</string>
+   </property>
+  </action>
+  <action name="actionReceiver_color">
+   <property name="text">
+    <string>Receiver color</string>
    </property>
   </action>
  </widget>

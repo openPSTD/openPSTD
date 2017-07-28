@@ -69,6 +69,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
     ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
     ui->actionSource_color->setIcon(QIcon(color2pixmap(settings->sourceColor)));
+    ui->actionReceiver_color->setIcon(QIcon(color2pixmap(settings->receiverColor)));
     
     // Center main window on screen
     QDesktopWidget* desktop = QApplication::desktop();
@@ -99,6 +100,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionZoom_color, SIGNAL(triggered(bool)), this, SLOT(slot_zoomcolor()));
     connect(ui->actionFPS_color, SIGNAL(triggered(bool)), this, SLOT(slot_fpscolor()));
     connect(ui->actionSource_color, SIGNAL(triggered(bool)), this, SLOT(slot_sourcecolor()));
+    connect(ui->actionReceiver_color, SIGNAL(triggered(bool)), this, SLOT(slot_receivercolor()));
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
     
     // Connect actions in scene menu
@@ -183,6 +185,16 @@ void Window::slot_sourcecolor() {
 }
 
 /**
+ * Callback method for the receiver color action in the settings menu.
+ * Opens a color picker dialog and saves the new color.
+ */
+void Window::slot_receivercolor() {
+    QColor color = QColorDialog::getColor(settings->receiverColor, this, "Choose a receiver color");
+    if (color.isValid()) settings->receiverColor = color.rgb();
+    ui->actionReceiver_color->setIcon(QIcon(color2pixmap(settings->receiverColor)));
+}
+
+/**
  * Callback method for the clamp distance action in the settings menu.
  * Opens an input dialog and saves the new clamp distance.
  */
@@ -201,5 +213,12 @@ void Window::slot_clampdist() {
  * Removes all domains, sources, and receivers from the model.
  */
 void Window::slot_clearscene() {
+    // Delete all domains
     view->model->domains.clear();
+    
+    // Delete all sources
+    view->model->sources.clear();
+    
+    // Delete all receivers
+    view->model->receivers.clear();
 }

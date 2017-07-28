@@ -25,6 +25,9 @@ public:
     
     // Color of a source
     QRgb sourceColor = qRgb(255, 0, 0);
+    
+    // Color of a receiver
+    QRgb receiverColor = qRgb(0, 255, 0);
 };
 
 #endif

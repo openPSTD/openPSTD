@@ -6,6 +6,7 @@
 #include "test/testmodel.h"
 #include "test/testadddomain.h"
 #include "test/testaddsource.h"
+#include "test/testaddreceiver.h"
 
 int main(int argc, char** argv) {
     // Create QApplication and Window instances
@@ -35,6 +36,9 @@ int main(int argc, char** argv) {
         
         TestAddSource addSource(&window);
         status |= QTest::qExec(&addSource, argcm, argv);
+        
+        TestAddReceiver addReceiver(&window);
+        status |= QTest::qExec(&addReceiver, argcm, argv);
         
         return status;
     } else {

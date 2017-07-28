@@ -38,6 +38,7 @@ private:
     void addDomainStart(int x, int y);
     void addDomainStop(int x, int y);
     void addSource(int x, int y);
+    void addReceiver(int x, int y);
 };
 
 #endif

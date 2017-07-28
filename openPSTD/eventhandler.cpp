@@ -42,6 +42,12 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
         // Add a new source
         addSource(x, y);
     }
+    
+    // Check if adding a receiver
+    if (button == Qt::LeftButton && model->state == ADDRECEIVER) {
+        // Add a new receiver
+        addReceiver(x, y);
+    }
 }
 
 /**
@@ -158,6 +164,32 @@ void EventHandler::addSource(int x, int y) {
     
     // Add a new source
     model->sources.push_back(Source(
+        px / model->zoom,
+        py / model->zoom,
+        settings
+    ));
+}
+
+/**
+ * Private event handling method: Adds a new receiver.
+ * 
+ * @param x  The x coordinate at which to add the new receiver
+ * @param y  The y coordinate at which to add the new receiver
+ */
+void EventHandler::addReceiver(int x, int y) {
+    // Clamp the coordinates to the grid
+    int px, py;
+    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
+    if (gridPoint == QPoint(-1, -1)) {
+        px = x;
+        py = y;
+    } else {
+        px = gridPoint.x();
+        py = gridPoint.y();
+    }
+    
+    // Add a new receiver
+    model->receivers.push_back(Receiver(
         px / model->zoom,
         py / model->zoom,
         settings

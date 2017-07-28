@@ -68,6 +68,12 @@ void Renderer::draw() {
         sources[i].draw(pixels, model->zoom);
     }
     
+    // Draw all receivers
+    std::vector<Receiver> receivers = model->receivers;
+    for (unsigned int i = 0; i < receivers.size(); i++) {
+        receivers[i].draw(pixels, model->zoom);
+    }
+    
     // Draw cursor if adding domain
     if (model->state == ADDDOMAIN) {
         QPoint pos = eh->getMousePos();
