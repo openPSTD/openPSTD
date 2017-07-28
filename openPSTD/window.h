@@ -60,6 +60,7 @@ public slots:
     void slot_bgcolor();
     void slot_zoomcolor();
     void slot_fpscolor();
+    void slot_sourcecolor();
     void slot_clampdist();
     void slot_clearscene();
 };

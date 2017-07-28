@@ -62,6 +62,12 @@ void Renderer::draw() {
         domains[i].draw(pixels, model->zoom);
     }
     
+    // Draw all sources
+    std::vector<Source> sources = model->sources;
+    for (unsigned int i = 0; i < sources.size(); i++) {
+        sources[i].draw(pixels, model->zoom);
+    }
+    
     // Draw cursor if adding domain
     if (model->state == ADDDOMAIN) {
         QPoint pos = eh->getMousePos();

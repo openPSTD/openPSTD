@@ -37,7 +37,9 @@ SOURCES += \
     test/testmodel.cpp \
     wall.cpp \
     test/testadddomain.cpp \
-    test/testmenuscene.cpp
+    test/testmenuscene.cpp \
+    source.cpp \
+    test/testaddsource.cpp
 
 HEADERS += \
         window.h \
@@ -54,7 +56,9 @@ HEADERS += \
     grid.h \
     wall.h \
     test/testadddomain.h \
-    test/testmenuscene.h
+    test/testmenuscene.h \
+    source.h \
+    test/testaddsource.h
 
 FORMS += \
         window.ui

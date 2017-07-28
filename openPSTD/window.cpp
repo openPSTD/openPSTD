@@ -68,6 +68,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
     ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
     ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
+    ui->actionSource_color->setIcon(QIcon(color2pixmap(settings->sourceColor)));
     
     // Center main window on screen
     QDesktopWidget* desktop = QApplication::desktop();
@@ -97,6 +98,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionBackground_color, SIGNAL(triggered(bool)), this, SLOT(slot_bgcolor()));
     connect(ui->actionZoom_color, SIGNAL(triggered(bool)), this, SLOT(slot_zoomcolor()));
     connect(ui->actionFPS_color, SIGNAL(triggered(bool)), this, SLOT(slot_fpscolor()));
+    connect(ui->actionSource_color, SIGNAL(triggered(bool)), this, SLOT(slot_sourcecolor()));
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
     
     // Connect actions in scene menu
@@ -168,6 +170,16 @@ void Window::slot_fpscolor() {
     QColor color = QColorDialog::getColor(settings->fpsColor, this, "Choose an FPS color");
     if (color.isValid()) settings->fpsColor = color.rgb();
     ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
+}
+
+/**
+ * Callback method for the source color action in the settings menu.
+ * Opens a color picker dialog and saves the new color.
+ */
+void Window::slot_sourcecolor() {
+    QColor color = QColorDialog::getColor(settings->sourceColor, this, "Choose a source color");
+    if (color.isValid()) settings->sourceColor = color.rgb();
+    ui->actionSource_color->setIcon(QIcon(color2pixmap(settings->sourceColor)));
 }
 
 /**

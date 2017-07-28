@@ -22,6 +22,9 @@ public:
     
     // Color of the fps counter
     QRgb fpsColor = qRgb(0, 0, 255);
+    
+    // Color of a source
+    QRgb sourceColor = qRgb(255, 0, 0);
 };
 
 #endif

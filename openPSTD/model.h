@@ -5,6 +5,7 @@
 #include <math.h>
 #include "state.h"
 #include "domain.h"
+#include "source.h"
 #include "settings.h"
 
 /**
@@ -21,6 +22,9 @@ public:
     // Vector of all domains
     std::vector<Domain> domains;
     Domain* lastDomain() { return &domains[domains.size() - 1]; }
+    
+    // Vector of all sources
+    std::vector<Source> sources;
     
     // Size of the background grid
     int gridsize; // In m

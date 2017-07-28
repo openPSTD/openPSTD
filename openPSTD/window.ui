@@ -79,6 +79,7 @@
     <addaction name="actionBackground_color"/>
     <addaction name="actionZoom_color"/>
     <addaction name="actionFPS_color"/>
+    <addaction name="actionSource_color"/>
     <addaction name="separator"/>
     <addaction name="actionClamp_distance"/>
    </widget>
@@ -317,6 +318,11 @@
   <action name="actionClear_all">
    <property name="text">
     <string>Clear all</string>
+   </property>
+  </action>
+  <action name="actionSource_color">
+   <property name="text">
+    <string>Source color</string>
    </property>
   </action>
  </widget>

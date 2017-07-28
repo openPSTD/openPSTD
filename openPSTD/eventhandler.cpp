@@ -23,7 +23,7 @@ EventHandler::EventHandler(Model* model, Settings* settings) {
  * @param button  The button that was pressed
  */
 void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
-    // Start adding a new domain
+    // Check if adding a new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check if a domain is already being added
         if (addingDomain) {
@@ -36,6 +36,12 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
             addingDomain = true;
         }
     }
+    
+    // Check if adding a source
+    if (button == Qt::LeftButton && model->state == ADDSOURCE) {
+        // Add a new source
+        addSource(x, y);
+    }
 }
 
 /**
@@ -46,7 +52,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
  * @param button  The button that was pressed
  */
 void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
-    // Finish the new domain
+    // Check if adding a new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check for click and immediate release
         int dx = std::abs(x - model->lastDomain()->getX0() * model->zoom);
@@ -71,8 +77,9 @@ void EventHandler::mouseDrag(int x, int y) {
     mouseX = x;
     mouseY = y;
     
-    // Update the new domain
+    // Check if adding a new domain
     if (model->state == ADDDOMAIN && addingDomain) {
+        // Update the new domain
         addDomainStop(x, y);
     }
 }
@@ -129,4 +136,30 @@ void EventHandler::addDomainStop(int x, int y) {
     // Update the end coordinates of the newest model
     model->lastDomain()->setX1(px / model->zoom);
     model->lastDomain()->setY1(py / model->zoom);
+}
+
+/**
+ * Private event handling method: Adds a new source.
+ * 
+ * @param x  The x coordinate at which to add the new source
+ * @param y  The y coordinate at which to add the new source
+ */
+void EventHandler::addSource(int x, int y) {
+    // Clamp the coordinates to the grid
+    int px, py;
+    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
+    if (gridPoint == QPoint(-1, -1)) {
+        px = x;
+        py = y;
+    } else {
+        px = gridPoint.x();
+        py = gridPoint.y();
+    }
+    
+    // Add a new source
+    model->sources.push_back(Source(
+        px / model->zoom,
+        py / model->zoom,
+        settings
+    ));
 }

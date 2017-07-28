@@ -5,6 +5,7 @@
 #include "test/testmenuview.h"
 #include "test/testmodel.h"
 #include "test/testadddomain.h"
+#include "test/testaddsource.h"
 
 int main(int argc, char** argv) {
     // Create QApplication and Window instances
@@ -31,6 +32,9 @@ int main(int argc, char** argv) {
         
         TestAddDomain addDomain(&window);
         status |= QTest::qExec(&addDomain, argcm, argv);
+        
+        TestAddSource addSource(&window);
+        status |= QTest::qExec(&addSource, argcm, argv);
         
         return status;
     } else {

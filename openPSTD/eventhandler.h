@@ -5,6 +5,7 @@
 #include "state.h"
 #include "settings.h"
 #include "grid.h"
+#include "source.h"
 
 /**
  * Event handling class.
@@ -36,6 +37,7 @@ private:
     // Private event handling methods
     void addDomainStart(int x, int y);
     void addDomainStop(int x, int y);
+    void addSource(int x, int y);
 };
 
 #endif
