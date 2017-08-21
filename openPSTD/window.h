@@ -10,6 +10,8 @@
 #include <QTimer>
 #include <QColorDialog>
 #include <QInputDialog>
+#include <QMessageBox>
+#include <fstream>
 #include "renderer.h"
 #include "graphicsview.h"
 #include "ui_window.h"
@@ -45,17 +47,16 @@ private:
     }
 
 public slots:
-    inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
-    inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
+    // Toolbar button slots
     inline void slot_select() { view->renderer->setState(SELECT); }
     inline void slot_move() { view->renderer->setState(MOVE); }
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
     inline void slot_addsource() { view->renderer->setState(ADDSOURCE); }
     inline void slot_addreceiver() { view->renderer->setState(ADDRECEIVER); }
-    inline void slot_fpscounter() {
-        view->model->showFPS = ui->actionFPS_counter->isChecked();
-        ui->actionFPS_color->setEnabled(view->model->showFPS);
-    }
+    inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
+    inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
+    
+    // Settings menu slots
     void slot_gridcolor();
     void slot_bgcolor();
     void slot_zoomcolor();
@@ -63,7 +64,15 @@ public slots:
     void slot_sourcecolor();
     void slot_receivercolor();
     void slot_clampdist();
+    
+    // Scene menu slots
     void slot_clearscene();
+    
+    // View menu slots
+    void slot_fpscounter();
+    
+    // About menu slots
+    void slot_changelog();
 };
 
 #endif

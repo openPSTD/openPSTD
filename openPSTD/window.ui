@@ -113,6 +113,7 @@
     <property name="title">
      <string>About</string>
     </property>
+    <addaction name="actionChangelog"/>
    </widget>
    <addaction name="menuOpenPSTD"/>
    <addaction name="menuEdit"/>
@@ -337,6 +338,11 @@
   <action name="actionReceiver_color">
    <property name="text">
     <string>Receiver color</string>
+   </property>
+  </action>
+  <action name="actionChangelog">
+   <property name="text">
+    <string>Changelog</string>
    </property>
   </action>
  </widget>

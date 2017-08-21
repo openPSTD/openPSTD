@@ -87,7 +87,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     qagMainToolbar->addAction(ui->actionAddReceiver);
     qagMainToolbar->setExclusive(true);
     
-    // Connect actions for menu buttons
+    // Connect actions for toolbar buttons
     connect(ui->actionSelect, SIGNAL(triggered(bool)), this, SLOT(slot_select()));
     connect(ui->actionMoveScene, SIGNAL(triggered(bool)), this, SLOT(slot_move()));
     connect(ui->actionAddDomain, SIGNAL(triggered(bool)), this, SLOT(slot_adddomain()));
@@ -108,6 +108,9 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
+    
+    // Connect actions in the about menu
+    connect(ui->actionChangelog, SIGNAL(triggered(bool)), this, SLOT(slot_changelog()));
 }
 
 /**
@@ -221,4 +224,39 @@ void Window::slot_clearscene() {
     
     // Delete all receivers
     view->model->receivers.clear();
+}
+
+/**
+ * Callback method for the FPS counter action in the view menu.
+ * Toggles the display of the on-screen FPS counter.
+ */
+void Window::slot_fpscounter() {
+    view->model->showFPS = ui->actionFPS_counter->isChecked();
+    ui->actionFPS_color->setEnabled(view->model->showFPS);
+}
+
+/**
+ * Callback method for the changelog action in the about menu.
+ * Shows a popup containing the changelog of the current version.
+ */
+void Window::slot_changelog() {
+    // Read the changelog file
+    std::string changelog = "";
+    std::ifstream infile("../changelog");
+    std::string line;
+    while (std::getline(infile, line)) {
+        if (changelog != "") changelog += "\n";
+        changelog += line;
+    }
+    
+    // Show a message box with the changelog text
+    QMessageBox box(
+        "Changelog",
+        QString(changelog.c_str()),
+        QMessageBox::NoIcon,
+        QMessageBox::Close,
+        QMessageBox::NoButton,
+        QMessageBox::NoButton
+    );
+    box.exec();
 }
