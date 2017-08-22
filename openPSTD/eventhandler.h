@@ -4,6 +4,7 @@
 #include "model.h"
 #include "state.h"
 #include "settings.h"
+#include "modelmanager.h"
 #include "grid.h"
 #include "source.h"
 
@@ -15,7 +16,7 @@
 class EventHandler {
 public:
     // Constructor
-    EventHandler(Model* model, Settings* settings);
+    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager);
     
     // Public event handling methods
     void mousePress(int x, int y, Qt::MouseButton button);
@@ -28,6 +29,7 @@ private:
     // Class instance variables
     Model* model;
     Settings* settings;
+    ModelManager* modelmanager;
     
     // State variables
     bool addingDomain;

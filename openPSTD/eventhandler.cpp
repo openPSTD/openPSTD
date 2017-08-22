@@ -5,11 +5,13 @@
  * 
  * @param model  A reference to the Model
  * @param settings  A reference to the Settings instance
+ * @param modelmanager  A reference to the ModelManager instance
  */
-EventHandler::EventHandler(Model* model, Settings* settings) {
+EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager) {
     // Save reference variables locally
     this->model = model;
     this->settings = settings;
+    this->modelmanager = modelmanager;
     
     // Set initial state variable values
     addingDomain = false;
@@ -31,6 +33,9 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
             addDomainStop(x, y);
             addingDomain = false;
         } else {
+            // Save the old state
+            modelmanager->saveState();
+            
             // Start adding a new domain
             addDomainStart(x, y);
             addingDomain = true;
@@ -39,12 +44,18 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
     
     // Check if adding a source
     if (button == Qt::LeftButton && model->state == ADDSOURCE) {
+        // Save the new state
+        modelmanager->saveState();
+        
         // Add a new source
         addSource(x, y);
     }
     
     // Check if adding a receiver
     if (button == Qt::LeftButton && model->state == ADDRECEIVER) {
+        // Save the new state
+        modelmanager->saveState();
+        
         // Add a new receiver
         addReceiver(x, y);
     }

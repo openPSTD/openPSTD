@@ -15,8 +15,11 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings) : QGraphicsView(
     // Create a new Model instance
     model = new Model();
     
+    // Create a ModelManager instance
+    modelmanager = new ModelManager(model);
+    
     // Create a new Renderer
-    renderer = new Renderer(scene, model, settings);
+    renderer = new Renderer(scene, model, settings, modelmanager);
     
     // Enable mouse tracking
     setMouseTracking(true);
@@ -97,4 +100,29 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
     
     // Delegate the event to Renderer
     renderer->mouseDrag(point.x(), point.y());
+}
+
+/**
+ * Event listener for key press
+ * 
+ * @param event  A reference to the QKeyEvent
+ */
+void GraphicsView::keyPressEvent(QKeyEvent* event) {
+    // Check for CTRL+Z
+    if (event->key() == Qt::Key_Z && event->modifiers() == Qt::ControlModifier) {
+        // Undo the last operation
+        undo();
+    }
+    
+    // Check for CTRL+SHIFT+Z
+    if (event->key() == Qt::Key_Z && event->modifiers() == Qt::ControlModifier + Qt::ShiftModifier) {
+        // Redo the last operation
+        redo();
+    }
+    
+    // Check for CTRL+Y
+    if (event->key() == Qt::Key_Y && event->modifiers() == Qt::ControlModifier) {
+        // Redo the last operation
+        redo();
+    }
 }
