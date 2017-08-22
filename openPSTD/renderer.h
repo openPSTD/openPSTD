@@ -11,6 +11,7 @@
 #include "model.h"
 #include "eventhandler.h"
 #include "settings.h"
+#include "modelmanager.h"
 #include "grid.h"
 
 /**
@@ -19,7 +20,7 @@
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model, Settings* settings);
+    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager);
     ~Renderer();
     
     // Drawing method
@@ -40,6 +41,7 @@ private:
     QGraphicsScene* scene;
     Model* model;
     Settings* settings;
+    ModelManager* modelmanager;
     QImage* pixels;
     EventHandler* eh;
     

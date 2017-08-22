@@ -48,11 +48,6 @@ private:
 
 public slots:
     // Toolbar button slots
-    inline void slot_select() { view->renderer->setState(SELECT); }
-    inline void slot_move() { view->renderer->setState(MOVE); }
-    inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
-    inline void slot_addsource() { view->renderer->setState(ADDSOURCE); }
-    inline void slot_addreceiver() { view->renderer->setState(ADDRECEIVER); }
     inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
     inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
     
@@ -70,6 +65,15 @@ public slots:
     
     // View menu slots
     void slot_fpscounter();
+    
+    // Operate menu slots
+    inline void slot_select() { view->renderer->setState(SELECT); }
+    inline void slot_move() { view->renderer->setState(MOVE); }
+    inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
+    inline void slot_addsource() { view->renderer->setState(ADDSOURCE); }
+    inline void slot_addreceiver() { view->renderer->setState(ADDRECEIVER); }
+    inline void slot_undo() { view->undo(); }
+    inline void slot_redo() { view->redo(); }
     
     // About menu slots
     void slot_changelog();

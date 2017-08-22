@@ -8,6 +8,7 @@
 #include <iostream>
 #include "renderer.h"
 #include "settings.h"
+#include "modelmanager.h"
 
 /**
  * Custom QGraphicsView widget for drawing the main frame.
@@ -18,6 +19,9 @@ public:
     explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0);
     ~GraphicsView();
     
+    inline void undo() { modelmanager->undo(); }
+    inline void redo() { modelmanager->redo(); }
+    
     Renderer* renderer;
     Model* model;
 protected:
@@ -27,8 +31,10 @@ public slots:
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
+    void keyPressEvent(QKeyEvent* event);
 private:
     QGraphicsScene* scene;
+    ModelManager* modelmanager;
 };
 
 #endif

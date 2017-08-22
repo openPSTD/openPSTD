@@ -6,15 +6,17 @@
  * @param scene  A reference to the scene to draw to
  * @param model  A reference to the Model instance
  * @param settings  A reference to the Settings instance
+ * @param modelmanager  A reference to the ModelManager instance
  */
-Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager) {
     // Save reference variables locally
     this->scene = scene;
     this->model = model;
     this->settings = settings;
+    this->modelmanager = modelmanager;
     
     // Create a new EventHandler instance
-    eh = new EventHandler(model, settings);
+    eh = new EventHandler(model, settings, modelmanager);
     
     // Update the width and height according to the scene
     width = scene->sceneRect().width();

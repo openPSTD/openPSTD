@@ -108,6 +108,9 @@
     <addaction name="separator"/>
     <addaction name="actionstop"/>
     <addaction name="actionstart"/>
+    <addaction name="separator"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -343,6 +346,22 @@
   <action name="actionChangelog">
    <property name="text">
     <string>Changelog</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="toolTip">
+    <string>Undo the last operation</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="toolTip">
+    <string>Redo the last operation</string>
    </property>
   </action>
  </widget>

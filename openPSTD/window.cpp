@@ -87,13 +87,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     qagMainToolbar->addAction(ui->actionAddReceiver);
     qagMainToolbar->setExclusive(true);
     
-    // Connect actions for toolbar buttons
-    connect(ui->actionSelect, SIGNAL(triggered(bool)), this, SLOT(slot_select()));
-    connect(ui->actionMoveScene, SIGNAL(triggered(bool)), this, SLOT(slot_move()));
-    connect(ui->actionAddDomain, SIGNAL(triggered(bool)), this, SLOT(slot_adddomain()));
-    connect(ui->actionAddSource, SIGNAL(triggered(bool)), this, SLOT(slot_addsource()));
-    connect(ui->actionAddReceiver, SIGNAL(triggered(bool)), this, SLOT(slot_addreceiver()));
-    
     // Connect actions in settings menu
     connect(ui->actionGrid_color, SIGNAL(triggered(bool)), this, SLOT(slot_gridcolor()));
     connect(ui->actionBackground_color, SIGNAL(triggered(bool)), this, SLOT(slot_bgcolor()));
@@ -108,6 +101,15 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
+    
+    // Connect actions in operate menu
+    connect(ui->actionSelect, SIGNAL(triggered(bool)), this, SLOT(slot_select()));
+    connect(ui->actionMoveScene, SIGNAL(triggered(bool)), this, SLOT(slot_move()));
+    connect(ui->actionAddDomain, SIGNAL(triggered(bool)), this, SLOT(slot_adddomain()));
+    connect(ui->actionAddSource, SIGNAL(triggered(bool)), this, SLOT(slot_addsource()));
+    connect(ui->actionAddReceiver, SIGNAL(triggered(bool)), this, SLOT(slot_addreceiver()));
+    connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(slot_undo()));
+    connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(slot_redo()));
     
     // Connect actions in the about menu
     connect(ui->actionChangelog, SIGNAL(triggered(bool)), this, SLOT(slot_changelog()));

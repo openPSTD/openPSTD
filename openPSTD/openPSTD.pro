@@ -41,7 +41,9 @@ SOURCES += \
     source.cpp \
     test/testaddsource.cpp \
     receiver.cpp \
-    test/testaddreceiver.cpp
+    test/testaddreceiver.cpp \
+    modelmanager.cpp \
+    test/testundoredo.cpp
 
 HEADERS += \
         window.h \
@@ -62,7 +64,9 @@ HEADERS += \
     source.h \
     test/testaddsource.h \
     receiver.h \
-    test/testaddreceiver.h
+    test/testaddreceiver.h \
+    modelmanager.h \
+    test/testundoredo.h
 
 FORMS += \
         window.ui
