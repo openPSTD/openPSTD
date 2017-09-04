@@ -24,14 +24,16 @@ Domain::Domain(int x0, int y0, int x1, int y1) {
  * @param zoom  The current zoom level (as in model)
  * @param offsetX  The current x offset of the scene
  * @param offsetY  The current y offset of the scene
+ * @param selectedWalls  A vector of indices in the walls vector of all selected walls
  */
-void Domain::draw(QImage* pixels, int zoom, int offsetX, int offsetY) {
+void Domain::draw(QImage* pixels, int zoom, int offsetX, int offsetY, std::vector<unsigned int> selectedWalls) {
     // Update the sides of all walls
     updateWallSides();
     
     // Draw all walls
     for (unsigned int i = 0; i < walls.size(); i++) {
-        walls[i]->draw(pixels, zoom, offsetX, offsetY);
+        bool selected = std::find(selectedWalls.begin(), selectedWalls.end(), i) != selectedWalls.end();
+        walls[i]->draw(pixels, zoom, offsetX, offsetY, selected);
     }
 }
 

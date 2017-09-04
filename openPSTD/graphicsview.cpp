@@ -16,6 +16,9 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSpinBox* sbZoom
     // Create a new Model instance
     model = new Model();
     
+    // Set initial state
+    model->state = SELECT;
+    
     // Create a ModelManager instance
     modelmanager = new ModelManager(model);
     

@@ -61,20 +61,40 @@ void Renderer::draw() {
     // Draw all domains
     std::vector<Domain> domains = model->domains;
     for (unsigned int i = 0; i < domains.size(); i++) {
-        domains[i].draw(pixels, model->zoom, model->offsetX, model->offsetY);
+        domains[i].draw(
+            pixels,
+            model->zoom,
+            model->offsetX,
+            model->offsetY,
+            eh->getSelectedWalls(i)
+        );
     }
     
     // Draw all sources
     std::vector<Source> sources = model->sources;
     for (unsigned int i = 0; i < sources.size(); i++) {
-        sources[i].draw(pixels, model->zoom, model->offsetX, model->offsetY);
+        sources[i].draw(pixels,
+            model->zoom,
+            model->offsetX,
+            model->offsetY,
+            eh->isSourceSelected(i)
+        );
     }
     
     // Draw all receivers
     std::vector<Receiver> receivers = model->receivers;
     for (unsigned int i = 0; i < receivers.size(); i++) {
-        receivers[i].draw(pixels, model->zoom, model->offsetX, model->offsetY);
+        receivers[i].draw(
+            pixels,
+            model->zoom,
+            model->offsetX,
+            model->offsetY,
+            eh->isReceiverSelected(i)
+        );
     }
+    
+    // Draw the selection rectangle
+    eh->drawSelection(pixels);
     
     // Draw cursor if adding domain
     if (model->state == ADDDOMAIN) {

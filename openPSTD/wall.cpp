@@ -25,8 +25,9 @@ Wall::Wall(int x0, int y0, int x1, int y1, Side side) {
  * @param zoom  The current zoom level (as in model)
  * @param offsetX  The current x offset of the scene (as in model)
  * @param offsetY  The current y offset of the scene (as in model)
+ * @param selected  Whether or not the wall is currently selected
  */
-void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY) {
+void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
     // Verify that the wall is orthogonal
     if (x0 != x1 && y0 != y1) {
         std::cerr << "Cannot draw non-orthogonal wall length text" << std::endl;
@@ -42,7 +43,9 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY) {
     // Draw all points on the wall
     for (int i = minx; i <= maxx; i++) {
         for (int j = miny; j <= maxy; j++) {
-            pixels->setPixel(i, j, qRgb(0, 0, 255));
+            QRgb color = qRgb(0, 0, 255);
+            if (selected) color = qRgb(100, 100, 100);
+            pixels->setPixel(i, j, color);
         }
     }
     

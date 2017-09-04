@@ -15,6 +15,7 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
     
     // Set initial state variable values
     addingDomain = false;
+    selecting = false;
 }
 
 /**
@@ -25,6 +26,18 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
  * @param button  The button that was pressed
  */
 void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
+    // Check if selecting objects
+    if (button == Qt::LeftButton && model->state == SELECT) {
+        // Save the start coordinates
+        selectStart.first = x;
+        selectStart.second = y;
+        selectEnd.first = x;
+        selectEnd.second = y;
+        
+        // Select any objects at the clicked position
+        select();
+    }
+    
     // Check if moving the scene
     if (button == Qt::LeftButton && model->state == MOVE) {
         // Save the start coordinates
@@ -76,6 +89,11 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
  * @param button  The button that was pressed
  */
 void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
+    // Check if selecting objects
+    if (button == Qt::LeftButton && model->state == SELECT) {
+        selecting = false;
+    }
+    
     // Check if adding a new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check for click and immediate release
@@ -102,10 +120,12 @@ void EventHandler::mouseDrag(int x, int y, bool drag) {
     mouseX = x;
     mouseY = y;
     
-    // Check if adding a new domain
-    if (model->state == ADDDOMAIN && addingDomain) {
-        // Update the new domain
-        addDomainStop(x, y);
+    // Check if selecting objects
+    if (model->state == SELECT && drag) {
+        selectEnd.first = x;
+        selectEnd.second = y;
+        selecting = true;
+        select();
     }
     
     // Check if moving the scene
@@ -117,6 +137,74 @@ void EventHandler::mouseDrag(int x, int y, bool drag) {
         // Save the new mouse position
         moveSceneX = x;
         moveSceneY = y;
+    }
+    
+    // Check if adding a new domain
+    if (model->state == ADDDOMAIN && addingDomain) {
+        // Update the new domain
+        addDomainStop(x, y);
+    }
+}
+
+/**
+ * Checks if a source with given index in the sources vector (in model)
+ * is selected.
+ * 
+ * @param i  The index of the source in the sources vector
+ * @return  Whether or not the source is selected
+ */
+bool EventHandler::isSourceSelected(unsigned int i) {
+    return std::find(selectedSources.begin(), selectedSources.end(), i) != selectedSources.end();
+}
+
+/**
+ * Checks if a receiver with given index in the receivers vector (in model)
+ * is selected.
+ * 
+ * @param i  The index of the receiver in the receivers vector
+ * @return  Whether or not the receiver is selected
+ */
+bool EventHandler::isReceiverSelected(unsigned int i) {
+    return std::find(selectedReceivers.begin(), selectedReceivers.end(), i) != selectedReceivers.end();
+}
+
+/**
+ * Checks which of a domain's walls are selected.
+ * 
+ * @param domainID  The index of the domain in the domains vector
+ * @return  A vector of indices in the domain's walls vector of selected walls
+ */
+std::vector<unsigned int> EventHandler::getSelectedWalls(unsigned int domainID) {
+    std::vector<unsigned int> result;
+    for (unsigned int i = 0; i < selectedWalls.size(); i++) {
+        if (selectedWalls[i].first == domainID) result.push_back(selectedWalls[i].second);
+    }
+    return result;
+}
+
+/**
+ * Draws the selection rectangle.
+ * 
+ * @param pixels  A reference to the QImage to draw on
+ */
+void EventHandler::drawSelection(QImage* pixels) {
+    // Do nothing if not selecting
+    if (!selecting) return;
+    
+    // Get selecting rectangle coordinates
+    int x0 = std::min(selectStart.first, selectEnd.first);
+    int x1 = std::max(selectStart.first, selectEnd.first);
+    int y0 = std::min(selectStart.second, selectEnd.second);
+    int y1 = std::max(selectStart.second, selectEnd.second);
+    
+    // Draw the four edges of the rectangle
+    for (int x = x0; x < x1; x++) {
+        pixels->setPixel(x, y0, qRgb(100, 100, 100));
+        pixels->setPixel(x, y1, qRgb(100, 100, 100));
+    }
+    for (int y = y0; y < y1; y++) {
+        pixels->setPixel(x0, y, qRgb(100, 100, 100));
+        pixels->setPixel(x1, y, qRgb(100, 100, 100));
     }
 }
 
@@ -234,4 +322,96 @@ void EventHandler::addReceiver(int x, int y) {
         py / model->zoom,
         settings
     ));
+}
+
+/**
+ * Selects all walls, sources, and receivers within the selection rectangle.
+ */
+void EventHandler::select() {
+    // Get selecting rectangle coordinates
+    int x0 = std::min(selectStart.first, selectEnd.first);
+    int x1 = std::max(selectStart.first, selectEnd.first);
+    int y0 = std::min(selectStart.second, selectEnd.second);
+    int y1 = std::max(selectStart.second, selectEnd.second);
+    
+    // Check for point selection
+    if (x0 == x1 && y0 == y1) {
+        // Add margin around the selection point
+        int d = 3;
+        x0 -= d;
+        x1 += d;
+        y0 -= d;
+        y1 += d;
+    }
+    
+    // Clear the previous select results
+    selectedWalls.clear();
+    selectedSources.clear();
+    selectedReceivers.clear();
+    
+    // Loop through all walls
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        std::vector<Wall*>* walls = model->domains[i].getWalls();
+        for (unsigned int j = 0; j < walls->size(); j++) {
+            Wall* wall = walls->at(j);
+            
+            // Get the position of the wall
+            int wx0 = std::min(wall->getX0(), wall->getX1());
+            int wx1 = std::max(wall->getX0(), wall->getX1());
+            int wy0 = std::min(wall->getY0(), wall->getY1());
+            int wy1 = std::max(wall->getY0(), wall->getY1());
+            Side side = wall->getSide();
+            
+            // Update coordinates according to zoom level and scene offset
+            wx0 = model->zoom * wx0 + model->offsetX;
+            wx1 = model->zoom * wx1 + model->offsetX;
+            wy0 = model->zoom * wy0 + model->offsetY;
+            wy1 = model->zoom * wy1 + model->offsetY;
+            
+            // Check if this wall is in the selecting rectangle
+            if (side == LEFT || side == RIGHT) {
+                if (x0 <= wx0 && wx0 <= x1 && y0 <= wy1 && wy0 <= y1) {
+                    selectedWalls.push_back(std::make_pair(i, j));
+                }
+            } else {
+                if (y0 <= wy0 && wy0 <= y1 && x0 <= wx1 && wx0 <= x1) {
+                    selectedWalls.push_back(std::make_pair(i, j));
+                }
+            }
+        }
+    }
+    
+    // Loop through all sources
+    for (unsigned int i = 0; i < model->sources.size(); i++) {
+        // Get the position of the source
+        int x = model->sources[i].getX();
+        int y = model->sources[i].getY();
+        
+        // Update coordinates according to zoom level and scene offset
+        int xx = model->zoom * x + model->offsetX;
+        int yy = model->zoom * y + model->offsetY;
+        
+        // Check if this source is in the selecting rectangle
+        if (x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) {
+            // Select this source
+            selectedSources.push_back(i);
+        }
+    }
+    
+    // Loop through all receivers
+    for (unsigned int i = 0; i < model->receivers.size(); i++) {
+        // Get the position of the source
+        int x = model->receivers[i].getX();
+        int y = model->receivers[i].getY();
+        
+        // Update coordinates according to zoom level and scene offset
+        int xx = model->zoom * x + model->offsetX;
+        int yy = model->zoom * y + model->offsetY;
+        
+        // Check if this source is in the selecting rectangle
+        if (x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) {
+            // Select this receiver
+            selectedReceivers.push_back(i);
+        }
+    }
 }

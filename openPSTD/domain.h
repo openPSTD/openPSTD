@@ -16,7 +16,7 @@ public:
     Domain(int x0, int y0, int x1, int y1);
     
     // Drawing method
-    void draw(QImage* pixels, int zoom, int offsetX, int offsetY);
+    void draw(QImage* pixels, int zoom, int offsetX, int offsetY, std::vector<unsigned int> selectedWalls);
     
     // Get methods for the domain's corner coordinates
     int getX0();
