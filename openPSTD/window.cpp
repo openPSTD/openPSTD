@@ -19,7 +19,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     settings = new Settings();
     
     // Create a GraphicsView for the main frame
-    view = new GraphicsView(this, settings);
+    sbZoom = new QSpinBox();
+    view = new GraphicsView(this, settings, sbZoom);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -33,7 +34,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(lZoom);
     
     // Create a QSpinBox for the zoom level
-    sbZoom = new QSpinBox();
     sbZoom->setMinimum(5);
     sbZoom->setMaximum(50);
     sbZoom->setValue(5);

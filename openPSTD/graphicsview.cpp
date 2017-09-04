@@ -6,8 +6,9 @@
  * 
  * @param parent  A reference to the parent widget
  * @param settings  A reference to the Settings instance
+ * @param sbZoom  A reference to the zoom level spinbox
  */
-GraphicsView::GraphicsView(QWidget* parent, Settings* settings) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSpinBox* sbZoom) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
@@ -23,6 +24,9 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings) : QGraphicsView(
     
     // Enable mouse tracking
     setMouseTracking(true);
+    
+    // Save the reference to the zoom level spinbox
+    this->sbZoom = sbZoom;
 }
 
 /**
@@ -100,6 +104,24 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
     
     // Delegate the event to Renderer
     renderer->mouseDrag(point.x(), point.y());
+}
+
+/**
+ * Event listener for mouse scroll.
+ * 
+ * @param event  A reference to the QWheelEvent
+ */
+void GraphicsView::wheelEvent(QWheelEvent* event) {
+    // Compute how much the mouse wheel was rotated
+    int delta = event->delta() / 120;
+    
+    // Update the zoom level
+    model->zoom += delta;
+    if (model->zoom < sbZoom->minimum()) model->zoom = sbZoom->minimum();
+    if (model->zoom > sbZoom->maximum()) model->zoom = sbZoom->maximum();
+    
+    // Update the value of the zoom level spinbox
+    sbZoom->setValue(model->zoom);
 }
 
 /**
