@@ -40,6 +40,9 @@ public:
     inline void setX1(int x1) { this->x1 = x1; }
     inline void setY1(int y1) { this->y1 = y1; }
     inline void setSide(Side side) { this->side = side; }
+    
+    // Checks if two given walls need to be merged
+    static bool mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge);
 private:
     // Corner coordinates
     int x0;
@@ -52,6 +55,14 @@ private:
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
+    
+    // Sorts a vector of integers
+    static std::vector<int> sort(std::vector<int> original);
+    
+    // Checks if a given point is on a wall, given its end point coordinates
+    inline static bool pointOnWall(int point, int wallstart, int wallend) {
+        return (std::min(wallstart, wallend) <= point && point <= std::max(wallstart, wallend));
+    }
 };
 
 #endif

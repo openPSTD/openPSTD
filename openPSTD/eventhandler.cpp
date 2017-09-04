@@ -139,6 +139,11 @@ void EventHandler::addDomainStart(int x, int y) {
  * @param y  The y coordinate of the second corner of the domain
  */
 void EventHandler::addDomainStop(int x, int y) {
+    // Reset all merged walls to the original four walls per domain
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        model->domains[i].resetWalls();
+    }
+    
     // Clamp the coordinates to the grid
     int px, py;
     QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
@@ -153,6 +158,11 @@ void EventHandler::addDomainStop(int x, int y) {
     // Update the end coordinates of the newest model
     model->lastDomain()->setX1(px / model->zoom);
     model->lastDomain()->setY1(py / model->zoom);
+    
+    // Re-merge all intersecting walls
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        model->domains[i].mergeDomains(&model->domains, i);
+    }
 }
 
 /**

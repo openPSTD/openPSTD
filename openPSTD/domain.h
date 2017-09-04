@@ -5,7 +5,6 @@
 #include <QPen>
 #include <QPainter>
 #include <vector>
-#include <iostream>
 #include "wall.h"
 
 /**
@@ -30,13 +29,26 @@ public:
     void setY1(int y1);
     
     // Get method for the walls vector
-    std::vector<Wall> getWalls() { return walls; }
+    std::vector<Wall*>* getWalls() { return &walls; }
+    
+    // Merges this domain with all other domains
+    void mergeDomains(std::vector<Domain>* domains, unsigned int ownID);
+    
+    // Resets the domain's walls to be the original four non-merged walls
+    void resetWalls();
 private:
     // Domain walls
-    std::vector<Wall> walls;
+    int x0;
+    int y0;
+    int x1;
+    int y1;
+    std::vector<Wall*> walls;
     
     // Method for updating the side of all walls
     void updateWallSides();
+    
+    // Updates a given wall according to a given intersecting segment
+    void handleIntersection(Domain* parent, int wallID, std::pair<int, int> toMerge);
 };
 
 #endif

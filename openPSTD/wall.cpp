@@ -77,6 +77,85 @@ void Wall::draw(QImage* pixels, int zoom) {
 }
 
 /**
+ * Checks whether or not two given walls need to be merged.
+ * The algorithm implemented in this method is documented
+ * in docs/Wall intersection.docx.
+ * 
+ * @param one  The first wall to check with
+ * @param two  The second wall to check with
+ * @param toMerge  A pointer to a location to write the segment that needs to be merged
+ * @return  Whether or not the two walls need to be merged
+ */
+bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
+    // Get the end point coordinates of both walls
+    int p1x = one.getX0();
+    int p1y = one.getY0();
+    int p2x = one.getX1();
+    int p2y = one.getY1();
+    int p3x = two.getX0();
+    int p3y = two.getY0();
+    int p4x = two.getX1();
+    int p4y = two.getY1();
+    
+    // Check if the walls are horizontal or vertical
+    if (one.getSide() == LEFT || one.getSide() == RIGHT) {
+        // Do nothing if the walls are not parallel
+        if (two.getSide() != LEFT && two.getSide() != RIGHT) return false;
+        
+        // Do nothing if the walls do not have the same x coordinate
+        if (p1x != p3x) return false;
+        
+        // Sort points on coordinate
+        std::vector<int> original = {p1y, p2y, p3y, p4y};
+        std::vector<int> order = sort(original);
+        
+        // Check if the second segment is on both walls
+        bool o1w1 = pointOnWall(original[order[1]], p1y, p2y);
+        bool o2w1 = pointOnWall(original[order[2]], p1y, p2y);
+        bool o1w2 = pointOnWall(original[order[1]], p3y, p4y);
+        bool o2w2 = pointOnWall(original[order[2]], p3y, p4y);
+        bool s1w1 = o1w1 && o2w1;
+        bool s1w2 = o1w2 && o2w2;
+        if (s1w1 && s1w2 && original[order[1]] != original[order[2]]) {
+            // The walls intersect between o1 and o2
+            toMerge->first = std::min(original[order[1]], original[order[2]]);
+            toMerge->second = std::max(original[order[1]], original[order[2]]);
+            return true;
+        }
+        
+        // There is no intersection
+        return false;
+    } else {
+        // Do nothing if the walls are not parallel
+        if (two.getSide() != TOP && two.getSide() != BOTTOM) return false;
+        
+        // Do nothing if the walls do not have the same y coordinate
+        if (p1y != p3y) return false;
+        
+        // Sort points on coordinate
+        std::vector<int> original = {p1x, p2x, p3x, p4x};
+        std::vector<int> order = sort(original);
+        
+        // Check if the second segment is on both walls
+        bool o1w1 = pointOnWall(original[order[1]], p1x, p2x);
+        bool o2w1 = pointOnWall(original[order[2]], p1x, p2x);
+        bool o1w2 = pointOnWall(original[order[1]], p3x, p4x);
+        bool o2w2 = pointOnWall(original[order[2]], p3x, p4x);
+        bool s1w1 = o1w1 && o2w1;
+        bool s1w2 = o1w2 && o2w2;
+        if (s1w1 && s1w2 && original[order[1]] != original[order[2]]) {
+            // The walls intersect between o1 and o2
+            toMerge->first = std::min(original[order[1]], original[order[2]]);
+            toMerge->second = std::max(original[order[1]], original[order[2]]);
+            return true;
+        }
+        
+        // There is no intersection
+        return false;
+    }
+}
+
+/**
  * Draws a string to the given pixels array.
  * 
  * @param text  The text to draw
@@ -93,4 +172,36 @@ void Wall::drawText(std::string text, int x, int y, int size, QRgb color, QImage
     p.setFont(QFont("Monospace", size));
     p.drawText(x, y + size, QString(text.c_str()));
     p.end();
+}
+
+/**
+ * Sorts a vector of integers, and returns a vector containing the indices
+ * of the sorted elements in the original vector.
+ * 
+ * @param original  The vector of integers to sort
+ * @return  A vector of indices in the original vector
+ */
+std::vector<int> Wall::sort(std::vector<int> original) {
+    // Create the result vector
+    std::vector<int> result;
+    
+    // Loop while there are unsorted elements
+    while (result.size() < original.size()) {
+        // Get the minimum element in original that is not yet in result
+        int minIndex = -1;
+        int minValue = 0;
+        for (unsigned int i = 0; i < original.size(); i++) {
+            if (std::find(result.begin(), result.end(), i) != result.end()) continue;
+            if (minIndex == -1 || original[i] < minValue) {
+                minIndex = i;
+                minValue = original[i];
+            }
+        }
+        
+        // Add the index of this element to result
+        result.push_back(minIndex);
+    }
+    
+    // Return the result vector
+    return result;
 }

@@ -1,4 +1,5 @@
 build-openPSTD-Desktop_Qt_5_9_1_GCC_64bit-Debug/*
 openPSTD/openPSTD.pro.user
+docs/.~lock.*
 .oldversion
 .oldchangelog

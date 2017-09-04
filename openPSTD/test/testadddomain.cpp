@@ -148,16 +148,16 @@ void TestAddDomain::checkDomain(int x0, int y0, int x1, int y1, Domain domain) {
     QVERIFY(domain.getY1() == std::max(y0, y1));
     
     // Loop through all walls in the domain
-    std::vector<Wall> walls = domain.getWalls();
-    QVERIFY(walls.size() == 4);
+    std::vector<Wall*>* walls = domain.getWalls();
+    QVERIFY(walls->size() == 4);
     int n = 0;
-    for (unsigned int i = 0; i < walls.size(); i++) {
+    for (unsigned int i = 0; i < walls->size(); i++) {
         // Get the end point coordinates of this wall
-        int xx0 = walls[i].getX0();
-        int xx1 = walls[i].getX1();
-        int yy0 = walls[i].getY0();
-        int yy1 = walls[i].getY1();
-        Side s = walls[i].getSide();
+        int xx0 = walls->at(i)->getX0();
+        int xx1 = walls->at(i)->getX1();
+        int yy0 = walls->at(i)->getY0();
+        int yy1 = walls->at(i)->getY1();
+        Side s = walls->at(i)->getSide();
         
         // Verify that the type of the wall is correct according to its coordinates
         if (xx0 == x0 && yy0 == y0 && xx1 == x0 && yy1 == y1) { n++; QVERIFY(s == LEFT); }
