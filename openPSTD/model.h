@@ -36,6 +36,10 @@ public:
     // Zoom level
     int zoom; // In pixels / m
     
+    // Scene offset
+    int offsetX; // In pixels
+    int offsetY; // In pixels
+    
     // FPS counter
     bool showFPS;
 };

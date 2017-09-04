@@ -25,6 +25,13 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
  * @param button  The button that was pressed
  */
 void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
+    // Check if moving the scene
+    if (button == Qt::LeftButton && model->state == MOVE) {
+        // Save the start coordinates
+        moveSceneX = x;
+        moveSceneY = y;
+    }
+    
     // Check if adding a new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check if a domain is already being added
@@ -88,8 +95,9 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
  * 
  * @param x  The x coordinate of the mouse
  * @param y  The y coordinate of the mouse
+ * @param drag  Whether or not the left mouse button is pressed
  */
-void EventHandler::mouseDrag(int x, int y) {
+void EventHandler::mouseDrag(int x, int y, bool drag) {
     // Update mouse position variables
     mouseX = x;
     mouseY = y;
@@ -98,6 +106,17 @@ void EventHandler::mouseDrag(int x, int y) {
     if (model->state == ADDDOMAIN && addingDomain) {
         // Update the new domain
         addDomainStop(x, y);
+    }
+    
+    // Check if moving the scene
+    if (model->state == MOVE && drag) {
+        // Update the scene offset
+        model->offsetX -= (moveSceneX - x);
+        model->offsetY -= (moveSceneY - y);
+        
+        // Save the new mouse position
+        moveSceneX = x;
+        moveSceneY = y;
     }
 }
 

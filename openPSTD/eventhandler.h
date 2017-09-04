@@ -21,7 +21,7 @@ public:
     // Public event handling methods
     void mousePress(int x, int y, Qt::MouseButton button);
     void mouseRelease(int x, int y, Qt::MouseButton button);
-    void mouseDrag(int x, int y);
+    void mouseDrag(int x, int y, bool drag);
     
     // Get method for current mouse position
     QPoint getMousePos() { return QPoint(mouseX, mouseY); }
@@ -35,6 +35,8 @@ private:
     bool addingDomain;
     int mouseX;
     int mouseY;
+    int moveSceneX;
+    int moveSceneY;
     
     // Private event handling methods
     void addDomainStart(int x, int y);

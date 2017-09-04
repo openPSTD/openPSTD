@@ -63,6 +63,10 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(sbGridSize);
     connect(sbGridSize, SIGNAL(valueChanged(int)), this, SLOT(slot_gridsize(int)));
     
+    // Set initial scene offset
+    view->model->offsetX = 0;
+    view->model->offsetY = 0;
+    
     // Set action icons in settings menu
     ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
     ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));

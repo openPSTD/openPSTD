@@ -22,14 +22,16 @@ Domain::Domain(int x0, int y0, int x1, int y1) {
  * 
  * @param pixels  A reference te the QImage to draw to
  * @param zoom  The current zoom level (as in model)
+ * @param offsetX  The current x offset of the scene
+ * @param offsetY  The current y offset of the scene
  */
-void Domain::draw(QImage* pixels, int zoom) {
+void Domain::draw(QImage* pixels, int zoom, int offsetX, int offsetY) {
     // Update the sides of all walls
     updateWallSides();
     
     // Draw all walls
     for (unsigned int i = 0; i < walls.size(); i++) {
-        walls[i]->draw(pixels, zoom);
+        walls[i]->draw(pixels, zoom, offsetX, offsetY);
     }
 }
 

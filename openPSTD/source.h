@@ -13,7 +13,7 @@ public:
     Source(int x, int y, Settings* settings);
     
     // Drawing method
-    void draw(QImage* pixels, int zoom);
+    void draw(QImage* pixels, int zoom, int offsetX, int offsetY);
     
     // Get methods for the position of the source
     int getX() { return x; }

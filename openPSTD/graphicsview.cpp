@@ -103,7 +103,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
     QPointF point = mapToScene(event->pos());
     
     // Delegate the event to Renderer
-    renderer->mouseDrag(point.x(), point.y());
+    renderer->mouseDrag(point.x(), point.y(), event->buttons() == Qt::LeftButton);
 }
 
 /**

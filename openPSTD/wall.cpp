@@ -23,8 +23,10 @@ Wall::Wall(int x0, int y0, int x1, int y1, Side side) {
  * 
  * @param pixels  The pixels array to draw to
  * @param zoom  The current zoom level (as in model)
+ * @param offsetX  The current x offset of the scene (as in model)
+ * @param offsetY  The current y offset of the scene (as in model)
  */
-void Wall::draw(QImage* pixels, int zoom) {
+void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY) {
     // Verify that the wall is orthogonal
     if (x0 != x1 && y0 != y1) {
         std::cerr << "Cannot draw non-orthogonal wall length text" << std::endl;
@@ -32,10 +34,10 @@ void Wall::draw(QImage* pixels, int zoom) {
     }
     
     // Get the minimum and maximum x and y coordinates of the corners
-    int minx = std::min(x0, x1) * zoom;
-    int maxx = std::max(x0, x1) * zoom;
-    int miny = std::min(y0, y1) * zoom;
-    int maxy = std::max(y0, y1) * zoom;
+    int minx = std::min(x0, x1) * zoom + offsetX;
+    int maxx = std::max(x0, x1) * zoom + offsetX;
+    int miny = std::min(y0, y1) * zoom + offsetY;
+    int maxy = std::max(y0, y1) * zoom + offsetY;
     
     // Draw all points on the wall
     for (int i = minx; i <= maxx; i++) {

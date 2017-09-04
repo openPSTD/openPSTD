@@ -25,7 +25,7 @@ public:
     Wall(int x0, int y0, int x1, int y1, Side side);
     
     // Drawing method
-    void draw(QImage* pixels, int zoom);
+    void draw(QImage* pixels, int zoom, int offsetX, int offsetY);
     
     // Get methods
     inline int getX0() { return x0; }

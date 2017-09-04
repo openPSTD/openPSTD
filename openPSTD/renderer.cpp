@@ -61,19 +61,19 @@ void Renderer::draw() {
     // Draw all domains
     std::vector<Domain> domains = model->domains;
     for (unsigned int i = 0; i < domains.size(); i++) {
-        domains[i].draw(pixels, model->zoom);
+        domains[i].draw(pixels, model->zoom, model->offsetX, model->offsetY);
     }
     
     // Draw all sources
     std::vector<Source> sources = model->sources;
     for (unsigned int i = 0; i < sources.size(); i++) {
-        sources[i].draw(pixels, model->zoom);
+        sources[i].draw(pixels, model->zoom, model->offsetX, model->offsetY);
     }
     
     // Draw all receivers
     std::vector<Receiver> receivers = model->receivers;
     for (unsigned int i = 0; i < receivers.size(); i++) {
-        receivers[i].draw(pixels, model->zoom);
+        receivers[i].draw(pixels, model->zoom, model->offsetX, model->offsetY);
     }
     
     // Draw cursor if adding domain
@@ -81,7 +81,7 @@ void Renderer::draw() {
         QPoint pos = eh->getMousePos();
         QPoint clamped = Grid::clampGrid(pos.x(), pos.y(), model, settings);
         if (clamped != QPoint(-1, -1)) pos = clamped;
-        drawCursor(clamped.x(), clamped.y());
+        drawCursor(clamped.x() + model->offsetX, clamped.y() + model->offsetY);
     }
     
     // Draw zoom level reference
@@ -139,10 +139,11 @@ void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
  * 
  * @param x  The x position of the mouse
  * @param y  The y position of the mouse
+ * @param drag  Whether or not the left mouse button is pressed
  */
-void Renderer::mouseDrag(int x, int y) {
+void Renderer::mouseDrag(int x, int y, bool drag) {
     // Delegate event to EventHandler
-    eh->mouseDrag(x, y);
+    eh->mouseDrag(x, y, drag);
 }
 
 /**

@@ -22,17 +22,21 @@ public:
      * @return  The clamped point
      */
     inline static QPoint clampGrid(int x, int y, Model* model, Settings* settings) {
+        // Update x according to the scene offset
+        int xx = x - model->offsetX;
+        int yy = y - model->offsetY;
+        
         // Compute the coordinates of the nearest grid corner
-        int gridx = (model->gridsize * model->zoom) * round((double) x / (model->gridsize * model->zoom));
-        int gridy = (model->gridsize * model->zoom) * round((double) y / (model->gridsize * model->zoom));
+        int gridx = (model->gridsize * model->zoom) * round((double) xx / (model->gridsize * model->zoom));
+        int gridy = (model->gridsize * model->zoom) * round((double) yy / (model->gridsize * model->zoom));
         
         // Compute the distance to this point from the given point
-        int dx = std::abs(gridx - x);
-        int dy = std::abs(gridy - y);
+        int dx = std::abs(gridx - xx);
+        int dy = std::abs(gridy - yy);
         
         // Clamp if the point is within clampDist, otherwise take itself
-        int px = (dx < settings->clampDist ? gridx : x);
-        int py = (dy < settings->clampDist ? gridy : y);
+        int px = (dx < settings->clampDist ? gridx : xx);
+        int py = (dy < settings->clampDist ? gridy : yy);
         
         // Return the clamped point
         return QPoint(px, py);
@@ -48,7 +52,7 @@ public:
      */
     inline static bool isOnGrid(int x, int y, Model* model) {
         // Return whether or not the given point is on a grid edge
-        return (x % (model->zoom * model->gridsize) == 0 || y % (model->zoom * model->gridsize) == 0);
+        return ((x - model->offsetX) % (model->zoom * model->gridsize) == 0 || (y - model->offsetY) % (model->zoom * model->gridsize) == 0);
     }
 };
 
