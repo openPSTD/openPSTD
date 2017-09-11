@@ -18,6 +18,10 @@ public:
     // Get methods for the position of the source
     int getX() { return x; }
     int getY() { return y; }
+    
+    // Set methods for the position of the source
+    void setX(int x) { this->x = x; }
+    void setY(int y) { this->y = y; }
 private:
     // Class instance variables
     Settings* settings;

@@ -29,7 +29,7 @@ public:
     // Event handling methods
     void mousePress(int x, int y, Qt::MouseButton button);
     void mouseRelease(int x, int y, Qt::MouseButton button);
-    void mouseDrag(int x, int y, bool drag);
+    void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
     
     // Set methods for private variables
     inline void setState(State state) {

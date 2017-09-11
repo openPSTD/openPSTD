@@ -160,10 +160,11 @@ void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
  * @param x  The x position of the mouse
  * @param y  The y position of the mouse
  * @param drag  Whether or not the left mouse button is pressed
+ * @param modifiers  The KeyboardModifiers of the mouse drag event
  */
-void Renderer::mouseDrag(int x, int y, bool drag) {
+void Renderer::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers) {
     // Delegate event to EventHandler
-    eh->mouseDrag(x, y, drag);
+    eh->mouseDrag(x, y, drag, modifiers);
 }
 
 /**

@@ -114,18 +114,37 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
  * @param x  The x coordinate of the mouse
  * @param y  The y coordinate of the mouse
  * @param drag  Whether or not the left mouse button is pressed
+ * @param modifiers  The KeyboardModifiers of the mouse drag event
  */
-void EventHandler::mouseDrag(int x, int y, bool drag) {
+void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers) {
     // Update mouse position variables
     mouseX = x;
     mouseY = y;
     
     // Check if selecting objects
-    if (model->state == SELECT && drag) {
+    if (model->state == SELECT && drag && modifiers == Qt::CTRL) {
         selectEnd.first = x;
         selectEnd.second = y;
         selecting = true;
         select();
+    }
+    
+    // Check if moving objects
+    if (model->state == SELECT && drag && modifiers == Qt::NoModifier) {
+        // Compute the position of the mouse
+        QPoint newPos = Grid::clampGrid(x, y, model, settings);
+        
+        // Loop through all selected sources
+        for (unsigned int i = 0; i < selectedSources.size(); i++) {
+            model->sources[selectedSources[i]].setX(newPos.x() / model->zoom);
+            model->sources[selectedSources[i]].setY(newPos.y() / model->zoom);
+        }
+        
+        // Loop through all selected receivers
+        for (unsigned int i = 0; i < selectedReceivers.size(); i++) {
+            model->receivers[selectedReceivers[i]].setX(newPos.x() / model->zoom);
+            model->receivers[selectedReceivers[i]].setY(newPos.y() / model->zoom);
+        }
     }
     
     // Check if moving the scene
