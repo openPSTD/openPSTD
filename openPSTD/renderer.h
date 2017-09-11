@@ -36,6 +36,9 @@ public:
         model->state = state;
     }
     void setDimensions(int width, int height);
+    
+    // Delete all selected objects
+    inline void deleteSelected() { eh->deleteSelected(); }
 private:
     // Class instance variables
     QGraphicsScene* scene;

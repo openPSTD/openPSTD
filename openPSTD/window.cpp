@@ -102,6 +102,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Connect actions in scene menu
     connect(ui->actionClear_all, SIGNAL(triggered(bool)), this, SLOT(slot_clearscene()));
+    connect(ui->actionDelete_selected, SIGNAL(triggered(bool)), this, SLOT(slot_deleteselected()));
     
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
@@ -230,6 +231,15 @@ void Window::slot_clearscene() {
     
     // Delete all receivers
     view->model->receivers.clear();
+}
+
+/**
+ * Callback method for the delete selected action in the scene menu.
+ * Removes all selected objects from the model.
+ */
+void Window::slot_deleteselected() {
+    // Delete all selected objects
+    view->deleteSelected();
 }
 
 /**

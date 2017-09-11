@@ -33,6 +33,9 @@ public:
     
     // Draws the selection rectangle
     void drawSelection(QImage* pixels);
+    
+    // Deletes all selected objects
+    void deleteSelected();
 private:
     // Class instance variables
     Model* model;

@@ -89,6 +89,7 @@
      <string>Scene</string>
     </property>
     <addaction name="actionClear_all"/>
+    <addaction name="actionDelete_selected"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -362,6 +363,11 @@
    </property>
    <property name="toolTip">
     <string>Redo the last operation</string>
+   </property>
+  </action>
+  <action name="actionDelete_selected">
+   <property name="text">
+    <string>Delete selected</string>
    </property>
   </action>
  </widget>

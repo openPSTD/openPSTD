@@ -62,6 +62,7 @@ public slots:
     
     // Scene menu slots
     void slot_clearscene();
+    void slot_deleteselected();
     
     // View menu slots
     void slot_fpscounter();

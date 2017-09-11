@@ -23,6 +23,8 @@ public:
     inline void undo() { modelmanager->undo(); }
     inline void redo() { modelmanager->redo(); }
     
+    inline void deleteSelected() { renderer->deleteSelected(); }
+    
     Renderer* renderer;
     Model* model;
 protected:

@@ -209,6 +209,65 @@ void EventHandler::drawSelection(QImage* pixels) {
 }
 
 /**
+ * Deletes all selected objects.
+ */
+void EventHandler::deleteSelected() {
+    // Save the current state (for undo-redo)
+    modelmanager->saveState();
+    
+    // Loop through all domains to be deleted
+    for (unsigned int i = 0; i < selectedWalls.size(); i++) {
+        // Delete this domain
+        int domainID = selectedWalls[i].first;
+        model->domains.erase(model->domains.begin() + domainID);
+        
+        // Update the indices of all other domains to be deleted
+        for (unsigned int j = 0; j < selectedWalls.size(); j++) {
+            if (selectedWalls[j].first > i) {
+                selectedWalls[j].first--;
+            }
+            if (selectedWalls[j].first == i) {
+                selectedWalls.erase(selectedWalls.begin() + j);
+                j--;
+            }
+        }
+    }
+    
+    // Loop through all sources to be deleted
+    for (unsigned int i = 0; i < selectedSources.size(); i++) {
+        // Delete this source
+        int sourceID = selectedSources[i];
+        model->sources.erase(model->sources.begin() + sourceID);
+        
+        // Update the indices of all other domains to be deleted
+        for (unsigned int j = 0; j < selectedSources.size(); j++) {
+            if (selectedSources[j] > i) {
+                selectedSources[j]--;
+            }
+        }
+    }
+    
+    // Loop through all receivers to be deleted
+    for (unsigned int i = 0; i < selectedReceivers.size(); i++) {
+        // Delete this receiver
+        int receiverID = selectedReceivers[i];
+        model->receivers.erase(model->receivers.begin() + receiverID);
+        
+        // Update the indices of all other domains to be deleted
+        for (unsigned int j = 0; j < selectedReceivers.size(); j++) {
+            if (selectedReceivers[j] > i) {
+                selectedReceivers[j]--;
+            }
+        }
+    }
+    
+    // Reset selected vectors
+    selectedWalls.clear();
+    selectedSources.clear();
+    selectedReceivers.clear();
+}
+
+/**
  * Private event handling method: Start adding a new domain.
  * 
  * @param x  The x coordinate of the first corner of the domain
