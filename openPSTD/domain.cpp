@@ -38,60 +38,6 @@ void Domain::draw(QImage* pixels, int zoom, int offsetX, int offsetY, std::vecto
 }
 
 /**
- * Get method for the x coordinate of the left wall.
- * 
- * @return The x coordinate of the left wall
- */
-int Domain::getX0() {
-    return std::min(x0, x1);
-}
-
-/**
- * Get method for the y coordinate of the top wall.
- * 
- * @return The y coordinate of the top wall
- */
-int Domain::getY0() {
-    return std::min(y0, y1);
-}
-
-/**
- * Get method for the x coordinate of the right wall.
- * 
- * @return The x coordinate of the right wall
- */
-int Domain::getX1() {
-    return std::max(x0, x1);
-}
-
-/**
- * Get method for the y coordinate of the bottom wall.
- * 
- * @return The y coordinate of the bottom wall
- */
-int Domain::getY1() {
-    return std::max(y0, y1);
-}
-
-/**
- * Set method for the x coordinate of the right wall.
- * 
- * @param x1  The x coordinate to give to the right wall
- */
-void Domain::setX1(int x1) {
-    this->x1 = x1;
-}
-
-/**
- * Set method for the y coordinate of the bottom wall.
- * 
- * @param y1  The y coordinate to give to the bottom wall
- */
-void Domain::setY1(int y1) {
-    this->y1 = y1;
-}
-
-/**
  * Checks if any of the walls in this domain need to be merged with any of
  * the walls in any other domain, and performs the merge if needed.
  * 

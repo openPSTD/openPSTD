@@ -19,14 +19,20 @@ public:
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, std::vector<unsigned int> selectedWalls);
     
     // Get methods for the domain's corner coordinates
-    int getX0();
-    int getY0();
-    int getX1();
-    int getY1();
+    inline int getX0() { return std::min(x0, x1); }
+    inline int getY0() { return std::min(y0, y1); }
+    inline int getX1() { return std::max(x0, x1); }
+    inline int getY1() { return std::max(y0, y1); }
+    inline int getTrueX0() { return x0; }
+    inline int getTrueX1() { return x1; }
+    inline int getTrueY0() { return y0; }
+    inline int getTrueY1() { return y1; }
     
     // Set methods for the domain's corner coordinates
-    void setX1(int x1);
-    void setY1(int y1);
+    inline void setX0(int x0) { this->x0 = x0; }
+    inline void setY0(int y0) { this->y0 = y0; }
+    inline void setX1(int x1) { this->x1 = x1; }
+    inline void setY1(int y1) { this->y1 = y1; }
     
     // Get method for the walls vector
     std::vector<Wall*>* getWalls() { return &walls; }

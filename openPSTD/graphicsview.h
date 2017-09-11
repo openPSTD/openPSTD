@@ -24,6 +24,7 @@ public:
     inline void redo() { modelmanager->redo(); }
     
     inline void deleteSelected() { renderer->deleteSelected(); }
+    inline void clearSelection() { renderer->clearSelection(); }
     
     Renderer* renderer;
     Model* model;

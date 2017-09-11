@@ -134,6 +134,56 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         // Compute the position of the mouse
         QPoint newPos = Grid::clampGrid(x, y, model, settings);
         
+        // Loop through all selected walls
+        for (unsigned int i = 0; i < selectedWalls.size(); i++) {
+            // Get the domainID and wallID to move
+            int domainID = selectedWalls[i].first;
+            int wallID = selectedWalls[i].second;
+            
+            // Check if the wall is horizontal or vertical
+            std::vector<Wall*>* walls = model->domains[domainID].getWalls();
+            Wall* wall = walls->at(wallID);
+            if (wall->getSide() == LEFT || wall->getSide() == RIGHT) {
+                // Get the current position of the wall
+                int x = wall->getX0();
+                
+                // Update the corner coordinates of the wall's domain
+                if (model->domains[domainID].getTrueX0() == x) {
+                    model->domains[domainID].setX0(newPos.x() / model->zoom);
+                }
+                if (model->domains[domainID].getTrueX1() == x) {
+                    model->domains[domainID].setX1(newPos.x() / model->zoom);
+                }
+                
+                // Reset and re-merge all walls
+                for (unsigned int j = 0; j < model->domains.size(); j++) {
+                    model->domains[j].resetWalls();
+                }
+                for (unsigned int j = 0; j < model->domains.size(); j++) {
+                    model->domains[j].mergeDomains(&model->domains, j);
+                }
+            } else {
+                // Get the current position of the wall
+                int y = wall->getY0();
+                
+                // Update the corner coordinates of the wall's domain
+                if (model->domains[domainID].getTrueY0() == y) {
+                    model->domains[domainID].setY0(newPos.y() / model->zoom);
+                }
+                if (model->domains[domainID].getTrueY1() == y) {
+                    model->domains[domainID].setY1(newPos.y() / model->zoom);
+                }
+                
+                // Reset and re-merge all walls
+                for (unsigned int j = 0; j < model->domains.size(); j++) {
+                    model->domains[j].resetWalls();
+                }
+                for (unsigned int j = 0; j < model->domains.size(); j++) {
+                    model->domains[j].mergeDomains(&model->domains, j);
+                }
+            }
+        }
+        
         // Loop through all selected sources
         for (unsigned int i = 0; i < selectedSources.size(); i++) {
             model->sources[selectedSources[i]].setX(newPos.x() / model->zoom);
@@ -280,6 +330,13 @@ void EventHandler::deleteSelected() {
         }
     }
     
+    // Reset selected vectors
+    selectedWalls.clear();
+    selectedSources.clear();
+    selectedReceivers.clear();
+}
+
+void EventHandler::clearSelection() {
     // Reset selected vectors
     selectedWalls.clear();
     selectedSources.clear();

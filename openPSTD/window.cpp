@@ -231,6 +231,9 @@ void Window::slot_clearscene() {
     
     // Delete all receivers
     view->model->receivers.clear();
+    
+    // Clear the selected objects vector
+    view->clearSelection();
 }
 
 /**

@@ -36,6 +36,7 @@ public:
     
     // Deletes all selected objects
     void deleteSelected();
+    void clearSelection();
 private:
     // Class instance variables
     Model* model;
