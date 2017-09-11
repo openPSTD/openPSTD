@@ -7,8 +7,9 @@
  * @param model  A reference to the Model instance
  * @param settings  A reference to the Settings instance
  * @param modelmanager  A reference to the ModelManager instance
+ * @param parent  A reference to the main window
  */
-Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent) {
     // Save reference variables locally
     this->scene = scene;
     this->model = model;
@@ -16,7 +17,7 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, Mode
     this->modelmanager = modelmanager;
     
     // Create a new EventHandler instance
-    eh = new EventHandler(model, settings, modelmanager);
+    eh = new EventHandler(model, settings, modelmanager, parent);
     
     // Update the width and height according to the scene
     width = scene->sceneRect().width();
@@ -165,6 +166,18 @@ void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
 void Renderer::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers) {
     // Delegate event to EventHandler
     eh->mouseDrag(x, y, drag, modifiers);
+}
+
+/**
+ * Event handler for mouse double click.
+ * 
+ * @param x  The x position of the mouse
+ * @param y  The y position of the mouse
+ * @param button  The mouse button that was pressed
+ */
+void Renderer::doubleClick(int x, int y, Qt::MouseButton button) {
+    // Delegate event to EventHandler
+    eh->doubleClick(x, y, button);
 }
 
 /**

@@ -7,6 +7,7 @@
 #include <QFont>
 #include <iostream>
 #include <algorithm>
+#include "settings.h"
 
 enum Side {
     LEFT,
@@ -22,7 +23,7 @@ class Wall {
 public:
     // Constructor
     inline Wall() {}
-    Wall(int x0, int y0, int x1, int y1, Side side);
+    Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
@@ -33,6 +34,7 @@ public:
     inline int getX1() { return x1; }
     inline int getY1() { return y1; }
     inline Side getSide() { return side; }
+    inline double getAbsorption() { return absorption; }
     
     // Set methods
     inline void setX0(int x0) { this->x0 = x0; }
@@ -40,6 +42,7 @@ public:
     inline void setX1(int x1) { this->x1 = x1; }
     inline void setY1(int y1) { this->y1 = y1; }
     inline void setSide(Side side) { this->side = side; }
+    inline void setAbsorption(double absorption) { this->absorption = absorption; }
     
     // Checks if two given walls need to be merged
     static bool mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge);
@@ -52,6 +55,12 @@ private:
     
     // Side of the wall
     Side side;
+    
+    // Absorption coefficient
+    double absorption;
+    
+    // Class instance variables
+    Settings* settings;
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);

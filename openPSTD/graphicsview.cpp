@@ -23,7 +23,7 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSpinBox* sbZoom
     modelmanager = new ModelManager(model);
     
     // Create a new Renderer
-    renderer = new Renderer(scene, model, settings, modelmanager);
+    renderer = new Renderer(scene, model, settings, modelmanager, parent);
     
     // Enable mouse tracking
     setMouseTracking(true);
@@ -107,6 +107,19 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
     
     // Delegate the event to Renderer
     renderer->mouseDrag(point.x(), point.y(), event->buttons() == Qt::LeftButton, event->modifiers());
+}
+
+/**
+ * Event listener for mouse double click.
+ * 
+ * @param event  A reference to the QMouseEvent
+ */
+void GraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
+    // Get the position of the mouse
+    QPointF point = mapToScene(event->pos());
+    
+    // Delegate the event to Renderer
+    renderer->doubleClick(point.x(), point.y(), event->button());
 }
 
 /**

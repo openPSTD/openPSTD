@@ -20,7 +20,7 @@
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager);
+    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
     ~Renderer();
     
     // Drawing method
@@ -30,6 +30,7 @@ public:
     void mousePress(int x, int y, Qt::MouseButton button);
     void mouseRelease(int x, int y, Qt::MouseButton button);
     void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
+    void doubleClick(int x, int y, Qt::MouseButton button);
     
     // Set methods for private variables
     inline void setState(State state) {

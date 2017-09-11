@@ -1,6 +1,8 @@
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 
+#include <QInputDialog>
+#include <QGraphicsScene>
 #include "model.h"
 #include "state.h"
 #include "settings.h"
@@ -16,12 +18,13 @@
 class EventHandler {
 public:
     // Constructor
-    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager);
+    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
     
     // Public event handling methods
     void mousePress(int x, int y, Qt::MouseButton button);
     void mouseRelease(int x, int y, Qt::MouseButton button);
     void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
+    void doubleClick(int x, int y, Qt::MouseButton button);
     
     // Get method for current mouse position
     QPoint getMousePos() { return QPoint(mouseX, mouseY); }
@@ -42,6 +45,7 @@ private:
     Model* model;
     Settings* settings;
     ModelManager* modelmanager;
+    QWidget* parent;
     
     // State variables
     bool addingDomain;

@@ -28,6 +28,10 @@ public:
     
     // Color of a receiver
     QRgb receiverColor = qRgb(0, 255, 0);
+    
+    // Color of a wall depending on its absorption
+    QRgb wallColor0 = qRgb(0, 0, 0);
+    QRgb wallColor1 = qRgb(0, 255, 0);
 };
 
 #endif

@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <vector>
 #include "wall.h"
+#include "settings.h"
 
 /**
  * Representation of a single domain.
@@ -13,7 +14,7 @@
 class Domain {
 public:
     // Constructor
-    Domain(int x0, int y0, int x1, int y1);
+    Domain(int x0, int y0, int x1, int y1, Settings* settings);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, std::vector<unsigned int> selectedWalls);
@@ -49,6 +50,9 @@ private:
     int x1;
     int y1;
     std::vector<Wall*> walls;
+    
+    // Class instance variables
+    Settings* settings;
     
     // Method for updating the side of all walls
     void updateWallSides();

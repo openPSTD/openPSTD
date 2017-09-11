@@ -7,13 +7,17 @@
  * @param y0  The y coordinate of the first corner of the domain
  * @param x1  The x coordinate of the second corner of the domain
  * @param y1  The y coordinate of the second corner of the domain
+ * @param settings  A reference to a Settings instance
  */
-Domain::Domain(int x0, int y0, int x1, int y1) {
+Domain::Domain(int x0, int y0, int x1, int y1, Settings* settings) {
     // Save the domain's corner coordinates
     this->x0 = x0;
     this->y0 = y0;
     this->x1 = x1;
     this->y1 = y1;
+    
+    // Save reference variables locally
+    this->settings = settings;
 }
 
 /**
@@ -80,10 +84,10 @@ void Domain::resetWalls() {
     walls.clear();
     
     // Recreate the original four non-merged walls
-    walls.push_back(new Wall(x0, y0, x0, y1, LEFT));
-    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT));
-    walls.push_back(new Wall(x0, y0, x1, y0, TOP));
-    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM));
+    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, settings));
+    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, settings));
+    walls.push_back(new Wall(x0, y0, x1, y0, TOP, settings));
+    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, settings));
 }
 
 /**
@@ -196,7 +200,14 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
             wall->setY1(toMerge.first);
             
             // Create a new wall from toMerge.second to y1
-            Wall* newWall = new Wall(wall->getX0(), toMerge.second, wall->getX0(), y1, wall->getSide());
+            Wall* newWall = new Wall(
+                wall->getX0(),
+                toMerge.second,
+                wall->getX0(),
+                y1,
+                wall->getSide(),
+                settings
+            );
             parent->getWalls()->push_back(newWall);
         }
         
@@ -206,7 +217,14 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
             wall->setY0(toMerge.first);
             
             // Create a new wall from toMerge.second to y0
-            Wall* newWall = new Wall(wall->getX0(), toMerge.second, wall->getX0(), y0, wall->getSide());
+            Wall* newWall = new Wall(
+                wall->getX0(),
+                toMerge.second,
+                wall->getX0(),
+                y0,
+                wall->getSide(),
+                settings
+            );
             parent->getWalls()->push_back(newWall);
         }
     } else {
@@ -258,7 +276,14 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
             wall->setX1(toMerge.first);
             
             // Create a new wall from toMerge.second to x1
-            Wall* newWall = new Wall(wall->getY0(), toMerge.second, wall->getY0(), x1, wall->getSide());
+            Wall* newWall = new Wall(
+                wall->getY0(),
+                toMerge.second,
+                wall->getY0(),
+                x1,
+                wall->getSide(),
+                settings
+            );
             parent->getWalls()->push_back(newWall);
         }
         
@@ -268,7 +293,14 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
             wall->setX0(toMerge.first);
             
             // Create a new wall from toMerge.second to x0
-            Wall* newWall = new Wall(wall->getY0(), toMerge.second, wall->getY0(), x0, wall->getSide());
+            Wall* newWall = new Wall(
+                wall->getY0(),
+                toMerge.second,
+                wall->getY0(),
+                x0,
+                wall->getSide(),
+                settings
+            );
             parent->getWalls()->push_back(newWall);
         }
     }

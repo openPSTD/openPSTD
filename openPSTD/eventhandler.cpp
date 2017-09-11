@@ -6,12 +6,14 @@
  * @param model  A reference to the Model
  * @param settings  A reference to the Settings instance
  * @param modelmanager  A reference to the ModelManager instance
+ * @param parent  A reference to the main window
  */
-EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager) {
+EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent) {
     // Save reference variables locally
     this->model = model;
     this->settings = settings;
     this->modelmanager = modelmanager;
+    this->parent = parent;
     
     // Set initial state variable values
     addingDomain = false;
@@ -216,6 +218,43 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
 }
 
 /**
+ * Public event handling method: Mouse double click.
+ * 
+ * @param x  The x coordinate of the mouse
+ * @param y  The y coordinate of the mouse
+ * @param button  The button that was pressed
+ */
+void EventHandler::doubleClick(int x, int y, Qt::MouseButton button) {
+    // Check if selecting an object
+    if (model->state == SELECT && button == Qt::LeftButton) {
+        // Check if double clicking on a wall
+        if (selectedWalls.size() == 1) {
+            // Check which wall to edit
+            int domainID = selectedWalls[0].first;
+            int wallID = selectedWalls[0].second;
+            Wall* wall = model->domains[domainID].getWalls()->at(wallID);
+            
+            // Use a QInputDialog to request a new absorption coefficient
+            double absorption = QInputDialog::getDouble(
+                parent,
+                "Change absorption coefficient",
+                "Absorption coefficient",
+                wall->getAbsorption(),
+                0,
+                1,
+                3
+            );
+            
+            // Save the new absorption coefficient
+            wall->setAbsorption(absorption);
+            
+            // Unselect the wall
+            clearSelection();
+        }
+    }
+}
+
+/**
  * Checks if a source with given index in the sources vector (in model)
  * is selected.
  * 
@@ -336,6 +375,9 @@ void EventHandler::deleteSelected() {
     selectedReceivers.clear();
 }
 
+/**
+ * Unselects all selected objects.
+ */
 void EventHandler::clearSelection() {
     // Reset selected vectors
     selectedWalls.clear();
@@ -366,7 +408,8 @@ void EventHandler::addDomainStart(int x, int y) {
         px / model->zoom,
         py / model->zoom,
         px / model->zoom,
-        py / model->zoom
+        py / model->zoom,
+        settings
     );
     
     // Add the new domain to the model

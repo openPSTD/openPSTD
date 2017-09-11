@@ -8,14 +8,21 @@
  * @param x1  The x coordinate of the second end of the wall
  * @param y1  The y coordinate of the second end of the wall
  * @param side  The side of the domain that this wall is on
+ * @param settings  A reference to a Settings instance
  */
-Wall::Wall(int x0, int y0, int x1, int y1, Side side) {
+Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings) {
     // Save end point coordinates locally
     this->x0 = x0;
     this->y0 = y0;
     this->x1 = x1;
     this->y1 = y1;
     this->side = side;
+    
+    // Save reference variables locally
+    this->settings = settings;
+    
+    // Set initial absorption coefficient
+    absorption = 0;
 }
 
 /**
@@ -43,8 +50,8 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
     // Draw all points on the wall
     for (int i = minx; i <= maxx; i++) {
         for (int j = miny; j <= maxy; j++) {
-            QRgb color = qRgb(0, 0, 255);
-            if (selected) color = qRgb(100, 100, 100);
+            QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
+            if (selected) color = qRgb(0, 255, 255);
             pixels->setPixel(i, j, color);
         }
     }
