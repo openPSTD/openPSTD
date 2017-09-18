@@ -27,7 +27,7 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, Mode
     pixels = new QImage(1024, 768, QImage::Format_RGB32);
     
     // Load the cursor image
-    image = QImage("../icons/cursor.png");
+    image = QImage(":/new/prefix1/icons/cursor.png");
     if (image.isNull()) std::cerr << "Cursor image not found" << std::endl;
     
     // Initialize fps counter

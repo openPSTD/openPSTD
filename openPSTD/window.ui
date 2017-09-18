@@ -14,8 +14,8 @@
    <string>OpenPSTD</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../icons/logo.png</normaloff>../icons/logo.png</iconset>
+   <iconset resource="resources.qrc">
+    <normaloff>:/new/prefix1/icons/logo.png</normaloff>:/new/prefix1/icons/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="enabled">
@@ -156,8 +156,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/select.png</normaloff>../icons/select.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/select.png</normaloff>:/new/prefix1/icons/select.png</iconset>
    </property>
    <property name="text">
     <string>Select</string>
@@ -174,8 +174,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/move.png</normaloff>../icons/move.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/move.png</normaloff>:/new/prefix1/icons/move.png</iconset>
    </property>
    <property name="text">
     <string>MoveScene</string>
@@ -192,8 +192,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/adddomain.png</normaloff>../icons/adddomain.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/adddomain.png</normaloff>:/new/prefix1/icons/adddomain.png</iconset>
    </property>
    <property name="text">
     <string>AddDomain</string>
@@ -210,8 +210,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/source.png</normaloff>../icons/source.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/source.png</normaloff>:/new/prefix1/icons/source.png</iconset>
    </property>
    <property name="text">
     <string>AddSource</string>
@@ -228,8 +228,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/receiver.png</normaloff>../icons/receiver.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/receiver.png</normaloff>:/new/prefix1/icons/receiver.png</iconset>
    </property>
    <property name="text">
     <string>AddReceiver</string>
@@ -271,8 +271,8 @@
   </action>
   <action name="actionstop">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/stop.png</normaloff>../icons/stop.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/stop.png</normaloff>:/new/prefix1/icons/stop.png</iconset>
    </property>
    <property name="text">
     <string>stop</string>
@@ -283,8 +283,8 @@
   </action>
   <action name="actionstart">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/start.png</normaloff>../icons/start.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/start.png</normaloff>:/new/prefix1/icons/start.png</iconset>
    </property>
    <property name="text">
     <string>start</string>
@@ -372,6 +372,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>icons/adddomain.png</file>
+        <file>icons/cursor.png</file>
+        <file>icons/logo.png</file>
+        <file>icons/move.png</file>
+        <file>icons/receiver.png</file>
+        <file>icons/select.png</file>
+        <file>icons/source.png</file>
+        <file>icons/start.png</file>
+        <file>icons/stop.png</file>
+    </qresource>
+</RCC>

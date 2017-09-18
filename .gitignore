@@ -3,3 +3,9 @@ openPSTD/openPSTD.pro.user
 docs/.~lock.*
 .oldversion
 .oldchangelog
+release/*
+mxe*
+Makefile*
+object_script*
+openpstd_plugin*
+.qmake.stash
