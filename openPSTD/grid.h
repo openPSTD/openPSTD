@@ -26,6 +26,11 @@ public:
         int xx = x - model->offsetX;
         int yy = y - model->offsetY;
         
+        // Do not clamp if there is no grid
+        if (!model->showGrid) {
+            return QPoint(xx, yy);
+        }
+        
         // Compute the coordinates of the nearest grid corner
         int gridx = (model->gridsize * model->zoom) * round((double) xx / (model->gridsize * model->zoom));
         int gridy = (model->gridsize * model->zoom) * round((double) yy / (model->gridsize * model->zoom));
@@ -51,6 +56,9 @@ public:
      * @return  Whether or not the given point is on a grid edge
      */
     inline static bool isOnGrid(int x, int y, Model* model) {
+        // Pixel is not on grid if there is no grid
+        if (!model->showGrid) return false;
+        
         // Return whether or not the given point is on a grid edge
         return ((x - model->offsetX) % (model->zoom * model->gridsize) == 0 || (y - model->offsetY) % (model->zoom * model->gridsize) == 0);
     }

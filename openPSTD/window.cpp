@@ -106,6 +106,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
+    connect(ui->actionGrid, SIGNAL(triggered(bool)), this, SLOT(slot_grid()));
     
     // Connect actions in operate menu
     connect(ui->actionSelect, SIGNAL(triggered(bool)), this, SLOT(slot_select()));
@@ -252,6 +253,14 @@ void Window::slot_deleteselected() {
 void Window::slot_fpscounter() {
     view->model->showFPS = ui->actionFPS_counter->isChecked();
     ui->actionFPS_color->setEnabled(view->model->showFPS);
+}
+
+/**
+ * Callback method for the grid action in the view menu.
+ * Toggles the display of the grid.
+ */
+void Window::slot_grid() {
+    view->model->showGrid = ui->actionGrid->isChecked();
 }
 
 /**

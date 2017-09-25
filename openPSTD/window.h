@@ -66,6 +66,7 @@ public slots:
     
     // View menu slots
     void slot_fpscounter();
+    void slot_grid();
     
     // Operate menu slots
     inline void slot_select() { view->renderer->setState(SELECT); }

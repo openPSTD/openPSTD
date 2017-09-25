@@ -163,4 +163,10 @@ void GraphicsView::keyPressEvent(QKeyEvent* event) {
         // Redo the last operation
         redo();
     }
+    
+    // Check for DELETE
+    if (event->key() == Qt::Key_Delete && event->modifiers() == Qt::NoModifier) {
+        // Delete the selected objects
+        deleteSelected();
+    }
 }

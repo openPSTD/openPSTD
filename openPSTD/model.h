@@ -41,7 +41,10 @@ public:
     int offsetY; // In pixels
     
     // FPS counter
-    bool showFPS;
+    bool showFPS = false;
+    
+    // Grid
+    bool showGrid = true;
 };
 
 #endif
