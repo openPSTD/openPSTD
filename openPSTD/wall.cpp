@@ -52,6 +52,8 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
         for (int j = miny; j <= maxy; j++) {
             QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
             if (selected) color = qRgb(0, 255, 255);
+            if (i < 0 || j < 0) continue;
+            if (i >= pixels->width() || j >= pixels->height()) continue;
             pixels->setPixel(i, j, color);
         }
     }

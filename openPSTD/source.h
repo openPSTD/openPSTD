@@ -29,6 +29,9 @@ private:
     // Position of the source
     int x;
     int y;
+    
+    // Sets a single pixel's color
+    void setPixel(int x, int y, QRgb color, QImage* pixels);
 };
 
 #endif
