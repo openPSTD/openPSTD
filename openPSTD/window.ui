@@ -146,6 +146,9 @@
    <addaction name="separator"/>
    <addaction name="actionstop"/>
    <addaction name="actionstart"/>
+   <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSelect">
@@ -298,7 +301,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>FPS counter</string>
@@ -350,6 +353,10 @@
    </property>
   </action>
   <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/undo.png</normaloff>:/new/prefix1/icons/undo.png</iconset>
+   </property>
    <property name="text">
     <string>Undo</string>
    </property>
@@ -358,6 +365,10 @@
    </property>
   </action>
   <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/redo.png</normaloff>:/new/prefix1/icons/redo.png</iconset>
+   </property>
    <property name="text">
     <string>Redo</string>
    </property>

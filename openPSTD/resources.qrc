@@ -9,5 +9,7 @@
         <file>icons/source.png</file>
         <file>icons/start.png</file>
         <file>icons/stop.png</file>
+        <file>icons/undo.png</file>
+        <file>icons/redo.png</file>
     </qresource>
 </RCC>

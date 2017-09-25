@@ -34,8 +34,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(lZoom);
     
     // Create a QSpinBox for the zoom level
-    sbZoom->setMinimum(5);
-    sbZoom->setMaximum(50);
+    sbZoom->setMinimum(1);
+    sbZoom->setMaximum(100);
     sbZoom->setValue(5);
     sbZoom->setToolTip("In pixels / m");
     view->model->zoom = 5;
@@ -54,8 +54,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Create a QSpinBox for the grid size
     sbGridSize = new QSpinBox();
-    sbGridSize->setMinimum(5);
-    sbGridSize->setMaximum(50);
+    sbGridSize->setMinimum(1);
+    sbGridSize->setMaximum(100);
     sbGridSize->setValue(25);
     sbGridSize->setToolTip("In m");
     view->renderer->setGridSize(25);
