@@ -3,6 +3,8 @@
 
 #include <QInputDialog>
 #include <QGraphicsScene>
+#include <sstream>
+#include <iomanip>
 #include "model.h"
 #include "state.h"
 #include "settings.h"
@@ -34,12 +36,14 @@ public:
     bool isReceiverSelected(unsigned int i);
     std::vector<unsigned int> getSelectedWalls(unsigned int domainID);
     
-    // Draws the selection rectangle
+    // Drawing methods
     void drawSelection(QImage* pixels);
+    void drawMeasure(QImage* pixels);
     
     // Deletes all selected objects
     void deleteSelected();
     void clearSelection();
+    inline void removeMeasure() { measuring = false; }
 private:
     // Class instance variables
     Model* model;
@@ -59,6 +63,9 @@ private:
     std::vector<std::pair<unsigned int, unsigned int>> selectedWalls;
     std::vector<unsigned int> selectedSources;
     std::vector<unsigned int> selectedReceivers;
+    std::pair<int, int> measureStart;
+    std::pair<int, int> measureEnd;
+    bool measuring;
     
     // Private event handling methods
     void addDomainStart(int x, int y);
@@ -66,6 +73,9 @@ private:
     void addSource(int x, int y);
     void addReceiver(int x, int y);
     void select();
+    
+    // Private drawing methods
+    void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
 };
 
 #endif

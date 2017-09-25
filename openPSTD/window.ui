@@ -107,6 +107,7 @@
     <addaction name="actionAddDomain"/>
     <addaction name="actionAddSource"/>
     <addaction name="actionAddReceiver"/>
+    <addaction name="actionMeasure"/>
     <addaction name="separator"/>
     <addaction name="actionstop"/>
     <addaction name="actionstart"/>
@@ -144,6 +145,7 @@
    <addaction name="actionAddDomain"/>
    <addaction name="actionAddSource"/>
    <addaction name="actionAddReceiver"/>
+   <addaction name="actionMeasure"/>
    <addaction name="separator"/>
    <addaction name="actionstop"/>
    <addaction name="actionstart"/>
@@ -391,6 +393,18 @@
    </property>
    <property name="text">
     <string>Grid</string>
+   </property>
+  </action>
+  <action name="actionMeasure">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/measure.png</normaloff>:/new/prefix1/icons/measure.png</iconset>
+   </property>
+   <property name="text">
+    <string>Measure</string>
    </property>
   </action>
  </widget>

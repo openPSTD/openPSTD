@@ -89,6 +89,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     qagMainToolbar->addAction(ui->actionAddDomain);
     qagMainToolbar->addAction(ui->actionAddSource);
     qagMainToolbar->addAction(ui->actionAddReceiver);
+    qagMainToolbar->addAction(ui->actionMeasure);
     qagMainToolbar->setExclusive(true);
     
     // Connect actions in settings menu
@@ -114,6 +115,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionAddDomain, SIGNAL(triggered(bool)), this, SLOT(slot_adddomain()));
     connect(ui->actionAddSource, SIGNAL(triggered(bool)), this, SLOT(slot_addsource()));
     connect(ui->actionAddReceiver, SIGNAL(triggered(bool)), this, SLOT(slot_addreceiver()));
+    connect(ui->actionMeasure, SIGNAL(triggered(bool)), this, SLOT(slot_measure()));
     connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(slot_undo()));
     connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(slot_redo()));
     

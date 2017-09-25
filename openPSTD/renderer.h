@@ -35,6 +35,7 @@ public:
     // Set methods for private variables
     inline void setState(State state) {
         model->state = state;
+        if (state != MEASURE) eh->removeMeasure();
     }
     void setDimensions(int width, int height);
     

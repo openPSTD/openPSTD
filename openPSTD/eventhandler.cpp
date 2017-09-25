@@ -18,6 +18,7 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
     // Set initial state variable values
     addingDomain = false;
     selecting = false;
+    measuring = false;
 }
 
 /**
@@ -28,6 +29,9 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
  * @param button  The button that was pressed
  */
 void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
+    // Remove the measuring tool
+    measuring = false;
+    
     // Check if selecting objects
     if (button == Qt::LeftButton && model->state == SELECT) {
         // Save the start coordinates
@@ -80,6 +84,17 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
         
         // Add a new receiver
         addReceiver(x, y);
+    }
+    
+    // Check if measuring
+    if (button == Qt::LeftButton && model->state == MEASURE) {
+        // Save the start coordinates
+        QPoint p = Grid::clampGrid(x, y, model, settings);
+        measureStart.first = p.x();
+        measureStart.second = p.y();
+        measureEnd.first = p.x();
+        measureEnd.second = p.y();
+        measuring = true;
     }
 }
 
@@ -215,6 +230,13 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         // Update the new domain
         addDomainStop(x, y);
     }
+    
+    // Check if measuring
+    if (model->state == MEASURE && drag) {
+        QPoint p = Grid::clampGrid(x, y, model, settings);
+        measureEnd.first = p.x();
+        measureEnd.second = p.y();
+    }
 }
 
 /**
@@ -314,6 +336,56 @@ void EventHandler::drawSelection(QImage* pixels) {
         pixels->setPixel(x0, y, qRgb(100, 100, 100));
         pixels->setPixel(x1, y, qRgb(100, 100, 100));
     }
+}
+
+/**
+ * Draws the measure tool.
+ * 
+ * @param pixels  A reference to the QImage to draw on
+ */
+void EventHandler::drawMeasure(QImage* pixels) {
+    // Do nothing if not measuring
+    if (!measuring) return;
+    
+    // Get the measure line coordinates
+    int x0 = measureStart.first;
+    int x1 = measureEnd.first;
+    int y0 = measureStart.second;
+    int y1 = measureEnd.second;
+    
+    // Loop through all points on the line
+    for (int t = 0; t < 1000; t++) {
+        double tt = (double) t / 1000;
+        
+        int x = tt * x0 + (1 - tt) * x1;
+        int y = tt * y0 + (1 - tt) * y1;
+        
+        pixels->setPixel(x, y, qRgb(0, 255, 255));
+    }
+    
+    // Compute the length of the measure
+    int minx = x0 / model->zoom;
+    int maxx = x1 / model->zoom;
+    int miny = y0 / model->zoom;
+    int maxy = y1 / model->zoom;
+    double length = std::sqrt((maxx-minx)*(maxx-minx) + (maxy-miny)*(maxy-miny));
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << length;
+    std::string lengthtext = oss.str();
+    
+    // Compute the midpoint of the measure
+    int midx = (x0 + x1) / 2;
+    int midy = (y0 + y1) / 2;
+    
+    // Draw the measure length text
+    drawText(
+        lengthtext,
+        midx,
+        midy,
+        14,
+        qRgb(0, 255, 255),
+        pixels
+    );
 }
 
 /**
@@ -592,4 +664,23 @@ void EventHandler::select() {
             selectedReceivers.push_back(i);
         }
     }
+}
+
+/**
+ * Draws a string to the given pixels array.
+ * 
+ * @param text  The text to draw
+ * @param x  The x position to draw at
+ * @param y  The y position to draw at
+ * @param size  The font size to draw with
+ * @param color  The color to draw in
+ * @param pixels  The pixels array to draw to
+ */
+void EventHandler::drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels) {
+    QPainter p;
+    p.begin(pixels);
+    p.setPen(QPen(color));
+    p.setFont(QFont("Monospace", size));
+    p.drawText(x, y + size, QString(text.c_str()));
+    p.end();
 }

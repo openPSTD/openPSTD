@@ -9,7 +9,8 @@ enum State {
     MOVE,
     ADDDOMAIN,
     ADDSOURCE,
-    ADDRECEIVER
+    ADDRECEIVER,
+    MEASURE
 };
 
 #endif

@@ -97,8 +97,11 @@ void Renderer::draw() {
     // Draw the selection rectangle
     eh->drawSelection(pixels);
     
-    // Draw cursor if adding domain
-    if (model->state == ADDDOMAIN) {
+    // Draw the measure tool
+    eh->drawMeasure(pixels);
+    
+    // Draw cursor if adding domain or measuring
+    if (model->state == ADDDOMAIN || model->state == MEASURE) {
         QPoint pos = eh->getMousePos();
         QPoint clamped = Grid::clampGrid(pos.x(), pos.y(), model, settings);
         if (clamped != QPoint(-1, -1)) pos = clamped;
