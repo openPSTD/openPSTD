@@ -32,6 +32,9 @@ public:
     // Color of a wall depending on its absorption
     QRgb wallColor0 = qRgb(0, 0, 0);
     QRgb wallColor1 = qRgb(0, 255, 0);
+    
+    // PSTD grid size
+    int pstdGridSize = 16;
 };
 
 #endif

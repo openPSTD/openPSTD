@@ -83,6 +83,7 @@
     <addaction name="actionReceiver_color"/>
     <addaction name="separator"/>
     <addaction name="actionClamp_distance"/>
+    <addaction name="actionPSTD_grid_size"/>
    </widget>
    <widget class="QMenu" name="menuScene">
     <property name="title">
@@ -405,6 +406,11 @@
    </property>
    <property name="text">
     <string>Measure</string>
+   </property>
+  </action>
+  <action name="actionPSTD_grid_size">
+   <property name="text">
+    <string>PSTD grid size</string>
    </property>
   </action>
  </widget>

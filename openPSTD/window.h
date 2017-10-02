@@ -59,6 +59,7 @@ public slots:
     void slot_sourcecolor();
     void slot_receivercolor();
     void slot_clampdist();
+    void slot_pstdgridsize();
     
     // Scene menu slots
     void slot_clearscene();

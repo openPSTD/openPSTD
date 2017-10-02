@@ -248,7 +248,7 @@ void Renderer::drawZoom(int zoomaim) {
     // Draw the zoom level reference line
     int width = model->zoom * zoomaim;
     for (int i = 0; i < width; i++) {
-        pixels->setPixel(i, 5, settings->zoomColor);
+        if (i < pixels->width()) pixels->setPixel(i, 5, settings->zoomColor);
     }
     
     // Draw the current zoom level text

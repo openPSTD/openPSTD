@@ -31,7 +31,7 @@ public:
     std::vector<Receiver> receivers;
     
     // Size of the background grid
-    int gridsize; // In m
+    int gridsize; // Multiple of PSTD grid size
     
     // Zoom level
     int zoom; // In pixels / m

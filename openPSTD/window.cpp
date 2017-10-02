@@ -54,12 +54,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Create a QSpinBox for the grid size
     sbGridSize = new QSpinBox();
-    sbGridSize->setMinimum(1);
-    sbGridSize->setMaximum(100);
-    sbGridSize->setValue(25);
+    sbGridSize->setMinimum(settings->pstdGridSize);
+    sbGridSize->setMaximum(10*settings->pstdGridSize);
+    sbGridSize->setSingleStep(settings->pstdGridSize);
+    sbGridSize->setValue(settings->pstdGridSize);
     sbGridSize->setToolTip("In m");
-    view->renderer->setGridSize(25);
-    view->model->zoom = 5;
+    view->renderer->setGridSize(settings->pstdGridSize);
     ui->mainToolBar->addWidget(sbGridSize);
     connect(sbGridSize, SIGNAL(valueChanged(int)), this, SLOT(slot_gridsize(int)));
     
@@ -100,6 +100,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionSource_color, SIGNAL(triggered(bool)), this, SLOT(slot_sourcecolor()));
     connect(ui->actionReceiver_color, SIGNAL(triggered(bool)), this, SLOT(slot_receivercolor()));
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
+    connect(ui->actionPSTD_grid_size, SIGNAL(triggered(bool)), this, SLOT(slot_pstdgridsize()));
     
     // Connect actions in scene menu
     connect(ui->actionClear_all, SIGNAL(triggered(bool)), this, SLOT(slot_clearscene()));
@@ -216,9 +217,29 @@ void Window::slot_clampdist() {
         this,
         "Choose a clamp distance",
         "Choose a clamp distance\nSet to zero to disable clamping",
-        5
+        settings->clampDist
     );
     settings->clampDist = clampdist;
+}
+
+/**
+ * Callback method for the pstd grid size action in the settings menu.
+ * Opens an input dialog and saves the new pstd grid size.
+ */
+void Window::slot_pstdgridsize() {
+    int pstdgridsize = QInputDialog::getInt(
+        this,
+        "Choose a PSTD grid size",
+        "Choose a PSTD grid size",
+        settings->pstdGridSize
+    );
+    settings->pstdGridSize = pstdgridsize;
+    
+    sbGridSize->setMinimum(settings->pstdGridSize);
+    sbGridSize->setMaximum(10*settings->pstdGridSize);
+    sbGridSize->setSingleStep(settings->pstdGridSize);
+    sbGridSize->setValue(settings->pstdGridSize);
+    view->renderer->setGridSize(settings->pstdGridSize);
 }
 
 /**
