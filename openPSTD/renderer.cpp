@@ -140,10 +140,11 @@ void Renderer::draw() {
  * @param x  The x position of the mouse
  * @param y  The y position of the mouse
  * @param button  The mouse button that was pressed
+ * @param modifiers  The KeyboardModifiers of the mouse press event
  */
-void Renderer::mousePress(int x, int y, Qt::MouseButton button) {
+void Renderer::mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers) {
     // Delegate event to EventHandler
-    eh->mousePress(x, y, button);
+    eh->mousePress(x, y, button, modifiers);
 }
 
 /**

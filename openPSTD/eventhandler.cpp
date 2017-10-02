@@ -27,8 +27,9 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
  * @param x  The x coordinate of the mouse
  * @param y  The y coordinate of the mouse
  * @param button  The button that was pressed
+ * @param modifiers  The KeyboardModifiers of the mouse press event
  */
-void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
+void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers) {
     // Remove the measuring tool
     measuring = false;
     
@@ -41,7 +42,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button) {
         selectEnd.second = y;
         
         // Select any objects at the clicked position
-        select();
+        select(modifiers == Qt::CTRL);
     }
     
     // Check if moving the scene
@@ -143,7 +144,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         selectEnd.first = x;
         selectEnd.second = y;
         selecting = true;
-        select();
+        select(modifiers == Qt::CTRL);
     }
     
     // Check if moving objects
@@ -576,8 +577,10 @@ void EventHandler::addReceiver(int x, int y) {
 
 /**
  * Selects all walls, sources, and receivers within the selection rectangle.
+ * 
+ * @param ctrl  Whether or not the ctrl key is pressed
  */
-void EventHandler::select() {
+void EventHandler::select(bool ctrl) {
     // Get selecting rectangle coordinates
     int x0 = std::min(selectStart.first, selectEnd.first);
     int x1 = std::max(selectStart.first, selectEnd.first);
@@ -595,9 +598,11 @@ void EventHandler::select() {
     }
     
     // Clear the previous select results
-    selectedWalls.clear();
-    selectedSources.clear();
-    selectedReceivers.clear();
+    if (!ctrl) {
+        selectedWalls.clear();
+        selectedSources.clear();
+        selectedReceivers.clear();
+    }
     
     // Loop through all walls
     for (unsigned int i = 0; i < model->domains.size(); i++) {
@@ -621,11 +626,15 @@ void EventHandler::select() {
             // Check if this wall is in the selecting rectangle
             if (side == LEFT || side == RIGHT) {
                 if (x0 <= wx0 && wx0 <= x1 && y0 <= wy1 && wy0 <= y1) {
-                    selectedWalls.push_back(std::make_pair(i, j));
+                    if (std::find(selectedWalls.begin(), selectedWalls.end(), std::make_pair(i, j)) == selectedWalls.end()) {
+                        selectedWalls.push_back(std::make_pair(i, j));
+                    }
                 }
             } else {
                 if (y0 <= wy0 && wy0 <= y1 && x0 <= wx1 && wx0 <= x1) {
-                    selectedWalls.push_back(std::make_pair(i, j));
+                    if (std::find(selectedWalls.begin(), selectedWalls.end(), std::make_pair(i, j)) == selectedWalls.end()) {
+                        selectedWalls.push_back(std::make_pair(i, j));
+                    }
                 }
             }
         }
@@ -644,7 +653,9 @@ void EventHandler::select() {
         // Check if this source is in the selecting rectangle
         if (x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) {
             // Select this source
-            selectedSources.push_back(i);
+            if (std::find(selectedSources.begin(), selectedSources.end(), i) == selectedSources.end()) {
+                selectedSources.push_back(i);
+            }
         }
     }
     
@@ -661,7 +672,9 @@ void EventHandler::select() {
         // Check if this source is in the selecting rectangle
         if (x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) {
             // Select this receiver
-            selectedReceivers.push_back(i);
+            if (std::find(selectedReceivers.begin(), selectedReceivers.end(), i) == selectedReceivers.end()) {
+                selectedReceivers.push_back(i);
+            }
         }
     }
 }

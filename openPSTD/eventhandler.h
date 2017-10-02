@@ -23,7 +23,7 @@ public:
     EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
     
     // Public event handling methods
-    void mousePress(int x, int y, Qt::MouseButton button);
+    void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void mouseRelease(int x, int y, Qt::MouseButton button);
     void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
     void doubleClick(int x, int y, Qt::MouseButton button);
@@ -72,7 +72,7 @@ private:
     void addDomainStop(int x, int y);
     void addSource(int x, int y);
     void addReceiver(int x, int y);
-    void select();
+    void select(bool ctrl);
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);

@@ -80,7 +80,7 @@ void GraphicsView::mousePressEvent(QMouseEvent* event) {
     QPointF point = mapToScene(event->pos());
     
     // Delegate the event to Renderer
-    renderer->mousePress(point.x(), point.y(), event->button());
+    renderer->mousePress(point.x(), point.y(), event->button(), event->modifiers());
 }
 
 /**

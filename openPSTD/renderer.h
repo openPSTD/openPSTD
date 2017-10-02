@@ -27,7 +27,7 @@ public:
     void draw();
     
     // Event handling methods
-    void mousePress(int x, int y, Qt::MouseButton button);
+    void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void mouseRelease(int x, int y, Qt::MouseButton button);
     void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
     void doubleClick(int x, int y, Qt::MouseButton button);
