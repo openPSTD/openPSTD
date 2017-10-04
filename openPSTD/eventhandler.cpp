@@ -90,7 +90,8 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     // Check if measuring
     if (button == Qt::LeftButton && model->state == MEASURE) {
         // Save the start coordinates
-        QPoint p = Grid::clampGrid(x, y, model, settings);
+        bool clamped;
+        QPoint p = Grid::clampGrid(x, y, model, settings, &clamped);
         measureStart.first = p.x();
         measureStart.second = p.y();
         measureEnd.first = p.x();
@@ -150,7 +151,8 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     // Check if moving objects
     if (model->state == SELECT && drag && modifiers == Qt::NoModifier) {
         // Compute the position of the mouse
-        QPoint newPos = Grid::clampGrid(x, y, model, settings);
+        bool clamped;
+        QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
         
         // Loop through all selected walls
         for (unsigned int i = 0; i < selectedWalls.size(); i++) {
@@ -234,7 +236,8 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     
     // Check if measuring
     if (model->state == MEASURE && drag) {
-        QPoint p = Grid::clampGrid(x, y, model, settings);
+        bool clamped;
+        QPoint p = Grid::clampGrid(x, y, model, settings, &clamped);
         measureEnd.first = p.x();
         measureEnd.second = p.y();
     }
@@ -465,23 +468,15 @@ void EventHandler::clearSelection() {
  * @param y  The y coordinate of the first corner of the domain
  */
 void EventHandler::addDomainStart(int x, int y) {
-    // Clamp the coordinates to the grid
-    int px, py;
-    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
-    if (gridPoint == QPoint(-1, -1)) {
-        px = x;
-        py = y;
-    } else {
-        px = gridPoint.x();
-        py = gridPoint.y();
-    }
+    // Clamp the coordinates
+    QPoint p = Grid::clampFull(x, y, model, settings, true);
     
     // Create a new Domain instance
     Domain d(
-        px / model->zoom,
-        py / model->zoom,
-        px / model->zoom,
-        py / model->zoom,
+        p.x() / model->zoom,
+        p.y() / model->zoom,
+        p.x() / model->zoom,
+        p.y() / model->zoom,
         settings
     );
     
@@ -502,20 +497,12 @@ void EventHandler::addDomainStop(int x, int y) {
         model->domains[i].resetWalls();
     }
     
-    // Clamp the coordinates to the grid
-    int px, py;
-    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
-    if (gridPoint == QPoint(-1, -1)) {
-        px = x;
-        py = y;
-    } else {
-        px = gridPoint.x();
-        py = gridPoint.y();
-    }
+    // Clamp the coordinates
+    QPoint p = Grid::clampFull(x, y, model, settings, false);
     
     // Update the end coordinates of the newest model
-    model->lastDomain()->setX1(px / model->zoom);
-    model->lastDomain()->setY1(py / model->zoom);
+    model->lastDomain()->setX1(p.x() / model->zoom);
+    model->lastDomain()->setY1(p.y() / model->zoom);
     
     // Re-merge all intersecting walls
     for (unsigned int i = 0; i < model->domains.size(); i++) {
@@ -532,19 +519,13 @@ void EventHandler::addDomainStop(int x, int y) {
 void EventHandler::addSource(int x, int y) {
     // Clamp the coordinates to the grid
     int px, py;
-    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
-    if (gridPoint == QPoint(-1, -1)) {
-        px = x;
-        py = y;
-    } else {
-        px = gridPoint.x();
-        py = gridPoint.y();
-    }
+    bool clamped;
+    QPoint gridPoint = Grid::clampGrid(x, y, model, settings, &clamped);
     
     // Add a new source
     model->sources.push_back(Source(
-        px / model->zoom,
-        py / model->zoom,
+        gridPoint.x() / model->zoom,
+        gridPoint.y() / model->zoom,
         settings
     ));
 }
@@ -558,19 +539,13 @@ void EventHandler::addSource(int x, int y) {
 void EventHandler::addReceiver(int x, int y) {
     // Clamp the coordinates to the grid
     int px, py;
-    QPoint gridPoint = Grid::clampGrid(x, y, model, settings);
-    if (gridPoint == QPoint(-1, -1)) {
-        px = x;
-        py = y;
-    } else {
-        px = gridPoint.x();
-        py = gridPoint.y();
-    }
+    bool clamped;
+    QPoint gridPoint = Grid::clampGrid(x, y, model, settings, &clamped);
     
     // Add a new receiver
     model->receivers.push_back(Receiver(
-        px / model->zoom,
-        py / model->zoom,
+        gridPoint.x() / model->zoom,
+        gridPoint.y() / model->zoom,
         settings
     ));
 }
