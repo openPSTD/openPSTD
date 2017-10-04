@@ -518,7 +518,6 @@ void EventHandler::addDomainStop(int x, int y) {
  */
 void EventHandler::addSource(int x, int y) {
     // Clamp the coordinates to the grid
-    int px, py;
     bool clamped;
     QPoint gridPoint = Grid::clampGrid(x, y, model, settings, &clamped);
     
@@ -538,7 +537,6 @@ void EventHandler::addSource(int x, int y) {
  */
 void EventHandler::addReceiver(int x, int y) {
     // Clamp the coordinates to the grid
-    int px, py;
     bool clamped;
     QPoint gridPoint = Grid::clampGrid(x, y, model, settings, &clamped);
     
