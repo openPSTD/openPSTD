@@ -42,6 +42,7 @@ public:
     // Delete all selected objects
     inline void deleteSelected() { eh->deleteSelected(); }
     inline void clearSelection() { eh->clearSelection(); }
+    void moveToCenter();
 private:
     // Class instance variables
     QGraphicsScene* scene;

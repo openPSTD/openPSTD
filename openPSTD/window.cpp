@@ -119,6 +119,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionMeasure, SIGNAL(triggered(bool)), this, SLOT(slot_measure()));
     connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(slot_undo()));
     connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(slot_redo()));
+    connect(ui->actionMoveToCenter, SIGNAL(triggered(bool)), this, SLOT(slot_movetocenter()));
     
     // Connect actions in the about menu
     connect(ui->actionChangelog, SIGNAL(triggered(bool)), this, SLOT(slot_changelog()));

@@ -78,6 +78,7 @@ public slots:
     inline void slot_measure() { view->renderer->setState(MEASURE); }
     inline void slot_undo() { view->undo(); }
     inline void slot_redo() { view->redo(); }
+    inline void slot_movetocenter() { view->renderer->moveToCenter(); }
     
     // About menu slots
     void slot_changelog();

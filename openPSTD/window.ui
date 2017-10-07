@@ -115,6 +115,7 @@
     <addaction name="separator"/>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="actionMoveToCenter"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -153,6 +154,7 @@
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
+   <addaction name="actionMoveToCenter"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSelect">
@@ -411,6 +413,15 @@
   <action name="actionPSTD_grid_size">
    <property name="text">
     <string>PSTD grid size</string>
+   </property>
+  </action>
+  <action name="actionMoveToCenter">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/movetocenter.png</normaloff>:/new/prefix1/icons/movetocenter.png</iconset>
+   </property>
+   <property name="text">
+    <string>MoveToCenter</string>
    </property>
   </action>
  </widget>
