@@ -19,6 +19,7 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
     addingDomain = false;
     selecting = false;
     measuring = false;
+    overlap = false;
 }
 
 /**
@@ -57,8 +58,10 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         // Check if a domain is already being added
         if (addingDomain) {
             // Finish this domain
-            addDomainStop(x, y);
-            addingDomain = false;
+            if (!overlap) {
+                addDomainStop(x, y);
+                addingDomain = false;
+            }
         } else {
             // Save the old state
             modelmanager->saveState();
@@ -119,7 +122,7 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
         int dx = std::abs(x - model->lastDomain()->getX0() * model->zoom);
         int dy = std::abs(y - model->lastDomain()->getY0() * model->zoom);
         int dist2 = dx * dx + dy * dy;
-        if (dist2 > 100 && addingDomain) {
+        if (dist2 > 100 && addingDomain && !overlap) {
             // Stop the domain here
             addDomainStop(x, y);
             addingDomain = false;
@@ -393,6 +396,35 @@ void EventHandler::drawMeasure(QImage* pixels) {
 }
 
 /**
+ * Draws the overlap error message (if there is overlap between domains).
+ * 
+ * @param pixels  A reference to the QImage to draw on
+ */
+void EventHandler::drawOverlap(QImage* pixels) {
+    // Do nothing if there is no overlap
+    if (!overlap) return;
+    
+    // Draw the overlap message
+    int x = pixels->width() / 2;
+    drawText(
+        "Cannot add a domain here.",
+        x - 25*10/2,
+        7,
+        12,
+        qRgb(255, 0, 0),
+        pixels
+    );
+    drawText(
+        "There is overlap with another domain.",
+        x - 37*10/2,
+        21,
+        12,
+        qRgb(255, 0, 0),
+        pixels
+    );
+}
+
+/**
  * Deletes all selected objects.
  */
 void EventHandler::deleteSelected() {
@@ -507,6 +539,19 @@ void EventHandler::addDomainStop(int x, int y) {
     // Re-merge all intersecting walls
     for (unsigned int i = 0; i < model->domains.size(); i++) {
         model->domains[i].mergeDomains(&model->domains, i);
+    }
+    
+    // Verify that there are no overlapping domains
+    overlap = false;
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        for (unsigned int j = i + 1; j < model->domains.size(); j++) {
+            // Get the two domains to check
+            Domain* one = &(model->domains[i]);
+            Domain* two = &(model->domains[j]);
+            
+            // Check whether or not these two domains overlap
+            if (one->overlaps(two)) overlap = true;
+        }
     }
 }
 

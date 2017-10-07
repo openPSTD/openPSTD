@@ -100,6 +100,9 @@ void Renderer::draw() {
     // Draw the measure tool
     eh->drawMeasure(pixels);
     
+    // Draw the overlap message text
+    eh->drawOverlap(pixels);
+    
     // Draw cursor if adding domain or measuring
     if (model->state == ADDDOMAIN || model->state == MEASURE) {
         QPoint pos = eh->getMousePos();

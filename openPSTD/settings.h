@@ -9,7 +9,7 @@ public:
     Settings() {}
     
     // Color of the background grid
-    QRgb gridColor = qRgb(255, 0, 0);
+    QRgb gridColor = qRgb(127, 180, 196);
     
     // Color of the window background
     QRgb bgColor = qRgb(255, 255, 255);

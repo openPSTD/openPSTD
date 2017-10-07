@@ -43,6 +43,9 @@ public:
     
     // Resets the domain's walls to be the original four non-merged walls
     void resetWalls();
+    
+    // Checks whether or not this domain overlaps with another domain
+    bool overlaps(Domain* other);
 private:
     // Domain walls
     int x0;

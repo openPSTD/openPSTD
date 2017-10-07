@@ -91,6 +91,39 @@ void Domain::resetWalls() {
 }
 
 /**
+ * Checks whether or not this domain overlaps with a given other domain.
+ * 
+ * @param other  The domain to check overlap against
+ * @return  Whether or not there is overlap between the two domains
+ */
+bool Domain::overlaps(Domain* other) {
+    // Get corner coordinates of this domain
+    int x0a = getX0();
+    int y0a = getY0();
+    int x1a = getX1();
+    int y1a = getY1();
+    
+    // Get corner coordinates of other domain
+    int x0b = other->getX0();
+    int y0b = other->getY0();
+    int x1b = other->getX1();
+    int y1b = other->getY1();
+    
+    // Check if the domains overlap in the x direction
+    bool overlapxa = ((x0a < x0b && x0b < x1a) || (x0a < x1b && x1b < x1a));
+    bool overlapxb = ((x0b < x0a && x0a < x1b) || (x0b < x1a && x1a < x1b));
+    bool overlapx = overlapxa || overlapxb;
+    
+    // Check if the domains overlap in the y direction
+    bool overlapya = ((y0a < y0b && y0b < y1a) || (y0a < y1b && y1b < y1a));
+    bool overlapyb = ((y0b < y0a && y0a < y1b) || (y0b < y1a && y1a < y1b));
+    bool overlapy = overlapya || overlapyb;
+    
+    // Return whether or not the two domains overlap
+    return (overlapx && overlapy);
+}
+
+/**
  * Updates the side of all walls.
  */
 void Domain::updateWallSides() {
