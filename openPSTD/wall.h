@@ -43,6 +43,7 @@ public:
     inline void setY1(int y1) { this->y1 = y1; }
     inline void setSide(Side side) { this->side = side; }
     inline void setAbsorption(double absorption) { this->absorption = absorption; }
+    void setDrawWallLength(bool drawWallLength) { this->drawWallLength = drawWallLength; }
     
     // Checks if two given walls need to be merged
     static bool mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge);
@@ -61,6 +62,9 @@ private:
     
     // Class instance variables
     Settings* settings;
+    
+    // Whether or not to draw the wall length text
+    bool drawWallLength;
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);

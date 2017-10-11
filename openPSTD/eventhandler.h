@@ -78,6 +78,9 @@ private:
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
+    
+    // Update method for walls' length text state
+    void updateWallTextState();
 };
 
 #endif

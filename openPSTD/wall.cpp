@@ -23,6 +23,9 @@ Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings) {
     
     // Set initial absorption coefficient
     absorption = 0;
+    
+    // Set initial wall length text state
+    drawWallLength = true;
 }
 
 /**
@@ -80,14 +83,16 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
     }
     
     // Draw the wall length text
-    drawText(
-        lengthtext,
-        midx,
-        midy - 7,
-        14,
-        qRgb(0, 0, 0),
-        pixels
-    );
+    if (drawWallLength) {
+        drawText(
+            lengthtext,
+            midx,
+            midy - 7,
+            14,
+            qRgb(0, 0, 0),
+            pixels
+        );
+    }
 }
 
 /**

@@ -218,6 +218,9 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
             model->receivers[selectedReceivers[i]].setX(newPos.x() / model->zoom);
             model->receivers[selectedReceivers[i]].setY(newPos.y() / model->zoom);
         }
+        
+        // Update the wall text states
+        updateWallTextState();
     }
     
     // Check if moving the scene
@@ -553,6 +556,9 @@ void EventHandler::addDomainStop(int x, int y) {
             if (one->overlaps(two)) overlap = true;
         }
     }
+    
+    // Update the wall text states
+    updateWallTextState();
 }
 
 /**
@@ -714,4 +720,51 @@ void EventHandler::drawText(std::string text, int x, int y, int size, QRgb color
     p.setFont(QFont("Monospace", size));
     p.drawText(x, y + size, QString(text.c_str()));
     p.end();
+}
+
+/**
+ * Updates the drawWallLength state of all walls, setting them to false if
+ * and only if that wall length text would overlap with some other wall
+ * length text.
+ */
+void EventHandler::updateWallTextState() {
+    // Reset all walls to draw the wall length text
+    std::vector<Domain> domains = model->domains;
+    for (unsigned int i = 0; i < domains.size(); i++) {
+        std::vector<Wall*>* w = domains[i].getWalls();
+        for (unsigned int j = 0; j < w->size(); j++) {
+            w->at(j)->setDrawWallLength(true);
+        }
+    }
+    
+    // Loop through all pairs of walls
+    for (unsigned int i = 0; i < domains.size(); i++) {
+        std::vector<Wall*>* ws1 = domains[i].getWalls();
+        for (unsigned int j = 0; j < ws1->size(); j++) {
+            Wall* w1 = ws1->at(j);
+            for (unsigned int k = i + 1; k < domains.size(); k++) {
+                std::vector<Wall*>* ws2 = domains[k].getWalls();
+                for (unsigned int l = 0; l < ws2->size(); l++) {
+                    Wall* w2 = ws2->at(l);
+                    
+                    // Compute the midpoints of the walls
+                    int mx1 = (w1->getX0() + w1->getX1()) / 2;
+                    int mx2 = (w2->getX0() + w2->getX1()) / 2;
+                    int my1 = (w1->getY0() + w1->getY1()) / 2;
+                    int my2 = (w2->getY0() + w2->getY1()) / 2;
+                    
+                    // Compute the distance between the midpoints
+                    int dx = std::abs(mx1 - mx2);
+                    int dy = std::abs(my1 - my2);
+                    
+                    // Check if the midpoints are too close to eachother
+                    if (dx < 5*11/model->zoom && dy < 2*18/model->zoom) {
+                        // Do not draw either of the walls' length texts
+                        w1->setDrawWallLength(false);
+                        w2->setDrawWallLength(false);
+                    }
+                }
+            }
+        }
+    }
 }
