@@ -223,6 +223,52 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         updateWallTextState();
     }
     
+    // Check if moving an entire domain
+    if (model->state == SELECT && drag && modifiers == Qt::SHIFT) {
+        // Compute the position of the mouse
+        bool clamped;
+        QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
+        
+        // Loop through all selected walls
+        std::vector<int> selectedDomains;
+        for (unsigned int i = 0; i < selectedWalls.size(); i++) {
+            // Get the domainID to move
+            int domainID = selectedWalls[i].first;
+            
+            // Add this to selectedDomains
+            if (std::find(selectedDomains.begin(), selectedDomains.end(), domainID) == selectedDomains.end()) {
+                selectedDomains.push_back(domainID);
+            }
+        }
+        
+        // Loop through all selected domains
+        for (unsigned int i = 0; i < selectedDomains.size(); i++) {
+            // Get a reference to the domain to move
+            Domain* domain = &model->domains[selectedDomains[i]];
+            
+            // Compute the width and height of the domain
+            int width = domain->getX1() - domain->getX0();
+            int height = domain->getY1() - domain->getY0();
+            
+            // Set the top-left corner of the domain to be the mouse position
+            domain->setX0(newPos.x() / model->zoom);
+            domain->setY0(newPos.y() / model->zoom);
+            domain->setX1(newPos.x() / model->zoom + width);
+            domain->setY1(newPos.y() / model->zoom + height);
+        }
+        
+        // Reset and re-merge all walls
+        for (unsigned int j = 0; j < model->domains.size(); j++) {
+            model->domains[j].resetWalls();
+        }
+        for (unsigned int j = 0; j < model->domains.size(); j++) {
+            model->domains[j].mergeDomains(&model->domains, j);
+        }
+        
+        // Update the wall text states
+        updateWallTextState();
+    }
+    
     // Check if moving the scene
     if (model->state == MOVE && drag) {
         // Update the scene offset
