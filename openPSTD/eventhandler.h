@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 #include "model.h"
 #include "state.h"
 #include "settings.h"
