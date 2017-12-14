@@ -8,8 +8,8 @@
 #include <QSpinBox>
 #include <iostream>
 #include "renderer.h"
+#include "eventlistener.h"
 #include "settings.h"
-#include "modelmanager.h"
 
 /**
  * Custom QGraphicsView widget for drawing the main frame.
@@ -17,17 +17,11 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSpinBox* sbZoom = 0);
+    explicit GraphicsView(QWidget* parent = 0, EventListener* eventlistener = 0);
     ~GraphicsView();
     
-    inline void undo() { modelmanager->undo(); }
-    inline void redo() { modelmanager->redo(); }
-    
-    inline void deleteSelected() { renderer->deleteSelected(); }
-    inline void clearSelection() { renderer->clearSelection(); }
-    
     Renderer* renderer;
-    Model* model;
+    EventListener* eventlistener;
 protected:
     void paintEvent(QPaintEvent* event);
     void resizeEvent(QResizeEvent* event);
@@ -40,8 +34,6 @@ public slots:
     void keyPressEvent(QKeyEvent* event);
 private:
     QGraphicsScene* scene;
-    ModelManager* modelmanager;
-    QSpinBox* sbZoom;
 };
 
 #endif

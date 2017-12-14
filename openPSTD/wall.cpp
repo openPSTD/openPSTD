@@ -3,224 +3,92 @@
 /**
  * Constructor.
  * 
- * @param x0  The x coordinate of the first end of the wall
- * @param y0  The y coordinate of the first end of the wall
- * @param x1  The x coordinate of the second end of the wall
- * @param y1  The y coordinate of the second end of the wall
- * @param side  The side of the domain that this wall is on
- * @param settings  A reference to a Settings instance
+ * @param line  A QLine representing the location of the wall
+ * @param side  The side of the domain this wall is on
  */
-Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings) {
-    // Save end point coordinates locally
-    this->x0 = x0;
-    this->y0 = y0;
-    this->x1 = x1;
-    this->y1 = y1;
+Wall::Wall(QLine line, Side side) {
+    // Initialize representation variables
+    this->line = line;
     this->side = side;
-    
-    // Save reference variables locally
-    this->settings = settings;
-    
-    // Set initial absorption coefficient
-    absorption = 0;
-    
-    // Set initial wall length text state
-    drawWallLength = true;
+    this->absorption = 0;
 }
 
 /**
- * Draws the length of a wall given its end points.
+ * Draws the wall to the given pixels array.
  * 
  * @param pixels  The pixels array to draw to
- * @param zoom  The current zoom level (as in model)
- * @param offsetX  The current x offset of the scene (as in model)
- * @param offsetY  The current y offset of the scene (as in model)
- * @param selected  Whether or not the wall is currently selected
+ * @throws runtime_error  If pixels is a nullptr
  */
-void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
-    // Verify that the wall is orthogonal
-    if (x0 != x1 && y0 != y1) {
-        std::cerr << "Cannot draw non-orthogonal wall length text" << std::endl;
-        return;
+void Wall::draw(QImage* pixels) {
+    // Do nothing if pixels is a nullptr
+    if (pixels == nullptr) {
+        throw new std::runtime_error("Given pixels array reference is a nullptr.");
     }
     
-    // Get the minimum and maximum x and y coordinates of the corners
-    int minx = std::min(x0, x1) * zoom + offsetX;
-    int maxx = std::max(x0, x1) * zoom + offsetX;
-    int miny = std::min(y0, y1) * zoom + offsetY;
-    int maxy = std::max(y0, y1) * zoom + offsetY;
+    // Convert the position to screen coordinates
+    QPoint p1 = Utility::obj2scr(line.p1());
+    QPoint p2 = Utility::obj2scr(line.p2());
     
-    // Draw all points on the wall
-    for (int i = minx; i <= maxx; i++) {
-        for (int j = miny; j <= maxy; j++) {
-            QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
-            if (selected) color = qRgb(0, 255, 255);
-            if (i < 0 || j < 0) continue;
-            if (i >= pixels->width() || j >= pixels->height()) continue;
-            pixels->setPixel(i, j, color);
-        }
-    }
+    // Calculate the color of the wall
+    QRgb w0 = Settings::getInstance()->wallColor0;
+    QRgb w1 = Settings::getInstance()->wallColor1;
+    QRgb color = absorption * w0 + (1-absorption) * w1;
     
-    // Compute the length of the wall
-    int length = std::abs((x1 - x0) + (y1 - y0));
-    std::string lengthtext = std::to_string(length);
-    
-    // Compute the midpoint of the wall
-    int midx = (minx + maxx) / 2;
-    int midy = (miny + maxy) / 2;
-    
-    // Update midpoint based on the wall's side
-    if (side == LEFT) {
-        midx -= 12 * lengthtext.size();
-    }
-    if (side == TOP) {
-        midx -= 5 * lengthtext.size();
-        midy -= 9;
-    }
-    if (side == BOTTOM) {
-        midx -= 5 * lengthtext.size();
-        midy += 9;
-    }
-    
-    // Draw the wall length text
-    if (drawWallLength) {
-        drawText(
-            lengthtext,
-            midx,
-            midy - 7,
-            14,
-            qRgb(0, 0, 0),
-            pixels
-        );
-    }
+    // Draw a line representing the wall
+    Utility::drawLine(
+        p1,
+        p2,
+        color,
+        pixels
+    );
 }
 
 /**
- * Checks whether or not two given walls need to be merged.
- * The algorithm implemented in this method is documented
- * in docs/Wall intersection.docx.
+ * Get method for the QLine of the wall.
  * 
- * @param one  The first wall to check with
- * @param two  The second wall to check with
- * @param toMerge  A pointer to a location to write the segment that needs to be merged
- * @return  Whether or not the two walls need to be merged
+ * @return  A pointer to the QLine of the wall
  */
-bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
-    // Get the end point coordinates of both walls
-    int p1x = one.getX0();
-    int p1y = one.getY0();
-    int p2x = one.getX1();
-    int p2y = one.getY1();
-    int p3x = two.getX0();
-    int p3y = two.getY0();
-    int p4x = two.getX1();
-    int p4y = two.getY1();
-    
-    // Check if the walls are horizontal or vertical
-    if (one.getSide() == LEFT || one.getSide() == RIGHT) {
-        // Do nothing if the walls are not parallel
-        if (two.getSide() != LEFT && two.getSide() != RIGHT) return false;
-        
-        // Do nothing if the walls do not have the same x coordinate
-        if (p1x != p3x) return false;
-        
-        // Sort points on coordinate
-        std::vector<int> original = {p1y, p2y, p3y, p4y};
-        std::vector<int> order = sort(original);
-        
-        // Check if the second segment is on both walls
-        bool o1w1 = pointOnWall(original[order[1]], p1y, p2y);
-        bool o2w1 = pointOnWall(original[order[2]], p1y, p2y);
-        bool o1w2 = pointOnWall(original[order[1]], p3y, p4y);
-        bool o2w2 = pointOnWall(original[order[2]], p3y, p4y);
-        bool s1w1 = o1w1 && o2w1;
-        bool s1w2 = o1w2 && o2w2;
-        if (s1w1 && s1w2 && original[order[1]] != original[order[2]]) {
-            // The walls intersect between o1 and o2
-            toMerge->first = std::min(original[order[1]], original[order[2]]);
-            toMerge->second = std::max(original[order[1]], original[order[2]]);
-            return true;
-        }
-        
-        // There is no intersection
-        return false;
-    } else {
-        // Do nothing if the walls are not parallel
-        if (two.getSide() != TOP && two.getSide() != BOTTOM) return false;
-        
-        // Do nothing if the walls do not have the same y coordinate
-        if (p1y != p3y) return false;
-        
-        // Sort points on coordinate
-        std::vector<int> original = {p1x, p2x, p3x, p4x};
-        std::vector<int> order = sort(original);
-        
-        // Check if the second segment is on both walls
-        bool o1w1 = pointOnWall(original[order[1]], p1x, p2x);
-        bool o2w1 = pointOnWall(original[order[2]], p1x, p2x);
-        bool o1w2 = pointOnWall(original[order[1]], p3x, p4x);
-        bool o2w2 = pointOnWall(original[order[2]], p3x, p4x);
-        bool s1w1 = o1w1 && o2w1;
-        bool s1w2 = o1w2 && o2w2;
-        if (s1w1 && s1w2 && original[order[1]] != original[order[2]]) {
-            // The walls intersect between o1 and o2
-            toMerge->first = std::min(original[order[1]], original[order[2]]);
-            toMerge->second = std::max(original[order[1]], original[order[2]]);
-            return true;
-        }
-        
-        // There is no intersection
-        return false;
-    }
+QLine* Wall::getLine() {
+    // Return a pointer to the QLine
+    return &line;
 }
 
 /**
- * Draws a string to the given pixels array.
+ * Get method for the side of the wall.
  * 
- * @param text  The text to draw
- * @param x  The x position to draw at
- * @param y  The y position to draw at
- * @param size  The font size to draw with
- * @param color  The color to draw in
- * @param pixels  The pixels array to draw to
+ * @return  The side of the wall
  */
-void Wall::drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels) {
-    QPainter p;
-    p.begin(pixels);
-    p.setPen(QPen(color));
-    p.setFont(QFont("Monospace", size));
-    p.drawText(x, y + size, QString(text.c_str()));
-    p.end();
+Side Wall::getSide() {
+    // Return the side of the wall
+    return side;
 }
 
 /**
- * Sorts a vector of integers, and returns a vector containing the indices
- * of the sorted elements in the original vector.
+ * Returns whether or not the wall is horizontal.
  * 
- * @param original  The vector of integers to sort
- * @return  A vector of indices in the original vector
+ * @return  Whether or not the wall is horizontal
  */
-std::vector<int> Wall::sort(std::vector<int> original) {
-    // Create the result vector
-    std::vector<int> result;
-    
-    // Loop while there are unsorted elements
-    while (result.size() < original.size()) {
-        // Get the minimum element in original that is not yet in result
-        int minIndex = -1;
-        int minValue = 0;
-        for (unsigned int i = 0; i < original.size(); i++) {
-            if (std::find(result.begin(), result.end(), i) != result.end()) continue;
-            if (minIndex == -1 || original[i] < minValue) {
-                minIndex = i;
-                minValue = original[i];
-            }
-        }
-        
-        // Add the index of this element to result
-        result.push_back(minIndex);
-    }
-    
-    // Return the result vector
-    return result;
+bool Wall::isHorizontal() {
+    // Return whether or not the wall is horizontal
+    return (side == TOP || side == BOTTOM);
+}
+
+/**
+ * Get method for the absorption of the wall.
+ * 
+ * @return  The absorption of the wall
+ */
+double Wall::getAbsorption() {
+    // Return the absorption of the wall
+    return absorption;
+}
+
+/**
+ * Set method for the absorption of the wall.
+ * 
+ * @param absorption  The new absorption of the wall
+ */
+void Wall::setAbsorption(double absorption) {
+    // Save the new absorption of the wall
+    this->absorption = absorption;
 }

@@ -5,31 +5,21 @@
  * Creates a new QGraphicsScene for the QGraphicsView.
  * 
  * @param parent  A reference to the parent widget
- * @param settings  A reference to the Settings instance
- * @param sbZoom  A reference to the zoom level spinbox
+ * @param eventlistener  A reference to the EventListener
  */
-GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSpinBox* sbZoom) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, EventListener* eventlistener) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
     
-    // Create a new Model instance
-    model = new Model();
-    
-    // Set initial state
-    model->state = SELECT;
-    
-    // Create a ModelManager instance
-    modelmanager = new ModelManager(model);
-    
     // Create a new Renderer
-    renderer = new Renderer(scene, model, settings, modelmanager, parent);
+    renderer = new Renderer(eventlistener->eventhandler, scene);
     
     // Enable mouse tracking
     setMouseTracking(true);
     
-    // Save the reference to the zoom level spinbox
-    this->sbZoom = sbZoom;
+    // Save reference to the EventListener instance
+    this->eventlistener = eventlistener;
 }
 
 /**
@@ -38,7 +28,6 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSpinBox* sbZoom
 GraphicsView::~GraphicsView() {
     // Delete class instance variables
     delete renderer;
-    delete model;
     delete scene;
 }
 
@@ -76,11 +65,8 @@ void GraphicsView::resizeEvent(QResizeEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mousePressEvent(QMouseEvent* event) {
-    // Get the position of the mouse
-    QPointF point = mapToScene(event->pos());
-    
-    // Delegate the event to Renderer
-    renderer->mousePress(point.x(), point.y(), event->button(), event->modifiers());
+    // Delegate the event to EventListener
+    eventlistener->mousePress(event);
 }
 
 /**
@@ -89,11 +75,8 @@ void GraphicsView::mousePressEvent(QMouseEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
-    // Get the position of the mouse
-    QPointF point = mapToScene(event->pos());
-    
-    // Delegate the event to Renderer
-    renderer->mouseRelease(point.x(), point.y(), event->button());
+    // Delegate the event to EventListener
+    eventlistener->mouseRelease(event);
 }
 
 /**
@@ -102,11 +85,8 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
-    // Get the position of the mouse
-    QPointF point = mapToScene(event->pos());
-    
-    // Delegate the event to Renderer
-    renderer->mouseDrag(point.x(), point.y(), event->buttons() == Qt::LeftButton, event->modifiers());
+    // Delegate the event to EventListener
+    eventlistener->mouseMove(event);
 }
 
 /**
@@ -115,11 +95,8 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
-    // Get the position of the mouse
-    QPointF point = mapToScene(event->pos());
-    
-    // Delegate the event to Renderer
-    renderer->doubleClick(point.x(), point.y(), event->button());
+    // Delegate the event to EventListener
+    eventlistener->doubleClick(event);
 }
 
 /**
@@ -128,16 +105,8 @@ void GraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
  * @param event  A reference to the QWheelEvent
  */
 void GraphicsView::wheelEvent(QWheelEvent* event) {
-    // Compute how much the mouse wheel was rotated
-    int delta = event->delta() / 120;
-    
-    // Update the zoom level
-    model->zoom += delta;
-    if (model->zoom < sbZoom->minimum()) model->zoom = sbZoom->minimum();
-    if (model->zoom > sbZoom->maximum()) model->zoom = sbZoom->maximum();
-    
-    // Update the value of the zoom level spinbox
-    sbZoom->setValue(model->zoom);
+    // Delegate the event to EventListener
+    eventlistener->mouseWheel(event);
 }
 
 /**
@@ -146,27 +115,6 @@ void GraphicsView::wheelEvent(QWheelEvent* event) {
  * @param event  A reference to the QKeyEvent
  */
 void GraphicsView::keyPressEvent(QKeyEvent* event) {
-    // Check for CTRL+Z
-    if (event->key() == Qt::Key_Z && event->modifiers() == Qt::ControlModifier) {
-        // Undo the last operation
-        undo();
-    }
-    
-    // Check for CTRL+SHIFT+Z
-    if (event->key() == Qt::Key_Z && event->modifiers() == Qt::ControlModifier + Qt::ShiftModifier) {
-        // Redo the last operation
-        redo();
-    }
-    
-    // Check for CTRL+Y
-    if (event->key() == Qt::Key_Y && event->modifiers() == Qt::ControlModifier) {
-        // Redo the last operation
-        redo();
-    }
-    
-    // Check for DELETE
-    if (event->key() == Qt::Key_Delete && event->modifiers() == Qt::NoModifier) {
-        // Delete the selected objects
-        deleteSelected();
-    }
+    // Delegate the event to EventListener
+    eventlistener->keyPressed(event);
 }

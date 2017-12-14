@@ -1,39 +1,67 @@
 #include "modelmanager.h"
+#include "model.h"
+#include "domain.h"
+#include "source.h"
+#include "receiver.h"
+
+ModelManager* ModelManager::instance = 0;
 
 /**
- * Constructor.
+ * Get method for the ModelManager instance.
  * 
- * @param current  A reference to the current model
+ * @return  The ModelManager instance
  */
-ModelManager::ModelManager(Model* current) {
-    // Save reference variables locally
-    this->current = current;
+ModelManager* ModelManager::getInstance() {
+    // Create a ModelManager instance if there is none yet
+    if (!instance) {
+        instance = new ModelManager();
+    }
+    
+    // Return the ModelManager instance
+    return instance;
+}
+
+/**
+ * Get method for the current Model instance.
+ * To be called through Model::getCurrent().
+ * 
+ * @return  The current Model instance
+ */
+Model* ModelManager::getCurrent() {
+    // Return the current Model
+    return current;
 }
 
 /**
  * Destructor.
  */
 ModelManager::~ModelManager() {
-    // Delete all previous models
-    for (unsigned int i = 0; i < previous.size(); i++) {
-        delete previous[i];
+    // Delete all prev models
+    for (unsigned int i = 0; i < prev.size(); i++) {
+        delete prev[i];
     }
     
     // Delete all next models
     for (unsigned int i = 0; i < next.size(); i++) {
         delete next[i];
     }
+    
+    // Delete the current Model instance
+    delete current;
+    
+    // Delete the ModelManager instance
+    delete instance;
 }
 
 /**
- * Copies the current model into the previous vector.
+ * Saves the current state of the Model to the stack.
  */
 void ModelManager::saveState() {
-    // Create a copy of the current model
-    Model* copy = copyCurrent();
+    // Copy the current Model instance
+    Model* c = copy();
     
-    // Add this copy to the end of the previous vector
-    previous.push_back(copy);
+    // Push the current Model instance to the prev stack
+    prev.push_back(c);
     
     // Clear the next vector
     for (unsigned int i = 0; i < next.size(); i++) {
@@ -43,83 +71,93 @@ void ModelManager::saveState() {
 }
 
 /**
- * Undo the last operation.
+ * Undo the last change.
  */
 void ModelManager::undo() {
-    // Do nothing if there is no previous state
-    if (previous.size() == 0) return;
+    // Do nothing if there is no prev state
+    if (prev.size() == 0) return;
     
-    // Create a copy of the current model
-    Model* copy = copyCurrent();
+    // Create a copy of the current Model
+    Model* c = copy();
     
-    // Add this copy to the end of the next vector
-    next.push_back(copy);
+    // Push the copy to the next vector
+    next.push_back(c);
     
-    // Copy the previous model into the current model
-    int index = previous.size() - 1;
-    saveCurrent(previous[index]);
+    // Copy the previous Model into the current Model
+    save(prev.back());
     
-    // Remove the previous model from the previous vector
-    delete previous[index];
-    previous.pop_back();
+    // Remove the prev Model from the prev vector
+    delete prev.back();
+    prev.pop_back();
 }
 
 /**
- * Redo the last operation.
+ * Redo the last change.
  */
 void ModelManager::redo() {
     // Do nothing if there is no next state
     if (next.size() == 0) return;
     
-    // Create a copy of the current model
-    Model* copy = copyCurrent();
+    // Create a copy of the current Model
+    Model* c = copy();
     
-    // Add this copy to the end of the previous vector
-    previous.push_back(copy);
+    // Push the copy to the prev vector
+    prev.push_back(c);
     
-    // Copy the next model into the current model
-    int index = next.size() - 1;
-    saveCurrent(next[index]);
+    // Copy the next Model into the current Model
+    save(next.back());
     
-    // Remove the next model from the next vector
-    delete next[index];
+    // Remove the next Model from the next vector
+    delete next.back();
     next.pop_back();
 }
 
 /**
- * Creates a copy of the current model.
- * 
- * @return A copy of the current model.
+ * Private constructor.
  */
-Model* ModelManager::copyCurrent() {
-    // Create a new Model instance
-    Model* copy = new Model();
-    
-    // Copy all state variables from the current model
-    copy->state = current->state;
-    copy->domains = current->domains;
-    copy->sources = current->sources;
-    copy->receivers = current->receivers;
-    copy->gridsize = current->gridsize;
-    copy->zoom = current->zoom;
-    copy->showFPS = current->showFPS;
-    
-    // Return the copy
-    return copy;
+ModelManager::ModelManager() {
+    // Create a Model instance
+    current = new Model();
 }
 
 /**
- * Saves the given model as current model
+ * Creates a copy of the current Model.
  * 
- * @param model  The model to use as current
+ * @return  A copy of the current Model
  */
-void ModelManager::saveCurrent(Model* model) {
-    // Copy all state variables from the given model to the current model
-    current->state = model->state;
-    current->domains = model->domains;
-    current->sources = model->sources;
+Model* ModelManager::copy() {
+    // Create a new Model instance
+    Model* c = new Model();
+    
+    // Copy all state variables from the current Model
+    c->state     = current->state;
+    c->domains   = current->domains;
+    c->sources   = current->sources;
+    c->receivers = current->receivers;
+    c->gridsize  = current->gridsize;
+    c->zoomlevel = current->zoomlevel;
+    c->offset    = current->offset;
+    c->showFPS   = current->showFPS;
+    c->showGrid  = current->showGrid;
+    
+    // Return the copy
+    return c;
+}
+
+/**
+ * Saves the given Model as the current Model.
+ * 
+ * @param model  The Model to save
+ */
+void ModelManager::save(Model* model) {
+    // Copy all state variables into the current Model
+    current->state     = model->state;
+    current->domains   = model->domains;
+    current->sources   = model->sources;
     current->receivers = model->receivers;
-    current->gridsize = model->gridsize;
-    current->zoom = model->zoom;
-    current->showFPS = model->showFPS;
+    current->gridsize  = model->gridsize;
+    current->zoomlevel = model->zoomlevel;
+    current->offset    = model->offset;
+    current->showFPS   = model->showFPS;
+    current->showGrid  = model->showGrid;
 }

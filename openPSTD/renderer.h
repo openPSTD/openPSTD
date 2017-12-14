@@ -2,72 +2,41 @@
 #define RENDERER_H
 
 #include <QGraphicsScene>
-#include <QSpinBox>
-#include <QPainter>
-#include <QGraphicsTextItem>
-#include <QTime>
-#include <iostream>
-#include <string>
-#include "model.h"
+#include <QImage>
 #include "eventhandler.h"
-#include "settings.h"
-#include "modelmanager.h"
-#include "grid.h"
 
 /**
- * Handles all drawing and eventhandling of the QGraphicsScene.
+ * Handles all rendering to the scene.
  */
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
+    Renderer(EventHandler* eventhandler, QGraphicsScene* scene);
     ~Renderer();
     
-    // Drawing method
+    // Draws everything to the scene
     void draw();
     
-    // Event handling methods
-    void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void mouseRelease(int x, int y, Qt::MouseButton button);
-    void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
-    void doubleClick(int x, int y, Qt::MouseButton button);
-    
-    // Set methods for private variables
-    inline void setState(State state) {
-        model->state = state;
-        if (state != MEASURE) eh->removeMeasure();
-    }
+    // Updates the dimensions of the pixels array
     void setDimensions(int width, int height);
     
-    // Delete all selected objects
-    inline void deleteSelected() { eh->deleteSelected(); }
-    inline void clearSelection() { eh->clearSelection(); }
-    void moveToCenter();
+    EventHandler* eventhandler;
 private:
-    // Class instance variables
+    // Reference variables
     QGraphicsScene* scene;
-    Model* model;
-    Settings* settings;
-    ModelManager* modelmanager;
-    QImage* pixels;
-    EventHandler* eh;
     
-    // State variables
-    int width;
-    int height;
-    QImage image;
-    QFont fpsFont;
-    QTime time;
-    int numframes;
-    int fps;
+    // Class instance variables
+    QImage* pixels;
     
     // Private drawing methods
     void drawGrid();
-    void drawCursor(int x, int y);
-    void drawZoom(int zoomaim);
-    void drawText(std::string text, int x, int y, int size, QRgb color);
-public slots:
-    void setGridSize(int gridsize) { model->gridsize = gridsize; }
+    void drawCursor();
+    void drawZoomRef();
+    void drawDomains();
+    void drawSources();
+    void drawReceivers();
+    void drawSelectionRect();
+    void drawMeasure();
 };
 
 #endif

@@ -1,87 +1,60 @@
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 
-#include <QInputDialog>
-#include <QGraphicsScene>
-#include <sstream>
-#include <iomanip>
-#include <cmath>
-#include "model.h"
-#include "state.h"
-#include "settings.h"
-#include "modelmanager.h"
-#include "grid.h"
+#include <algorithm>
+#include <QPoint>
+#include <QRect>
+#include <QLine>
+#include "domain.h"
+#include "wall.h"
 #include "source.h"
+#include "receiver.h"
+#include "modelmanager.h"
 
 /**
- * Event handling class.
- * Receives mouse and keyboard events from Renderer,
- * and determines what to do.
+ * Executes specific functions after a received event
+ * from EventListener.
  */
 class EventHandler {
 public:
-    // Constructor
-    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
+    // Constructor, destructor
+    EventHandler();
     
-    // Public event handling methods
-    void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void mouseRelease(int x, int y, Qt::MouseButton button);
-    void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
-    void doubleClick(int x, int y, Qt::MouseButton button);
-    
-    // Get method for current mouse position
-    QPoint getMousePos() { return QPoint(mouseX, mouseY); }
-    
-    // Get methods for selected objects
-    bool isSourceSelected(unsigned int i);
-    bool isReceiverSelected(unsigned int i);
-    std::vector<unsigned int> getSelectedWalls(unsigned int domainID);
-    
-    // Drawing methods
-    void drawSelection(QImage* pixels);
-    void drawMeasure(QImage* pixels);
-    void drawOverlap(QImage* pixels);
-    
-    // Deletes all selected objects
+    // Event handling methods
+    void startDomain(QPoint pos);
+    void stopDomain(QPoint pos);
+    void startSelection(QPoint pos);
+    void stopSelection(QPoint pos);
     void deleteSelected();
     void clearSelection();
-    inline void removeMeasure() { measuring = false; }
+    void moveObject(QPoint pos);
+    void editProperties(QPoint pos);
+    void setState(State state);
+    
+    // Get methods for state variables
+    QPoint getMousePos();
+    QRect getSelection();
+    QLine getMeasure();
+    
+    // Set methods for state variables
+    void setMousePos(QPoint pos);
 private:
-    // Class instance variables
-    Model* model;
-    Settings* settings;
-    ModelManager* modelmanager;
-    QWidget* parent;
+    // Private event handling methods
+    void moveDomain(Domain* domain, QPoint pos);
+    void moveWall(Wall* wall, QPoint pos);
+    void moveSource(Source* source, QPoint pos);
+    void moveReceiver(Receiver* receiver, QPoint pos);
     
     // State variables
-    bool addingDomain;
-    int mouseX;
-    int mouseY;
-    int moveSceneX;
-    int moveSceneY;
-    std::pair<int, int> selectStart;
-    std::pair<int, int> selectEnd;
+    QPoint mousePos;
+    QRect selection;
     bool selecting;
-    std::vector<std::pair<unsigned int, unsigned int>> selectedWalls;
-    std::vector<unsigned int> selectedSources;
-    std::vector<unsigned int> selectedReceivers;
-    std::pair<int, int> measureStart;
-    std::pair<int, int> measureEnd;
+    std::vector<int> selectedDomains;
+    std::vector<std::pair<int, int>> selectedWalls;
+    std::vector<int> selectedSources;
+    std::vector<int> selectedReceivers;
+    QLine measure;
     bool measuring;
-    bool overlap;
-    
-    // Private event handling methods
-    void addDomainStart(int x, int y);
-    void addDomainStop(int x, int y);
-    void addSource(int x, int y);
-    void addReceiver(int x, int y);
-    void select(bool ctrl);
-    
-    // Private drawing methods
-    void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
-    
-    // Update method for walls' length text state
-    void updateWallTextState();
 };
 
 #endif

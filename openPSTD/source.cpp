@@ -1,86 +1,59 @@
 #include "source.h"
+#include "model.h"
 
 /**
  * Constructor.
  * 
- * @param x  The x coordinate of the source
- * @param y  The y coordinate of the source
- * @param settings  A reference to the Settings instance
+ * @param pos  The position of the source (object coordinates)
  */
-Source::Source(int x, int y, Settings* settings) {
-    // Save position locally
-    this->x = x;
-    this->y = y;
-    
-    // Save reference variables locally
-    this->settings = settings;
+Source::Source(QPoint pos) {
+    // Save the position of the source locally
+    this->pos = pos;
 }
 
 /**
- * Draws the source.
+ * Draws the source to the given pixels array.
  * 
  * @param pixels  The pixels array to draw to
- * @param zoom  The current zoom level (as in model)
- * @param offsetX  The current x offset of the scene (as in model)
- * @param offsetY  The current y offset of the scene (as in model)
- * @param selected  Whether or not the source is currently selected
+ * @throws runtime_error  If pixels is a nullptr
  */
-void Source::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
-    // Draw a square representing the source
-    int d = 2;
-    for (int i = -d; i <= d; i++) {
-        for (int j = -d; j <= d; j++) {
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y + j + offsetY,
-                settings->sourceColor,
-                pixels
-            );
-        }
+void Source::draw(QImage* pixels) {
+    // Do nothing if pixels is a nullptr
+    if (pixels == nullptr) {
+        throw new std::runtime_error("Given pixels array reference is a nullptr.");
     }
     
-    // Check if this source is selected
-    if (selected) {
-        // Draw a square around the source
-        for (int i = -5; i <= 5; i++) {
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y + 5 + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y - 5 + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-            setPixel(
-                zoom * x + 5 + offsetX,
-                zoom * y + i + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-            setPixel(
-                zoom * x - 5 + offsetX,
-                zoom * y + i + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-        }
-    }
+    // Get a reference to the Model instance
+    Model* model = Model::getInstance();
+    
+    // Convert the position to screen coordinates
+    QPoint p = Utility::obj2scr(pos);
+    
+    // Draw a square representing the source
+    int d = 2;
+    Utility::drawRect(
+        QRect(p - QPoint(d, d), p + QPoint(d, d)),
+        Settings::getInstance()->sourceColor,
+        pixels
+    );
 }
 
 /**
- * Sets a single pixel's color.
+ * Get method for the position of the source.
  * 
- * @param x  The x coordinate of the pixel
- * @param y  The y coordinate of the pixel
- * @param color  The color to give the pixel
- * @param pixels  A pixels array to draw to
+ * @return  The position of the source (object coordinates)
  */
-void Source::setPixel(int x, int y, QRgb color, QImage* pixels) {
-    if (x < 0 || y < 0) return;
-    if (x >= pixels->width() || y >= pixels->height()) return;
-    pixels->setPixel(x, y, color);
+QPoint Source::getPos() {
+    // Return the position of the source
+    return pos;
+}
+
+/**
+ * Set method for the position of the source.
+ * 
+ * @param pos  The position of the source (object coordinates)
+ */
+void Source::setPos(QPoint pos) {
+    // Update the position of the source
+    this->pos = pos;
 }

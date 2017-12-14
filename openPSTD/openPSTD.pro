@@ -28,44 +28,50 @@ SOURCES += \
         main.cpp \
         window.cpp \
     graphicsview.cpp \
+    test/testgrid.cpp \
     renderer.cpp \
+    model.cpp \
+    settings.cpp \
     eventhandler.cpp \
+    eventlistener.cpp \
+    grid.cpp \
     domain.cpp \
-    test/testmaintoolbar.cpp \
-    test/testmenuview.cpp \
-    test/testmodel.cpp \
     wall.cpp \
-    test/testadddomain.cpp \
-    test/testmenuscene.cpp \
     source.cpp \
-    test/testaddsource.cpp \
+    test/testsource.cpp \
+    utility.cpp \
+    test/testutility.cpp \
+    test/testreceiver.cpp \
     receiver.cpp \
-    test/testaddreceiver.cpp \
+    test/testwall.cpp \
     modelmanager.cpp \
-    test/testundoredo.cpp
+    test/testmodelmanager.cpp \
+    test/testdomain.cpp \
+    test/testeventhandler.cpp
 
 HEADERS += \
         window.h \
     graphicsview.h \
-    renderer.h \
-    state.h \
+    eventlistener.h \
     eventhandler.h \
-    domain.h \
-    model.h \
-    settings.h \
-    test/testmaintoolbar.h \
-    test/testmenuview.h \
-    test/testmodel.h \
-    grid.h \
-    wall.h \
-    test/testadddomain.h \
-    test/testmenuscene.h \
-    source.h \
-    test/testaddsource.h \
-    receiver.h \
-    test/testaddreceiver.h \
     modelmanager.h \
-    test/testundoredo.h
+    model.h \
+    domain.h \
+    source.h \
+    receiver.h \
+    wall.h \
+    renderer.h \
+    settings.h \
+    grid.h \
+    test/testgrid.h \
+    test/testsource.h \
+    utility.h \
+    test/testutility.h \
+    test/testreceiver.h \
+    test/testwall.h \
+    test/testmodelmanager.h \
+    test/testdomain.h \
+    test/testeventhandler.h
 
 FORMS += \
         window.ui

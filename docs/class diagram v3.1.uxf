@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Window</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>10</x>
+      <y>60</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>GraphicsView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>350</x>
+      <y>10</y>
+      <w>310</w>
+      <h>320</h>
+    </coordinates>
+    <panel_attributes>Renderer
+-
++Renderer(
+        EventHandler* eventhandler,
+        QGraphicsScene* scene
+)
++void draw()
++void setDimensions(int width, int height)
+-
+-QGraphicsScene* scene
+-EventHandler* eventhandler
+-QImage* pixels
+-void drawGrid()
+-void drawCursor()
+-void drawZoomRef()
+-void drawDomains()
+-void drawSources()
+-void drawReceivers()
+-void drawSelectionRect()
+-void drawMeasure()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>780</x>
+      <y>620</y>
+      <w>220</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>Model
+-
++Model()
+_+Model* getInstance()_
++State state
++vector&lt;Domain&gt; domains
++vector&lt;Source&gt; sources
++vector&lt;Receiver&gt; receivers
++uint gridsize
++uint zoom
++QPoint offset
++bool showFPS
++bool showGrid
++enum State</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>350</x>
+      <y>730</y>
+      <w>230</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>ModelManager
+-
++ModelManager* getInstance()
++Model* getCurrent()
++void saveState()
++void undo()
++void redo()
+-
+-ModelManager()
+-ModelManager* instance
+-Model* current
+-vector&lt;Model*&gt; prev
+-vector&lt;Model*&gt; next
+-Model* copy()
+-void save(Model* model)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>750</x>
+      <y>350</y>
+      <w>210</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>Domain
+-
++Domain(QRect rect)
++void draw(QImage* pixels)
++QRect* getRect()
++vector&lt;Wall&gt;* getWalls()
++void recalcWalls()
+-
+-QRect rect
+-vector&lt;Wall&gt; walls</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1020</x>
+      <y>620</y>
+      <w>210</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Source
+-
++Source(QPoint pos)
++void draw(QImage* pixels)
++QPoint getPos()
++void setPos(QPoint pos)
+-
+-QPoint pos</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>980</x>
+      <y>430</y>
+      <w>210</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Receiver
+-
++Receiver(QPoint pos)
++void draw(QImage* pixels)
++QPoint getPos()
++void setPos(QPoint pos)
+-
+-QPoint pos</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>750</x>
+      <y>110</y>
+      <w>230</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>Wall
+-
++Wall(QLine line, Side side)
++void draw(QImage* pixels)
++QLine* getLine()
++Side getSide()
++bool isHorizontal()
++double getAbsorption()
++void setAbsorption(double a)
++enum Side
+-
+-QLine line
+-Side side
+-double absorption</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1240</x>
+      <y>10</y>
+      <w>230</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>Grid
+-
+_+bool isOnGrid(QPoint p)_
+_+bool clamp(QPoint* p)_
+_+bool clampGrid(QPoint* pos)_
+_+bool clampWalls(QPoint* pos)_
+-
+__QPoint clampWall(_
+_        Wall wall,_
+_        QPoint pos_
+_)_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1280</x>
+      <y>200</y>
+      <w>190</w>
+      <h>250</h>
+    </coordinates>
+    <panel_attributes>Settings
+-
+_+Settings* getInstance()_
++QRgb backgroundColor
++QRgb gridColor
++QRgb zoomRefColor
++QRgb fpsColor
++QRgb wallColor0
++QRgb wallColor1
++QRgb sourceColor
++QRgb receiverColor
++uint clampDist
++uint pstdGridSize
+-
+-Settings()
+_-Settings* instance_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>10</x>
+      <y>350</y>
+      <w>320</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>EventListener
+-
++EventListener()
++void mousePress(QMouseEvent* event)
++void mouseMove(QMouseEvent* event)
++void mouseRelease(QMouseEvent* event)
++void doubleClick(QMouseEvent* event)
++void mouseWheel(QWheelEvent* event)
++void keyPressed(QKeyEvent* event)
++void action(Action action)
++EventHandler* eventhandler
++enum Action</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>350</x>
+      <y>350</y>
+      <w>380</w>
+      <h>350</h>
+    </coordinates>
+    <panel_attributes>EventHandler
+-
++EventHandler()
++void startSelection(QPoint pos)
++void stopSelection(QPoint pos)
++void deleteSelected()
++void clearSelection()
++void moveObject(QPoint pos)
++void editProperties(QPoint pos)
++void setState(State state)
++QPoint getMousePos()
++QRect getSelection()
++QLine getMeasure()
++void setMousePos(QPoint pos)
+-
+-void moveDomain(Domain* domain, QPoint pos)
+-void moveWall(Wall* wall, QPoint pos)
+-void moveSource(Source* source, QPoint pos)
+-void moveReceiver(Receiver* receiver, QPoint pos)
+-QPoint mousePos
+-QRect selection
+-QLine measure</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1440</x>
+      <y>10</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=yellow
+1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>620</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=green
+3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1260</x>
+      <y>470</y>
+      <w>210</w>
+      <h>400</h>
+    </coordinates>
+    <panel_attributes>Utility
+-
+_+void drawPixel(_
+_        QPoint pos,_
+_        QRgb color,_
+_        QImage* pixels_
+_)_
+_+void drawLine(_
+_        QPoint p1,_
+_        QPoint p2,_
+_        QRgb color,_
+_        QImage* pixels_
+_)_
+_+void drawRect(_
+_        QRect rect,_
+_        QRgb color,_
+_        QImage* pixels_
+_)_
+_+QPoint scr2obj(_
+_        QPoint pos_
+_)_
+_+QPoint obj2scr(_
+_        QPoint pos_
+_)_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>50</x>
+      <y>30</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>100</x>
+      <y>70</y>
+      <w>270</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>250.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>50</x>
+      <y>80</y>
+      <w>30</w>
+      <h>290</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;270.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>320</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>380</y>
+      <w>50</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>30.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>690</y>
+      <w>30</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>760</y>
+      <w>230</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>210.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>820</x>
+      <y>500</y>
+      <w>30</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>940</x>
+      <y>540</y>
+      <w>120</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>100.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>820</x>
+      <y>320</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>990</x>
+      <y>650</y>
+      <w>50</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>30.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1440</x>
+      <y>470</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=green
+3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1160</x>
+      <y>430</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=green
+3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1070</x>
+      <y>780</y>
+      <w>130</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>style=wordwrap
+1: Header done
+2: Tested
+3: Implemented</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>550</x>
+      <y>730</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=green
+3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>950</x>
+      <y>110</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=green
+3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>350</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=yellow
+2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>700</x>
+      <y>350</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=yellow
+2</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

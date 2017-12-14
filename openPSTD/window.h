@@ -12,9 +12,10 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <fstream>
-#include "renderer.h"
-#include "graphicsview.h"
 #include "ui_window.h"
+#include "settings.h"
+#include "graphicsview.h"
+#include "modelmanager.h"
 
 namespace Ui {
 class Window;
@@ -27,6 +28,7 @@ public:
     Ui::Window* ui;
     GraphicsView* view;
     Settings* settings;
+    Renderer* renderer;
     ~Window();
     
     QSpinBox* sbGridSize;
@@ -38,6 +40,7 @@ private:
     QLabel* lGridSize;
     QLabel* lZoom;
     QActionGroup* qagMainToolbar;
+    EventListener* eventlistener;
     
     // Creates a QPixmap of a single given color
     inline QPixmap color2pixmap(QRgb color) {
@@ -48,8 +51,8 @@ private:
 
 public slots:
     // Toolbar button slots
-    inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
-    inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
+    inline void slot_gridsize(int gridsize) { /* TODO */ }
+    inline void slot_zoom(int zoom) { /* TOTO */ }
     
     // Settings menu slots
     void slot_gridcolor();
@@ -70,15 +73,15 @@ public slots:
     void slot_grid();
     
     // Operate menu slots
-    inline void slot_select() { view->renderer->setState(SELECT); }
-    inline void slot_move() { view->renderer->setState(MOVE); }
-    inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
-    inline void slot_addsource() { view->renderer->setState(ADDSOURCE); }
-    inline void slot_addreceiver() { view->renderer->setState(ADDRECEIVER); }
-    inline void slot_measure() { view->renderer->setState(MEASURE); }
-    inline void slot_undo() { view->undo(); }
-    inline void slot_redo() { view->redo(); }
-    inline void slot_movetocenter() { view->renderer->moveToCenter(); }
+    inline void slot_select() { eventlistener->action(A_SELECT); }
+    inline void slot_move() { eventlistener->action(A_MOVESCENE); }
+    inline void slot_adddomain() { eventlistener->action(A_ADDDOMAIN); }
+    inline void slot_addsource() { eventlistener->action(A_ADDSOURCE); }
+    inline void slot_addreceiver() { eventlistener->action(A_ADDRECEIVER); }
+    inline void slot_measure() { eventlistener->action(A_MEASURE); }
+    inline void slot_undo() { eventlistener->action(A_UNDO); }
+    inline void slot_redo() { eventlistener->action(A_REDO); }
+    inline void slot_movetocenter() { eventlistener->action(A_CENTERSCENE); }
     
     // About menu slots
     void slot_changelog();

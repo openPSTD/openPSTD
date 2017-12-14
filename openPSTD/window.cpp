@@ -15,17 +15,17 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->mainToolBar->addWidget(spacer);
     
-    // Create a settings instance
-    settings = new Settings();
+    // Create a new EventListener instance
+    eventlistener = new EventListener();
     
     // Create a GraphicsView for the main frame
     sbZoom = new QSpinBox();
-    view = new GraphicsView(this, settings, sbZoom);
+    view = new GraphicsView(this, eventlistener);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
     // Set initial model variables
-    view->model->showFPS = ui->actionFPS_counter->isChecked();
+    Model::getInstance()->showFPS = ui->actionFPS_counter->isChecked();
     
     // Add a label for the zoom level spinbox
     lZoom = new QLabel();
@@ -38,7 +38,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     sbZoom->setMaximum(100);
     sbZoom->setValue(5);
     sbZoom->setToolTip("In pixels / m");
-    view->model->zoom = 5;
+    Model::getInstance()->zoomlevel = 5;
     ui->mainToolBar->addWidget(sbZoom);
     connect(sbZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
     
@@ -53,27 +53,26 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(lGridSize);
     
     // Create a QSpinBox for the grid size
+    Settings* settings = Settings::getInstance();
     sbGridSize = new QSpinBox();
     sbGridSize->setMinimum(settings->pstdGridSize);
     sbGridSize->setMaximum(10*settings->pstdGridSize);
     sbGridSize->setSingleStep(settings->pstdGridSize);
     sbGridSize->setValue(settings->pstdGridSize);
     sbGridSize->setToolTip("In m");
-    view->renderer->setGridSize(settings->pstdGridSize);
     ui->mainToolBar->addWidget(sbGridSize);
     connect(sbGridSize, SIGNAL(valueChanged(int)), this, SLOT(slot_gridsize(int)));
     
     // Set initial scene offset
-    view->model->offsetX = 0;
-    view->model->offsetY = 0;
+    Model::getInstance()->offset = QPoint(0, 0);
     
     // Set action icons in settings menu
-    ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
-    ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
-    ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
-    ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
-    ui->actionSource_color->setIcon(QIcon(color2pixmap(settings->sourceColor)));
-    ui->actionReceiver_color->setIcon(QIcon(color2pixmap(settings->receiverColor)));
+    ui->actionGrid_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->gridColor)));
+    ui->actionBackground_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->backgroundColor)));
+    ui->actionZoom_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->zoomRefColor)));
+    ui->actionFPS_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->fpsColor)));
+    ui->actionSource_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->sourceColor)));
+    ui->actionReceiver_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->receiverColor)));
     
     // Center main window on screen
     QDesktopWidget* desktop = QApplication::desktop();
@@ -130,11 +129,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
  */
 Window::~Window() {
     // Delete class instance variables
-    delete settings;
+    delete eventlistener;
     delete qagMainToolbar;
-    delete sbGridSize;
-    delete view;
     delete lGridSize;
+    delete lZoom;
+    delete view;
+    delete sbZoom;
     delete spacer;
     delete ui;
 }
@@ -146,7 +146,7 @@ Window::~Window() {
  */
 void Window::paintEvent(QPaintEvent* event) {
     QMainWindow::paintEvent(event);
-    view->renderer->draw();
+    renderer->draw();
 }
 
 /**
@@ -154,7 +154,7 @@ void Window::paintEvent(QPaintEvent* event) {
  * Opens a color picker dialog and saves the new color.
  */
 void Window::slot_gridcolor() {
-    QColor color = QColorDialog::getColor(settings->gridColor, this, "Choose a grid color");
+    QColor color = QColorDialog::getColor(Settings::getInstance()->gridColor, this, "Choose a grid color");
     if (color.isValid()) settings->gridColor = color.rgb();
     ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
 }
@@ -164,9 +164,9 @@ void Window::slot_gridcolor() {
  * Opens a color picker dialog and saves the new color.
  */
 void Window::slot_bgcolor() {
-    QColor color = QColorDialog::getColor(settings->bgColor, this, "Choose a background color");
-    if (color.isValid()) settings->bgColor = color.rgb();
-    ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
+    QColor color = QColorDialog::getColor(Settings::getInstance()->backgroundColor, this, "Choose a background color");
+    if (color.isValid()) Settings::getInstance()->backgroundColor = color.rgb();
+    ui->actionBackground_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->backgroundColor)));
 }
 
 /**
@@ -174,9 +174,9 @@ void Window::slot_bgcolor() {
  * Opens a color picker dialog and saves the new color.
  */
 void Window::slot_zoomcolor() {
-    QColor color = QColorDialog::getColor(settings->zoomColor, this, "Choose a zoom color");
-    if (color.isValid()) settings->zoomColor = color.rgb();
-    ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
+    QColor color = QColorDialog::getColor(Settings::getInstance()->zoomRefColor, this, "Choose a zoom color");
+    if (color.isValid()) Settings::getInstance()->zoomRefColor = color.rgb();
+    ui->actionZoom_color->setIcon(QIcon(color2pixmap(Settings::getInstance()->zoomRefColor)));
 }
 
 /**
@@ -236,11 +236,10 @@ void Window::slot_pstdgridsize() {
     );
     settings->pstdGridSize = pstdgridsize;
     
-    sbGridSize->setMinimum(settings->pstdGridSize);
-    sbGridSize->setMaximum(10*settings->pstdGridSize);
-    sbGridSize->setSingleStep(settings->pstdGridSize);
-    sbGridSize->setValue(settings->pstdGridSize);
-    view->renderer->setGridSize(settings->pstdGridSize);
+    sbGridSize->setMinimum(Settings::getInstance()->pstdGridSize);
+    sbGridSize->setMaximum(10*Settings::getInstance()->pstdGridSize);
+    sbGridSize->setSingleStep(Settings::getInstance()->pstdGridSize);
+    sbGridSize->setValue(Settings::getInstance()->pstdGridSize);
 }
 
 /**
@@ -249,16 +248,16 @@ void Window::slot_pstdgridsize() {
  */
 void Window::slot_clearscene() {
     // Delete all domains
-    view->model->domains.clear();
+    Model::getInstance()->domains.clear();
     
     // Delete all sources
-    view->model->sources.clear();
+    Model::getInstance()->sources.clear();
     
     // Delete all receivers
-    view->model->receivers.clear();
+    Model::getInstance()->receivers.clear();
     
     // Clear the selected objects vector
-    view->clearSelection();
+    eventlistener->eventhandler->clearSelection();
 }
 
 /**
@@ -267,7 +266,7 @@ void Window::slot_clearscene() {
  */
 void Window::slot_deleteselected() {
     // Delete all selected objects
-    view->deleteSelected();
+    eventlistener->eventhandler->deleteSelected();
 }
 
 /**
@@ -275,8 +274,8 @@ void Window::slot_deleteselected() {
  * Toggles the display of the on-screen FPS counter.
  */
 void Window::slot_fpscounter() {
-    view->model->showFPS = ui->actionFPS_counter->isChecked();
-    ui->actionFPS_color->setEnabled(view->model->showFPS);
+    Model::getInstance()->showFPS = ui->actionFPS_counter->isChecked();
+    ui->actionFPS_color->setEnabled(Model::getInstance()->showFPS);
 }
 
 /**
@@ -284,7 +283,7 @@ void Window::slot_fpscounter() {
  * Toggles the display of the grid.
  */
 void Window::slot_grid() {
-    view->model->showGrid = ui->actionGrid->isChecked();
+    Model::getInstance()->showGrid = ui->actionGrid->isChecked();
 }
 
 /**

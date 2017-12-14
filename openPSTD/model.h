@@ -2,49 +2,62 @@
 #define MODEL_H
 
 #include <vector>
-#include <math.h>
-#include "state.h"
-#include "domain.h"
-#include "source.h"
-#include "receiver.h"
-#include "settings.h"
+#include <QPoint>
+#include "modelmanager.h"
+
+class Domain;
+class Source;
+class Receiver;
+
+// State enum
+enum State {
+    SELECT,
+    SELECTDOMAIN,
+    MOVESCENE,
+    ADDDOMAIN,
+    ADDSOURCE,
+    ADDRECEIVER,
+    MEASURE
+};
 
 /**
  * Representation of the current scene.
  */
 class Model {
 public:
-    // Constructor
-    Model() {}
+    // Constructor, destructor
+    Model();
+    ~Model();
     
-    // State of the main tool bar buttons
+    // Get method for current Model instance
+    static Model* getInstance();
+    
+    // Current state of the toolbar buttons
     State state;
     
     // Vector of all domains
-    std::vector<Domain> domains;
-    Domain* lastDomain() { return &domains[domains.size() - 1]; }
+    std::vector<Domain*> domains;
     
     // Vector of all sources
-    std::vector<Source> sources;
+    std::vector<Source*> sources;
     
     // Vector of all receivers
-    std::vector<Receiver> receivers;
+    std::vector<Receiver*> receivers;
     
-    // Size of the background grid
-    int gridsize; // Multiple of PSTD grid size
+    // Size of the background grid (as a multiple of the PSTD grid size in mm)
+    unsigned int gridsize;
     
-    // Zoom level
-    int zoom; // In pixels / m
+    // Zoom level (in mm / pixel)
+    unsigned int zoomlevel;
     
-    // Scene offset
-    int offsetX; // In pixels
-    int offsetY; // In pixels
+    // Offset of the scene (in mm)
+    QPoint offset;
     
-    // FPS counter
-    bool showFPS = false;
+    // Whether or not to draw the current FPS
+    bool showFPS;
     
-    // Grid
-    bool showGrid = true;
+    // Whether or not to draw the background grid
+    bool showGrid;
 };
 
 #endif
