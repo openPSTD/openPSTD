@@ -75,13 +75,6 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionGrid_color"/>
-    <addaction name="actionBackground_color"/>
-    <addaction name="actionZoom_color"/>
-    <addaction name="actionFPS_color"/>
-    <addaction name="actionSource_color"/>
-    <addaction name="actionReceiver_color"/>
-    <addaction name="separator"/>
     <addaction name="actionClamp_distance"/>
     <addaction name="actionPSTD_grid_size"/>
    </widget>

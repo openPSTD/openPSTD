@@ -404,10 +404,10 @@ void EventHandler::drawMeasure(QImage* pixels) {
     if (!measuring) return;
     
     // Get the measure line coordinates
-    int x0 = measureStart.first;
-    int x1 = measureEnd.first;
-    int y0 = measureStart.second;
-    int y1 = measureEnd.second;
+    int x0 = measureStart.first  + model->offsetX;
+    int x1 = measureEnd.first    + model->offsetX;
+    int y0 = measureStart.second + model->offsetY;
+    int y1 = measureEnd.second   + model->offsetY;
     
     // Loop through all points on the line
     for (int t = 0; t < 1000; t++) {

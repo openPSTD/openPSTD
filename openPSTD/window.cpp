@@ -19,8 +19,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     settings = new Settings();
     
     // Create a GraphicsView for the main frame
-    sbZoom = new QSpinBox();
-    view = new GraphicsView(this, settings, sbZoom);
+    slZoom = new QSlider(Qt::Horizontal);
+    view = new GraphicsView(this, settings, slZoom);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -34,13 +34,13 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(lZoom);
     
     // Create a QSpinBox for the zoom level
-    sbZoom->setMinimum(1);
-    sbZoom->setMaximum(100);
-    sbZoom->setValue(5);
-    sbZoom->setToolTip("In pixels / m");
+    slZoom->setMinimum(1);
+    slZoom->setMaximum(100);
+    slZoom->setValue(5);
+    slZoom->setFixedWidth(100);
     view->model->zoom = 5;
-    ui->mainToolBar->addWidget(sbZoom);
-    connect(sbZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
+    ui->mainToolBar->addWidget(slZoom);
+    connect(slZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
     
     QWidget* w = new QWidget();
     w->setFixedWidth(20);
@@ -93,12 +93,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     qagMainToolbar->setExclusive(true);
     
     // Connect actions in settings menu
-    connect(ui->actionGrid_color, SIGNAL(triggered(bool)), this, SLOT(slot_gridcolor()));
-    connect(ui->actionBackground_color, SIGNAL(triggered(bool)), this, SLOT(slot_bgcolor()));
-    connect(ui->actionZoom_color, SIGNAL(triggered(bool)), this, SLOT(slot_zoomcolor()));
-    connect(ui->actionFPS_color, SIGNAL(triggered(bool)), this, SLOT(slot_fpscolor()));
-    connect(ui->actionSource_color, SIGNAL(triggered(bool)), this, SLOT(slot_sourcecolor()));
-    connect(ui->actionReceiver_color, SIGNAL(triggered(bool)), this, SLOT(slot_receivercolor()));
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
     connect(ui->actionPSTD_grid_size, SIGNAL(triggered(bool)), this, SLOT(slot_pstdgridsize()));
     
@@ -147,66 +141,6 @@ Window::~Window() {
 void Window::paintEvent(QPaintEvent* event) {
     QMainWindow::paintEvent(event);
     view->renderer->draw();
-}
-
-/**
- * Callback method for the grid color action in the settings menu.
- * Opens a color picker dialog and saves the new color.
- */
-void Window::slot_gridcolor() {
-    QColor color = QColorDialog::getColor(settings->gridColor, this, "Choose a grid color");
-    if (color.isValid()) settings->gridColor = color.rgb();
-    ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
-}
-
-/**
- * Callback method for the background color action in the settings menu.
- * Opens a color picker dialog and saves the new color.
- */
-void Window::slot_bgcolor() {
-    QColor color = QColorDialog::getColor(settings->bgColor, this, "Choose a background color");
-    if (color.isValid()) settings->bgColor = color.rgb();
-    ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
-}
-
-/**
- * Callback method for the zoom color action in the settings menu.
- * Opens a color picker dialog and saves the new color.
- */
-void Window::slot_zoomcolor() {
-    QColor color = QColorDialog::getColor(settings->zoomColor, this, "Choose a zoom color");
-    if (color.isValid()) settings->zoomColor = color.rgb();
-    ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
-}
-
-/**
- * Callback method for the fps color action in the settings menu.
- * Opens a color picker dialog and saves the new color.
- */
-void Window::slot_fpscolor() {
-    QColor color = QColorDialog::getColor(settings->fpsColor, this, "Choose an FPS color");
-    if (color.isValid()) settings->fpsColor = color.rgb();
-    ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
-}
-
-/**
- * Callback method for the source color action in the settings menu.
- * Opens a color picker dialog and saves the new color.
- */
-void Window::slot_sourcecolor() {
-    QColor color = QColorDialog::getColor(settings->sourceColor, this, "Choose a source color");
-    if (color.isValid()) settings->sourceColor = color.rgb();
-    ui->actionSource_color->setIcon(QIcon(color2pixmap(settings->sourceColor)));
-}
-
-/**
- * Callback method for the receiver color action in the settings menu.
- * Opens a color picker dialog and saves the new color.
- */
-void Window::slot_receivercolor() {
-    QColor color = QColorDialog::getColor(settings->receiverColor, this, "Choose a receiver color");
-    if (color.isValid()) settings->receiverColor = color.rgb();
-    ui->actionReceiver_color->setIcon(QIcon(color2pixmap(settings->receiverColor)));
 }
 
 /**

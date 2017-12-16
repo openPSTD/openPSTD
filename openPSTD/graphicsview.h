@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QSpinBox>
+#include <QSlider>
 #include <iostream>
 #include "renderer.h"
 #include "settings.h"
@@ -17,7 +18,7 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSpinBox* sbZoom = 0);
+    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSlider* slZoom = 0);
     ~GraphicsView();
     
     inline void undo() { modelmanager->undo(); }
@@ -41,7 +42,7 @@ public slots:
 private:
     QGraphicsScene* scene;
     ModelManager* modelmanager;
-    QSpinBox* sbZoom;
+    QSlider* slZoom;
 };
 
 #endif

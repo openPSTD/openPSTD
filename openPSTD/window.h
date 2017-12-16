@@ -30,7 +30,7 @@ public:
     ~Window();
     
     QSpinBox* sbGridSize;
-    QSpinBox* sbZoom;
+    QSlider* slZoom;
 protected:
     void paintEvent(QPaintEvent* event);
 private:
@@ -52,12 +52,6 @@ public slots:
     inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
     
     // Settings menu slots
-    void slot_gridcolor();
-    void slot_bgcolor();
-    void slot_zoomcolor();
-    void slot_fpscolor();
-    void slot_sourcecolor();
-    void slot_receivercolor();
     void slot_clampdist();
     void slot_pstdgridsize();
     
