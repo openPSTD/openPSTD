@@ -80,7 +80,7 @@ private:
     void addDomainStop(int x, int y);
     void addSource(int x, int y);
     void addReceiver(int x, int y);
-    void select(bool ctrl);
+    void select(bool ctrl, bool deselect);
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);

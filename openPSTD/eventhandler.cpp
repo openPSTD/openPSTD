@@ -44,7 +44,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         selectEnd.second = y;
         
         // Select any objects at the clicked position
-        select(modifiers == Qt::CTRL);
+        select(modifiers == Qt::CTRL, true);
     }
     
     // Check if moving the scene
@@ -152,7 +152,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         selectEnd.first = x;
         selectEnd.second = y;
         selecting = true;
-        select(modifiers == Qt::CTRL);
+        select(modifiers == Qt::CTRL, false);
     }
     
     // Check if moving objects
@@ -653,8 +653,9 @@ void EventHandler::addReceiver(int x, int y) {
  * Selects all walls, sources, and receivers within the selection rectangle.
  * 
  * @param ctrl  Whether or not the ctrl key is pressed
+ * @param deselect  Whether or not deselecting objects should be possible
  */
-void EventHandler::select(bool ctrl) {
+void EventHandler::select(bool ctrl, bool deselect) {
     // Get selecting rectangle coordinates
     int x0 = std::min(selectStart.first, selectEnd.first);
     int x1 = std::max(selectStart.first, selectEnd.first);
@@ -700,13 +701,34 @@ void EventHandler::select(bool ctrl) {
             // Check if this wall is in the selecting rectangle
             if (side == LEFT || side == RIGHT) {
                 if (x0 <= wx0 && wx0 <= x1 && y0 <= wy1 && wy0 <= y1) {
-                    if (std::find(selectedWalls.begin(), selectedWalls.end(), std::make_pair(i, j)) == selectedWalls.end()) {
+                    // Check if this wall needs to be deselected
+                    bool deselected = false;
+                    if (ctrl && deselect) {
+                        for (unsigned int k = 0; k < selectedWalls.size(); k++) {
+                            if (selectedWalls[k].first == i && selectedWalls[k].second == j) {
+                                selectedWalls.erase(selectedWalls.begin() + k);
+                                deselected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!deselected) {
                         selectedWalls.push_back(std::make_pair(i, j));
                     }
                 }
             } else {
                 if (y0 <= wy0 && wy0 <= y1 && x0 <= wx1 && wx0 <= x1) {
-                    if (std::find(selectedWalls.begin(), selectedWalls.end(), std::make_pair(i, j)) == selectedWalls.end()) {
+                    bool deselected = false;
+                    if (ctrl && deselect) {
+                        for (unsigned int k = 0; k < selectedWalls.size(); k++) {
+                            if (selectedWalls[k].first == i && selectedWalls[k].second == j) {
+                                selectedWalls.erase(selectedWalls.begin() + k);
+                                deselected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!deselected) {
                         selectedWalls.push_back(std::make_pair(i, j));
                     }
                 }
@@ -727,7 +749,17 @@ void EventHandler::select(bool ctrl) {
         // Check if this source is in the selecting rectangle
         if (x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) {
             // Select this source
-            if (std::find(selectedSources.begin(), selectedSources.end(), i) == selectedSources.end()) {
+            bool deselected = false;
+            if (ctrl && deselect) {
+                for (unsigned int j = 0; j < selectedSources.size(); j++) {
+                    if (selectedSources[j] == i) {
+                        selectedSources.erase(selectedSources.begin() + j);
+                        deselected = true;
+                        break;
+                    }
+                }
+            }
+            if (!deselected && std::find(selectedSources.begin(), selectedSources.end(), i) == selectedSources.end()) {
                 selectedSources.push_back(i);
             }
         }
@@ -746,7 +778,17 @@ void EventHandler::select(bool ctrl) {
         // Check if this source is in the selecting rectangle
         if (x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) {
             // Select this receiver
-            if (std::find(selectedReceivers.begin(), selectedReceivers.end(), i) == selectedReceivers.end()) {
+            bool deselected = false;
+            if (ctrl && deselect) {
+                for (unsigned int j = 0; j < selectedReceivers.size(); j++) {
+                    if (selectedReceivers[j] == i) {
+                        selectedReceivers.erase(selectedReceivers.begin() + j);
+                        deselected = true;
+                        break;
+                    }
+                }
+            }
+            if (!deselected && std::find(selectedReceivers.begin(), selectedReceivers.end(), i) == selectedReceivers.end()) {
                 selectedReceivers.push_back(i);
             }
         }
