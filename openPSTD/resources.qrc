@@ -13,5 +13,7 @@
         <file>icons/redo.png</file>
         <file>icons/measure.png</file>
         <file>icons/movetocenter.png</file>
+        <file>icons/changeabsorption.png</file>
+        <file>icons/changeabsorption_disabled.png</file>
     </qresource>
 </RCC>

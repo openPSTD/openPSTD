@@ -18,7 +18,7 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSlider* slZoom = 0);
+    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0);
     ~GraphicsView();
     
     inline void undo() { modelmanager->undo(); }

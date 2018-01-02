@@ -73,6 +73,7 @@ public slots:
     inline void slot_undo() { view->undo(); }
     inline void slot_redo() { view->redo(); }
     inline void slot_movetocenter() { view->renderer->moveToCenter(); }
+    inline void slot_changeabsorption() { view->renderer->eh->changeabsorptiondialog(); }
     
     // About menu slots
     void slot_changelog();

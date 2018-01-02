@@ -9,7 +9,7 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption) {
     // Save reference variables locally
     this->scene = scene;
     this->model = model;
@@ -17,7 +17,7 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, Mode
     this->modelmanager = modelmanager;
     
     // Create a new EventHandler instance
-    eh = new EventHandler(model, settings, modelmanager, parent);
+    eh = new EventHandler(model, settings, modelmanager, parent, changeabsorption);
     
     // Update the width and height according to the scene
     width = scene->sceneRect().width();

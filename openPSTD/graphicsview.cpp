@@ -8,7 +8,7 @@
  * @param settings  A reference to the Settings instance
  * @param slZoom  A reference to the zoom level slider
  */
-GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSlider* slZoom) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSlider* slZoom, QAction* changeabsorption) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
@@ -23,7 +23,7 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSlider* slZoom)
     modelmanager = new ModelManager(model);
     
     // Create a new Renderer
-    renderer = new Renderer(scene, model, settings, modelmanager, parent);
+    renderer = new Renderer(scene, model, settings, modelmanager, parent, changeabsorption);
     
     // Enable mouse tracking
     setMouseTracking(true);

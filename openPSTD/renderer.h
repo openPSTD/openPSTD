@@ -20,7 +20,7 @@
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
+    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption);
     ~Renderer();
     
     // Drawing method
@@ -43,6 +43,8 @@ public:
     inline void deleteSelected() { eh->deleteSelected(); }
     inline void clearSelection() { eh->clearSelection(); }
     void moveToCenter();
+    
+    EventHandler* eh;
 private:
     // Class instance variables
     QGraphicsScene* scene;
@@ -50,7 +52,6 @@ private:
     Settings* settings;
     ModelManager* modelmanager;
     QImage* pixels;
-    EventHandler* eh;
     
     // State variables
     int width;

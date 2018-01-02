@@ -3,6 +3,7 @@
 
 #include <QInputDialog>
 #include <QGraphicsScene>
+#include <QAction>
 #include <sstream>
 #include <iomanip>
 #include <cmath>
@@ -12,6 +13,7 @@
 #include "modelmanager.h"
 #include "grid.h"
 #include "source.h"
+#include "absorptiondialog.h"
 
 /**
  * Event handling class.
@@ -21,7 +23,7 @@
 class EventHandler {
 public:
     // Constructor
-    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent);
+    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption);
     
     // Public event handling methods
     void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
@@ -46,12 +48,15 @@ public:
     void deleteSelected();
     void clearSelection();
     inline void removeMeasure() { measuring = false; }
+    
+    void changeabsorptiondialog();
 private:
     // Class instance variables
     Model* model;
     Settings* settings;
     ModelManager* modelmanager;
     QWidget* parent;
+    QAction* changeabsorption;
     
     // State variables
     bool addingDomain;

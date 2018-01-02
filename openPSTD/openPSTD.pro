@@ -42,7 +42,8 @@ SOURCES += \
     receiver.cpp \
     test/testaddreceiver.cpp \
     modelmanager.cpp \
-    test/testundoredo.cpp
+    test/testundoredo.cpp \
+    absorptiondialog.cpp
 
 HEADERS += \
         window.h \
@@ -65,10 +66,12 @@ HEADERS += \
     receiver.h \
     test/testaddreceiver.h \
     modelmanager.h \
-    test/testundoredo.h
+    test/testundoredo.h \
+    absorptiondialog.h
 
 FORMS += \
-        window.ui
+        window.ui \
+    absorptiondialog.ui
 
 RESOURCES += \
     resources.qrc

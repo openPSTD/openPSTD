@@ -8,12 +8,13 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent) {
+EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption) {
     // Save reference variables locally
     this->model = model;
     this->settings = settings;
     this->modelmanager = modelmanager;
     this->parent = parent;
+    this->changeabsorption = changeabsorption;
     
     // Set initial state variable values
     addingDomain = false;
@@ -101,6 +102,9 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         measureEnd.second = p.y();
         measuring = true;
     }
+    
+    // Check if a domain is selected
+    changeabsorption->setEnabled(selectedWalls.size() > 0);
 }
 
 /**
@@ -813,4 +817,13 @@ void EventHandler::updateWallTextState() {
             }
         }
     }
+}
+
+void EventHandler::changeabsorptiondialog() {
+    AbsorptionDialog* ad = new AbsorptionDialog(
+        parent,
+        selectedWalls[0].first,
+        model
+    );
+    ad->exec();
 }

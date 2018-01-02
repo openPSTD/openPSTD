@@ -109,6 +109,7 @@
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="actionMoveToCenter"/>
+    <addaction name="actionChangeAbsorption"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -148,6 +149,7 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="actionMoveToCenter"/>
+   <addaction name="actionChangeAbsorption"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSelect">
@@ -415,6 +417,16 @@
    </property>
    <property name="text">
     <string>MoveToCenter</string>
+   </property>
+  </action>
+  <action name="actionChangeAbsorption">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/changeabsorption.png</normaloff>
+     <disabledoff>:/new/prefix1/icons/changeabsorption_disabled.png</disabledoff>:/new/prefix1/icons/changeabsorption.png</iconset>
+   </property>
+   <property name="text">
+    <string>ChangeAbsorption</string>
    </property>
   </action>
  </widget>

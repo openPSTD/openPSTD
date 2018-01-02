@@ -20,7 +20,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Create a GraphicsView for the main frame
     slZoom = new QSlider(Qt::Horizontal);
-    view = new GraphicsView(this, settings, slZoom);
+    view = new GraphicsView(this, settings, slZoom, ui->actionChangeAbsorption);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -114,9 +114,13 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(slot_undo()));
     connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(slot_redo()));
     connect(ui->actionMoveToCenter, SIGNAL(triggered(bool)), this, SLOT(slot_movetocenter()));
+    connect(ui->actionChangeAbsorption, SIGNAL(triggered(bool)), this, SLOT(slot_changeabsorption()));
     
     // Connect actions in the about menu
     connect(ui->actionChangelog, SIGNAL(triggered(bool)), this, SLOT(slot_changelog()));
+    
+    // Disable the change absorption action
+    ui->actionChangeAbsorption->setEnabled(false);
 }
 
 /**
