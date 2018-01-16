@@ -35,6 +35,18 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     // Remove the measuring tool
     measuring = false;
     
+    // Check if selecting domains
+    if (button == Qt::LeftButton && model->state == SELECTDOMAIN) {
+        // Save the start coordinates
+        selectStart.first = x;
+        selectStart.second = y;
+        selectEnd.first = x;
+        selectEnd.second = y;
+        
+        // Select the domain at the clicked position
+        selectDomains(modifiers == Qt::CTRL, true);
+    }
+    
     // Check if selecting objects
     if (button == Qt::LeftButton && model->state == SELECT) {
         // Save the start coordinates
@@ -115,6 +127,11 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
  * @param button  The button that was pressed
  */
 void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
+    // Check if selecting domains
+    if (button == Qt::LeftButton && model->state == SELECTDOMAIN) {
+        selecting = false;
+    }
+    
     // Check if selecting objects
     if (button == Qt::LeftButton && model->state == SELECT) {
         selecting = false;
@@ -147,6 +164,14 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     mouseX = x;
     mouseY = y;
     
+    // Check if selecting domains
+    if (model->state == SELECTDOMAIN && drag && modifiers == Qt::CTRL) {
+        selectEnd.first = x;
+        selectEnd.second = y;
+        selecting = true;
+        selectDomains(modifiers == Qt::CTRL, false);
+    }
+    
     // Check if selecting objects
     if (model->state == SELECT && drag && modifiers == Qt::CTRL) {
         selectEnd.first = x;
@@ -156,7 +181,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     }
     
     // Check if moving objects
-    if (model->state == SELECT && drag && modifiers == Qt::NoModifier) {
+    if ((model->state == SELECT || model->state == SELECTDOMAIN) && drag && modifiers == Qt::NoModifier) {
         // Compute the position of the mouse
         bool clamped;
         QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
@@ -228,7 +253,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     }
     
     // Check if moving an entire domain
-    if (model->state == SELECT && drag && modifiers == Qt::SHIFT) {
+    if (drag && ((model->state == SELECT && modifiers == Qt::SHIFT) || model->state == SELECTDOMAIN)) {
         // Compute the position of the mouse
         bool clamped;
         QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
@@ -790,6 +815,106 @@ void EventHandler::select(bool ctrl, bool deselect) {
             }
             if (!deselected && std::find(selectedReceivers.begin(), selectedReceivers.end(), i) == selectedReceivers.end()) {
                 selectedReceivers.push_back(i);
+            }
+        }
+    }
+}
+
+/**
+ * Selects all domains within the selection rectangle.
+ * 
+ * @param ctrl  Whether or not the ctrl key is pressed
+ * @param deselect  Whether or not deselecting domains should be possible
+ */
+void EventHandler::selectDomains(bool ctrl, bool deselect) {
+    // Get selecting rectangle coordinates
+    int x0 = std::min(selectStart.first, selectEnd.first);
+    int x1 = std::max(selectStart.first, selectEnd.first);
+    int y0 = std::min(selectStart.second, selectEnd.second);
+    int y1 = std::max(selectStart.second, selectEnd.second);
+    
+    // Check for point selection
+    if (x0 == x1 && y0 == y1) {
+        // Add margin around the selection point
+        int d = 3;
+        x0 -= d;
+        x1 += d;
+        y0 -= d;
+        y1 += d;
+    }
+    
+    // Clear the previous select results
+    if (!ctrl) {
+        selectedWalls.clear();
+        selectedSources.clear();
+        selectedReceivers.clear();
+    }
+    
+    // Loop through all walls
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        std::vector<Wall*>* walls = model->domains[i].getWalls();
+        for (unsigned int j = 0; j < walls->size(); j++) {
+            Wall* wall = walls->at(j);
+            
+            // Get the position of the wall
+            int wx0 = std::min(wall->getX0(), wall->getX1());
+            int wx1 = std::max(wall->getX0(), wall->getX1());
+            int wy0 = std::min(wall->getY0(), wall->getY1());
+            int wy1 = std::max(wall->getY0(), wall->getY1());
+            Side side = wall->getSide();
+            
+            // Update coordinates according to zoom level and scene offset
+            wx0 = model->zoom * wx0 + model->offsetX;
+            wx1 = model->zoom * wx1 + model->offsetX;
+            wy0 = model->zoom * wy0 + model->offsetY;
+            wy1 = model->zoom * wy1 + model->offsetY;
+            
+            // Check if this wall is in the selecting rectangle
+            if (side == LEFT || side == RIGHT) {
+                if (x0 <= wx0 && wx0 <= x1 && y0 <= wy1 && wy0 <= y1) {
+                    // Check if this wall needs to be deselected
+                    /*bool deselected = false;
+                    if (ctrl && deselect) {
+                        for (unsigned int k = 0; k < selectedWalls.size(); k++) {
+                            if (selectedWalls[k].first == i) {
+                                selectedWalls.erase(selectedWalls.begin() + k);
+                                deselected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!deselected) {*/
+                        // Add all walls of this domain
+                        for (unsigned int k = 0; k < walls->size(); k++) {
+                            selectedWalls.push_back(std::make_pair(i, k));
+                        }
+                        
+                        // Go to the next domain
+                        break;
+                    //}
+                }
+            } else {
+                if (y0 <= wy0 && wy0 <= y1 && x0 <= wx1 && wx0 <= x1) {
+                    /*bool deselected = false;
+                    if (ctrl && deselect) {
+                        for (unsigned int k = 0; k < selectedWalls.size(); k++) {
+                            if (selectedWalls[k].first == i) {
+                                selectedWalls.erase(selectedWalls.begin() + k);
+                                deselected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!deselected) {*/
+                        // Add all walls of this domain
+                        for (unsigned int k = 0; k < walls->size(); j++) {
+                            selectedWalls.push_back(std::make_pair(i, k));
+                        }
+                        
+                        // Go to the next domain
+                        break;
+                    //}
+                }
             }
         }
     }

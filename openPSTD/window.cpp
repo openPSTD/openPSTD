@@ -66,6 +66,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     // Set initial scene offset
     view->model->offsetX = 0;
     view->model->offsetY = 0;
+    view->model->state = SELECT;
     
     // Set action icons in settings menu
     ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
@@ -84,6 +85,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Create a QActionGroup for the toolbar buttons
     qagMainToolbar = new QActionGroup(parent);
+    qagMainToolbar->addAction(ui->actionSelect_Domain);
     qagMainToolbar->addAction(ui->actionSelect);
     qagMainToolbar->addAction(ui->actionMoveScene);
     qagMainToolbar->addAction(ui->actionAddDomain);
@@ -105,6 +107,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionGrid, SIGNAL(triggered(bool)), this, SLOT(slot_grid()));
     
     // Connect actions in operate menu
+    connect(ui->actionSelect_Domain, SIGNAL(triggered(bool)), this, SLOT(slot_selectdomain()));
     connect(ui->actionSelect, SIGNAL(triggered(bool)), this, SLOT(slot_select()));
     connect(ui->actionMoveScene, SIGNAL(triggered(bool)), this, SLOT(slot_move()));
     connect(ui->actionAddDomain, SIGNAL(triggered(bool)), this, SLOT(slot_adddomain()));

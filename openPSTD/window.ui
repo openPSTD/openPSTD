@@ -96,6 +96,7 @@
     <property name="title">
      <string>Operate</string>
     </property>
+    <addaction name="actionSelect_Domain"/>
     <addaction name="actionSelect"/>
     <addaction name="actionMoveScene"/>
     <addaction name="actionAddDomain"/>
@@ -136,6 +137,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSelect_Domain"/>
    <addaction name="actionSelect"/>
    <addaction name="actionMoveScene"/>
    <addaction name="actionAddDomain"/>
@@ -427,6 +429,18 @@
    </property>
    <property name="text">
     <string>ChangeAbsorption</string>
+   </property>
+  </action>
+  <action name="actionSelect_Domain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/selectdomain.png</normaloff>:/new/prefix1/icons/selectdomain.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select Domain</string>
    </property>
   </action>
  </widget>

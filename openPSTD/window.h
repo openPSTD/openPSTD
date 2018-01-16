@@ -64,6 +64,7 @@ public slots:
     void slot_grid();
     
     // Operate menu slots
+    inline void slot_selectdomain() { view->renderer->setState(SELECTDOMAIN); }
     inline void slot_select() { view->renderer->setState(SELECT); }
     inline void slot_move() { view->renderer->setState(MOVE); }
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }

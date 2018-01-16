@@ -81,6 +81,7 @@ private:
     void addSource(int x, int y);
     void addReceiver(int x, int y);
     void select(bool ctrl, bool deselect);
+    void selectDomains(bool ctrl, bool deselect);
     
     // Private drawing methods
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);

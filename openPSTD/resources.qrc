@@ -15,5 +15,6 @@
         <file>icons/movetocenter.png</file>
         <file>icons/changeabsorption.png</file>
         <file>icons/changeabsorption_disabled.png</file>
+        <file>icons/selectdomain.png</file>
     </qresource>
 </RCC>
