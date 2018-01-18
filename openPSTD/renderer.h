@@ -45,13 +45,13 @@ public:
     void moveToCenter();
     
     EventHandler* eh;
+    QImage* pixels;
 private:
     // Class instance variables
     QGraphicsScene* scene;
     Model* model;
     Settings* settings;
     ModelManager* modelmanager;
-    QImage* pixels;
     
     // State variables
     int width;

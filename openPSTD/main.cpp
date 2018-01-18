@@ -8,6 +8,7 @@
 #include "test/testaddsource.h"
 #include "test/testaddreceiver.h"
 #include "test/testundoredo.h"
+#include "test/testrobustness.h"
 
 int main(int argc, char** argv) {
     // Create QApplication and Window instances
@@ -45,6 +46,13 @@ int main(int argc, char** argv) {
         status |= QTest::qExec(&undoRedo, argcm, argv);
         
         return status;
+    } else if (argc == 3 && strcmp(argv[1], "testrobustness") == 0) {
+        if (strcmp(argv[2], "log") == 0) {
+            TestRobustness::testLog(&window);
+        } else {
+            TestRobustness::test(std::atoi(argv[2]), &window);
+        }
+        return 0;
     } else {
         // Run the regular application
         window.show();

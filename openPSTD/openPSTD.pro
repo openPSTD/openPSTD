@@ -43,7 +43,8 @@ SOURCES += \
     test/testaddreceiver.cpp \
     modelmanager.cpp \
     test/testundoredo.cpp \
-    absorptiondialog.cpp
+    absorptiondialog.cpp \
+    test/testrobustness.cpp
 
 HEADERS += \
         window.h \
@@ -67,7 +68,8 @@ HEADERS += \
     test/testaddreceiver.h \
     modelmanager.h \
     test/testundoredo.h \
-    absorptiondialog.h
+    absorptiondialog.h \
+    test/testrobustness.h
 
 FORMS += \
         window.ui \
