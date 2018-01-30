@@ -118,6 +118,9 @@ void Renderer::draw() {
     // Draw the overlap message text
     eh->drawOverlap(pixels);
     
+    // Draw the zero wall message text
+    eh->drawZerowall(pixels);
+    
     // Draw cursor if adding domain or measuring
     if (model->state == ADDDOMAIN || model->state == MEASURE) {
         QPoint pos = eh->getMousePos();
@@ -228,7 +231,7 @@ void Renderer::setDimensions(int width, int height) {
  */
 void Renderer::moveToCenter() {
     // Do nothing if there are no objects
-    if (model->domains.size() == 0 && model->sources.size() == 0 && model->receivers.size() == 0) {
+    if (model->domains.size() == 0) {
         return;
     }
     

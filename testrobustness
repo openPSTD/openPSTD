@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd build-openPSTD-Desktop_Qt_5_9_1_GCC_64bit-Debug/
+
+for i in $(seq 1 100); do
+	./openPSTD testrobustness 1
+	if [ $? -ne 0 ]; then
+		echo "ERROR"
+		exit 1
+	fi
+done

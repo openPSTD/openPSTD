@@ -43,6 +43,7 @@ public:
     void drawSelection(QImage* pixels);
     void drawMeasure(QImage* pixels);
     void drawOverlap(QImage* pixels);
+    void drawZerowall(QImage* pixels);
     
     // Deletes all selected objects
     void deleteSelected();
@@ -74,6 +75,7 @@ private:
     std::pair<int, int> measureEnd;
     bool measuring;
     bool overlap;
+    bool zerowall;
     
     // Private event handling methods
     void addDomainStart(int x, int y);

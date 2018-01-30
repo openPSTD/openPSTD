@@ -21,6 +21,7 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
     selecting = false;
     measuring = false;
     overlap = false;
+    zerowall = false;
 }
 
 /**
@@ -71,7 +72,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         // Check if a domain is already being added
         if (addingDomain) {
             // Finish this domain
-            if (!overlap) {
+            if (!overlap && !zerowall) {
                 addDomainStop(x, y);
                 addingDomain = false;
             }
@@ -140,10 +141,11 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
     // Check if adding a new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check for click and immediate release
+        if (!addingDomain) return;
         int dx = std::abs(x - model->lastDomain()->getX0() * model->zoom);
         int dy = std::abs(y - model->lastDomain()->getY0() * model->zoom);
         int dist2 = dx * dx + dy * dy;
-        if (dist2 > 100 && addingDomain && !overlap) {
+        if (dist2 > 100 && !overlap && !zerowall) {
             // Stop the domain here
             addDomainStop(x, y);
             addingDomain = false;
@@ -502,6 +504,33 @@ void EventHandler::drawOverlap(QImage* pixels) {
     );
 }
 
+void EventHandler::drawZerowall(QImage* pixels) {
+    // Do nothing if there is no zero wall
+    if (!zerowall) return;
+    
+    // Do nothing if the overlap message is already shown
+    if (overlap) return;
+    
+    // Draw the zero wall message
+    int x = pixels->width() / 2;
+    drawText(
+        "Cannot add a domain here.",
+        x - 25*10/2,
+        7,
+        12,
+        qRgb(255, 0, 0),
+        pixels
+    );
+    drawText(
+        "The width or height of the domain is zero.",
+        x - 42*10/2,
+        21,
+        12,
+        qRgb(255, 0, 0),
+        pixels
+    );
+}
+
 /**
  * Deletes all selected objects.
  */
@@ -559,6 +588,14 @@ void EventHandler::deleteSelected() {
     selectedWalls.clear();
     selectedSources.clear();
     selectedReceivers.clear();
+    
+    // Update all domain's walls
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        model->domains[i].resetWalls();
+    }
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        model->domains[i].mergeDomains(&model->domains, i);
+    }
 }
 
 /**
@@ -630,6 +667,15 @@ void EventHandler::addDomainStop(int x, int y) {
             // Check whether or not these two domains overlap
             if (one->overlaps(two)) overlap = true;
         }
+    }
+    
+    // Verify that the domain width and height are not zero
+    zerowall = false;
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        Domain domain = model->domains[i];
+        int width = domain.getX1() - domain.getX0();
+        int height = domain.getY1() - domain.getY0();
+        if (width * height == 0) zerowall = true;
     }
     
     // Update the wall text states

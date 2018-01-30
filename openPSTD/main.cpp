@@ -47,12 +47,13 @@ int main(int argc, char** argv) {
         
         return status;
     } else if (argc == 3 && strcmp(argv[1], "testrobustness") == 0) {
+        int res;
         if (strcmp(argv[2], "log") == 0) {
-            TestRobustness::testLog(&window);
+            res = TestRobustness::testLog(&window);
         } else {
-            TestRobustness::test(std::atoi(argv[2]), &window);
+            res = TestRobustness::test(std::atoi(argv[2]), &window);
         }
-        return 0;
+        return res;
     } else {
         // Run the regular application
         window.show();

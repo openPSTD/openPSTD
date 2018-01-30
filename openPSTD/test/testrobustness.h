@@ -5,8 +5,8 @@
 
 class TestRobustness {
 public:
-    static void test(int numtests, Window* window);
-    static void testLog(Window* window);
+    static int test(int numtests, Window* window);
+    static int testLog(Window* window);
 private:
     static void generateModel(Window* window);
     static int verifyModel(Window* window);
