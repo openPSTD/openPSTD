@@ -51,13 +51,30 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
     int maxy = std::max(y0, y1) * zoom + offsetY;
     
     // Draw all points on the wall
-    for (int i = minx; i <= maxx; i++) {
+    if (minx == maxx) {
         for (int j = miny; j <= maxy; j++) {
-            QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
-            if (selected) color = qRgb(0, 255, 255);
-            if (i < 0 || j < 0) continue;
-            if (i >= pixels->width() || j >= pixels->height()) continue;
-            pixels->setPixel(i, j, color);
+            for (int d = -1; d <= 1; d++) {
+                int x = minx + d;
+                int y = j;
+                QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
+                if (selected) color = qRgb(0, 255, 255);
+                if (x < 0 || y < 0) continue;
+                if (x >= pixels->width() || y >= pixels->height()) continue;
+                pixels->setPixel(x, y, color);
+            }
+        }
+    }
+    if (miny == maxy) {
+        for (int i = minx; i <= maxx; i++) {
+            for (int d = -1; d <= 1; d++) {
+                int x = i;
+                int y = miny + d;
+                QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
+                if (selected) color = qRgb(0, 255, 255);
+                if (x < 0 || y < 0) continue;
+                if (x >= pixels->width() || y >= pixels->height()) continue;
+                pixels->setPixel(x, y, color);
+            }
         }
     }
     
