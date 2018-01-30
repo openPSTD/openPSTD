@@ -46,6 +46,9 @@ public:
     
     // Checks whether or not this domain overlaps with another domain
     bool overlaps(Domain* other);
+    
+    // Get method for Settings reference
+    Settings* getSettings() { return settings; }
 private:
     // Domain walls
     int x0;

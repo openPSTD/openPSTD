@@ -109,6 +109,9 @@ void Renderer::draw() {
         }
     }
     
+    // Draw axes
+    drawAxes();
+    
     // Draw the selection rectangle
     eh->drawSelection(pixels);
     
@@ -353,6 +356,50 @@ void Renderer::drawZoom(int zoomaim) {
     
     // Draw the current zoom level text
     drawText(std::to_string(zoomaim) + " m", 5, 10, 14, settings->zoomColor);
+}
+
+void Renderer::drawAxes() {
+    // Draw horizontal axis at (0, 0)
+    for (int i = 0; i < pixels->width(); i++) {
+        for (int d = -1; d < 1; d++) {
+            if (model->offsetY + d < 0 || model->offsetY >= pixels->height()) continue;
+            pixels->setPixel(
+                i,
+                model->offsetY + d,
+                qRgb(0, 0, 255)
+            );
+        }
+    }
+    
+    // Draw vertical axis at (0, 0)
+    for (int j = 0; j < pixels->height(); j++) {
+        for (int d = -1; d < 1; d++) {
+            if (model->offsetX + d < 0 || model->offsetX >= pixels->width()) continue;
+            pixels->setPixel(
+                model->offsetX + d,
+                j,
+                qRgb(0, 0, 255)
+            );
+        }
+    }
+    
+    // Draw horizontal offset text
+    drawText(
+        "X: " + std::to_string(-model->offsetX / model->zoom),
+        0,
+        pixels->height() - 36,
+        16,
+        qRgb(0, 0, 0)
+    );
+    
+    // Draw vertical offset text
+    drawText(
+        "Y: " + std::to_string(-model->offsetY / model->zoom),
+        0,
+        pixels->height() - 18,
+        16,
+        qRgb(0, 0, 0)
+    );
 }
 
 /**

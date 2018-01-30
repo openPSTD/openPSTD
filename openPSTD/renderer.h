@@ -66,6 +66,7 @@ private:
     void drawGrid();
     void drawCursor(int x, int y);
     void drawZoom(int zoomaim);
+    void drawAxes();
     void drawText(std::string text, int x, int y, int size, QRgb color);
 public slots:
     void setGridSize(int gridsize) { model->gridsize = gridsize; }

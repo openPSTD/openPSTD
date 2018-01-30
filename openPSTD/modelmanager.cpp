@@ -62,6 +62,14 @@ void ModelManager::undo() {
     // Remove the previous model from the previous vector
     delete previous[index];
     previous.pop_back();
+    
+    // Reset and re-merge all domain's walls
+    for (unsigned int i = 0; i < current->domains.size(); i++) {
+        current->domains[i].resetWalls();
+    }
+    for (unsigned int i = 0; i < current->domains.size(); i++) {
+        current->domains[i].mergeDomains(&current->domains, i);
+    }
 }
 
 /**
@@ -84,6 +92,14 @@ void ModelManager::redo() {
     // Remove the next model from the next vector
     delete next[index];
     next.pop_back();
+    
+    // Reset and re-merge all domain's walls
+    for (unsigned int i = 0; i < current->domains.size(); i++) {
+        current->domains[i].resetWalls();
+    }
+    for (unsigned int i = 0; i < current->domains.size(); i++) {
+        current->domains[i].mergeDomains(&current->domains, i);
+    }
 }
 
 /**
@@ -116,7 +132,15 @@ Model* ModelManager::copyCurrent() {
 void ModelManager::saveCurrent(Model* model) {
     // Copy all state variables from the given model to the current model
     current->state = model->state;
-    current->domains = model->domains;
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        current->domains.push_back(Domain(
+            model->domains[i].getX0(),
+            model->domains[i].getY0(),
+            model->domains[i].getX1(),
+            model->domains[i].getY1(),
+            model->domains[i].getSettings()
+        ));
+    }
     current->sources = model->sources;
     current->receivers = model->receivers;
     current->gridsize = model->gridsize;
