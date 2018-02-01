@@ -118,6 +118,16 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     
     // Check if a domain is selected
     changeabsorption->setEnabled(selectedWalls.size() > 0);
+    
+    // Check if moving objects
+    if (model->state == SELECT && modifiers == Qt::NoModifier) {
+        modelmanager->saveState();
+    }
+    
+    // Check if moving domains
+    if (model->state == SELECTDOMAIN && modifiers == Qt::NoModifier) {
+        modelmanager->saveState();
+    }
 }
 
 /**
@@ -150,6 +160,16 @@ void EventHandler::mouseRelease(int x, int y, Qt::MouseButton button) {
             addDomainStop(x, y);
             addingDomain = false;
         }
+    }
+    
+    // Check if moving objects
+    if (model->state == SELECT) {
+        if (overlap || zerowall) modelmanager->undo();
+    }
+    
+    // Check if moving domains
+    if (model->state == SELECTDOMAIN) {
+        if (overlap || zerowall) modelmanager->undo();
     }
 }
 
@@ -236,6 +256,28 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
                     model->domains[j].mergeDomains(&model->domains, j);
                 }
             }
+            
+            // Verify that there are no overlapping domains
+            overlap = false;
+            for (unsigned int i = 0; i < model->domains.size(); i++) {
+                for (unsigned int j = i + 1; j < model->domains.size(); j++) {
+                    // Get the two domains to check
+                    Domain* one = &(model->domains[i]);
+                    Domain* two = &(model->domains[j]);
+                    
+                    // Check whether or not these two domains overlap
+                    if (one->overlaps(two)) overlap = true;
+                }
+            }
+            
+            // Verify that the domain width and height are not zero
+            zerowall = false;
+            for (unsigned int i = 0; i < model->domains.size(); i++) {
+                Domain domain = model->domains[i];
+                int width = domain.getX1() - domain.getX0();
+                int height = domain.getY1() - domain.getY0();
+                if (width * height == 0) zerowall = true;
+            }
         }
         
         // Loop through all selected sources
@@ -298,6 +340,28 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         
         // Update the wall text states
         updateWallTextState();
+        
+        // Verify that there are no overlapping domains
+        overlap = false;
+        for (unsigned int i = 0; i < model->domains.size(); i++) {
+            for (unsigned int j = i + 1; j < model->domains.size(); j++) {
+                // Get the two domains to check
+                Domain* one = &(model->domains[i]);
+                Domain* two = &(model->domains[j]);
+                
+                // Check whether or not these two domains overlap
+                if (one->overlaps(two)) overlap = true;
+            }
+        }
+        
+        // Verify that the domain width and height are not zero
+        zerowall = false;
+        for (unsigned int i = 0; i < model->domains.size(); i++) {
+            Domain domain = model->domains[i];
+            int width = domain.getX1() - domain.getX0();
+            int height = domain.getY1() - domain.getY0();
+            if (width * height == 0) zerowall = true;
+        }
     }
     
     // Check if moving the scene
