@@ -404,33 +404,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
  * @param button  The button that was pressed
  */
 void EventHandler::doubleClick(int x, int y, Qt::MouseButton button) {
-    // Check if selecting an object
-    if (model->state == SELECT && button == Qt::LeftButton) {
-        // Check if double clicking on a wall
-        if (selectedWalls.size() == 1) {
-            // Check which wall to edit
-            int domainID = selectedWalls[0].first;
-            int wallID = selectedWalls[0].second;
-            Wall* wall = model->domains[domainID].getWalls()->at(wallID);
-            
-            // Use a QInputDialog to request a new absorption coefficient
-            double absorption = QInputDialog::getDouble(
-                parent,
-                "Change absorption coefficient",
-                "Absorption coefficient",
-                wall->getAbsorption(),
-                0,
-                1,
-                3
-            );
-            
-            // Save the new absorption coefficient
-            wall->setAbsorption(absorption);
-            
-            // Unselect the wall
-            clearSelection();
-        }
-    }
+    //
 }
 
 /**
