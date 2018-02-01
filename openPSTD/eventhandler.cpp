@@ -171,7 +171,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
         selectEnd.first = x;
         selectEnd.second = y;
         selecting = true;
-        selectDomains(modifiers == Qt::CTRL, false);
+        selectDomains(true, false);
     }
     
     // Check if selecting objects
@@ -183,7 +183,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     }
     
     // Check if moving objects
-    if ((model->state == SELECT || model->state == SELECTDOMAIN) && drag && modifiers == Qt::NoModifier) {
+    if (model->state == SELECT && drag && modifiers == Qt::NoModifier) {
         // Compute the position of the mouse
         bool clamped;
         QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
@@ -255,7 +255,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     }
     
     // Check if moving an entire domain
-    if (drag && ((model->state == SELECT && modifiers == Qt::SHIFT) || model->state == SELECTDOMAIN)) {
+    if (drag && model->state == SELECTDOMAIN && modifiers == Qt::NoModifier) {
         // Compute the position of the mouse
         bool clamped;
         QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
@@ -919,17 +919,17 @@ void EventHandler::selectDomains(bool ctrl, bool deselect) {
             if (side == LEFT || side == RIGHT) {
                 if (x0 <= wx0 && wx0 <= x1 && y0 <= wy1 && wy0 <= y1) {
                     // Check if this wall needs to be deselected
-                    /*bool deselected = false;
+                    bool deselected = false;
                     if (ctrl && deselect) {
                         for (unsigned int k = 0; k < selectedWalls.size(); k++) {
                             if (selectedWalls[k].first == i) {
                                 selectedWalls.erase(selectedWalls.begin() + k);
                                 deselected = true;
-                                break;
+                                k = -1;
                             }
                         }
                     }
-                    if (!deselected) {*/
+                    if (!deselected) {
                         // Add all walls of this domain
                         for (unsigned int k = 0; k < walls->size(); k++) {
                             selectedWalls.push_back(std::make_pair(i, k));
@@ -937,21 +937,21 @@ void EventHandler::selectDomains(bool ctrl, bool deselect) {
                         
                         // Go to the next domain
                         break;
-                    //}
+                    }
                 }
             } else {
                 if (y0 <= wy0 && wy0 <= y1 && x0 <= wx1 && wx0 <= x1) {
-                    /*bool deselected = false;
+                    bool deselected = false;
                     if (ctrl && deselect) {
                         for (unsigned int k = 0; k < selectedWalls.size(); k++) {
                             if (selectedWalls[k].first == i) {
                                 selectedWalls.erase(selectedWalls.begin() + k);
                                 deselected = true;
-                                break;
+                                k = -1;
                             }
                         }
                     }
-                    if (!deselected) {*/
+                    if (!deselected) {
                         // Add all walls of this domain
                         for (unsigned int k = 0; k < walls->size(); k++) {
                             selectedWalls.push_back(std::make_pair(i, k));
@@ -959,7 +959,7 @@ void EventHandler::selectDomains(bool ctrl, bool deselect) {
                         
                         // Go to the next domain
                         break;
-                    //}
+                    }
                 }
             }
         }
