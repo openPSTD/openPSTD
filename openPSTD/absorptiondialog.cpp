@@ -10,14 +10,10 @@ AbsorptionDialog::AbsorptionDialog(QWidget* parent, unsigned int domain, Model* 
     ui->setupUi(this);
     
     // Set current absorption values in the spinboxes
-    std::vector<Wall*>* walls = model->domains[domain].getWalls();
-    for (unsigned int i = 0; i < walls->size(); i++) {
-        Wall* w = walls->at(i);
-        if (w->getSide() == TOP)    ui->spinBoxTop->setValue(w->getAbsorption());
-        if (w->getSide() == BOTTOM) ui->spinBoxBottom->setValue(w->getAbsorption());
-        if (w->getSide() == LEFT)   ui->spinBoxLeft->setValue(w->getAbsorption());
-        if (w->getSide() == RIGHT)  ui->spinBoxRight->setValue(w->getAbsorption());
-    }
+    ui->spinBoxTop->setValue(model->domains[domain].getAbsorption(TOP));
+    ui->spinBoxBottom->setValue(model->domains[domain].getAbsorption(BOTTOM));
+    ui->spinBoxLeft->setValue(model->domains[domain].getAbsorption(LEFT));
+    ui->spinBoxRight->setValue(model->domains[domain].getAbsorption(RIGHT));
     
     // Connect actions to the save and cancel buttons
     connect(ui->buttonCancel, SIGNAL(clicked(bool)), this, SLOT(slot_cancel()));
@@ -35,14 +31,11 @@ void AbsorptionDialog::slot_cancel() {
 
 void AbsorptionDialog::slot_save() {
     // Save the new absorption values
-    std::vector<Wall*>* walls = model->domains[domain].getWalls();
-    for (unsigned int i = 0; i < walls->size(); i++) {
-        Wall* w = walls->at(i);
-        if (w->getSide() == TOP)    w->setAbsorption(ui->spinBoxTop->value());
-        if (w->getSide() == BOTTOM) w->setAbsorption(ui->spinBoxBottom->value());
-        if (w->getSide() == LEFT)   w->setAbsorption(ui->spinBoxLeft->value());
-        if (w->getSide() == RIGHT)  w->setAbsorption(ui->spinBoxRight->value());
-    }
+    model->domains[domain].setAbsorption(TOP, ui->spinBoxTop->value());
+    model->domains[domain].setAbsorption(BOTTOM, ui->spinBoxBottom->value());
+    model->domains[domain].setAbsorption(LEFT, ui->spinBoxLeft->value());
+    model->domains[domain].setAbsorption(RIGHT, ui->spinBoxRight->value());
+    model->domains[domain].updateAbsorption();
     
     // Close the window
     close();

@@ -9,14 +9,16 @@
  * @param y1  The y coordinate of the second end of the wall
  * @param side  The side of the domain that this wall is on
  * @param settings  A reference to a Settings instance
+ * @param absorption  The initial absorption coefficient of the wall
  */
-Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings) {
+Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings, double absorption) {
     // Save end point coordinates locally
     this->x0 = x0;
     this->y0 = y0;
     this->x1 = x1;
     this->y1 = y1;
     this->side = side;
+    this->absorption = absorption;
     
     // Save reference variables locally
     this->settings = settings;
@@ -56,7 +58,7 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
             for (int d = -1; d <= 1; d++) {
                 int x = minx + d;
                 int y = j;
-                QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
+                QRgb color = gradient(settings->wallColor0, settings->wallColor1, absorption);
                 if (selected) color = qRgb(0, 255, 255);
                 if (x < 0 || y < 0) continue;
                 if (x >= pixels->width() || y >= pixels->height()) continue;
@@ -69,7 +71,7 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
             for (int d = -1; d <= 1; d++) {
                 int x = i;
                 int y = miny + d;
-                QRgb color = absorption * settings->wallColor1 + (1-absorption) * settings->wallColor0;
+                QRgb color = gradient(settings->wallColor0, settings->wallColor1, absorption);
                 if (selected) color = qRgb(0, 255, 255);
                 if (x < 0 || y < 0) continue;
                 if (x >= pixels->width() || y >= pixels->height()) continue;
@@ -240,4 +242,28 @@ std::vector<int> Wall::sort(std::vector<int> original) {
     
     // Return the result vector
     return result;
+}
+
+/**
+ * Returns a gradient between the two given colors, according to
+ * a double t in [0, 1].
+ * 
+ * @param color1  The first color
+ * @param color2  The second color
+ * @param t  The percentage that the first color should be included
+ * @return  A gradient between the two given colors
+ */
+QRgb Wall::gradient(QRgb color1, QRgb color2, double t) {
+    int r1 = QColor(color1).red();
+    int r2 = QColor(color2).red();
+    int g1 = QColor(color1).green();
+    int g2 = QColor(color2).green();
+    int b1 = QColor(color1).blue();
+    int b2 = QColor(color2).blue();
+    
+    return qRgb(
+        (1-t) * r1 + t * r2,
+        (1-t) * g1 + t * g2,
+        (1-t) * b1 + t * b2
+    );
 }

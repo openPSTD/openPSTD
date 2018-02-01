@@ -18,6 +18,12 @@ Domain::Domain(int x0, int y0, int x1, int y1, Settings* settings) {
     
     // Save reference variables locally
     this->settings = settings;
+    
+    // Initialize the domain's absorption coefficients
+    absorptionTop = 0;
+    absorptionBottom = 0;
+    absorptionLeft = 0;
+    absorptionRight = 0;
 }
 
 /**
@@ -84,10 +90,10 @@ void Domain::resetWalls() {
     walls.clear();
     
     // Recreate the original four non-merged walls
-    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, settings));
-    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, settings));
-    walls.push_back(new Wall(x0, y0, x1, y0, TOP, settings));
-    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, settings));
+    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, settings, absorptionLeft));
+    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, settings, absorptionRight));
+    walls.push_back(new Wall(x0, y0, x1, y0, TOP, settings, absorptionTop));
+    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, settings, absorptionBottom));
 }
 
 /**
@@ -239,7 +245,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getX0(),
                 y1,
                 wall->getSide(),
-                settings
+                settings,
+                getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -256,7 +263,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getX0(),
                 y0,
                 wall->getSide(),
-                settings
+                settings,
+                getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -315,7 +323,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getY0(),
                 x1,
                 wall->getSide(),
-                settings
+                settings,
+                getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -332,9 +341,49 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getY0(),
                 x0,
                 wall->getSide(),
-                settings
+                settings,
+                getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
     }
+}
+
+/**
+ * Returns the absorption of a wall given its side.
+ * 
+ * @param side  The side of the wall
+ * @return  The absorption coefficient of this wall
+ */
+double Domain::getAbsorption(Side side) {
+    if (side == TOP) return absorptionTop;
+    if (side == BOTTOM) return absorptionBottom;
+    if (side == LEFT) return absorptionLeft;
+    if (side == RIGHT) return absorptionRight;
+}
+
+/**
+ * Updates each wall's absorption coefficient according to
+ * the domain's absorption coefficient.
+ */
+void Domain::updateAbsorption() {
+    for (unsigned int i = 0; i < walls.size(); i++) {
+        if (walls[i]->getSide() == TOP) walls[i]->setAbsorption(absorptionTop);
+        if (walls[i]->getSide() == BOTTOM) walls[i]->setAbsorption(absorptionBottom);
+        if (walls[i]->getSide() == LEFT) walls[i]->setAbsorption(absorptionLeft);
+        if (walls[i]->getSide() == RIGHT) walls[i]->setAbsorption(absorptionRight);
+    }
+}
+
+/**
+ * Updates the domain's absorption coefficient given a side to update.
+ * 
+ * @param side  The side of which to update the absorption coefficient
+ * @param value  The new value of the absorption coefficient
+ */
+void Domain::setAbsorption(Side side, double value) {
+    if (side == TOP) absorptionTop = value;
+    if (side == BOTTOM) absorptionBottom = value;
+    if (side == LEFT) absorptionLeft = value;
+    if (side == RIGHT) absorptionRight = value;
 }

@@ -23,7 +23,7 @@ class Wall {
 public:
     // Constructor
     inline Wall() {}
-    Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings);
+    Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings, double absorption);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
@@ -76,6 +76,9 @@ private:
     inline static bool pointOnWall(int point, int wallstart, int wallend) {
         return (std::min(wallstart, wallend) <= point && point <= std::max(wallstart, wallend));
     }
+    
+    // Returns a gradient between the two given colors
+    QRgb gradient(QRgb color1, QRgb color2, double t);
 };
 
 #endif

@@ -953,7 +953,7 @@ void EventHandler::selectDomains(bool ctrl, bool deselect) {
                     }
                     if (!deselected) {*/
                         // Add all walls of this domain
-                        for (unsigned int k = 0; k < walls->size(); j++) {
+                        for (unsigned int k = 0; k < walls->size(); k++) {
                             selectedWalls.push_back(std::make_pair(i, k));
                         }
                         

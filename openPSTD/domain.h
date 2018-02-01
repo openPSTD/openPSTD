@@ -49,6 +49,11 @@ public:
     
     // Get method for Settings reference
     Settings* getSettings() { return settings; }
+    
+    // Get method for the absorption of a wall given its side
+    double getAbsorption(Side side);
+    void updateAbsorption();
+    void setAbsorption(Side side, double value);
 private:
     // Domain walls
     int x0;
@@ -56,6 +61,12 @@ private:
     int x1;
     int y1;
     std::vector<Wall*> walls;
+    
+    // Absorption coefficients
+    double absorptionTop;
+    double absorptionBottom;
+    double absorptionLeft;
+    double absorptionRight;
     
     // Class instance variables
     Settings* settings;
