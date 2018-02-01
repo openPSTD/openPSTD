@@ -113,7 +113,15 @@ Model* ModelManager::copyCurrent() {
     
     // Copy all state variables from the current model
     copy->state = current->state;
-    copy->domains = current->domains;
+    for (unsigned int i = 0; i < current->domains.size(); i++) {
+        copy->domains.push_back(Domain(
+            current->domains[i].getX0(),
+            current->domains[i].getY0(),
+            current->domains[i].getX1(),
+            current->domains[i].getY1(),
+            current->domains[i].getSettings()
+        ));
+    }
     copy->sources = current->sources;
     copy->receivers = current->receivers;
     copy->gridsize = current->gridsize;
@@ -132,6 +140,7 @@ Model* ModelManager::copyCurrent() {
 void ModelManager::saveCurrent(Model* model) {
     // Copy all state variables from the given model to the current model
     current->state = model->state;
+    current->domains.clear();
     for (unsigned int i = 0; i < model->domains.size(); i++) {
         current->domains.push_back(Domain(
             model->domains[i].getX0(),
