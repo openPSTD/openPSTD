@@ -117,7 +117,13 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     }
     
     // Check if a domain is selected
-    changeabsorption->setEnabled(selectedWalls.size() > 0);
+    std::vector<int> selectedDomains;
+    for (unsigned int i = 0; i < selectedWalls.size(); i++) {
+        if (std::find(selectedDomains.begin(), selectedDomains.end(), selectedWalls[i].first) == selectedDomains.end()) {
+            selectedDomains.push_back(selectedWalls[i].first);
+        }
+    }
+    changeabsorption->setEnabled(selectedDomains.size() == 1);
     
     // Check if moving objects
     if (model->state == SELECT && modifiers == Qt::NoModifier) {
