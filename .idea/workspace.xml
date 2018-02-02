@@ -22,17 +22,7 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eae46ac3-f9eb-47fe-8607-8c76d21048fe" name="Default" comment="February 2, 2018, 2:30 &#10;1st commit for openPSTD integration">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/KernelInterface.cpp" afterPath="$PROJECT_DIR$/kernel/KernelInterface.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/KernelInterface.h" afterPath="$PROJECT_DIR$/kernel/KernelInterface.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/PSTDKernel.cpp" afterPath="$PROJECT_DIR$/kernel/PSTDKernel.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/PSTDKernel.h" afterPath="$PROJECT_DIR$/kernel/PSTDKernel.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/Solver.cpp" afterPath="$PROJECT_DIR$/kernel/Solver.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Domain.cpp" afterPath="$PROJECT_DIR$/kernel/core/Domain.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Scene.cpp" afterPath="$PROJECT_DIR$/kernel/core/Scene.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Speaker.cpp" afterPath="$PROJECT_DIR$/kernel/core/Speaker.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/kernel_functions.h" afterPath="$PROJECT_DIR$/kernel/core/kernel_functions.h" />
-    </list>
+    <list default="true" id="eae46ac3-f9eb-47fe-8607-8c76d21048fe" name="Default" comment="February 2, 2018, 2:30 &#10;1st commit for openPSTD integration" />
     <ignored path="openPSTD.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -134,8 +124,8 @@
       <file leaf-file-name="Domain.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/kernel/core/Domain.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="1138" column="33" selection-start-line="1138" selection-start-column="33" selection-end-line="1138" selection-end-column="33" />
+            <state relative-caret-position="252">
+              <caret line="1130" column="104" selection-start-line="1130" selection-start-column="104" selection-end-line="1130" selection-end-column="104" />
               <folding />
             </state>
           </provider>
@@ -154,6 +144,7 @@
     </leaf>
   </component>
   <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
@@ -604,7 +595,7 @@
       <workItem from="1516271945357" duration="160000" />
       <workItem from="1516285607385" duration="56384000" />
       <workItem from="1516713911731" duration="45672000" />
-      <workItem from="1517572309774" duration="5922000" />
+      <workItem from="1517572309774" duration="6487000" />
     </task>
     <task id="LOCAL-00001" summary="February 2, 2018, 2:30 &#10;1st commit for openPSTD integration">
       <created>1517579257342</created>
@@ -624,7 +615,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1642536000" />
+    <option name="totallyTimeSpent" value="1643101000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -643,9 +634,9 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32897863" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.368476" sideWeight="0.49563318" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22651356" sideWeight="0.48908296" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3131524" sideWeight="0.5021834" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32897863" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3131524" sideWeight="0.4978166" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3131524" sideWeight="0.5021834" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32881" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3131524" sideWeight="0.4978166" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985386" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1085,8 +1076,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/kernel/core/Domain.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="1138" column="33" selection-start-line="1138" selection-start-column="33" selection-end-line="1138" selection-end-column="33" />
+        <state relative-caret-position="252">
+          <caret line="1130" column="104" selection-start-line="1130" selection-start-column="104" selection-end-line="1130" selection-end-column="104" />
           <folding />
         </state>
       </provider>
