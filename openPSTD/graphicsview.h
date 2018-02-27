@@ -11,6 +11,7 @@
 #include "renderer.h"
 #include "settings.h"
 #include "modelmanager.h"
+#include "simulator.h"
 
 /**
  * Custom QGraphicsView widget for drawing the main frame.
@@ -18,7 +19,7 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0);
+    explicit GraphicsView(QWidget* parent = 0, Settings* settings = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0, QAction* showoutput = 0);
     ~GraphicsView();
     
     inline void undo() { modelmanager->undo(); }
@@ -29,6 +30,7 @@ public:
     
     Renderer* renderer;
     Model* model;
+    Simulator* simulator;
 protected:
     void paintEvent(QPaintEvent* event);
     void resizeEvent(QResizeEvent* event);

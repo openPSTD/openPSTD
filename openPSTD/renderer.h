@@ -13,6 +13,7 @@
 #include "settings.h"
 #include "modelmanager.h"
 #include "grid.h"
+#include "simulator.h"
 
 /**
  * Handles all drawing and eventhandling of the QGraphicsScene.
@@ -20,7 +21,7 @@
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption);
+    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption, Simulator* simulator);
     ~Renderer();
     
     // Drawing method
@@ -52,6 +53,7 @@ private:
     Model* model;
     Settings* settings;
     ModelManager* modelmanager;
+    Simulator* simulator;
     
     // State variables
     int width;

@@ -62,6 +62,7 @@ public slots:
     // View menu slots
     void slot_fpscounter();
     void slot_grid();
+    inline void slot_showoutput() { view->simulator->toggle(); }
     
     // Operate menu slots
     inline void slot_selectdomain() { view->renderer->setState(SELECTDOMAIN); }
@@ -75,6 +76,7 @@ public slots:
     inline void slot_redo() { view->redo(); }
     inline void slot_movetocenter() { view->renderer->moveToCenter(); }
     inline void slot_changeabsorption() { view->renderer->eh->changeabsorptiondialog(); }
+    inline void slot_start() { view->simulator->start(); }
     
     // About menu slots
     void slot_changelog();

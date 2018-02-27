@@ -25,29 +25,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-        window.cpp \
+    main.cpp \
+    window.cpp \
     graphicsview.cpp \
     renderer.cpp \
     eventhandler.cpp \
     domain.cpp \
+    wall.cpp \
+    source.cpp \
+    receiver.cpp \
+    modelmanager.cpp \
+    absorptiondialog.cpp \
+    test/testrobustness.cpp \
+    test/testadddomain.cpp \
+    test/testaddreceiver.cpp \
+    test/testaddsource.cpp \
     test/testmaintoolbar.cpp \
+    test/testmenuscene.cpp \
     test/testmenuview.cpp \
     test/testmodel.cpp \
-    wall.cpp \
-    test/testadddomain.cpp \
-    test/testmenuscene.cpp \
-    source.cpp \
-    test/testaddsource.cpp \
-    receiver.cpp \
-    test/testaddreceiver.cpp \
-    modelmanager.cpp \
     test/testundoredo.cpp \
-    absorptiondialog.cpp \
-    test/testrobustness.cpp
+    simulator.cpp
 
 HEADERS += \
-        window.h \
+    window.h \
     graphicsview.h \
     renderer.h \
     state.h \
@@ -69,11 +70,12 @@ HEADERS += \
     modelmanager.h \
     test/testundoredo.h \
     absorptiondialog.h \
-    test/testrobustness.h
+    test/testrobustness.h \
+    simulator.h
 
 FORMS += \
-        window.ui \
+    window.ui \
     absorptiondialog.ui
 
 RESOURCES += \
-    resources.qrc
+    resources.qrc \

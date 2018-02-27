@@ -9,12 +9,13 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption, Simulator* simulator) {
     // Save reference variables locally
     this->scene = scene;
     this->model = model;
     this->settings = settings;
     this->modelmanager = modelmanager;
+    this->simulator = simulator;
     
     // Create a new EventHandler instance
     eh = new EventHandler(model, settings, modelmanager, parent, changeabsorption);
@@ -147,6 +148,9 @@ void Renderer::draw() {
     if (model->showFPS) {
         drawText(std::to_string(fps), 5, height - 19, 14, settings->fpsColor);
     }
+    
+    // Draw the simulator output
+    simulator->draw(pixels);
     
     // Draw the pixels array
     QPixmap qpm = QPixmap::fromImage(*pixels);

@@ -20,7 +20,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Create a GraphicsView for the main frame
     slZoom = new QSlider(Qt::Horizontal);
-    view = new GraphicsView(this, settings, slZoom, ui->actionChangeAbsorption);
+    view = new GraphicsView(this, settings, slZoom, ui->actionChangeAbsorption, ui->actionShow_Output);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -105,6 +105,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     // Connect actions in view menu
     connect(ui->actionFPS_counter, SIGNAL(triggered(bool)), this, SLOT(slot_fpscounter()));
     connect(ui->actionGrid, SIGNAL(triggered(bool)), this, SLOT(slot_grid()));
+    connect(ui->actionShow_Output, SIGNAL(triggered(bool)), this, SLOT(slot_showoutput()));
     
     // Connect actions in operate menu
     connect(ui->actionSelect_Domain, SIGNAL(triggered(bool)), this, SLOT(slot_selectdomain()));
@@ -118,6 +119,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(slot_redo()));
     connect(ui->actionMoveToCenter, SIGNAL(triggered(bool)), this, SLOT(slot_movetocenter()));
     connect(ui->actionChangeAbsorption, SIGNAL(triggered(bool)), this, SLOT(slot_changeabsorption()));
+    connect(ui->actionstart, SIGNAL(triggered(bool)), this, SLOT(slot_start()));
     
     // Connect actions in the about menu
     connect(ui->actionChangelog, SIGNAL(triggered(bool)), this, SLOT(slot_changelog()));
