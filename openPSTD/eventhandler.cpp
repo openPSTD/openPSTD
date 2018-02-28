@@ -491,7 +491,7 @@ void EventHandler::drawMeasure(QImage* pixels) {
         int x = tt * x0 + (1 - tt) * x1;
         int y = tt * y0 + (1 - tt) * y1;
         
-        pixels->setPixel(x, y, qRgb(0, 255, 255));
+        pixels->setPixel(x, y, qRgb(0, 0, 255));
     }
     
     // Compute the length of the measure
@@ -514,7 +514,7 @@ void EventHandler::drawMeasure(QImage* pixels) {
         midx,
         midy,
         14,
-        qRgb(0, 255, 255),
+        qRgb(0, 0, 255),
         pixels
     );
 }
