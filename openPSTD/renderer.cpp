@@ -397,8 +397,10 @@ void Renderer::drawAxes() {
     }
     
     // Draw horizontal offset text
+    int mousex = (eh->getMousePos().x() - model->offsetX) / model->zoom;
+    int mousey = -(eh->getMousePos().y() - model->offsetY) / model->zoom;
     drawText(
-        "X: " + std::to_string(-model->offsetX / model->zoom),
+        "X: " + std::to_string(mousex),
         0,
         pixels->height() - 36,
         16,
@@ -407,7 +409,7 @@ void Renderer::drawAxes() {
     
     // Draw vertical offset text
     drawText(
-        "Y: " + std::to_string(-model->offsetY / model->zoom),
+        "Y: " + std::to_string(mousey),
         0,
         pixels->height() - 18,
         16,
