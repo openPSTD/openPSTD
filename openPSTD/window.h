@@ -36,6 +36,7 @@ protected:
 private:
     QWidget* spacer;
     QLabel* lGridSize;
+    QLabel* lGridSize2;
     QLabel* lZoom;
     QActionGroup* qagMainToolbar;
     

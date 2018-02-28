@@ -49,7 +49,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     // Add a label for the grid size spinbox
     lGridSize = new QLabel();
     lGridSize->setText("Grid size:");
-    lGridSize->setToolTip("In m");
     ui->mainToolBar->addWidget(lGridSize);
     
     // Create a QSpinBox for the grid size
@@ -62,6 +61,11 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     view->renderer->setGridSize(settings->pstdGridSize);
     ui->mainToolBar->addWidget(sbGridSize);
     connect(sbGridSize, SIGNAL(valueChanged(int)), this, SLOT(slot_gridsize(int)));
+    
+    // Add a "(m)" label after the grid size QSpinBox
+    lGridSize2 = new QLabel();
+    lGridSize2->setText("(m)");
+    ui->mainToolBar->addWidget(lGridSize2);
     
     // Set initial scene offset
     view->model->state = SELECT;
