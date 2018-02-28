@@ -92,13 +92,16 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
     if (side == LEFT) {
         midx -= 12 * lengthtext.size();
     }
+    if (side == RIGHT) {
+        midx++;
+    }
     if (side == TOP) {
         midx -= 5 * lengthtext.size();
         midy -= 9;
     }
     if (side == BOTTOM) {
         midx -= 5 * lengthtext.size();
-        midy += 9;
+        midy += 10;
     }
     
     // Draw the wall length text
