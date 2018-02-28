@@ -363,8 +363,12 @@ void Renderer::drawCursor(int x, int y) {
 void Renderer::drawZoom(int zoomaim) {
     // Draw the zoom level reference line
     int width = model->zoom * zoomaim;
-    for (int i = 0; i < width; i++) {
+    for (int i = 5; i < 5 + width; i++) {
         if (i < pixels->width()) pixels->setPixel(i, 5, settings->zoomColor);
+    }
+    for (int i = 3; i < 8; i++) {
+        pixels->setPixel(5, i, settings->zoomColor);
+        if (5 + width < pixels->width()) pixels->setPixel(5 + width, i, settings->zoomColor);
     }
     
     // Draw the current zoom level text
