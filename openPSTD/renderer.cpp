@@ -16,6 +16,7 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, Mode
     this->settings = settings;
     this->modelmanager = modelmanager;
     this->simulator = simulator;
+    bool centered = false;
     
     // Create a new EventHandler instance
     eh = new EventHandler(model, settings, modelmanager, parent, changeabsorption);
@@ -159,6 +160,12 @@ void Renderer::draw() {
     // Reset the pixels array
     delete pixels;
     pixels = new QImage(width, height, QImage::Format_RGB32);
+    
+    // Center the scene initially
+    if (!centered) {
+        moveToCenter();
+        centered = true;
+    }
 }
 
 /**
@@ -237,8 +244,10 @@ void Renderer::setDimensions(int width, int height) {
  * Updates the zoom level and offset values in model to center the scene.
  */
 void Renderer::moveToCenter() {
-    // Do nothing if there are no objects
+    // Go to (0, 0) if there are no domains
     if (model->domains.size() == 0) {
+        model->offsetX = pixels->width() / 2;
+        model->offsetY = pixels->height() / 2;
         return;
     }
     

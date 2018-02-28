@@ -63,6 +63,7 @@ private:
     QTime time;
     int numframes;
     int fps;
+    bool centered;
     
     // Private drawing methods
     void drawGrid();
