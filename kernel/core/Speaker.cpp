@@ -70,8 +70,6 @@ namespace OpenPSTD {
 
                             std::cout<<"domain->bottom_right.x   "<<domain->bottom_right.x<<"\n";
                             std::cout<<"domain->bottom_right.y   "<<domain->bottom_right.y<<"\n";*/
-
-                                std::cout<<i<<" "<<j<<"\n";
                            /* if (pressure!=0)
                             {
                                 std::cout<<domain->settings->GetBandWidth( )<<"\n";
