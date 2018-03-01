@@ -83,6 +83,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
             // Start adding a new domain
             addDomainStart(x, y);
             addingDomain = true;
+            zerowall = true;
         }
     }
     
@@ -650,6 +651,21 @@ void EventHandler::clearSelection() {
     selectedWalls.clear();
     selectedSources.clear();
     selectedReceivers.clear();
+}
+
+/**
+ * Cancels adding a new domain.
+ */
+void EventHandler::cancelNewDomain() {
+    // Do nothing if not adding a new domain
+    if (!addingDomain) return;
+    
+    // Remove the last domain from the model
+    model->domains.pop_back();
+    modelmanager->undo();
+    
+    // Reset the state variables
+    addingDomain = false;
 }
 
 /**

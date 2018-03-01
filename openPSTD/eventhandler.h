@@ -49,6 +49,7 @@ public:
     void deleteSelected();
     void clearSelection();
     inline void removeMeasure() { measuring = false; }
+    void cancelNewDomain();
     
     void changeabsorptiondialog();
 private:

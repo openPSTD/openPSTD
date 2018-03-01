@@ -139,6 +139,7 @@ Window::~Window() {
     delete qagMainToolbar;
     delete sbGridSize;
     delete view;
+    delete lGridSize2;
     delete lGridSize;
     delete spacer;
     delete ui;

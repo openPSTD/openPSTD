@@ -173,4 +173,10 @@ void GraphicsView::keyPressEvent(QKeyEvent* event) {
         // Delete the selected objects
         deleteSelected();
     }
+    
+    // Check for ESC
+    if (event->key() == Qt::Key_Escape && event->modifiers() == Qt::NoModifier) {
+        // Cancel adding a domain
+        renderer->eh->cancelNewDomain();
+    }
 }
