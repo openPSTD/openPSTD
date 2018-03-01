@@ -56,8 +56,6 @@ namespace OpenPSTD {
             using namespace Kernel;
             debug("Initializing scene");
             this->add_domains();
-            std::cout<<this->scene->bottom_right;
-            cin.get();
             this->add_speakers();
             this->add_receivers();
             //this->calcwind();
