@@ -91,8 +91,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     qagMainToolbar->addAction(ui->actionSelect);
     qagMainToolbar->addAction(ui->actionMoveScene);
     qagMainToolbar->addAction(ui->actionAddDomain);
-    qagMainToolbar->addAction(ui->actionAddSource);
-    qagMainToolbar->addAction(ui->actionAddReceiver);
     qagMainToolbar->addAction(ui->actionMeasure);
     qagMainToolbar->setExclusive(true);
     

@@ -213,9 +213,6 @@
    </property>
   </action>
   <action name="actionAddSource">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/new/prefix1/icons/source.png</normaloff>:/new/prefix1/icons/source.png</iconset>
@@ -231,9 +228,6 @@
    </property>
   </action>
   <action name="actionAddReceiver">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/new/prefix1/icons/receiver.png</normaloff>:/new/prefix1/icons/receiver.png</iconset>

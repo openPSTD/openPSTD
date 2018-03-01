@@ -15,6 +15,7 @@
 #include "renderer.h"
 #include "graphicsview.h"
 #include "ui_window.h"
+#include "coordinatedialog.h"
 
 namespace Ui {
 class Window;
@@ -70,8 +71,16 @@ public slots:
     inline void slot_select() { view->renderer->setState(SELECT); }
     inline void slot_move() { view->renderer->setState(MOVE); }
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
-    inline void slot_addsource() { view->renderer->setState(ADDSOURCE); }
-    inline void slot_addreceiver() { view->renderer->setState(ADDRECEIVER); }
+    inline void slot_addsource() {
+        CoordinateDialog* cd = new CoordinateDialog(this, view->model, settings, true);
+        cd->exec();
+        delete cd;
+    }
+    inline void slot_addreceiver() {
+        CoordinateDialog* cd = new CoordinateDialog(this, view->model, settings, false);
+        cd->exec();
+        delete cd;
+    }
     inline void slot_measure() { view->renderer->setState(MEASURE); }
     inline void slot_undo() { view->undo(); }
     inline void slot_redo() { view->redo(); }

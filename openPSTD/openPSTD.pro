@@ -45,7 +45,8 @@ SOURCES += \
     test/testmenuview.cpp \
     test/testmodel.cpp \
     test/testundoredo.cpp \
-    simulator.cpp
+    simulator.cpp \
+    coordinatedialog.cpp
 
 HEADERS += \
     window.h \
@@ -71,11 +72,13 @@ HEADERS += \
     test/testundoredo.h \
     absorptiondialog.h \
     test/testrobustness.h \
-    simulator.h
+    simulator.h \
+    coordinatedialog.h
 
 FORMS += \
     window.ui \
-    absorptiondialog.ui
+    absorptiondialog.ui \
+    coordinatedialog.ui
 
 RESOURCES += \
     resources.qrc \
