@@ -56,6 +56,9 @@ public:
     QAction *actionMeasure;
     QAction *actionPSTD_grid_size;
     QAction *actionMoveToCenter;
+    QAction *actionChangeAbsorption;
+    QAction *actionSelect_Domain;
+    QAction *actionShow_Output;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QMenuBar *menuBar;
@@ -99,13 +102,11 @@ public:
         actionAddDomain->setIcon(icon3);
         actionAddSource = new QAction(Window);
         actionAddSource->setObjectName(QStringLiteral("actionAddSource"));
-        actionAddSource->setCheckable(true);
         QIcon icon4;
         icon4.addFile(QStringLiteral(":/new/prefix1/icons/source.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAddSource->setIcon(icon4);
         actionAddReceiver = new QAction(Window);
         actionAddReceiver->setObjectName(QStringLiteral("actionAddReceiver"));
-        actionAddReceiver->setCheckable(true);
         QIcon icon5;
         icon5.addFile(QStringLiteral(":/new/prefix1/icons/receiver.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAddReceiver->setIcon(icon5);
@@ -180,6 +181,21 @@ public:
         QIcon icon11;
         icon11.addFile(QStringLiteral(":/new/prefix1/icons/movetocenter.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionMoveToCenter->setIcon(icon11);
+        actionChangeAbsorption = new QAction(Window);
+        actionChangeAbsorption->setObjectName(QStringLiteral("actionChangeAbsorption"));
+        QIcon icon12;
+        icon12.addFile(QStringLiteral(":/new/prefix1/icons/changeabsorption.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon12.addFile(QStringLiteral(":/new/prefix1/icons/changeabsorption_disabled.png"), QSize(), QIcon::Disabled, QIcon::Off);
+        actionChangeAbsorption->setIcon(icon12);
+        actionSelect_Domain = new QAction(Window);
+        actionSelect_Domain->setObjectName(QStringLiteral("actionSelect_Domain"));
+        actionSelect_Domain->setCheckable(true);
+        QIcon icon13;
+        icon13.addFile(QStringLiteral(":/new/prefix1/icons/selectdomain.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionSelect_Domain->setIcon(icon13);
+        actionShow_Output = new QAction(Window);
+        actionShow_Output->setObjectName(QStringLiteral("actionShow_Output"));
+        actionShow_Output->setCheckable(true);
         centralWidget = new QWidget(Window);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setEnabled(true);
@@ -235,19 +251,14 @@ public:
         menuOpenPSTD->addAction(actionSave);
         menuOpenPSTD->addAction(actionSave_As);
         menuOpenPSTD->addAction(actionClose);
-        menuSettings->addAction(actionGrid_color);
-        menuSettings->addAction(actionBackground_color);
-        menuSettings->addAction(actionZoom_color);
-        menuSettings->addAction(actionFPS_color);
-        menuSettings->addAction(actionSource_color);
-        menuSettings->addAction(actionReceiver_color);
-        menuSettings->addSeparator();
         menuSettings->addAction(actionClamp_distance);
         menuSettings->addAction(actionPSTD_grid_size);
         menuScene->addAction(actionClear_all);
         menuScene->addAction(actionDelete_selected);
         menuView->addAction(actionFPS_counter);
         menuView->addAction(actionGrid);
+        menuView->addAction(actionShow_Output);
+        menuOperate->addAction(actionSelect_Domain);
         menuOperate->addAction(actionSelect);
         menuOperate->addAction(actionMoveScene);
         menuOperate->addAction(actionAddDomain);
@@ -261,7 +272,9 @@ public:
         menuOperate->addAction(actionUndo);
         menuOperate->addAction(actionRedo);
         menuOperate->addAction(actionMoveToCenter);
+        menuOperate->addAction(actionChangeAbsorption);
         menuAbout->addAction(actionChangelog);
+        mainToolBar->addAction(actionSelect_Domain);
         mainToolBar->addAction(actionSelect);
         mainToolBar->addAction(actionMoveScene);
         mainToolBar->addAction(actionAddDomain);
@@ -275,6 +288,7 @@ public:
         mainToolBar->addAction(actionUndo);
         mainToolBar->addAction(actionRedo);
         mainToolBar->addAction(actionMoveToCenter);
+        mainToolBar->addAction(actionChangeAbsorption);
 
         retranslateUi(Window);
 
@@ -358,6 +372,9 @@ public:
         actionMeasure->setText(QApplication::translate("Window", "Measure", Q_NULLPTR));
         actionPSTD_grid_size->setText(QApplication::translate("Window", "PSTD grid size", Q_NULLPTR));
         actionMoveToCenter->setText(QApplication::translate("Window", "MoveToCenter", Q_NULLPTR));
+        actionChangeAbsorption->setText(QApplication::translate("Window", "ChangeAbsorption", Q_NULLPTR));
+        actionSelect_Domain->setText(QApplication::translate("Window", "Select Domain", Q_NULLPTR));
+        actionShow_Output->setText(QApplication::translate("Window", "Show Output", Q_NULLPTR));
         menuOpenPSTD->setTitle(QApplication::translate("Window", "File", Q_NULLPTR));
         menuEdit->setTitle(QApplication::translate("Window", "Edit", Q_NULLPTR));
         menuModule->setTitle(QApplication::translate("Window", "Module", Q_NULLPTR));

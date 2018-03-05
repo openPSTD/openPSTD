@@ -73,7 +73,8 @@ HEADERS += \
     absorptiondialog.h \
     test/testrobustness.h \
     simulator.h \
-    coordinatedialog.h
+    coordinatedialog.h \
+    mingw.thread.h
 
 FORMS += \
     window.ui \

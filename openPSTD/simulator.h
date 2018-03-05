@@ -4,7 +4,11 @@
 #include <string>
 #include <array>
 #include <memory>
+#if defined(_WIN32) || defined(_WIN64)
+#include "mingw.thread.h"
+#else
 #include <thread>
+#endif
 #include <QImage>
 #include <QAction>
 #include "model.h"
