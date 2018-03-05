@@ -81,7 +81,7 @@ void Simulator::run() {
     }
     
     // Run the simulation
-    //runcmd("../OpenPSTD-cli run -f test");
+    runcmd("../OpenPSTD-cli run -f test");
 }
 
 void Simulator::draw(QImage* pixels) {

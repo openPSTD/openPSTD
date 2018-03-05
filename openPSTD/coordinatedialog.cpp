@@ -14,6 +14,13 @@ CoordinateDialog::CoordinateDialog(QWidget *parent, Model* model, Settings* sett
     connect(ui->buttonCancel, SIGNAL(clicked(bool)), this, SLOT(slot_cancel()));
     connect(ui->buttonSave, SIGNAL(clicked(bool)), this, SLOT(slot_save()));
     
+    // Set the title of the dialog
+    if (isSource) {
+        setWindowTitle("Add source");
+    } else {
+        setWindowTitle("Add receiver");
+    }
+    
     // Focus the x-coordinate spinbox
     ui->sbX->setFocus();
 }
