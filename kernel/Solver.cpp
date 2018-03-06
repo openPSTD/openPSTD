@@ -118,11 +118,11 @@ namespace OpenPSTD {
             std::vector<float> coefs = this->settings->GetRKCoefficients();
             if (!domain->is_pml) {
 
-                //write_array_to_file(domain->current_values.px0+domain->current_values.py0, "pressure_tot", frame * 6 + rk_step);
-                //write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
-                //write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
-                //write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
-                //write_array_to_file(domain->current_values.vy0, "velocity_y", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.px0+domain->current_values.py0, "pressure_tot", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.px0, "pressure_x", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.py0, "pressure_y", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.vx0, "velocity_x", frame * 6 + rk_step);
+                write_array_to_file(domain->current_values.vy0, "velocity_y", frame * 6 + rk_step);
             }
 
 
