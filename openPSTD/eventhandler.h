@@ -14,6 +14,7 @@
 #include "grid.h"
 #include "source.h"
 #include "absorptiondialog.h"
+#include "simulator.h"
 
 /**
  * Event handling class.
@@ -23,7 +24,7 @@
 class EventHandler {
 public:
     // Constructor
-    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption);
+    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption);
     
     // Public event handling methods
     void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
@@ -52,11 +53,13 @@ public:
     void cancelNewDomain();
     
     void changeabsorptiondialog();
+    inline void setHeight(int height) { this->height = height; }
 private:
     // Class instance variables
     Model* model;
     Settings* settings;
     ModelManager* modelmanager;
+    Simulator* simulator;
     QWidget* parent;
     QAction* changeabsorption;
     
@@ -77,6 +80,7 @@ private:
     bool measuring;
     bool overlap;
     bool zerowall;
+    int height;
     
     // Private event handling methods
     void addDomainStart(int x, int y);

@@ -9,12 +9,20 @@ Simulator::Simulator(Model* model, QAction* showoutput) {
     shown = false;
     showoutput->setChecked(false);
     threadRunning = false;
+    numcomputed = 0;
+    shownFrame = -1;
+    numframes = 1000;
 }
 
 Simulator::~Simulator() {
     // Stop the simulator thread if it is running
     if (threadRunning) {
         thread.join();
+    }
+    
+    // Delete all frames
+    for (int i = 0; i < frames.size(); i++) {
+        delete frames[i];
     }
 }
 
@@ -32,12 +40,16 @@ void Simulator::start() {
 void Simulator::run() {
     // Reset the output console
     output.clear();
+    numcomputed = 0;
+    shownFrame = -1;
     
     // Show the output console
     shown = true;
     showoutput->setChecked(true);
     
-    // Create a new file for this simulation
+    numframes = 1000;
+    
+    /*// Create a new file for this simulation
     runcmd("../OpenPSTD-cli create test");
     
     // Add all domains
@@ -81,45 +93,107 @@ void Simulator::run() {
     }
     
     // Run the simulation
-    runcmd("../OpenPSTD-cli run -f test");
+    runcmd("../OpenPSTD-cli run -f test");*/
+    runcmd("../fakekernel " + std::to_string(numframes));
 }
 
 void Simulator::draw(QImage* pixels) {
     // Do nothing if the output console is not shown
     if (!shown) return;
     
+    // Update width
+    width = pixels->width();
+    
     // Draw the background
-    int w = 300;
-    for (int x = pixels->width() - w; x < pixels->width(); x++) {
-        for (int y = 0; y < pixels->height(); y++) {
-            pixels->setPixel(x, y, qRgb(255, 255, 255));
+    int h = 150;
+    for (int x = 0; x < pixels->width(); x++) {
+        int frame = numframes * x / pixels->width();
+        for (int y = pixels->height() - h; y < pixels->height() - 20; y++) {
+            if (numcomputed >= frame) {
+                pixels->setPixel(x, y, qRgb(115, 115, 115));
+            } else {
+                pixels->setPixel(x, y, qRgb(70, 70, 70));
+            }
+        }
+        for (int y = pixels->height() - 20; y < pixels->height(); y++) {
+            int i = y - pixels->height();
+            pixels->setPixel(x, y, qRgb(
+                156 - 3*i,
+                156 - 3*i,
+                156 - 3*i
+            ));
         }
     }
     
-    // Loop through all lines in the output vector
-    int maxchars = 31;
-    int line = 0;
-    for (int i = 0; i < output.size(); i++) {
-        int offset = 0;
-        while (offset < output[i].length()) {
-            std::string sub = output[i].substr(offset, maxchars);
-            drawText(
-                sub,
-                pixels->width() - w,
-                15 * line,
-                12,
-                qRgb(0, 0, 0),
-                pixels
-            );
-            offset += maxchars;
-            line++;
+    // Draw the background grid
+    int df = 50;
+    for (int i = 0; i < numframes; i += df) {
+        int x = i * pixels->width() / numframes;
+        for (int y = pixels->height() - h; y < pixels->height() - 20; y++) {
+            pixels->setPixel(x, y, qRgb(0, 0, 0));
         }
+        
+        int offset = 0;
+        if (x < 1000) offset = -14;
+        if (x < 100) offset = -10;
+        if (x < 10) offset = 0;
+        drawText(
+            std::to_string(i),
+            x + offset,
+            pixels->height() - 16,
+            12,
+            qRgb(0, 0, 0),
+            pixels
+        );
+    }
+    
+    // Draw a line at the shown frame
+    if (shownFrame != -1) {
+        int x = shownFrame * width / numframes;
+        for (int y = pixels->height() - h; y < pixels->height() - 20; y++) {
+            pixels->setPixel(x, y, qRgb(0, 255, 0));
+        }
+    }
+    
+    // Draw the id of the shown frame
+    if (shownFrame != -1) {
+        drawText(
+            std::to_string(shownFrame),
+            5,
+            pixels->height() - 40,
+            16,
+            qRgb(0, 0, 0),
+            pixels
+        );
+    }
+    
+    // Draw the samples of all frames
+    for (int x = 0; x < pixels->width(); x++) {
+        int i = x * numframes / pixels->width();
+        if (i >= numcomputed) break;
+        int value = frames[i]->getSample(0, 0);
+        int y = pixels->height() - 10 - h/2 + value;
+        pixels->setPixel(x, y, qRgb(255, 255, 255));
     }
 }
 
 void Simulator::toggle() {
     shown = !shown;
     showoutput->setChecked(shown);
+}
+
+bool Simulator::isShown() {
+    return shown;
+}
+
+void Simulator::showFrame(int x) {
+    // Compute the frame id from the x-coordinate
+    int frame = numframes * x / width;
+    
+    if (frame < 0) frame = 0;
+    if (frame > numcomputed) frame = numcomputed;
+    if (frame >= numframes) frame = numframes - 1;
+    shownFrame = frame;
 }
 
 void Simulator::runcmd(std::string cmd) {
@@ -133,13 +207,21 @@ void Simulator::runcmd(std::string cmd) {
     std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
     while (!feof(pipe.get())) {
         if (fgets(buffer.data(), 128, pipe.get()) != nullptr) {
-            result += buffer.data();
+            // Output the printed line
+            std::string s = buffer.data();
+            result += s;
+            std::cout << "-" << s;
+            output.push_back("<" + result);
+            
+            // Update numcomputed
+            numcomputed++;
+            
+            // Save the new frame
+            Frame* f = new Frame(1, 1);
+            f->setSample(0, 0, 0);
+            frames.push_back(f);
         }
     }
-    
-    // Output the commands output
-    std::cout << "<" << result << std::endl;
-    output.push_back("<" + result);
 }
 
 void Simulator::drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels) {

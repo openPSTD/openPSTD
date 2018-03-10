@@ -19,11 +19,12 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, Mode
     bool centered = false;
     
     // Create a new EventHandler instance
-    eh = new EventHandler(model, settings, modelmanager, parent, changeabsorption);
+    eh = new EventHandler(model, settings, modelmanager, simulator, parent, changeabsorption);
     
     // Update the width and height according to the scene
     width = scene->sceneRect().width();
     height = scene->sceneRect().height();
+    eh->setHeight(height);
     
     // Create an initial pixels array
     pixels = new QImage(1024, 768, QImage::Format_RGB32);
@@ -231,6 +232,7 @@ void Renderer::setDimensions(int width, int height) {
     
     // Update the dimension of the scene to match the QGraphicsView
     scene->setSceneRect(0, 0, width, height);
+    eh->setHeight(height);
     
     // Create a new pixels array with the new dimensions
     delete pixels;

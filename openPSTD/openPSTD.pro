@@ -46,7 +46,8 @@ SOURCES += \
     test/testmodel.cpp \
     test/testundoredo.cpp \
     simulator.cpp \
-    coordinatedialog.cpp
+    coordinatedialog.cpp \
+    frame.cpp
 
 HEADERS += \
     window.h \
@@ -74,7 +75,8 @@ HEADERS += \
     test/testrobustness.h \
     simulator.h \
     coordinatedialog.h \
-    mingw.thread.h
+    mingw.thread.h \
+    frame.h
 
 FORMS += \
     window.ui \

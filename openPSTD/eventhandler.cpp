@@ -8,11 +8,12 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption) {
+EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption) {
     // Save reference variables locally
     this->model = model;
     this->settings = settings;
     this->modelmanager = modelmanager;
+    this->simulator = simulator;
     this->parent = parent;
     this->changeabsorption = changeabsorption;
     
@@ -22,6 +23,7 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
     measuring = false;
     overlap = false;
     zerowall = false;
+    height = 0;
 }
 
 /**
@@ -35,6 +37,11 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
 void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers) {
     // Remove the measuring tool
     measuring = false;
+    
+    // Check if the simulation output is shown
+    if (simulator->isShown() && button == Qt::LeftButton && !addingDomain && !measuring) {
+        simulator->showFrame(x);
+    }
     
     // Check if selecting domains
     if (button == Qt::LeftButton && model->state == SELECTDOMAIN) {
@@ -192,6 +199,11 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     // Update mouse position variables
     mouseX = x;
     mouseY = y;
+    
+    // Check if the simulation output is shown
+    if (drag && simulator->isShown() && y > height - 150 && !addingDomain && !measuring) {
+        simulator->showFrame(x);
+    }
     
     // Check if selecting domains
     if (model->state == SELECTDOMAIN && drag && modifiers == Qt::CTRL) {
