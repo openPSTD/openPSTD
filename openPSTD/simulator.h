@@ -37,6 +37,7 @@ private:
     int numcomputed;
     int shownFrame;
     int width;
+    int playspeed;
     std::vector<Frame*> frames;
     
     void run();

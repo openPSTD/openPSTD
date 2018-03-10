@@ -12,6 +12,7 @@ Simulator::Simulator(Model* model, QAction* showoutput) {
     numcomputed = 0;
     shownFrame = -1;
     numframes = 1000;
+    playspeed = 0;
 }
 
 Simulator::~Simulator() {
@@ -103,6 +104,17 @@ void Simulator::draw(QImage* pixels) {
     
     // Update width
     width = pixels->width();
+    
+    // Update shownFrame
+    shownFrame += playspeed;
+    if (shownFrame < 0) {
+        shownFrame = 0;
+        playspeed = 0;
+    }
+    if (shownFrame >= numcomputed) {
+        shownFrame = numcomputed - 1;
+        playspeed = 0;
+    }
     
     // Draw the background
     int h = 150;
@@ -201,7 +213,7 @@ void Simulator::showFrame(int x) {
     int frame = numframes * x / width;
     
     if (frame < 0) frame = 0;
-    if (frame > numcomputed) frame = numcomputed;
+    if (frame >= numcomputed) frame = numcomputed - 1;
     if (frame >= numframes) frame = numframes - 1;
     shownFrame = frame;
 }
@@ -261,23 +273,31 @@ void Simulator::drawImage(int x, int y, std::string filename, QImage* pixels) {
 }
 
 void Simulator::button_home() {
-    std::cout << "home" << std::endl;
+    if (numcomputed == 0) {
+        shownFrame = -1;
+    } else {
+        shownFrame = 0;
+    }
 }
 
 void Simulator::button_playreversed() {
-    std::cout << "play reversed" << std::endl;
+    playspeed = -1;
 }
 
 void Simulator::button_pause() {
-    std::cout << "pause" << std::endl;
+    playspeed = 0;
 }
 
 void Simulator::button_play() {
-    std::cout << "play" << std::endl;
+    playspeed = 1;
 }
 
 void Simulator::button_end() {
-    std::cout << "end" << std::endl;
+    if (numcomputed == 0) {
+        shownFrame = -1;
+    } else {
+        shownFrame = numcomputed - 1;
+    }
 }
 
 void Simulator::button_sound() {
