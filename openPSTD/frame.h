@@ -1,18 +1,18 @@
 #ifndef FRAME_H
 #define FRAME_H
 
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+
 class Frame {
 public:
-    Frame(int width, int height);
-    ~Frame();
-    void setSample(int x, int y, double value);
+    Frame(std::string filename);
     double getSample(int x, int y);
 private:
-    double* samples;
+    std::vector<double> samples;
     int width;
-    int height;
-    
-    int index(int x,int y);
 };
 
 #endif

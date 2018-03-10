@@ -175,6 +175,16 @@ void Simulator::draw(QImage* pixels) {
         int y = pixels->height() - 10 - h/2 + value;
         pixels->setPixel(x, y, qRgb(255, 255, 255));
     }
+    
+    // Draw the buttons
+    int x0 = pixels->width() / 2;
+    int y = pixels->height() - h - 20;
+    drawImage(x0 - 60, y, ":/new/prefix1/icons/output_home.png", pixels);
+    drawImage(x0 - 40, y, ":/new/prefix1/icons/output_playreversed.png", pixels);
+    drawImage(x0 - 20, y, ":/new/prefix1/icons/output_pause.png", pixels);
+    drawImage(x0     , y, ":/new/prefix1/icons/output_play.png", pixels);
+    drawImage(x0 + 20, y, ":/new/prefix1/icons/output_end.png", pixels);
+    drawImage(x0 + 40, y, ":/new/prefix1/icons/output_sound.png", pixels);
 }
 
 void Simulator::toggle() {
@@ -194,6 +204,16 @@ void Simulator::showFrame(int x) {
     if (frame > numcomputed) frame = numcomputed;
     if (frame >= numframes) frame = numframes - 1;
     shownFrame = frame;
+}
+
+void Simulator::pressButton(int x) {
+    int x0 = width / 2;
+    if (x0-60 <= x && x < x0-40) button_home();
+    if (x0-40 <= x && x < x0-20) button_playreversed();
+    if (x0-20 <= x && x < x0   ) button_pause();
+    if (x0    <= x && x < x0+20) button_play();
+    if (x0+20 <= x && x < x0+40) button_end();
+    if (x0+40 <= x && x < x0+60) button_sound();
 }
 
 void Simulator::runcmd(std::string cmd) {
@@ -217,8 +237,7 @@ void Simulator::runcmd(std::string cmd) {
             numcomputed++;
             
             // Save the new frame
-            Frame* f = new Frame(1, 1);
-            f->setSample(0, 0, 0);
+            Frame* f = new Frame(s);
             frames.push_back(f);
         }
     }
@@ -231,4 +250,36 @@ void Simulator::drawText(std::string text, int x, int y, int size, QRgb color, Q
     p.setFont(QFont("Monospace", size));
     p.drawText(x, y + size, QString(text.c_str()));
     p.end();
+}
+
+void Simulator::drawImage(int x, int y, std::string filename, QImage* pixels) {
+    QPainter p;
+    p.begin(pixels);
+    p.drawImage(QRect(x, y, 20, 20), QImage(filename.c_str()));
+    p.drawRect(x, y, 20, 20);
+    p.end();
+}
+
+void Simulator::button_home() {
+    std::cout << "home" << std::endl;
+}
+
+void Simulator::button_playreversed() {
+    std::cout << "play reversed" << std::endl;
+}
+
+void Simulator::button_pause() {
+    std::cout << "pause" << std::endl;
+}
+
+void Simulator::button_play() {
+    std::cout << "play" << std::endl;
+}
+
+void Simulator::button_end() {
+    std::cout << "end" << std::endl;
+}
+
+void Simulator::button_sound() {
+    std::cout << "sound" << std::endl;
 }

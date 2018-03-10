@@ -25,6 +25,7 @@ public:
     void toggle();
     bool isShown();
     void showFrame(int x);
+    void pressButton(int x);
 private:
     Model* model;
     QAction* showoutput;
@@ -41,6 +42,14 @@ private:
     void run();
     void runcmd(std::string cmd);
     void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
+    void drawImage(int x, int y, std::string filename, QImage* pixels);
+    
+    void button_home();
+    void button_playreversed();
+    void button_pause();
+    void button_play();
+    void button_end();
+    void button_sound();
 };
 
 #endif

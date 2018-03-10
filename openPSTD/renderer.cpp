@@ -24,6 +24,7 @@ Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, Mode
     // Update the width and height according to the scene
     width = scene->sceneRect().width();
     height = scene->sceneRect().height();
+    eh->setWidth(width);
     eh->setHeight(height);
     
     // Create an initial pixels array
@@ -232,6 +233,7 @@ void Renderer::setDimensions(int width, int height) {
     
     // Update the dimension of the scene to match the QGraphicsView
     scene->setSceneRect(0, 0, width, height);
+    eh->setWidth(width);
     eh->setHeight(height);
     
     // Create a new pixels array with the new dimensions

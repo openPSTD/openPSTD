@@ -23,6 +23,7 @@ EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* model
     measuring = false;
     overlap = false;
     zerowall = false;
+    width = 0;
     height = 0;
 }
 
@@ -40,7 +41,12 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     
     // Check if the simulation output is shown
     if (simulator->isShown() && button == Qt::LeftButton && !addingDomain && !measuring) {
-        simulator->showFrame(x);
+        if (y > height - 150) {
+            simulator->showFrame(x);
+        }
+        if (height - 170 < y && y < height - 150 && width/2 - 60 <= x && width/2 + 60 >= x) {
+            simulator->pressButton(x);
+        }
     }
     
     // Check if selecting domains
@@ -201,7 +207,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     mouseY = y;
     
     // Check if the simulation output is shown
-    if (drag && simulator->isShown() && y > height - 150 && !addingDomain && !measuring) {
+    if (drag && y > height - 150 && simulator->isShown() && !addingDomain && !measuring) {
         simulator->showFrame(x);
     }
     

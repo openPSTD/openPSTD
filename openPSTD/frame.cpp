@@ -1,34 +1,35 @@
 #include "frame.h"
 
-Frame::Frame(int width, int height) {
-    // Save the width and height
-    this->width = width;
-    this->height = height;
+Frame::Frame(std::string filename) {
+    // Read the data file
+    std::ifstream file(filename);
+    std::string line;
+    std::stringstream ss;
     
-    // Initialize the samples array
-    samples = new double[width * height];
-}
-
-Frame::~Frame() {
-    // Delete the samples array
-    delete samples;
-}
-
-void Frame::setSample(int x, int y, double value) {
-    // Save the value of the sample
-    samples[index(x, y)] = value;
+    // Loop through all lines in the file
+    /*double v;
+    while (std::getline(file, line)) {
+        // Split line on comma
+        width = 0;
+        while (ss >> v) {
+            // Save the sample
+            samples.push_back(v);
+            
+            // Ignore the comma
+            if (ss.peek() == ',') ss.ignore();
+            
+            // Update width
+            width++;
+        }
+    }*/
+    width = 0;
 }
 
 double Frame::getSample(int x, int y) {
     // Verify that the sample exists
-    int i = index(x, y);
-    if (i < 0 || i > width) return 0;
+    int i = x + y * width;
+    if (i < 0 || i >= samples.size()) return 0;
     
     // Return the value of the sample
     return samples[i];
-}
-
-int Frame::index(int x, int y) {
-    // Return the index in the samples array
-    return x + y * width;
 }

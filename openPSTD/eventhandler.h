@@ -53,6 +53,7 @@ public:
     void cancelNewDomain();
     
     void changeabsorptiondialog();
+    inline void setWidth(int width) { this->width = width; }
     inline void setHeight(int height) { this->height = height; }
 private:
     // Class instance variables
@@ -80,6 +81,7 @@ private:
     bool measuring;
     bool overlap;
     bool zerowall;
+    int width;
     int height;
     
     // Private event handling methods
