@@ -113,12 +113,6 @@
     <addaction name="actionMoveToCenter"/>
     <addaction name="actionChangeAbsorption"/>
    </widget>
-   <widget class="QMenu" name="menuAbout">
-    <property name="title">
-     <string>About</string>
-    </property>
-    <addaction name="actionChangelog"/>
-   </widget>
    <addaction name="menuOpenPSTD"/>
    <addaction name="menuEdit"/>
    <addaction name="menuModule"/>
@@ -126,7 +120,6 @@
    <addaction name="menuScene"/>
    <addaction name="menuView"/>
    <addaction name="menuOperate"/>
-   <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="movable">
@@ -343,11 +336,6 @@
   <action name="actionReceiver_color">
    <property name="text">
     <string>Receiver color</string>
-   </property>
-  </action>
-  <action name="actionChangelog">
-   <property name="text">
-    <string>Changelog</string>
    </property>
   </action>
   <action name="actionUndo">

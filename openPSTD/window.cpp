@@ -121,9 +121,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionChangeAbsorption, SIGNAL(triggered(bool)), this, SLOT(slot_changeabsorption()));
     connect(ui->actionstart, SIGNAL(triggered(bool)), this, SLOT(slot_start()));
     
-    // Connect actions in the about menu
-    connect(ui->actionChangelog, SIGNAL(triggered(bool)), this, SLOT(slot_changelog()));
-    
     // Disable the change absorption action
     ui->actionChangeAbsorption->setEnabled(false);
 }
@@ -229,30 +226,4 @@ void Window::slot_fpscounter() {
  */
 void Window::slot_grid() {
     view->model->showGrid = ui->actionGrid->isChecked();
-}
-
-/**
- * Callback method for the changelog action in the about menu.
- * Shows a popup containing the changelog of the current version.
- */
-void Window::slot_changelog() {
-    // Read the changelog file
-    std::string changelog = "";
-    std::ifstream infile("../changelog");
-    std::string line;
-    while (std::getline(infile, line)) {
-        if (changelog != "") changelog += "\n";
-        changelog += line;
-    }
-    
-    // Show a message box with the changelog text
-    QMessageBox box(
-        "Changelog",
-        QString(changelog.c_str()),
-        QMessageBox::NoIcon,
-        QMessageBox::Close,
-        QMessageBox::NoButton,
-        QMessageBox::NoButton
-    );
-    box.exec();
 }

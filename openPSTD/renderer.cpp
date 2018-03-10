@@ -63,21 +63,6 @@ void Renderer::draw() {
     // Draw the background grid
     drawGrid();
     
-    // Draw (0, 0)
-    for (int j = -2; j <= 2; j++) {
-        for (int i = -2; i <= 2; i++) {
-            int px = i + model->offsetX;
-            int py = j + model->offsetY;
-            if (px < 0 || px >= pixels->width()) continue;
-            if (py < 0 || py >= pixels->height()) continue;
-            pixels->setPixel(
-                i + model->offsetX,
-                j + model->offsetY,
-                qRgb(0, 0, 255)
-            );
-        }
-    }
-    
     // Draw axes
     drawAxes();
     
