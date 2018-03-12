@@ -23,7 +23,7 @@ class Wall {
 public:
     // Constructor
     inline Wall() {}
-    Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings, double absorption);
+    Wall(int x0, int y0, int x1, int y1, Side side, double absorption);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
@@ -59,9 +59,6 @@ private:
     
     // Absorption coefficient
     double absorption;
-    
-    // Class instance variables
-    Settings* settings;
     
     // Whether or not to draw the wall length text
     bool drawWallLength;

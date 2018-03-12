@@ -10,7 +10,7 @@
 class Receiver {
 public:
     // Constructor
-    Receiver(int x, int y, Settings* settings);
+    Receiver(int x, int y);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
@@ -23,9 +23,6 @@ public:
     void setX(int x) { this->x = x; }
     void setY(int y) { this->y = y; }
 private:
-    // Class instance variables
-    Settings* settings;
-    
     // Position of the receiver
     int x;
     int y;

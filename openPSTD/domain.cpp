@@ -9,15 +9,12 @@
  * @param y1  The y coordinate of the second corner of the domain
  * @param settings  A reference to a Settings instance
  */
-Domain::Domain(int x0, int y0, int x1, int y1, Settings* settings) {
+Domain::Domain(int x0, int y0, int x1, int y1) {
     // Save the domain's corner coordinates
     this->x0 = x0;
     this->y0 = y0;
     this->x1 = x1;
     this->y1 = y1;
-    
-    // Save reference variables locally
-    this->settings = settings;
     
     // Initialize the domain's absorption coefficients
     absorptionTop = 0;
@@ -90,10 +87,10 @@ void Domain::resetWalls() {
     walls.clear();
     
     // Recreate the original four non-merged walls
-    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, settings, absorptionLeft));
-    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, settings, absorptionRight));
-    walls.push_back(new Wall(x0, y0, x1, y0, TOP, settings, absorptionTop));
-    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, settings, absorptionBottom));
+    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, absorptionLeft));
+    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, absorptionRight));
+    walls.push_back(new Wall(x0, y0, x1, y0, TOP, absorptionTop));
+    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, absorptionBottom));
 }
 
 /**
@@ -245,7 +242,6 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getX0(),
                 y1,
                 wall->getSide(),
-                settings,
                 getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
@@ -263,7 +259,6 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getX0(),
                 y0,
                 wall->getSide(),
-                settings,
                 getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
@@ -323,7 +318,6 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getY0(),
                 x1,
                 wall->getSide(),
-                settings,
                 getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
@@ -341,7 +335,6 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getY0(),
                 x0,
                 wall->getSide(),
-                settings,
                 getAbsorption(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);

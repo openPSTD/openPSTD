@@ -9,26 +9,25 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-Renderer::Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption, Simulator* simulator) {
+Renderer::Renderer(QGraphicsScene* scene, Model* model, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption, Simulator* simulator) {
     // Save reference variables locally
     this->scene = scene;
     this->model = model;
-    this->settings = settings;
     this->modelmanager = modelmanager;
     this->simulator = simulator;
-    bool centered = false;
+    this->centered = false;
+    
+    // Create an initial pixels array
+    pixels = new QImage(1024, 768, QImage::Format_RGB32);
     
     // Create a new EventHandler instance
-    eh = new EventHandler(model, settings, modelmanager, simulator, parent, changeabsorption);
+    eh = new EventHandler(model, modelmanager, simulator, parent, changeabsorption, pixels);
     
     // Update the width and height according to the scene
     width = scene->sceneRect().width();
     height = scene->sceneRect().height();
     eh->setWidth(width);
     eh->setHeight(height);
-    
-    // Create an initial pixels array
-    pixels = new QImage(1024, 768, QImage::Format_RGB32);
     
     // Load the cursor image
     image = QImage(":/new/prefix1/icons/cursor.png");
@@ -116,7 +115,7 @@ void Renderer::draw() {
     // Draw cursor if adding domain or measuring
     if (model->state == ADDDOMAIN || model->state == MEASURE) {
         QPoint pos = eh->getMousePos();
-        QPoint clamped = Grid::clampFull(pos.x(), pos.y(), model, settings, true);
+        QPoint clamped = Grid::clampFull(pos.x(), pos.y(), model, true);
         drawCursor(clamped.x() + model->offsetX, clamped.y() + model->offsetY);
     }
     
@@ -134,7 +133,7 @@ void Renderer::draw() {
     
     // Draw fps
     if (model->showFPS) {
-        drawText(std::to_string(fps), 5, height - 19, 14, settings->fpsColor);
+        drawText(std::to_string(fps), 5, height - 19, 14, Settings::getInstance()->fpsColor);
     }
     
     // Draw the simulator output
@@ -150,7 +149,7 @@ void Renderer::draw() {
     
     // Center the scene initially
     if (!centered) {
-        moveToCenter();
+        eh->moveToCenter();
         centered = true;
     }
 }
@@ -230,88 +229,6 @@ void Renderer::setDimensions(int width, int height) {
 }
 
 /**
- * Updates the zoom level and offset values in model to center the scene.
- */
-void Renderer::moveToCenter() {
-    // Go to (0, 0) if there are no domains
-    if (model->domains.size() == 0) {
-        model->offsetX = pixels->width() / 2;
-        model->offsetY = pixels->height() / 2;
-        return;
-    }
-    
-    // Keep track of the minimum and maximum x and y coordinates
-    int minx;
-    int maxx;
-    int miny;
-    int maxy;
-    
-    // Loop through all domains
-    for (unsigned int i = 0; i < model->domains.size(); i++) {
-        // Get the min and max coordinates of this domain
-        Domain d = model->domains[i];
-        int x0 = d.getX0();
-        int x1 = d.getX1();
-        int y0 = d.getY0();
-        int y1 = d.getY1();
-        
-        // Update the min and max coordinates according to this domain
-        if (i == 0 || x0 < minx) minx = x0;
-        if (i == 0 || x1 > maxx) maxx = x1;
-        if (i == 0 || y0 < miny) miny = y0;
-        if (i == 0 || y1 > maxy) maxy = y1;
-    }
-    
-    // Loop through all sources
-    for (unsigned int i = 0; i < model->sources.size(); i++) {
-        // Get the min and max coordinates of this source
-        Source s = model->sources[i];
-        int x = s.getX();
-        int y = s.getY();
-        
-        // Update the min and max coordinates according to this source
-        if (x < minx) minx = x;
-        if (x > maxx) maxx = x;
-        if (y < miny) miny = y;
-        if (y > maxy) maxy = y;
-    }
-    
-    // Loop through all receivers
-    for (unsigned int i = 0; i < model->receivers.size(); i++) {
-        // Get the min and max coordinates of this receiver
-        Receiver s = model->receivers[i];
-        int x = s.getX();
-        int y = s.getY();
-        
-        // Update the min and max coordinates according to this receiver
-        if (x < minx) minx = x;
-        if (x > maxx) maxx = x;
-        if (y < miny) miny = y;
-        if (y > maxy) maxy = y;
-    }
-    
-    // Compute the maximum zoom level
-    int dx = maxx - minx;
-    int dy = maxy - miny;
-    int maxzoomx = pixels->width() / (1.1 * dx);
-    int maxzoomy = pixels->height() / (1.1 * dy);
-    int maxzoom = (maxzoomx < maxzoomy ? maxzoomx : maxzoomy);
-    
-    // Compute the new offset
-    int offsetx = -maxzoom * minx;
-    int offsety = -maxzoom * miny;
-    int doffsetx = (pixels->width() - dx * maxzoom) / 2;
-    int doffsety = (pixels->height() - dy * maxzoom) / 2;
-    
-    // Save the new zoom level
-    model->zoom = maxzoom;
-    
-    // Save the new offset
-    model->offsetX = offsetx + doffsetx;
-    model->offsetY = offsety + doffsety;
-}
-
-/**
  * Draws a background grid on the scene.
  */
 void Renderer::drawGrid() {
@@ -320,12 +237,12 @@ void Renderer::drawGrid() {
         for (int x = 0; x < width; x++) {
             // Check if this point is on the grid
             if (Grid::isOnGrid(x, y, model)) {
-                pixels->setPixel(QPoint(x, y), settings->gridColor);
+                pixels->setPixel(QPoint(x, y), Settings::getInstance()->gridColor);
                 continue;
             }
             
             // Background
-            pixels->setPixel(QPoint(x, y), settings->bgColor);
+            pixels->setPixel(QPoint(x, y), Settings::getInstance()->bgColor);
         }
     }
 }
@@ -353,15 +270,15 @@ void Renderer::drawZoom(int zoomaim) {
     // Draw the zoom level reference line
     int width = model->zoom * zoomaim;
     for (int i = 5; i < 5 + width; i++) {
-        if (i < pixels->width()) pixels->setPixel(i, 5, settings->zoomColor);
+        if (i < pixels->width()) pixels->setPixel(i, 5, Settings::getInstance()->zoomColor);
     }
     for (int i = 3; i < 8; i++) {
-        pixels->setPixel(5, i, settings->zoomColor);
-        if (5 + width < pixels->width()) pixels->setPixel(5 + width, i, settings->zoomColor);
+        pixels->setPixel(5, i, Settings::getInstance()->zoomColor);
+        if (5 + width < pixels->width()) pixels->setPixel(5 + width, i, Settings::getInstance()->zoomColor);
     }
     
     // Draw the current zoom level text
-    drawText(std::to_string(zoomaim) + " m", 5, 10, 14, settings->zoomColor);
+    drawText(std::to_string(zoomaim) + " m", 5, 10, 14, Settings::getInstance()->zoomColor);
 }
 
 void Renderer::drawAxes() {

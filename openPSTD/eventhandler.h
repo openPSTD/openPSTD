@@ -24,7 +24,7 @@
 class EventHandler {
 public:
     // Constructor
-    EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption);
+    EventHandler(Model* model, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption, QImage* pixels);
     
     // Public event handling methods
     void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
@@ -55,14 +55,16 @@ public:
     void changeabsorptiondialog();
     inline void setWidth(int width) { this->width = width; }
     inline void setHeight(int height) { this->height = height; }
+    
+    void moveToCenter();
 private:
     // Class instance variables
     Model* model;
-    Settings* settings;
     ModelManager* modelmanager;
     Simulator* simulator;
     QWidget* parent;
     QAction* changeabsorption;
+    QImage* pixels;
     
     // State variables
     bool addingDomain;

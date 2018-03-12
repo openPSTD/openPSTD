@@ -12,12 +12,11 @@ namespace Ui {
 class CoordinateDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit CoordinateDialog(QWidget* parent = 0, Model* model = 0, Settings* settings = 0, bool isSource = true);
+    explicit CoordinateDialog(QWidget* parent = 0, Model* model = 0, bool isSource = true);
     ~CoordinateDialog();
 private:
     Ui::CoordinateDialog* ui;
     Model* model;
-    Settings* settings;
     bool isSource;
 private slots:
     void slot_cancel();

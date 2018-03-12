@@ -73,7 +73,7 @@ int TestRobustness::testLog(Window* window) {
         ss >> g;
         
         // Execute the action
-        execAction(actionID, window, x, y, d, z, g * window->settings->pstdGridSize);
+        execAction(actionID, window, x, y, d, z, g * Settings::getInstance()->pstdGridSize);
     }
     
     // Verify that the model is in a valid state
@@ -113,7 +113,7 @@ void TestRobustness::generateModel(Window* window) {
         out << actionID << " " << x << " " << y << " " << d << " " << z << " " << g << std::endl;
         
         // Execute the action
-        execAction(actionID, window, x, y, d, z, g * window->settings->pstdGridSize);
+        execAction(actionID, window, x, y, d, z, g * Settings::getInstance()->pstdGridSize);
     }
 }
 
@@ -160,12 +160,12 @@ void TestRobustness::execAction(int actionID, Window* window, int x, int y, bool
     if (actionID == 5) window->view->renderer->setState(MEASURE);
     if (actionID == 6) window->view->undo();
     if (actionID == 7) window->view->redo();
-    if (actionID == 8) window->view->renderer->moveToCenter();
+    if (actionID == 8) window->view->renderer->eh->moveToCenter();
     if (actionID == 9) window->view->renderer->eh->mousePress(x, y, Qt::LeftButton, Qt::NoModifier);
     if (actionID == 10) window->view->renderer->eh->mouseRelease(x, y, Qt::LeftButton);
     if (actionID == 11) window->view->renderer->eh->mouseDrag(x, y, d, Qt::NoModifier);
-    if (actionID == 12) window->view->renderer->deleteSelected();
-    if (actionID == 13) window->view->renderer->clearSelection();
+    if (actionID == 12) window->view->renderer->eh->deleteSelected();
+    if (actionID == 13) window->view->renderer->eh->clearSelection();
     if (actionID == 14) window->slot_zoom(z);
     if (actionID == 15) window->view->renderer->setGridSize(g);
 }

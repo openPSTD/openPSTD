@@ -7,13 +7,10 @@
  * @param y  The y coordinate of the source
  * @param settings  A reference to the Settings instance
  */
-Source::Source(int x, int y, Settings* settings) {
+Source::Source(int x, int y) {
     // Save position locally
     this->x = x;
     this->y = y;
-    
-    // Save reference variables locally
-    this->settings = settings;
 }
 
 /**
@@ -33,7 +30,7 @@ void Source::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selec
             setPixel(
                 zoom * x + i + offsetX,
                 zoom * y + j + offsetY,
-                settings->sourceColor,
+                Settings::getInstance()->sourceColor,
                 pixels
             );
         }

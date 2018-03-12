@@ -118,8 +118,7 @@ Model* ModelManager::copyCurrent() {
             current->domains[i].getX0(),
             current->domains[i].getY0(),
             current->domains[i].getX1(),
-            current->domains[i].getY1(),
-            current->domains[i].getSettings()
+            current->domains[i].getY1()
         ));
     }
     copy->sources = current->sources;
@@ -146,8 +145,7 @@ void ModelManager::saveCurrent(Model* model) {
             model->domains[i].getX0(),
             model->domains[i].getY0(),
             model->domains[i].getX1(),
-            model->domains[i].getY1(),
-            model->domains[i].getSettings()
+            model->domains[i].getY1()
         ));
     }
     current->sources = model->sources;

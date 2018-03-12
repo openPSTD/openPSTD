@@ -22,14 +22,14 @@ void TestModel::clampGrid() {
     
     // Test a point that should be clamped
     int a = model->gridsize * model->zoom;
-    int b = a - window->settings->clampDist / 2;
+    int b = a - Settings::getInstance()->clampDist / 2;
     bool clamped;
-    QPoint clamped1 = Grid::clampGrid(b, b, model, window->settings, &clamped);
+    QPoint clamped1 = Grid::clampGrid(b, b, model, &clamped);
     QVERIFY(clamped1.x() == a && clamped1.y() == a);
     
     // Test a point that should not be clamped
-    b = a - window->settings->clampDist - 1;
-    QPoint clamped2 = Grid::clampGrid(b, b, model, window->settings, &clamped);
+    b = a - Settings::getInstance()->clampDist - 1;
+    QPoint clamped2 = Grid::clampGrid(b, b, model, &clamped);
     QVERIFY(clamped2.x() == b && clamped2.y() == b);
 }
 

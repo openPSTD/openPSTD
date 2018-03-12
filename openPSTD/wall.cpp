@@ -11,7 +11,7 @@
  * @param settings  A reference to a Settings instance
  * @param absorption  The initial absorption coefficient of the wall
  */
-Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings, double absorption) {
+Wall::Wall(int x0, int y0, int x1, int y1, Side side, double absorption) {
     // Save end point coordinates locally
     this->x0 = x0;
     this->y0 = y0;
@@ -19,9 +19,6 @@ Wall::Wall(int x0, int y0, int x1, int y1, Side side, Settings* settings, double
     this->y1 = y1;
     this->side = side;
     this->absorption = absorption;
-    
-    // Save reference variables locally
-    this->settings = settings;
     
     // Set initial absorption coefficient
     absorption = 0;
@@ -53,6 +50,7 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
     int maxy = std::max(y0, y1) * zoom + offsetY;
     
     // Draw all points on the wall
+    Settings* settings = Settings::getInstance();
     if (minx == maxx) {
         for (int j = miny; j <= maxy; j++) {
             for (int d = -1; d <= 1; d++) {

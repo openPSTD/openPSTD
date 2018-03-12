@@ -8,7 +8,7 @@
  * @param settings  A reference to the Settings instance
  * @param slZoom  A reference to the zoom level slider
  */
-GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSlider* slZoom, QAction* changeabsorption, QAction* showoutput) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, QSlider* slZoom, QAction* changeabsorption, QAction* showoutput) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
@@ -26,7 +26,7 @@ GraphicsView::GraphicsView(QWidget* parent, Settings* settings, QSlider* slZoom,
     simulator = new Simulator(model, showoutput);
     
     // Create a new Renderer
-    renderer = new Renderer(scene, model, settings, modelmanager, parent, changeabsorption, simulator);
+    renderer = new Renderer(scene, model, modelmanager, parent, changeabsorption, simulator);
     
     // Enable mouse tracking
     setMouseTracking(true);
@@ -42,6 +42,7 @@ GraphicsView::~GraphicsView() {
     // Delete class instance variables
     delete renderer;
     delete simulator;
+    delete modelmanager;
     delete model;
     delete scene;
 }
@@ -171,7 +172,7 @@ void GraphicsView::keyPressEvent(QKeyEvent* event) {
     // Check for DELETE
     if (event->key() == Qt::Key_Delete && event->modifiers() == Qt::NoModifier) {
         // Delete the selected objects
-        deleteSelected();
+        renderer->eh->deleteSelected();
     }
     
     // Check for ESC

@@ -22,7 +22,7 @@ public:
      * @param clamped  Whether or not the given (x, y) position could be clamped
      * @return  The clamped point
      */
-    inline static QPoint clampGrid(int x, int y, Model* model, Settings* settings, bool* clamped) {
+    inline static QPoint clampGrid(int x, int y, Model* model, bool* clamped) {
         // Update x according to the scene offset
         int xx = x - model->offsetX;
         int yy = y - model->offsetY;
@@ -41,6 +41,7 @@ public:
         int dy = std::abs(gridy - yy);
         
         // Clamp if the point is within clampDist, otherwise take itself
+        Settings* settings = Settings::getInstance();
         int px = (dx < settings->clampDist ? gridx : xx);
         int py = (dy < settings->clampDist ? gridy : yy);
         
@@ -63,7 +64,7 @@ public:
      * @param clampLastDomain  Whether or not to clamp to the last domain as well
      * @return  The clamped point
      */
-    inline static QPoint clampDomains(int x, int y, std::vector<Domain> domains, Model* model, Settings* settings, bool* clamped, bool clampLastDomain) {
+    inline static QPoint clampDomains(int x, int y, std::vector<Domain> domains, Model* model, bool* clamped, bool clampLastDomain) {
         // Update x according to the scene offset and zoom level
         int xx = (x - model->offsetX) / model->zoom;
         int yy = (y - model->offsetY) / model->zoom;
@@ -114,6 +115,7 @@ public:
         }
         
         // Return the input point if the closest clamped point is not within clampDist
+        Settings* settings = Settings::getInstance();
         if (mind2 > settings->clampDist * settings->clampDist) {
             *clamped = false;
             return QPoint(x, y);
@@ -135,14 +137,14 @@ public:
      * @param clampLastDomain  Whether or not to clamp to the last domain as well
      * @return  The clamped point
      */
-    inline static QPoint clampFull(int x, int y, Model* model, Settings* settings, bool clampLastDomain) {
+    inline static QPoint clampFull(int x, int y, Model* model, bool clampLastDomain) {
         // Clamp the input point to the grid
         bool clampedGrid;
-        QPoint clampgrid = Grid::clampGrid(x, y, model, settings, &clampedGrid);
+        QPoint clampgrid = Grid::clampGrid(x, y, model, &clampedGrid);
         
         // Clamp the input point to domain walls
         bool clampedWall;
-        QPoint clampwall = Grid::clampDomains(x, y, model->domains, model, settings, &clampedWall, clampLastDomain);
+        QPoint clampwall = Grid::clampDomains(x, y, model->domains, model, &clampedWall, clampLastDomain);
         
         // If only a wall is within clampDist, clamp to that wall
         if (!clampedGrid && clampedWall) return clampwall;

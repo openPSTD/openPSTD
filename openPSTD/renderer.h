@@ -21,7 +21,7 @@
 class Renderer {
 public:
     // Constructor, destructor
-    Renderer(QGraphicsScene* scene, Model* model, Settings* settings, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption, Simulator* simulator);
+    Renderer(QGraphicsScene* scene, Model* model, ModelManager* modelmanager, QWidget* parent, QAction* changeabsorption, Simulator* simulator);
     ~Renderer();
     
     // Drawing method
@@ -40,18 +40,12 @@ public:
     }
     void setDimensions(int width, int height);
     
-    // Delete all selected objects
-    inline void deleteSelected() { eh->deleteSelected(); }
-    inline void clearSelection() { eh->clearSelection(); }
-    void moveToCenter();
-    
     EventHandler* eh;
     QImage* pixels;
 private:
     // Class instance variables
     QGraphicsScene* scene;
     Model* model;
-    Settings* settings;
     ModelManager* modelmanager;
     Simulator* simulator;
     

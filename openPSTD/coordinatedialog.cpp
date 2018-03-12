@@ -1,10 +1,9 @@
 #include "coordinatedialog.h"
 #include "ui_coordinatedialog.h"
 
-CoordinateDialog::CoordinateDialog(QWidget *parent, Model* model, Settings* settings, bool isSource) : QDialog(parent), ui(new Ui::CoordinateDialog) {
+CoordinateDialog::CoordinateDialog(QWidget *parent, Model* model, bool isSource) : QDialog(parent), ui(new Ui::CoordinateDialog) {
     // Save reference to model
     this->model = model;
-    this->settings = settings;
     this->isSource = isSource;
     
     // Setup the base UI
@@ -39,15 +38,13 @@ void CoordinateDialog::slot_save() {
         // Add a new source to the model
         model->sources.push_back(Source(
             ui->sbX->value(),
-            -ui->sbY->value(),
-            settings
+            -ui->sbY->value()
         ));
     } else {
         // Add a new receiver to the model
         model->receivers.push_back(Receiver(
             ui->sbX->value(),
-            -ui->sbY->value(),
-            settings
+            -ui->sbY->value()
         ));
     }
     

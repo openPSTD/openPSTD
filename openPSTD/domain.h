@@ -14,7 +14,7 @@
 class Domain {
 public:
     // Constructor
-    Domain(int x0, int y0, int x1, int y1, Settings* settings);
+    Domain(int x0, int y0, int x1, int y1);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, std::vector<unsigned int> selectedWalls);
@@ -47,9 +47,6 @@ public:
     // Checks whether or not this domain overlaps with another domain
     bool overlaps(Domain* other);
     
-    // Get method for Settings reference
-    Settings* getSettings() { return settings; }
-    
     // Get method for the absorption of a wall given its side
     double getAbsorption(Side side);
     void updateAbsorption();
@@ -67,9 +64,6 @@ private:
     double absorptionBottom;
     double absorptionLeft;
     double absorptionRight;
-    
-    // Class instance variables
-    Settings* settings;
     
     // Method for updating the side of all walls
     void updateWallSides();

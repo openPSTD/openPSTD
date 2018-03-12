@@ -27,7 +27,6 @@ public:
     explicit Window(QWidget* parent = 0);
     Ui::Window* ui;
     GraphicsView* view;
-    Settings* settings;
     ~Window();
     
     QSpinBox* sbGridSize;
@@ -72,19 +71,19 @@ public slots:
     inline void slot_move() { view->renderer->setState(MOVE); }
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
     inline void slot_addsource() {
-        CoordinateDialog* cd = new CoordinateDialog(this, view->model, settings, true);
+        CoordinateDialog* cd = new CoordinateDialog(this, view->model, true);
         cd->exec();
         delete cd;
     }
     inline void slot_addreceiver() {
-        CoordinateDialog* cd = new CoordinateDialog(this, view->model, settings, false);
+        CoordinateDialog* cd = new CoordinateDialog(this, view->model, false);
         cd->exec();
         delete cd;
     }
     inline void slot_measure() { view->renderer->setState(MEASURE); }
     inline void slot_undo() { view->undo(); }
     inline void slot_redo() { view->redo(); }
-    inline void slot_movetocenter() { view->renderer->moveToCenter(); }
+    inline void slot_movetocenter() { view->renderer->eh->moveToCenter(); }
     inline void slot_changeabsorption() { view->renderer->eh->changeabsorptiondialog(); }
     inline void slot_start() { view->simulator->start(); }
 };

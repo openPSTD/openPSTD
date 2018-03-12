@@ -15,12 +15,9 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->mainToolBar->addWidget(spacer);
     
-    // Create a settings instance
-    settings = new Settings();
-    
     // Create a GraphicsView for the main frame
     slZoom = new QSlider(Qt::Horizontal);
-    view = new GraphicsView(this, settings, slZoom, ui->actionChangeAbsorption, ui->actionShow_Output);
+    view = new GraphicsView(this, slZoom, ui->actionChangeAbsorption, ui->actionShow_Output);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -52,6 +49,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     ui->mainToolBar->addWidget(lGridSize);
     
     // Create a QSpinBox for the grid size
+    Settings* settings = Settings::getInstance();
     sbGridSize = new QSpinBox();
     sbGridSize->setMinimum(settings->pstdGridSize);
     sbGridSize->setMaximum(10*settings->pstdGridSize);
@@ -130,7 +128,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
  */
 Window::~Window() {
     // Delete class instance variables
-    delete settings;
+    Settings::getInstance()->destruct();
     delete qagMainToolbar;
     delete sbGridSize;
     delete view;
@@ -159,9 +157,9 @@ void Window::slot_clampdist() {
         this,
         "Choose a clamp distance",
         "Choose a clamp distance\nSet to zero to disable clamping",
-        settings->clampDist
+        Settings::getInstance()->clampDist
     );
-    settings->clampDist = clampdist;
+    Settings::getInstance()->clampDist = clampdist;
 }
 
 /**
@@ -169,6 +167,7 @@ void Window::slot_clampdist() {
  * Opens an input dialog and saves the new pstd grid size.
  */
 void Window::slot_pstdgridsize() {
+    Settings* settings = Settings::getInstance();
     int pstdgridsize = QInputDialog::getInt(
         this,
         "Choose a PSTD grid size",
@@ -199,7 +198,7 @@ void Window::slot_clearscene() {
     view->model->receivers.clear();
     
     // Clear the selected objects vector
-    view->clearSelection();
+    view->renderer->eh->clearSelection();
 }
 
 /**
@@ -208,7 +207,7 @@ void Window::slot_clearscene() {
  */
 void Window::slot_deleteselected() {
     // Delete all selected objects
-    view->deleteSelected();
+    view->renderer->eh->deleteSelected();
 }
 
 /**

@@ -47,7 +47,8 @@ SOURCES += \
     test/testundoredo.cpp \
     simulator.cpp \
     coordinatedialog.cpp \
-    frame.cpp
+    frame.cpp \
+    settings.cpp
 
 HEADERS += \
     window.h \

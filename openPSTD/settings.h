@@ -5,8 +5,16 @@
 
 class Settings {
 public:
-    // Constructor
-    Settings() {}
+    inline static Settings* getInstance() {
+        if (!instance) {
+            instance = new Settings();
+        }
+        return instance;
+    }
+    
+    inline void destruct() {
+        delete instance;
+    }
     
     // Color of the background grid
     QRgb gridColor = qRgb(127, 180, 196);
@@ -35,6 +43,10 @@ public:
     
     // PSTD grid size
     int pstdGridSize = 16;
+private:
+    static Settings* instance;
+    
+    inline Settings() {}
 };
 
 #endif

@@ -8,14 +8,14 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-EventHandler::EventHandler(Model* model, Settings* settings, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption) {
+EventHandler::EventHandler(Model* model, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption, QImage* pixels) {
     // Save reference variables locally
     this->model = model;
-    this->settings = settings;
     this->modelmanager = modelmanager;
     this->simulator = simulator;
     this->parent = parent;
     this->changeabsorption = changeabsorption;
+    this->pixels = pixels;
     
     // Set initial state variable values
     addingDomain = false;
@@ -122,7 +122,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     if (button == Qt::LeftButton && model->state == MEASURE) {
         // Save the start coordinates
         bool clamped;
-        QPoint p = Grid::clampGrid(x, y, model, settings, &clamped);
+        QPoint p = Grid::clampGrid(x, y, model, &clamped);
         measureStart.first = p.x();
         measureStart.second = p.y();
         measureEnd.first = p.x();
@@ -231,7 +231,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     if (model->state == SELECT && drag && modifiers == Qt::NoModifier) {
         // Compute the position of the mouse
         bool clamped;
-        QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
+        QPoint newPos = Grid::clampGrid(x, y, model, &clamped);
         
         // Loop through all selected walls
         for (unsigned int i = 0; i < selectedWalls.size(); i++) {
@@ -325,7 +325,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     if (drag && model->state == SELECTDOMAIN && modifiers == Qt::NoModifier) {
         // Compute the position of the mouse
         bool clamped;
-        QPoint newPos = Grid::clampGrid(x, y, model, settings, &clamped);
+        QPoint newPos = Grid::clampGrid(x, y, model, &clamped);
         
         // Loop through all selected walls
         std::vector<int> selectedDomains;
@@ -409,7 +409,7 @@ void EventHandler::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modi
     // Check if measuring
     if (model->state == MEASURE && drag) {
         bool clamped;
-        QPoint p = Grid::clampGrid(x, y, model, settings, &clamped);
+        QPoint p = Grid::clampGrid(x, y, model, &clamped);
         measureEnd.first = p.x();
         measureEnd.second = p.y();
     }
@@ -694,15 +694,14 @@ void EventHandler::cancelNewDomain() {
  */
 void EventHandler::addDomainStart(int x, int y) {
     // Clamp the coordinates
-    QPoint p = Grid::clampFull(x, y, model, settings, true);
+    QPoint p = Grid::clampFull(x, y, model, true);
     
     // Create a new Domain instance
     Domain d(
         p.x() / model->zoom,
         p.y() / model->zoom,
         p.x() / model->zoom,
-        p.y() / model->zoom,
-        settings
+        p.y() / model->zoom
     );
     
     // Add the new domain to the model
@@ -723,7 +722,7 @@ void EventHandler::addDomainStop(int x, int y) {
     }
     
     // Clamp the coordinates
-    QPoint p = Grid::clampFull(x, y, model, settings, false);
+    QPoint p = Grid::clampFull(x, y, model, false);
     
     // Update the end coordinates of the newest model
     model->lastDomain()->setX1(p.x() / model->zoom);
@@ -769,13 +768,12 @@ void EventHandler::addDomainStop(int x, int y) {
 void EventHandler::addSource(int x, int y) {
     // Clamp the coordinates to the grid
     bool clamped;
-    QPoint gridPoint = Grid::clampGrid(x, y, model, settings, &clamped);
+    QPoint gridPoint = Grid::clampGrid(x, y, model, &clamped);
     
     // Add a new source
     model->sources.push_back(Source(
         gridPoint.x() / model->zoom,
-        gridPoint.y() / model->zoom,
-        settings
+        gridPoint.y() / model->zoom
     ));
 }
 
@@ -788,13 +786,12 @@ void EventHandler::addSource(int x, int y) {
 void EventHandler::addReceiver(int x, int y) {
     // Clamp the coordinates to the grid
     bool clamped;
-    QPoint gridPoint = Grid::clampGrid(x, y, model, settings, &clamped);
+    QPoint gridPoint = Grid::clampGrid(x, y, model, &clamped);
     
     // Add a new receiver
     model->receivers.push_back(Receiver(
         gridPoint.x() / model->zoom,
-        gridPoint.y() / model->zoom,
-        settings
+        gridPoint.y() / model->zoom
     ));
 }
 
@@ -1117,4 +1114,86 @@ void EventHandler::changeabsorptiondialog() {
         model
     );
     ad->exec();
+}
+
+/**
+ * Updates the zoom level and offset values in model to center the scene.
+ */
+void EventHandler::moveToCenter() {
+    // Go to (0, 0) if there are no domains
+    if (model->domains.size() == 0) {
+        model->offsetX = pixels->width() / 2;
+        model->offsetY = pixels->height() / 2;
+        return;
+    }
+    
+    // Keep track of the minimum and maximum x and y coordinates
+    int minx;
+    int maxx;
+    int miny;
+    int maxy;
+    
+    // Loop through all domains
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        // Get the min and max coordinates of this domain
+        Domain d = model->domains[i];
+        int x0 = d.getX0();
+        int x1 = d.getX1();
+        int y0 = d.getY0();
+        int y1 = d.getY1();
+        
+        // Update the min and max coordinates according to this domain
+        if (i == 0 || x0 < minx) minx = x0;
+        if (i == 0 || x1 > maxx) maxx = x1;
+        if (i == 0 || y0 < miny) miny = y0;
+        if (i == 0 || y1 > maxy) maxy = y1;
+    }
+    
+    // Loop through all sources
+    for (unsigned int i = 0; i < model->sources.size(); i++) {
+        // Get the min and max coordinates of this source
+        Source s = model->sources[i];
+        int x = s.getX();
+        int y = s.getY();
+        
+        // Update the min and max coordinates according to this source
+        if (x < minx) minx = x;
+        if (x > maxx) maxx = x;
+        if (y < miny) miny = y;
+        if (y > maxy) maxy = y;
+    }
+    
+    // Loop through all receivers
+    for (unsigned int i = 0; i < model->receivers.size(); i++) {
+        // Get the min and max coordinates of this receiver
+        Receiver s = model->receivers[i];
+        int x = s.getX();
+        int y = s.getY();
+        
+        // Update the min and max coordinates according to this receiver
+        if (x < minx) minx = x;
+        if (x > maxx) maxx = x;
+        if (y < miny) miny = y;
+        if (y > maxy) maxy = y;
+    }
+    
+    // Compute the maximum zoom level
+    int dx = maxx - minx;
+    int dy = maxy - miny;
+    int maxzoomx = pixels->width() / (1.1 * dx);
+    int maxzoomy = pixels->height() / (1.1 * dy);
+    int maxzoom = (maxzoomx < maxzoomy ? maxzoomx : maxzoomy);
+    
+    // Compute the new offset
+    int offsetx = -maxzoom * minx;
+    int offsety = -maxzoom * miny;
+    int doffsetx = (pixels->width() - dx * maxzoom) / 2;
+    int doffsety = (pixels->height() - dy * maxzoom) / 2;
+    
+    // Save the new zoom level
+    model->zoom = maxzoom;
+    
+    // Save the new offset
+    model->offsetX = offsetx + doffsetx;
+    model->offsetY = offsety + doffsety;
 }

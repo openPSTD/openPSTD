@@ -7,13 +7,10 @@
  * @param y  The y coordinate of the receiver
  * @param settings  A reference to the Settings instance
  */
-Receiver::Receiver(int x, int y, Settings* settings) {
+Receiver::Receiver(int x, int y) {
     // Save position locally
     this->x = x;
     this->y = y;
-    
-    // Save reference variables locally
-    this->settings = settings;
 }
 
 /**
@@ -33,7 +30,7 @@ void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool sel
             setPixel(
                 zoom * x + i + offsetX,
                 zoom * y + j + offsetY,
-                settings->receiverColor,
+                Settings::getInstance()->receiverColor,
                 pixels
             );
         }
