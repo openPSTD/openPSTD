@@ -1,34 +1,39 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include <stdexcept>
-#include <QPoint>
 #include <QImage>
-#include "utility.h"
 #include "settings.h"
-#include "modelmanager.h"
-
-class Model;
 
 /**
- * Represents a single source.
+ * Representation of a single source.
  */
 class Source {
 public:
     // Constructor
-    Source(QPoint pos);
+    Source(int x, int y);
     
-    // Draws the source to the given pixels array
-    void draw(QImage* pixels);
+    // Drawing method
+    void draw(QImage* pixels, int zoom, int offsetX, int offsetY);
     
-    // Get methods for representation variables
-    QPoint getPos();
+    // Get methods for the position of the source
+    int getX() { return x; }
+    int getY() { return y; }
+    bool getSelected() { return selected; }
     
-    // Set methods for representation variables
-    void setPos(QPoint pos);
+    // Set methods for the position of the source
+    void setX(int x) { this->x = x; }
+    void setY(int y) { this->y = y; }
+    void setSelected(bool selected) { this->selected = selected; }
 private:
-    // Representation variables
-    QPoint pos;
+    // Position of the source
+    int x;
+    int y;
+    
+    // State variables
+    bool selected;
+    
+    // Sets a single pixel's color
+    void setPixel(int x, int y, QRgb color, QImage* pixels);
 };
 
 #endif

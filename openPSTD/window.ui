@@ -75,13 +75,6 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionGrid_color"/>
-    <addaction name="actionBackground_color"/>
-    <addaction name="actionZoom_color"/>
-    <addaction name="actionFPS_color"/>
-    <addaction name="actionSource_color"/>
-    <addaction name="actionReceiver_color"/>
-    <addaction name="separator"/>
     <addaction name="actionClamp_distance"/>
     <addaction name="actionPSTD_grid_size"/>
    </widget>
@@ -98,11 +91,13 @@
     </property>
     <addaction name="actionFPS_counter"/>
     <addaction name="actionGrid"/>
+    <addaction name="actionShow_Output"/>
    </widget>
    <widget class="QMenu" name="menuOperate">
     <property name="title">
      <string>Operate</string>
     </property>
+    <addaction name="actionSelect_Domain"/>
     <addaction name="actionSelect"/>
     <addaction name="actionMoveScene"/>
     <addaction name="actionAddDomain"/>
@@ -116,12 +111,7 @@
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="actionMoveToCenter"/>
-   </widget>
-   <widget class="QMenu" name="menuAbout">
-    <property name="title">
-     <string>About</string>
-    </property>
-    <addaction name="actionChangelog"/>
+    <addaction name="actionChangeAbsorption"/>
    </widget>
    <addaction name="menuOpenPSTD"/>
    <addaction name="menuEdit"/>
@@ -130,7 +120,6 @@
    <addaction name="menuScene"/>
    <addaction name="menuView"/>
    <addaction name="menuOperate"/>
-   <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="movable">
@@ -142,6 +131,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSelect_Domain"/>
+   <addaction name="actionSelect_Wall"/>
    <addaction name="actionSelect"/>
    <addaction name="actionMoveScene"/>
    <addaction name="actionAddDomain"/>
@@ -155,6 +146,7 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="actionMoveToCenter"/>
+   <addaction name="actionChangeAbsorption"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSelect">
@@ -215,9 +207,6 @@
    </property>
   </action>
   <action name="actionAddSource">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/new/prefix1/icons/source.png</normaloff>:/new/prefix1/icons/source.png</iconset>
@@ -233,9 +222,6 @@
    </property>
   </action>
   <action name="actionAddReceiver">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/new/prefix1/icons/receiver.png</normaloff>:/new/prefix1/icons/receiver.png</iconset>
@@ -353,11 +339,6 @@
     <string>Receiver color</string>
    </property>
   </action>
-  <action name="actionChangelog">
-   <property name="text">
-    <string>Changelog</string>
-   </property>
-  </action>
   <action name="actionUndo">
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -422,6 +403,51 @@
    </property>
    <property name="text">
     <string>MoveToCenter</string>
+   </property>
+  </action>
+  <action name="actionChangeAbsorption">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/changeabsorption.png</normaloff>
+     <disabledoff>:/new/prefix1/icons/changeabsorption_disabled.png</disabledoff>:/new/prefix1/icons/changeabsorption.png</iconset>
+   </property>
+   <property name="text">
+    <string>ChangeAbsorption</string>
+   </property>
+  </action>
+  <action name="actionSelect_Domain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/selectdomain.png</normaloff>:/new/prefix1/icons/selectdomain.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select Domain</string>
+   </property>
+  </action>
+  <action name="actionShow_Output">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Output</string>
+   </property>
+  </action>
+  <action name="actionSelect_Wall">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/selectwall.png</normaloff>:/new/prefix1/icons/selectwall.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select Wall</string>
+   </property>
+   <property name="toolTip">
+    <string>Select Wall</string>
    </property>
   </action>
  </widget>

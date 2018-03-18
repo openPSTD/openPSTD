@@ -5,21 +5,43 @@
  * Creates a new QGraphicsScene for the QGraphicsView.
  * 
  * @param parent  A reference to the parent widget
- * @param eventlistener  A reference to the EventListener
+ * @param settings  A reference to the Settings instance
+ * @param slZoom  A reference to the zoom level slider
  */
-GraphicsView::GraphicsView(QWidget* parent, EventListener* eventlistener) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, QSlider* slZoom, QAction* changeabsorption, QAction* showoutput) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
     
+    // Create a new Model instance
+    model = new Model();
+    
+    // Set initial state
+    model->state = SELECT;
+    model->zoom = 16;
+    model->offsetX = 0;
+    model->offsetY = 0;
+    
+    // Create a ModelManager instance
+    modelmanager = new ModelManager(model);
+    
+    // Create a Simulator instance
+    simulator = new Simulator(model, showoutput);
+    
     // Create a new Renderer
-    renderer = new Renderer(eventlistener->eventhandler, scene);
+    renderer = new Renderer(scene, model, modelmanager, parent, changeabsorption, simulator);
+    
+    // Create an EventListener
+    eventlistener = new EventListener(model, renderer->pixels, parent, renderer);
     
     // Enable mouse tracking
     setMouseTracking(true);
     
-    // Save reference to the EventListener instance
-    this->eventlistener = eventlistener;
+    // Save the reference to the zoom level slider
+    this->slZoom = slZoom;
+    
+    // Center the scene initially
+    eventlistener->getEventHandler()->moveToCenter();
 }
 
 /**
@@ -27,7 +49,11 @@ GraphicsView::GraphicsView(QWidget* parent, EventListener* eventlistener) : QGra
  */
 GraphicsView::~GraphicsView() {
     // Delete class instance variables
+    delete eventlistener;
     delete renderer;
+    delete simulator;
+    delete modelmanager;
+    delete model;
     delete scene;
 }
 
@@ -65,8 +91,11 @@ void GraphicsView::resizeEvent(QResizeEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mousePressEvent(QMouseEvent* event) {
+    // Get the position of the mouse
+    QPoint point = mapToScene(event->pos()).toPoint();
+    
     // Delegate the event to EventListener
-    eventlistener->mousePress(event);
+    eventlistener->mousePress(point, event->button(), event->modifiers());
 }
 
 /**
@@ -75,8 +104,11 @@ void GraphicsView::mousePressEvent(QMouseEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
+    // Get the position of the mouse
+    QPoint point = mapToScene(event->pos()).toPoint();
+    
     // Delegate the event to EventListener
-    eventlistener->mouseRelease(event);
+    eventlistener->mouseRelease(point, event->button());
 }
 
 /**
@@ -85,8 +117,11 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
+    // Get the position of the mouse
+    QPoint point = mapToScene(event->pos()).toPoint();
+    
     // Delegate the event to EventListener
-    eventlistener->mouseMove(event);
+    eventlistener->mouseMove(point, event->modifiers());
 }
 
 /**
@@ -95,8 +130,11 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
  * @param event  A reference to the QMouseEvent
  */
 void GraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
+    // Get the position of the mouse
+    QPoint point = mapToScene(event->pos()).toPoint();
+    
     // Delegate the event to EventListener
-    eventlistener->doubleClick(event);
+    eventlistener->doubleClick(point, event->button(), event->modifiers());
 }
 
 /**
@@ -105,8 +143,15 @@ void GraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
  * @param event  A reference to the QWheelEvent
  */
 void GraphicsView::wheelEvent(QWheelEvent* event) {
+    // Get the position of the mouse
+    QPoint point = mapToScene(event->pos()).toPoint();
+    
+    // Compute the rotation of the mouse wheel
+    int dx = event->angleDelta().x() / 120;
+    int dy = event->angleDelta().y() / 120;
+    
     // Delegate the event to EventListener
-    eventlistener->mouseWheel(event);
+    eventlistener->mouseWheel(point, dx, dy);
 }
 
 /**
@@ -116,5 +161,5 @@ void GraphicsView::wheelEvent(QWheelEvent* event) {
  */
 void GraphicsView::keyPressEvent(QKeyEvent* event) {
     // Delegate the event to EventListener
-    eventlistener->keyPressed(event);
+    eventlistener->keyPress(event->key(), event->modifiers());
 }

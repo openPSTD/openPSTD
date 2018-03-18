@@ -1,0 +1,38 @@
+// TMP: For testing only
+x,,0,SELECT,select
+c,alt,0,SELECT,movetocenter
+s,alt,0,SELECT,addsource
+
+// Add a new domain
+LMB,,0,ADDDOMAIN,adddomain
+LMB,,1,ADDDOMAIN,adddomainupdate
+ESC,,0,ADDDOMAIN,cancelnewdomain
+
+// Select sources and receivers
+LMB,shift,0,SELECT,selectstart
+LMB,shift,1,SELECT,selectupdate
+LMB,shift,2,SELECT,selectstop
+
+// Select domains
+LMB,ctrl,0,SELECTDOMAIN,selectdomainstart
+LMB,ctrl,1,SELECTDOMAIN,selectdomainupdate
+LMB,ctrl,2,SELECTDOMAIN,selectdomainstop
+
+// Select walls
+LMB,ctrl,0,SELECTWALL,selectwallstart
+LMB,ctrl,1,SELECTWALL,selectwallupdate
+LMB,ctrl,2,SELECTWALL,selectwallstop
+
+// Change absorption
+a,,0,SELECTDOMAIN,changeabsorption
+
+// Measuring tool
+LMB,,0,MEASURE,measure
+LMB,,1,MEASURE,measureupdate
+RMB,,0,MEASURE,removemeasure
+
+// Move sources and receivers
+LMB,,0,SELECT,movestart
+LMB,,1,SELECT,moveupdate
+LMB,,2,SELECT,movestop
+LMB,,4,SELECT,movecoordinates

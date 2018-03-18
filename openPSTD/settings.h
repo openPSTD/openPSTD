@@ -1,49 +1,52 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QRgb>
+#include <QColor>
 
-/**
- * Representation of the current settings.
- */
 class Settings {
 public:
-    // Get method for the settings instance
-    static Settings* getInstance();
+    inline static Settings* getInstance() {
+        if (!instance) {
+            instance = new Settings();
+        }
+        return instance;
+    }
     
-    // Color of the scene backgroind
-    QRgb backgroundColor;
+    inline void destruct() {
+        delete instance;
+    }
     
     // Color of the background grid
-    QRgb gridColor;
+    QRgb gridColor = qRgb(127, 180, 196);
     
-    // Color of the zoom reference
-    QRgb zoomRefColor;
+    // Color of the window background
+    QRgb bgColor = qRgb(255, 255, 255);
     
-    // Color of the FPS monitor
-    QRgb fpsColor;
+    // Color of the zoom level reference
+    QRgb zoomColor = qRgb(0, 0, 0);
     
-    // Color range of a wall regarding its absorption
-    QRgb wallColor0;
-    QRgb wallColor1;
+    // Clamping distance for the cursor
+    int clampDist = 10;
+    
+    // Color of the fps counter
+    QRgb fpsColor = qRgb(0, 0, 255);
     
     // Color of a source
-    QRgb sourceColor;
+    QRgb sourceColor = qRgb(255, 0, 0);
     
     // Color of a receiver
-    QRgb receiverColor;
+    QRgb receiverColor = qRgb(0, 255, 0);
     
-    // Clamp distance in pixels
-    unsigned int clampDist;
+    // Color of a wall depending on its absorption
+    QRgb wallColor0 = qRgb(0, 0, 0);
+    QRgb wallColor1 = qRgb(0, 255, 0);
     
     // PSTD grid size
-    unsigned int pstdGridSize;
+    int pstdGridSize = 16;
 private:
-    // Private constructor
-    Settings();
-    
-    // Settings instance
     static Settings* instance;
+    
+    inline Settings() {}
 };
 
 #endif

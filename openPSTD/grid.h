@@ -1,32 +1,44 @@
 #ifndef GRID_H
 #define GRID_H
 
-#include <math.h>
 #include <QPoint>
-#include "modelmanager.h"
 #include "settings.h"
-#include "utility.h"
-#include "domain.h"
+#include "model.h"
 
 /**
- * Contains utility methods regarding the background grid.
+ * Class providing methods for comparing a point against the grid.
  */
 class Grid {
 public:
-    // Checks whether or not a given point is on the background grid
-    static bool isOnGrid(QPoint pos);
+    /**
+     * Clamps a point to the grid, given its x and y
+     * coordinates. Returns the input point if there
+     * is no grid edge within clampDist.
+     */
+    static QPoint clampGrid(int x, int y, Model* model, bool* clamped);
     
-    // Clamps a given point to any clamping element
-    static bool clamp(QPoint* pos);
+    /**
+     * Clamps a point to a domain wall, given its x and y
+     * coordinates. Returns the input point if there is
+     * no wall within clampDist.
+     */
+    static QPoint clampDomains(int x, int y, std::vector<Domain> domains, Model* model, bool* clamped, bool clampLastDomain);
     
-    // Clamps a given point to the background grid
-    static bool clampGrid(QPoint* pos);
+    /**
+     * Clamps a point to the grid and to domain walls. Returns the input point
+     * if there is no wall or grid within clampDist.
+     */
+    static QPoint clampFull(int x, int y, Model* model, bool clampLastDomain);
     
-    // Clamps a given point to domain walls
-    static bool clampWalls(QPoint* pos);
+    /**
+     * Checks whether or not a given point is on a grid edge.
+     */
+    static bool isOnGrid(int x, int y, Model* model);
 private:
-    // Clamps a given point to a given wall
-    static QPoint clampWall(Wall wall, QPoint pos);
+    /**
+     * Clamps a point to a given wall. Always returns a point on the wall.
+     */
+    static QPoint clampWall(int x, int y, Wall* wall);
 };
 
 #endif

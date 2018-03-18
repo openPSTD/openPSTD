@@ -12,10 +12,10 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <fstream>
-#include "ui_window.h"
-#include "settings.h"
+#include "renderer.h"
 #include "graphicsview.h"
-#include "modelmanager.h"
+#include "ui_window.h"
+#include "coordinatedialog.h"
 
 namespace Ui {
 class Window;
@@ -27,20 +27,19 @@ public:
     explicit Window(QWidget* parent = 0);
     Ui::Window* ui;
     GraphicsView* view;
-    Settings* settings;
-    Renderer* renderer;
     ~Window();
     
     QSpinBox* sbGridSize;
-    QSpinBox* sbZoom;
+    QSlider* slZoom;
 protected:
     void paintEvent(QPaintEvent* event);
 private:
     QWidget* spacer;
     QLabel* lGridSize;
+    QLabel* lGridSize2;
     QLabel* lZoom;
     QActionGroup* qagMainToolbar;
-    EventListener* eventlistener;
+    EventHandler2* eh;
     
     // Creates a QPixmap of a single given color
     inline QPixmap color2pixmap(QRgb color) {
@@ -51,16 +50,10 @@ private:
 
 public slots:
     // Toolbar button slots
-    inline void slot_gridsize(int gridsize) { /* TODO */ }
-    inline void slot_zoom(int zoom) { /* TOTO */ }
+    inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
+    inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
     
     // Settings menu slots
-    void slot_gridcolor();
-    void slot_bgcolor();
-    void slot_zoomcolor();
-    void slot_fpscolor();
-    void slot_sourcecolor();
-    void slot_receivercolor();
     void slot_clampdist();
     void slot_pstdgridsize();
     
@@ -71,20 +64,22 @@ public slots:
     // View menu slots
     void slot_fpscounter();
     void slot_grid();
+    inline void slot_showoutput() { view->simulator->toggle(); }
     
     // Operate menu slots
-    inline void slot_select() { eventlistener->action(A_SELECT); }
-    inline void slot_move() { eventlistener->action(A_MOVESCENE); }
-    inline void slot_adddomain() { eventlistener->action(A_ADDDOMAIN); }
-    inline void slot_addsource() { eventlistener->action(A_ADDSOURCE); }
-    inline void slot_addreceiver() { eventlistener->action(A_ADDRECEIVER); }
-    inline void slot_measure() { eventlistener->action(A_MEASURE); }
-    inline void slot_undo() { eventlistener->action(A_UNDO); }
-    inline void slot_redo() { eventlistener->action(A_REDO); }
-    inline void slot_movetocenter() { eventlistener->action(A_CENTERSCENE); }
-    
-    // About menu slots
-    void slot_changelog();
+    inline void slot_selectdomain() { view->renderer->setState(SELECTDOMAIN); }
+    inline void slot_selectwall() { view->renderer->setState(SELECTWALL); }
+    inline void slot_select() { view->renderer->setState(SELECT); }
+    inline void slot_move() { view->renderer->setState(MOVE); }
+    inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
+    inline void slot_addsource() { eh->addSource(); }
+    inline void slot_addreceiver() { eh->addReceiver(); }
+    inline void slot_measure() { view->renderer->setState(MEASURE); }
+    inline void slot_undo() { view->undo(); }
+    inline void slot_redo() { view->redo(); }
+    inline void slot_movetocenter() { eh->moveToCenter(); }
+    inline void slot_changeabsorption() { eh->changeAbsorptionDialog(); }
+    inline void slot_start() { view->simulator->start(); }
 };
 
 #endif

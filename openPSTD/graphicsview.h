@@ -6,10 +6,13 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QSpinBox>
+#include <QSlider>
 #include <iostream>
 #include "renderer.h"
-#include "eventlistener.h"
 #include "settings.h"
+#include "modelmanager.h"
+#include "simulator.h"
+#include "eventlistener.h"
 
 /**
  * Custom QGraphicsView widget for drawing the main frame.
@@ -17,11 +20,16 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, EventListener* eventlistener = 0);
+    explicit GraphicsView(QWidget* parent = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0, QAction* showoutput = 0);
     ~GraphicsView();
     
+    inline void undo() { modelmanager->undo(); }
+    inline void redo() { modelmanager->redo(); }
+    
     Renderer* renderer;
+    Model* model;
     EventListener* eventlistener;
+    Simulator* simulator;
 protected:
     void paintEvent(QPaintEvent* event);
     void resizeEvent(QResizeEvent* event);
@@ -34,6 +42,8 @@ public slots:
     void keyPressEvent(QKeyEvent* event);
 private:
     QGraphicsScene* scene;
+    ModelManager* modelmanager;
+    QSlider* slZoom;
 };
 
 #endif

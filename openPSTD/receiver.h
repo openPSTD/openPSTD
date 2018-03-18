@@ -1,34 +1,39 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <stdexcept>
-#include <QPoint>
 #include <QImage>
-#include "utility.h"
 #include "settings.h"
-#include "modelmanager.h"
-
-class Model;
 
 /**
- * Represents a single receiver.
+ * Representation of a single receiver.
  */
 class Receiver {
 public:
     // Constructor
-    Receiver(QPoint pos);
+    Receiver(int x, int y);
     
-    // Draws the receiver to the given pixels array
-    void draw(QImage* pixels);
+    // Drawing method
+    void draw(QImage* pixels, int zoom, int offsetX, int offsetY);
     
-    // Get methods for representation variables
-    QPoint getPos();
+    // Get methods for the position of the receiver
+    int getX() { return x; }
+    int getY() { return y; }
+    bool getSelected() { return selected; }
     
-    // Set methods for representation variables
-    void setPos(QPoint pos);
+    // Set methods for the position of the receiver
+    void setX(int x) { this->x = x; }
+    void setY(int y) { this->y = y; }
+    void setSelected(bool selected) { this->selected = selected; }
 private:
-    // Representation variables
-    QPoint pos;
+    // Position of the receiver
+    int x;
+    int y;
+    
+    // State variables
+    bool selected;
+    
+    // Sets a single pixel's color
+    void setPixel(int x, int y, QRgb color, QImage* pixels);
 };
 
 #endif

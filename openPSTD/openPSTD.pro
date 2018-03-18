@@ -25,56 +25,72 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-        window.cpp \
+    main.cpp \
+    window.cpp \
     graphicsview.cpp \
-    test/testgrid.cpp \
     renderer.cpp \
-    model.cpp \
-    settings.cpp \
     eventhandler.cpp \
-    eventlistener.cpp \
-    grid.cpp \
     domain.cpp \
     wall.cpp \
     source.cpp \
-    test/testsource.cpp \
-    utility.cpp \
-    test/testutility.cpp \
-    test/testreceiver.cpp \
     receiver.cpp \
-    test/testwall.cpp \
     modelmanager.cpp \
-    test/testmodelmanager.cpp \
-    test/testdomain.cpp \
-    test/testeventhandler.cpp
+    absorptiondialog.cpp \
+    test/testrobustness.cpp \
+    test/testadddomain.cpp \
+    test/testaddreceiver.cpp \
+    test/testaddsource.cpp \
+    test/testmaintoolbar.cpp \
+    test/testmenuscene.cpp \
+    test/testmenuview.cpp \
+    test/testmodel.cpp \
+    test/testundoredo.cpp \
+    simulator.cpp \
+    coordinatedialog.cpp \
+    frame.cpp \
+    settings.cpp \
+    eventlistener.cpp \
+    eventhandler2.cpp \
+    grid.cpp
 
 HEADERS += \
-        window.h \
+    window.h \
     graphicsview.h \
-    eventlistener.h \
-    eventhandler.h \
-    modelmanager.h \
-    model.h \
-    domain.h \
-    source.h \
-    receiver.h \
-    wall.h \
     renderer.h \
+    state.h \
+    eventhandler.h \
+    domain.h \
+    model.h \
     settings.h \
+    test/testmaintoolbar.h \
+    test/testmenuview.h \
+    test/testmodel.h \
     grid.h \
-    test/testgrid.h \
-    test/testsource.h \
-    utility.h \
-    test/testutility.h \
-    test/testreceiver.h \
-    test/testwall.h \
-    test/testmodelmanager.h \
-    test/testdomain.h \
-    test/testeventhandler.h
+    wall.h \
+    test/testadddomain.h \
+    test/testmenuscene.h \
+    source.h \
+    test/testaddsource.h \
+    receiver.h \
+    test/testaddreceiver.h \
+    modelmanager.h \
+    test/testundoredo.h \
+    absorptiondialog.h \
+    test/testrobustness.h \
+    simulator.h \
+    coordinatedialog.h \
+    mingw.thread.h \
+    frame.h \
+    eventlistener.h \
+    eventhandler2.h
 
 FORMS += \
-        window.ui
+    window.ui \
+    absorptiondialog.ui \
+    coordinatedialog.ui
 
 RESOURCES += \
-    resources.qrc
+    resources.qrc \
+
+INCLUDEPATH += \
+    keymaps.txt

@@ -1,59 +1,85 @@
 #include "receiver.h"
-#include "model.h"
 
 /**
  * Constructor.
  * 
- * @param pos  The position of the receiver (object coordinates)
+ * @param x  The x coordinate of the receiver
+ * @param y  The y coordinate of the receiver
+ * @param settings  A reference to the Settings instance
  */
-Receiver::Receiver(QPoint pos) {
-    // Save the position of the receiver locally
-    this->pos = pos;
+Receiver::Receiver(int x, int y) {
+    // Save position locally
+    this->x = x;
+    this->y = y;
+    
+    // Initialize state variables
+    selected = false;
 }
 
 /**
- * Draws the receiver to the given pixels array.
+ * Draws the receiver.
  * 
  * @param pixels  The pixels array to draw to
- * @throws runtime_error  If pixels is a nullptr
+ * @param zoom  The current zoom level (as in model)
+ * @param offsetX  The current x offset of the scene (as in model)
+ * @param offsetY  The current y offset of the scene (as in model)
  */
-void Receiver::draw(QImage* pixels) {
-    // Do nothing if pixels is a nullptr
-    if (pixels == nullptr) {
-        throw new std::runtime_error("Given pixels array reference is a nullptr.");
-    }
-    
-    // Get a reference to the Model instance
-    Model* model = Model::getInstance();
-    
-    // Convert the position to screen coordinates
-    QPoint p = Utility::obj2scr(pos);
-    
+void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY) {
     // Draw a square representing the receiver
     int d = 2;
-    Utility::drawRect(
-        QRect(p - QPoint(d, d), p + QPoint(d, d)),
-        Settings::getInstance()->receiverColor,
-        pixels
-    );
+    for (int i = -d; i <= d; i++) {
+        for (int j = -d; j <= d; j++) {
+            setPixel(
+                x * zoom + i + offsetX,
+                -y * zoom + j + offsetY,
+                Settings::getInstance()->receiverColor,
+                pixels
+            );
+        }
+    }
+    
+    // Check if this receiver is selected
+    if (selected) {
+        // Draw a square around the receiver
+        for (int i = -5; i <= 5; i++) {
+            setPixel(
+                x * zoom + i + offsetX,
+                -y * zoom + 5 + offsetY,
+                qRgb(0, 255, 255),
+                pixels
+            );
+            setPixel(
+                x * zoom + i + offsetX,
+                -y * zoom - 5 + offsetY,
+                qRgb(0, 255, 255),
+                pixels
+            );
+            setPixel(
+                x * zoom + 5 + offsetX,
+                -y * zoom + i + offsetY,
+                qRgb(0, 255, 255),
+                pixels
+            );
+            setPixel(
+                x * zoom - 5 + offsetX,
+                -y * zoom + i + offsetY,
+                qRgb(0, 255, 255),
+                pixels
+            );
+        }
+    }
 }
 
 /**
- * Get method for the position of the receiver.
+ * Sets a single pixel's color.
  * 
- * @return The position of the receiver (object coordinates)
+ * @param x  The x coordinate of the pixel
+ * @param y  The y coordinate of the pixel
+ * @param color  The color to give the pixel
+ * @param pixels  A pixels array to draw to
  */
-QPoint Receiver::getPos() {
-    // Return the position of the receiver
-    return pos;
-}
-
-/**
- * Set method for the position of the receiver.
- * 
- * @param pos  The position of the receiver (object coordinates)
- */
-void Receiver::setPos(QPoint pos) {
-    // Update the position of the receiver
-    this->pos = pos;
+void Receiver::setPixel(int x, int y, QRgb color, QImage* pixels) {
+    if (x < 0 || y < 0) return;
+    if (x >= pixels->width() || y >= pixels->height()) return;
+    pixels->setPixel(x, y, color);
 }
