@@ -77,6 +77,9 @@ void Renderer::draw() {
         );
     }
     
+    // Draw the simulator output
+    simulator->draw(pixels);
+    
     // Draw all sources
     std::vector<Source> sources = model->sources;
     for (unsigned int i = 0; i < sources.size(); i++) {
@@ -135,9 +138,6 @@ void Renderer::draw() {
     if (model->showFPS) {
         drawText(std::to_string(fps), 5, height - 19, 14, Settings::getInstance()->fpsColor);
     }
-    
-    // Draw the simulator output
-    simulator->draw(pixels);
     
     // Draw the pixels array
     QPixmap qpm = QPixmap::fromImage(*pixels);

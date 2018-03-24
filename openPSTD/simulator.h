@@ -23,7 +23,7 @@ public:
     void start();
     void draw(QImage* pixels);
     void toggle();
-    bool isShown();
+    inline bool isShown() { return shown; }
     void showFrame(int x);
     void pressButton(int x);
 private:
@@ -39,6 +39,9 @@ private:
     int width;
     int playspeed;
     std::vector<Frame*> frames;
+    
+    int brightness = 10;
+    int scale = 200;
     
     void run();
     void runcmd(std::string cmd);
