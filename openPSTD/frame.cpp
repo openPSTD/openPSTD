@@ -10,7 +10,7 @@ Frame::Frame(int frameID) {
     // Loop through all domains
     for (unsigned int i = 0; i < 2; i++) {
         // Compute the filename of the data file outputted by the kernel
-        std::string filename = "../testdata/cpp_" + std::to_string(frameID) + "_domain_" + std::to_string(i) + ".csv";
+        std::string filename = "testdata/cpp_" + std::to_string(frameID) + "_domain_" + std::to_string(i) + ".csv";
         
         // Create a new Frame_Domain, and add it to the domains vector
         domains.push_back(new Frame_Domain(filename));

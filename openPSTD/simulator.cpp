@@ -124,7 +124,8 @@ void Simulator::run() {
     
     // Run the simulation
     runcmd("../OpenPSTD-cli run -f test");*/
-    runcmd("../fakekernel " + std::to_string(numframes));
+    
+    runcmd("./fakekernel " + std::to_string(numframes));
 }
 
 /**
