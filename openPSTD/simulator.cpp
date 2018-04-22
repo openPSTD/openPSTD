@@ -256,13 +256,13 @@ void Simulator::draw(QImage* pixels) {
     
     // Draw the buttons
     int x0 = pixels->width() / 2;
-    int y = pixels->height() - h - 20;
-    drawImage(x0 - 60, y, ":/new/prefix1/icons/output_home.png", pixels);
-    drawImage(x0 - 40, y, ":/new/prefix1/icons/output_playreversed.png", pixels);
-    drawImage(x0 - 20, y, ":/new/prefix1/icons/output_pause.png", pixels);
+    int y = pixels->height() - h - 32;
+    drawImage(x0 - 96, y, ":/new/prefix1/icons/output_home.png", pixels);
+    drawImage(x0 - 64, y, ":/new/prefix1/icons/output_playreversed.png", pixels);
+    drawImage(x0 - 32, y, ":/new/prefix1/icons/output_pause.png", pixels);
     drawImage(x0     , y, ":/new/prefix1/icons/output_play.png", pixels);
-    drawImage(x0 + 20, y, ":/new/prefix1/icons/output_end.png", pixels);
-    drawImage(x0 + 40, y, ":/new/prefix1/icons/output_sound.png", pixels);
+    drawImage(x0 + 32, y, ":/new/prefix1/icons/output_end.png", pixels);
+    drawImage(x0 + 64, y, ":/new/prefix1/icons/output_sound.png", pixels);
     
     // Draw the resulting pressure on the scene
     for (unsigned int i = 0; i < model->domains.size(); i++) {
@@ -431,8 +431,8 @@ void Simulator::drawText(std::string text, int x, int y, int size, QRgb color, Q
 void Simulator::drawImage(int x, int y, std::string filename, QImage* pixels) {
     QPainter p;
     p.begin(pixels);
-    p.drawImage(QRect(x, y, 20, 20), QImage(filename.c_str()));
-    p.drawRect(x, y, 20, 20);
+    p.drawImage(QRect(x, y, 32, 32), QImage(filename.c_str()));
+    p.drawRect(x, y, 32, 32);
     p.end();
 }
 
