@@ -283,8 +283,8 @@ void Simulator::draw(QImage* pixels) {
         int maxy = y1 * model->zoom + model->offsetY;
         
         // Loop through all pixels in the domain
-        for (int y = miny; y <= maxy; y++) {
-            for (int x = minx; x <= maxx; x++) {
+        for (int y = miny+1; y < maxy-1; y++) {
+            for (int x = minx+1; x < maxx-1; x++) {
                 // Do nothing if this pixel is not visible
                 if (x < 0 || x >= pixels->width()) continue;
                 if (y < 0 || y >= pixels->height()) continue;
