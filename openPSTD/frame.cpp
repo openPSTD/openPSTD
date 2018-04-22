@@ -5,10 +5,11 @@
  * Fills the domains vector with Frame_Domain instances.
  * 
  * @param frameID  The ID of the frame being represented
+ * @param numdomains  The number of domains in the frame
  */
-Frame::Frame(int frameID) {
+Frame::Frame(int frameID, unsigned int numdomains) {
     // Loop through all domains
-    for (unsigned int i = 0; i < 2; i++) {
+    for (unsigned int i = 0; i < numdomains; i++) {
         // Compute the filename of the data file outputted by the kernel
         std::string filename = "testdata/cpp_" + std::to_string(frameID) + "_domain_" + std::to_string(i) + ".csv";
         

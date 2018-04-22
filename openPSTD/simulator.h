@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <unistd.h>
 #include <array>
 #include <memory>
 #if defined(_WIN32) || defined(_WIN64)

@@ -31,7 +31,7 @@ public:
 class Frame {
 public:
     // Constructor, destructor
-    Frame(int frameID);
+    Frame(int frameID, unsigned int numdomains);
     ~Frame();
     
     // Get method for a sample

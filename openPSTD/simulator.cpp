@@ -54,21 +54,9 @@ void Simulator::start() {
  * Multithreaded run method, called by Simulator::start.
  */
 void Simulator::run() {
-    // TMP: Setup the scene as expected by the fake kernel
-    model->domains.clear();
-    model->domains.push_back(Domain(0, 0, 10, -15));
-    model->domains.push_back(Domain(10, -4, 30, -19));
-    model->sources.clear();
-    model->sources.push_back(Source(5, -4));
+    // TMP: Setup the default receivers (because of kernel issue)
     model->receivers.clear();
     model->receivers.push_back(Receiver(6, -5));
-    for (unsigned int i = 0; i < model->domains.size(); i++) {
-        model->domains[i].resetWalls();
-    }
-    for (unsigned int i = 0; i < model->domains.size(); i++) {
-        model->domains[i].mergeDomains(&model->domains, i);
-    }
-    numframes = 340;
     
     // Reset the output console
     output.clear();
@@ -79,23 +67,43 @@ void Simulator::run() {
     shown = true;
     showoutput->setChecked(true);
     
-    /*// Create a new file for this simulation
+    // Create a new file for this simulation
     runcmd("../OpenPSTD-cli create test");
+    
+    // Remove the two default domains, source, and receiver
+    runcmd("../OpenPSTD-cli edit -D 0 -f test");
+    runcmd("../OpenPSTD-cli edit -D 0 -f test");
+    //runcmd("../OpenPSTD-cli edit -R 0 -f test");
+    runcmd("../OpenPSTD-cli edit -P 0 -f test");
     
     // Add all domains
     for (unsigned int i = 0; i < model->domains.size(); i++) {
+        // Get the coordinates of the domain
         int x0 = model->domains[i].getX0();
         int x1 = model->domains[i].getX1();
         int y0 = model->domains[i].getY0();
         int y1 = model->domains[i].getY1();
         
+        // Add the domain
         std::string cmd = "../OpenPSTD-cli edit -d [";
         cmd += std::to_string(x0) + ",";
-        cmd += std::to_string(y0) + ",";
+        cmd += std::to_string(-y1) + ",";
         cmd += std::to_string(x1-x0) + ",";
         cmd += std::to_string(y1-y0);
         cmd += "] -f test";
         runcmd(cmd);
+        
+        // Get the absorption coefficients of the four walls
+        double at = model->domains[i].getAbsorption(TOP);
+        double ab = model->domains[i].getAbsorption(BOTTOM);
+        double al = model->domains[i].getAbsorption(LEFT);
+        double ar = model->domains[i].getAbsorption(RIGHT);
+        
+        // Set the absorption coefficients of the four walls
+        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",t," + std::to_string(at) + ")\" -f test");
+        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",b," + std::to_string(ab) + ")\" -f test");
+        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",l," + std::to_string(al) + ")\" -f test");
+        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",r," + std::to_string(ar) + ")\" -f test");
     }
     
     // Add all sources
@@ -104,28 +112,30 @@ void Simulator::run() {
         int y = model->sources[i].getY();
         
         std::string cmd = "../OpenPSTD-cli edit -p [";
-        cmd += std::to_string(x) + ",";
-        cmd += std::to_string(y);
+        cmd += std::to_string(-y) + ","; // TODO: Coordinates are swapped because of kernel issue
+        cmd += std::to_string(x);
         cmd += "] -f test";
         runcmd(cmd);
     }
     
-    // Add all receivers
+    /*// Add all receivers
     for (unsigned int i = 0; i < model->receivers.size(); i++) {
         int x = model->receivers[i].getX();
         int y = model->receivers[i].getY();
         
         std::string cmd = "../OpenPSTD-cli edit -r [";
         cmd += std::to_string(x) + ",";
-        cmd += std::to_string(y);
+        cmd += std::to_string(-y);
         cmd += "] -f test";
         runcmd(cmd);
-    }
+    }*/
+    
+    // Reset the output directory
+    system("rm -r testdata/");
+    system("mkdir testdata");
     
     // Run the simulation
-    runcmd("../OpenPSTD-cli run -f test");*/
-    
-    runcmd("./fakekernel " + std::to_string(numframes));
+    runcmd("../OpenPSTD-cli run -f test");
 }
 
 /**
@@ -357,25 +367,36 @@ void Simulator::runcmd(std::string cmd) {
     output.push_back(">" + cmd);
     
     // Execute the command and read its output
-    std::array<char, 128> buffer;
-    std::string result;
+    //std::array<char, 128> buffer;
+    char* buffer = new char[128];
+    std::string result = "";
     std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
     int frameID = 0;
     while (!feof(pipe.get())) {
-        if (fgets(buffer.data(), 128, pipe.get()) != nullptr) {
+        if (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
             // Output the printed line
-            std::string s = buffer.data();
-            result += s;
-            //std::cout << "-" << s;
-            output.push_back("<" + result);
-            
-            // Save the new frame
-            Frame* f = new Frame(frameID);
-            frames.push_back(f);
-            frameID++;
-            
-            // Update numcomputed
-            numcomputed++;
+            std::string s = buffer;
+            for (char c : s) {
+                if (c == '\n') {
+                    // Full line read, only handle "Finished frame" lines
+                    std::cout << result << std::endl;
+                    if (result.substr(0, 16) != "Finished frame: ") {
+                        result = "";
+                        continue;
+                    }
+                    
+                    // Frame finished, load the new frame
+                    Frame* f = new Frame(frameID, model->domains.size());
+                    frames.push_back(f);
+                    frameID++;
+                    numcomputed++;
+                    
+                    // Reset result for the next line
+                    result = "";
+                    continue;
+                }
+                result += c;
+            }
         }
     }
 }
