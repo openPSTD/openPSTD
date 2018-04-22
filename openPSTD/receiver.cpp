@@ -11,6 +11,9 @@ Receiver::Receiver(int x, int y) {
     // Save position locally
     this->x = x;
     this->y = y;
+    
+    // Load the receiver image
+    image = QImage(":/new/prefix1/icons/receiver.png");
 }
 
 /**
@@ -23,18 +26,15 @@ Receiver::Receiver(int x, int y) {
  * @param selected  Whether or not the receiver is currently selected
  */
 void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
-    // Draw a square representing the receiver
-    int d = 2;
-    for (int i = -d; i <= d; i++) {
-        for (int j = -d; j <= d; j++) {
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y + j + offsetY,
-                Settings::getInstance()->receiverColor,
-                pixels
-            );
-        }
-    }
+    // Draw the receiver image
+    QPainter p;
+    p.begin(pixels);
+    p.drawImage(
+        zoom * x + offsetX - 5,
+        zoom * y + offsetY - 5,
+        image
+    );
+    p.end();
     
     // Check if this receiver is selected
     if (selected) {

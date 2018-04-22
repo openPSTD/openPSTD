@@ -11,6 +11,9 @@ Source::Source(int x, int y) {
     // Save position locally
     this->x = x;
     this->y = y;
+    
+    // Load the source image
+    image = QImage(":/new/prefix1/icons/source.png");
 }
 
 /**
@@ -23,18 +26,15 @@ Source::Source(int x, int y) {
  * @param selected  Whether or not the source is currently selected
  */
 void Source::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
-    // Draw a square representing the source
-    int d = 2;
-    for (int i = -d; i <= d; i++) {
-        for (int j = -d; j <= d; j++) {
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y + j + offsetY,
-                Settings::getInstance()->sourceColor,
-                pixels
-            );
-        }
-    }
+    // Draw the source image
+    QPainter p;
+    p.begin(pixels);
+    p.drawImage(
+        zoom * x + offsetX - 5,
+        zoom * y + offsetY - 5,
+        image
+    );
+    p.end();
     
     // Check if this source is selected
     if (selected) {

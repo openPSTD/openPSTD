@@ -2,6 +2,7 @@
 #define SOURCE_H
 
 #include <QImage>
+#include <QPainter>
 #include "settings.h"
 
 /**
@@ -23,6 +24,9 @@ public:
     void setX(int x) { this->x = x; }
     void setY(int y) { this->y = y; }
 private:
+    // Source image
+    QImage image;
+    
     // Position of the source
     int x;
     int y;

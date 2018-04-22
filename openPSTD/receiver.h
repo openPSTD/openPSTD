@@ -2,6 +2,7 @@
 #define RECEIVER_H
 
 #include <QImage>
+#include <QPainter>
 #include "settings.h"
 
 /**
@@ -23,6 +24,9 @@ public:
     void setX(int x) { this->x = x; }
     void setY(int y) { this->y = y; }
 private:
+    // Receiver image
+    QImage image;
+    
     // Position of the receiver
     int x;
     int y;

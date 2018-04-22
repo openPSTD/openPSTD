@@ -208,7 +208,7 @@
   <action name="actionAddSource">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/icons/source.png</normaloff>:/new/prefix1/icons/source.png</iconset>
+     <normaloff>:/new/prefix1/icons/source_icon.png</normaloff>:/new/prefix1/icons/source_icon.png</iconset>
    </property>
    <property name="text">
     <string>AddSource</string>
@@ -223,7 +223,7 @@
   <action name="actionAddReceiver">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/icons/receiver.png</normaloff>:/new/prefix1/icons/receiver.png</iconset>
+     <normaloff>:/new/prefix1/icons/receiver_icon.png</normaloff>:/new/prefix1/icons/receiver_icon.png</iconset>
    </property>
    <property name="text">
     <string>AddReceiver</string>

@@ -22,5 +22,7 @@
         <file>icons/output_playreversed.png</file>
         <file>icons/output_sound.png</file>
         <file>icons/output_pause.png</file>
+        <file>icons/source_icon.png</file>
+        <file>icons/receiver_icon.png</file>
     </qresource>
 </RCC>
