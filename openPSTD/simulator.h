@@ -40,6 +40,7 @@ private:
     int width;
     int playspeed;
     std::vector<Frame*> frames;
+    const std::string kernel = "../OpenPSTD-cli";
     
     int brightness = 10;
     int scale = 200;

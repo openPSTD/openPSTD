@@ -68,13 +68,13 @@ void Simulator::run() {
     showoutput->setChecked(true);
     
     // Create a new file for this simulation
-    runcmd("../OpenPSTD-cli create test");
+    runcmd(kernel + " create test");
     
     // Remove the two default domains, source, and receiver
-    runcmd("../OpenPSTD-cli edit -D 0 -f test");
-    runcmd("../OpenPSTD-cli edit -D 0 -f test");
-    //runcmd("../OpenPSTD-cli edit -R 0 -f test");
-    runcmd("../OpenPSTD-cli edit -P 0 -f test");
+    runcmd(kernel + " edit -D 0 -f test");
+    runcmd(kernel + " edit -D 0 -f test");
+    //runcmd(kernel + " edit -R 0 -f test");
+    runcmd(kernel + " dit -P 0 -f test");
     
     // Add all domains
     for (unsigned int i = 0; i < model->domains.size(); i++) {
@@ -85,7 +85,7 @@ void Simulator::run() {
         int y1 = model->domains[i].getY1();
         
         // Add the domain
-        std::string cmd = "../OpenPSTD-cli edit -d [";
+        std::string cmd = kernel + " edit -d [";
         cmd += std::to_string(x0) + ",";
         cmd += std::to_string(-y1) + ",";
         cmd += std::to_string(x1-x0) + ",";
@@ -100,10 +100,10 @@ void Simulator::run() {
         double ar = model->domains[i].getAbsorption(RIGHT);
         
         // Set the absorption coefficients of the four walls
-        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",t," + std::to_string(at) + ")\" -f test");
-        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",b," + std::to_string(ab) + ")\" -f test");
-        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",l," + std::to_string(al) + ")\" -f test");
-        runcmd("../OpenPSTD-cli edit -a \"(" + std::to_string(i) + ",r," + std::to_string(ar) + ")\" -f test");
+        runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",t," + std::to_string(at) + ")\" -f test");
+        runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",b," + std::to_string(ab) + ")\" -f test");
+        runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",l," + std::to_string(al) + ")\" -f test");
+        runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",r," + std::to_string(ar) + ")\" -f test");
     }
     
     // Add all sources
@@ -111,7 +111,7 @@ void Simulator::run() {
         int x = model->sources[i].getX();
         int y = model->sources[i].getY();
         
-        std::string cmd = "../OpenPSTD-cli edit -p [";
+        std::string cmd = kernel + " edit -p [";
         cmd += std::to_string(-y) + ","; // TODO: Coordinates are swapped because of kernel issue
         cmd += std::to_string(x);
         cmd += "] -f test";
@@ -123,7 +123,7 @@ void Simulator::run() {
         int x = model->receivers[i].getX();
         int y = model->receivers[i].getY();
         
-        std::string cmd = "../OpenPSTD-cli edit -r [";
+        std::string cmd = kernel + " edit -r [";
         cmd += std::to_string(x) + ",";
         cmd += std::to_string(-y);
         cmd += "] -f test";
@@ -135,7 +135,7 @@ void Simulator::run() {
     system("mkdir testdata");
     
     // Run the simulation
-    runcmd("../OpenPSTD-cli run -f test");
+    runcmd(kernel + " run -f test");
 }
 
 /**
@@ -348,12 +348,12 @@ void Simulator::showFrame(int x) {
 void Simulator::pressButton(int x) {
     // Compute which button was clicked, and delegate
     int x0 = width / 2;
-    if (x0-60 <= x && x < x0-40) button_home();
-    if (x0-40 <= x && x < x0-20) button_playreversed();
-    if (x0-20 <= x && x < x0   ) button_pause();
-    if (x0    <= x && x < x0+20) button_play();
-    if (x0+20 <= x && x < x0+40) button_end();
-    if (x0+40 <= x && x < x0+60) button_sound();
+    if (x0-96 <= x && x < x0-64) button_home();
+    if (x0-64 <= x && x < x0-32) button_playreversed();
+    if (x0-32 <= x && x < x0   ) button_pause();
+    if (x0    <= x && x < x0+32) button_play();
+    if (x0+32 <= x && x < x0+64) button_end();
+    if (x0+64 <= x && x < x0+96) button_sound();
 }
 
 /**

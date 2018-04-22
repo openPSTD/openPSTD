@@ -44,7 +44,7 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         if (y > height - 150) {
             simulator->showFrame(x);
         }
-        if (height - 170 < y && y < height - 150 && width/2 - 60 <= x && width/2 + 60 >= x) {
+        if (height - 182 < y && y < height - 150 && width/2 - 96 <= x && width/2 + 96 >= x) {
             simulator->pressButton(x);
         }
     }

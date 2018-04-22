@@ -9,6 +9,7 @@ QT       += core gui testlib
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+CONFIG += silent
 
 TARGET = openPSTD
 TEMPLATE = app
