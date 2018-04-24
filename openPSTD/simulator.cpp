@@ -74,7 +74,7 @@ void Simulator::run() {
     runcmd(kernel + " edit -D 0 -f test");
     runcmd(kernel + " edit -D 0 -f test");
     //runcmd(kernel + " edit -R 0 -f test");
-    runcmd(kernel + " dit -P 0 -f test");
+    runcmd(kernel + " edit -P 0 -f test");
     
     // Add all domains
     for (unsigned int i = 0; i < model->domains.size(); i++) {
@@ -129,6 +129,14 @@ void Simulator::run() {
         cmd += "] -f test";
         runcmd(cmd);
     }*/
+    
+    // Update the PSTD settings
+    Settings* settings = Settings::getInstance();
+    runcmd(kernel + " edit --grid-spacing " + std::to_string(settings->pstdGridSize) + " -f test");
+    runcmd(kernel + " edit --window-size " + std::to_string(settings->windowSize) + " -f test");
+    runcmd(kernel + " edit --render-time " + std::to_string(settings->renderTime) + " -f test");
+    runcmd(kernel + " edit --density-of-air " + std::to_string(settings->airDensity) + " -f test");
+    runcmd(kernel + " edit --sound-speed " + std::to_string(settings->soundSpeed) + " -f test");
     
     // Reset the output directory
     system("rm -r testdata/");

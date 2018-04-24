@@ -41,8 +41,15 @@ public:
     QRgb wallColor0 = qRgb(0, 0, 0);
     QRgb wallColor1 = qRgb(0, 255, 0);
     
-    // PSTD grid size
-    int pstdGridSize = 16;
+    // GUI grid size
+    int guiGridSize = 16;
+    
+    // PSTD settings
+    double pstdGridSize = 0.2;
+    int windowSize = 32;
+    double renderTime = 1;
+    double airDensity = 1.2;
+    int soundSpeed = 340;
 private:
     static Settings* instance;
     

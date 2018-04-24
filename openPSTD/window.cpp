@@ -51,12 +51,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     // Create a QSpinBox for the grid size
     Settings* settings = Settings::getInstance();
     sbGridSize = new QSpinBox();
-    sbGridSize->setMinimum(settings->pstdGridSize);
-    sbGridSize->setMaximum(10*settings->pstdGridSize);
-    sbGridSize->setSingleStep(settings->pstdGridSize);
-    sbGridSize->setValue(settings->pstdGridSize);
+    sbGridSize->setMinimum(settings->guiGridSize);
+    sbGridSize->setMaximum(10*settings->guiGridSize);
+    sbGridSize->setSingleStep(settings->guiGridSize);
+    sbGridSize->setValue(settings->guiGridSize);
     sbGridSize->setToolTip("In m");
-    view->renderer->setGridSize(settings->pstdGridSize);
+    view->renderer->setGridSize(settings->guiGridSize);
     ui->mainToolBar->addWidget(sbGridSize);
     connect(sbGridSize, SIGNAL(valueChanged(int)), this, SLOT(slot_gridsize(int)));
     
@@ -67,14 +67,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Set initial scene offset
     view->model->state = SELECT;
-    
-    // Set action icons in settings menu
-    ui->actionGrid_color->setIcon(QIcon(color2pixmap(settings->gridColor)));
-    ui->actionBackground_color->setIcon(QIcon(color2pixmap(settings->bgColor)));
-    ui->actionZoom_color->setIcon(QIcon(color2pixmap(settings->zoomColor)));
-    ui->actionFPS_color->setIcon(QIcon(color2pixmap(settings->fpsColor)));
-    ui->actionSource_color->setIcon(QIcon(color2pixmap(settings->sourceColor)));
-    ui->actionReceiver_color->setIcon(QIcon(color2pixmap(settings->receiverColor)));
     
     // Center main window on screen
     QDesktopWidget* desktop = QApplication::desktop();
@@ -94,7 +86,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Connect actions in settings menu
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
+    connect(ui->actionGUI_grid_size, SIGNAL(triggered(bool)), this, SLOT(slot_guigridsize()));
     connect(ui->actionPSTD_grid_size, SIGNAL(triggered(bool)), this, SLOT(slot_pstdgridsize()));
+    connect(ui->actionWindow_size, SIGNAL(triggered(bool)), this, SLOT(slot_windowsize()));
+    connect(ui->actionRender_time, SIGNAL(triggered(bool)), this, SLOT(slot_rendertime()));
+    connect(ui->actionAir_density, SIGNAL(triggered(bool)), this, SLOT(slot_airdensity()));
+    connect(ui->actionSound_speed, SIGNAL(triggered(bool)), this, SLOT(slot_soundspeed()));
     
     // Connect actions in scene menu
     connect(ui->actionClear_all, SIGNAL(triggered(bool)), this, SLOT(slot_clearscene()));
@@ -163,24 +160,79 @@ void Window::slot_clampdist() {
 }
 
 /**
- * Callback method for the pstd grid size action in the settings menu.
+ * Callback method for the gui grid size action in the settings menu.
  * Opens an input dialog and saves the new pstd grid size.
  */
+void Window::slot_guigridsize() {
+    Settings* settings = Settings::getInstance();
+    int guigridsize = QInputDialog::getInt(
+        this,
+        "Choose a GUI grid size",
+        "Choose a GUI grid size",
+        settings->guiGridSize
+    );
+    settings->guiGridSize = guigridsize;
+    
+    sbGridSize->setMinimum(settings->guiGridSize);
+    sbGridSize->setMaximum(10*settings->guiGridSize);
+    sbGridSize->setSingleStep(settings->guiGridSize);
+    sbGridSize->setValue(settings->guiGridSize);
+    view->renderer->setGridSize(settings->guiGridSize);
+}
+
 void Window::slot_pstdgridsize() {
     Settings* settings = Settings::getInstance();
-    int pstdgridsize = QInputDialog::getInt(
+    double pstdgridsize = QInputDialog::getDouble(
         this,
         "Choose a PSTD grid size",
         "Choose a PSTD grid size",
         settings->pstdGridSize
     );
     settings->pstdGridSize = pstdgridsize;
-    
-    sbGridSize->setMinimum(settings->pstdGridSize);
-    sbGridSize->setMaximum(10*settings->pstdGridSize);
-    sbGridSize->setSingleStep(settings->pstdGridSize);
-    sbGridSize->setValue(settings->pstdGridSize);
-    view->renderer->setGridSize(settings->pstdGridSize);
+}
+
+void Window::slot_windowsize() {
+    Settings* settings = Settings::getInstance();
+    int windowsize = QInputDialog::getInt(
+        this,
+        "Choose a window size",
+        "Choose a window size",
+        settings->windowSize
+    );
+    settings->windowSize = windowsize;
+}
+
+void Window::slot_rendertime() {
+    Settings* settings = Settings::getInstance();
+    double rendertime = QInputDialog::getDouble(
+        this,
+        "Choose a render time",
+        "Choose a render time",
+        settings->renderTime
+    );
+    settings->renderTime = rendertime;
+}
+
+void Window::slot_airdensity() {
+    Settings* settings = Settings::getInstance();
+    double airdensity = QInputDialog::getDouble(
+        this,
+        "Choose an air density",
+        "Choose an air density",
+        settings->airDensity
+    );
+    settings->airDensity = airdensity;
+}
+
+void Window::slot_soundspeed() {
+    Settings* settings = Settings::getInstance();
+    int soundspeed = QInputDialog::getInt(
+        this,
+        "Choose a sound speed",
+        "Choose a sound speed",
+        settings->soundSpeed
+    );
+    settings->soundSpeed = soundspeed;
 }
 
 /**
@@ -216,7 +268,6 @@ void Window::slot_deleteselected() {
  */
 void Window::slot_fpscounter() {
     view->model->showFPS = ui->actionFPS_counter->isChecked();
-    ui->actionFPS_color->setEnabled(view->model->showFPS);
 }
 
 /**

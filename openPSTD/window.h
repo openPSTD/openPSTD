@@ -54,7 +54,12 @@ public slots:
     
     // Settings menu slots
     void slot_clampdist();
+    void slot_guigridsize();
     void slot_pstdgridsize();
+    void slot_windowsize();
+    void slot_rendertime();
+    void slot_airdensity();
+    void slot_soundspeed();
     
     // Scene menu slots
     void slot_clearscene();

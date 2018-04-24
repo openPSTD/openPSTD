@@ -76,7 +76,13 @@
      <string>Settings</string>
     </property>
     <addaction name="actionClamp_distance"/>
+    <addaction name="actionGUI_grid_size"/>
+    <addaction name="separator"/>
     <addaction name="actionPSTD_grid_size"/>
+    <addaction name="actionWindow_size"/>
+    <addaction name="actionRender_time"/>
+    <addaction name="actionAir_density"/>
+    <addaction name="actionSound_speed"/>
    </widget>
    <widget class="QMenu" name="menuScene">
     <property name="title">
@@ -298,26 +304,6 @@
     <string>FPS counter</string>
    </property>
   </action>
-  <action name="actionGrid_color">
-   <property name="text">
-    <string>Grid color</string>
-   </property>
-  </action>
-  <action name="actionBackground_color">
-   <property name="text">
-    <string>Background color</string>
-   </property>
-  </action>
-  <action name="actionZoom_color">
-   <property name="text">
-    <string>Zoom color</string>
-   </property>
-  </action>
-  <action name="actionFPS_color">
-   <property name="text">
-    <string>FPS color</string>
-   </property>
-  </action>
   <action name="actionClamp_distance">
    <property name="text">
     <string>Clamp distance</string>
@@ -326,16 +312,6 @@
   <action name="actionClear_all">
    <property name="text">
     <string>Clear all</string>
-   </property>
-  </action>
-  <action name="actionSource_color">
-   <property name="text">
-    <string>Source color</string>
-   </property>
-  </action>
-  <action name="actionReceiver_color">
-   <property name="text">
-    <string>Receiver color</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -390,9 +366,9 @@
     <string>Measure</string>
    </property>
   </action>
-  <action name="actionPSTD_grid_size">
+  <action name="actionGUI_grid_size">
    <property name="text">
-    <string>PSTD grid size</string>
+    <string>GUI grid size</string>
    </property>
   </action>
   <action name="actionMoveToCenter">
@@ -432,6 +408,31 @@
    </property>
    <property name="text">
     <string>Show Output</string>
+   </property>
+  </action>
+  <action name="actionPSTD_grid_size">
+   <property name="text">
+    <string>PSTD grid size</string>
+   </property>
+  </action>
+  <action name="actionWindow_size">
+   <property name="text">
+    <string>Window size</string>
+   </property>
+  </action>
+  <action name="actionRender_time">
+   <property name="text">
+    <string>Render time</string>
+   </property>
+  </action>
+  <action name="actionAir_density">
+   <property name="text">
+    <string>Air density</string>
+   </property>
+  </action>
+  <action name="actionSound_speed">
+   <property name="text">
+    <string>Sound speed</string>
    </property>
   </action>
  </widget>
