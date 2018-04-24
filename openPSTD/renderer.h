@@ -42,12 +42,12 @@ public:
     
     EventHandler* eh;
     QImage* pixels;
+    Simulator* simulator;
 private:
     // Class instance variables
     QGraphicsScene* scene;
     Model* model;
     ModelManager* modelmanager;
-    Simulator* simulator;
     
     // State variables
     int width;

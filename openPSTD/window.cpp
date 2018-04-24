@@ -84,6 +84,10 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     qagMainToolbar->addAction(ui->actionMeasure);
     qagMainToolbar->setExclusive(true);
     
+    // Connect actions in file menu
+    connect(ui->actionExport_to_CSV, SIGNAL(triggered(bool)), this, SLOT(slot_exporttocsv()));
+    connect(ui->actionClose, SIGNAL(triggered(bool)), this, SLOT(slot_close()));
+    
     // Connect actions in settings menu
     connect(ui->actionClamp_distance, SIGNAL(triggered(bool)), this, SLOT(slot_clampdist()));
     connect(ui->actionGUI_grid_size, SIGNAL(triggered(bool)), this, SLOT(slot_guigridsize()));
@@ -143,6 +147,58 @@ Window::~Window() {
 void Window::paintEvent(QPaintEvent* event) {
     QMainWindow::paintEvent(event);
     view->renderer->draw();
+}
+
+void Window::slot_exporttocsv() {
+    // Get an output directory
+    std::string dir = QFileDialog::getExistingDirectory(
+        this,
+        "Select output directory",
+        "."
+    ).toStdString();
+    
+    // Get the frame data from Simulator
+    std::vector<Frame*> frames = view->renderer->simulator->getFrames();
+    
+    // Loop through all receivers
+    for (int i = 0; i < view->model->receivers.size(); i++) {
+        // Get the position of this receiver
+        int x = view->model->receivers[i].getX();
+        int y = view->model->receivers[i].getY();
+        
+        // Open a file stream for this file
+        std::ofstream outfile(dir + "/receiver_" + std::to_string(x) + "_" + std::to_string(-y) + ".csv");
+        
+        // Compute the position of the receiver in kernel coordinates
+        int px = view->model->receivers[0].getX() * view->model->zoom + view->model->offsetX;
+        int py = view->model->receivers[0].getY() * view->model->zoom + view->model->offsetY;
+        int x0 = view->model->domains[0].getX0();
+        int x1 = view->model->domains[0].getX1();
+        int y0 = view->model->domains[0].getY0();
+        int y1 = view->model->domains[0].getY1();
+        int minx = x0 * view->model->zoom + view->model->offsetX;
+        int maxx = x1 * view->model->zoom + view->model->offsetX;
+        int miny = y0 * view->model->zoom + view->model->offsetY;
+        int maxy = y1 * view->model->zoom + view->model->offsetY;
+        int fwidth = frames[0]->getWidth(0);
+        int fheight = frames[0]->getHeight(0);
+        int ix = (px - minx) * (fwidth-1) / (maxx - minx) + 1;
+        int iy = (maxy - py) * (fheight-1) / (maxy - miny) + 1;
+        
+        // Loop through all frames
+        for (int j = 0; j < frames.size(); j++) {
+            // Get the pressure of the receiver at this frame
+            double pressure = frames[j]->getSample(ix, iy, 0); // TODO: Compute which domain the receiver is in
+            if (j != 0) outfile << ",";
+            outfile << pressure;
+        }
+        outfile.close();
+        std::cout << "Saved receiver " << i << std::endl;
+    }
+}
+
+void Window::slot_close() {
+    QApplication::quit();
 }
 
 /**

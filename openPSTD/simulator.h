@@ -27,6 +27,7 @@ public:
     inline bool isShown() { return shown; }
     void showFrame(int x);
     void pressButton(int x);
+    inline std::vector<Frame*> getFrames() { return frames; }
 private:
     Model* model;
     QAction* showoutput;

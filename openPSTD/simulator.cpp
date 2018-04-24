@@ -254,8 +254,8 @@ void Simulator::draw(QImage* pixels) {
             int m = (x * numframes) % pixels->width();
             double t = (double) m / pixels->width();
             if (i >= numcomputed) break;
-            double v0 = frames[i]->getSample(ix, iy, 0);
-            double v1 = (m == 0 || i+1 >= numcomputed ? v0 : frames[i+1]->getSample(ix, iy, 0));
+            double v0 = frames[i]->getSample(ix, iy, 0); // TODO: Compute which domain the receiver is in
+            double v1 = (m == 0 || i+1 >= numcomputed ? v0 : frames[i+1]->getSample(ix, iy, 0)); // TODO: Compute which domain the receiver is in
             double value = v0 * (1-t) + v1 * t;
             int y = pixels->height() - 10 - h/2 - value * scale;
             pixels->setPixel(x, y, qRgb(255, 255, 255));

@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QColorDialog>
 #include <QInputDialog>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <fstream>
 #include "renderer.h"
@@ -51,6 +52,10 @@ public slots:
     // Toolbar button slots
     inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
     inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
+    
+    // File menu slots
+    void slot_exporttocsv();
+    void slot_close();
     
     // Settings menu slots
     void slot_clampdist();
