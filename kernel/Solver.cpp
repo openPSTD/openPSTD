@@ -116,7 +116,7 @@ namespace OpenPSTD {
 
                     }
                 }
-                //this->callback->Callback(CALLBACKSTATUS::RUNNING, "Finished frame: "+std::to_string(frame), frame);
+                this->callback->Callback(CALLBACKSTATUS::RUNNING, "Finished frame: "+std::to_string(frame), frame);
             }
             this->callback->Callback(CALLBACKSTATUS::FINISHED, "Succesfully finished simulation",
                                      this->number_of_time_steps);
