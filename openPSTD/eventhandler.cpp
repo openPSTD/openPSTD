@@ -41,12 +41,37 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     
     // Check if the simulation output is shown
     if (simulator->isShown() && button == Qt::LeftButton && !addingDomain && !measuring) {
+        // Check if clicking on the receiver pressure graph
         if (y > height - 150) {
             simulator->showFrame(x);
         }
+        
+        // Check if clicking on any of the simulator buttons
         if (height - 182 < y && y < height - 150 && width/2 - 96 <= x && width/2 + 96 >= x) {
             simulator->pressButton(x);
         }
+        
+        // Check if clicking on a receiver
+        for (int i = 0; i < model->receivers.size(); i++) {
+            // Get the position of this receiver
+            int px = model->receivers[i].getX();
+            int py = model->receivers[i].getY();
+            
+            // Convert to screen coordinates
+            int sx = px * model->zoom + model->offsetX;
+            int sy = py * model->zoom + model->offsetY;
+            
+            // Check if this receiver was clicked
+            int dx = std::abs(x - sx);
+            int dy = std::abs(y - sy);
+            if (dx < 5 && dy < 5) {
+                // Tell the simulator to show the pressure at this receiver
+                simulator->setReceiver(i);
+            }
+        }
+        
+        // Don't do any normal functionality while the simulator is shown
+        return;
     }
     
     // Check if selecting domains
@@ -1177,18 +1202,21 @@ void EventHandler::moveToCenter() {
         if (y > maxy) maxy = y;
     }
     
+    int h = (simulator->isShown() ? height - 200 : height);
+    int w = width;
+    
     // Compute the maximum zoom level
     int dx = maxx - minx;
     int dy = maxy - miny;
-    int maxzoomx = pixels->width() / (1.1 * dx);
-    int maxzoomy = pixels->height() / (1.1 * dy);
+    int maxzoomx = w / (1.1 * dx);
+    int maxzoomy = h / (1.1 * dy);
     int maxzoom = (maxzoomx < maxzoomy ? maxzoomx : maxzoomy);
     
     // Compute the new offset
     int offsetx = -maxzoom * minx;
     int offsety = -maxzoom * miny;
-    int doffsetx = (pixels->width() - dx * maxzoom) / 2;
-    int doffsety = (pixels->height() - dy * maxzoom) / 2;
+    int doffsetx = (w - dx * maxzoom) / 2;
+    int doffsety = (h - dy * maxzoom) / 2;
     
     // Save the new zoom level
     model->zoom = maxzoom;

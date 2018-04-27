@@ -11,6 +11,7 @@
 #else
 #include <thread>
 #endif
+#include <mutex>
 #include <QImage>
 #include <QAction>
 #include "model.h"
@@ -21,13 +22,22 @@ class Simulator {
 public:
     Simulator(Model* model, QAction* showoutput);
     ~Simulator();
+    
     void start();
+    void stop() {}
+    
     void draw(QImage* pixels);
     void toggle();
     inline bool isShown() { return shown; }
     void showFrame(int x);
     void pressButton(int x);
-    inline std::vector<Frame*> getFrames() { return frames; }
+    inline std::vector<Frame> getFrames() { 
+        mutex.lock();
+        std::vector<Frame> fs = frames;
+        mutex.unlock();
+        return fs;
+    }
+    void setReceiver(int i);
 private:
     Model* model;
     QAction* showoutput;
@@ -40,8 +50,11 @@ private:
     int shownFrame;
     int width;
     int playspeed;
-    std::vector<Frame*> frames;
+    int receiverID;
+    int receiverDID;
+    std::vector<Frame> frames;
     const std::string kernel = "../OpenPSTD-cli";
+    std::mutex mutex;
     
     int brightness = 10;
     int scale = 200;

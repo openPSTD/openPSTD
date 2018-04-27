@@ -32,17 +32,16 @@ class Frame {
 public:
     // Constructor, destructor
     Frame(int frameID, unsigned int numdomains);
-    ~Frame();
     
     // Get method for a sample
     double getSample(int x, int y, int domainID);
     
     // Get method for the width and height of the domains
-    int getWidth(int domainID) { return domains[domainID]->width; }
-    int getHeight(int domainID) { return domains[domainID]->height; }
+    int getWidth(int domainID) { return domains[domainID].width; }
+    int getHeight(int domainID) { return domains[domainID].height; }
 private:
     // Data vector
-    std::vector<Frame_Domain*> domains;
+    std::vector<Frame_Domain> domains;
     
     // Fills the domains vector with Frame_Domain instances
     void readDomainFile(std::string filename, int i);

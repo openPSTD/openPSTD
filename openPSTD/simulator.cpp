@@ -19,6 +19,7 @@ Simulator::Simulator(Model* model, QAction* showoutput) {
     shownFrame = -1;
     numframes = 1000;
     playspeed = 0;
+    setReceiver(0);
 }
 
 /**
@@ -29,17 +30,21 @@ Simulator::~Simulator() {
     if (threadRunning) {
         thread.join();
     }
-    
-    // Delete all frames
-    for (int i = 0; i < frames.size(); i++) {
-        delete frames[i];
-    }
 }
 
 /**
  * Starts the simulation.
  */
 void Simulator::start() {
+    // Reset the output console
+    output.clear();
+    numcomputed = 0;
+    shownFrame = -1;
+    
+    // Show the output console
+    shown = true;
+    showoutput->setChecked(true);
+    
     // Stop the simulator thread if it is running
     if (threadRunning) {
         thread.join();
@@ -54,18 +59,8 @@ void Simulator::start() {
  * Multithreaded run method, called by Simulator::start.
  */
 void Simulator::run() {
-    // TMP: Setup the default receivers (because of kernel issue)
-    model->receivers.clear();
-    model->receivers.push_back(Receiver(6, -5));
-    
-    // Reset the output console
-    output.clear();
-    numcomputed = 0;
-    shownFrame = -1;
-    
-    // Show the output console
-    shown = true;
-    showoutput->setChecked(true);
+    // Show the pressure at the first receiver initially
+    setReceiver(0);
     
     // Create a new file for this simulation
     runcmd(kernel + " create test");
@@ -73,7 +68,7 @@ void Simulator::run() {
     // Remove the two default domains, source, and receiver
     runcmd(kernel + " edit -D 0 -f test");
     runcmd(kernel + " edit -D 0 -f test");
-    //runcmd(kernel + " edit -R 0 -f test");
+    runcmd(kernel + " edit -R 0 -f test");
     runcmd(kernel + " edit -P 0 -f test");
     
     // Add all domains
@@ -118,7 +113,7 @@ void Simulator::run() {
         runcmd(cmd);
     }
     
-    /*// Add all receivers
+    // Add all receivers
     for (unsigned int i = 0; i < model->receivers.size(); i++) {
         int x = model->receivers[i].getX();
         int y = model->receivers[i].getY();
@@ -128,7 +123,7 @@ void Simulator::run() {
         cmd += std::to_string(-y);
         cmd += "] -f test";
         runcmd(cmd);
-    }*/
+    }
     
     // Update the PSTD settings
     Settings* settings = Settings::getInstance();
@@ -156,6 +151,7 @@ void Simulator::draw(QImage* pixels) {
     if (!shown) return;
     
     // Update width
+    mutex.lock();
     width = pixels->width();
     
     // Update shownFrame
@@ -167,6 +163,83 @@ void Simulator::draw(QImage* pixels) {
     if (shownFrame >= numcomputed) {
         shownFrame = numcomputed - 1;
         playspeed = 0;
+    }
+    
+    // Draw the resulting pressure on the scene
+    for (unsigned int i = 0; i < model->domains.size(); i++) {
+        if (frames.size() == 0) {
+            mutex.unlock();
+            return;
+        }
+        int fwidth = frames[0].getWidth(i);
+        int fheight = frames[0].getHeight(i);
+        
+        // Get the corner coordinates of this domain
+        int x0 = model->domains[i].getX0();
+        int x1 = model->domains[i].getX1();
+        int y0 = model->domains[i].getY0();
+        int y1 = model->domains[i].getY1();
+        
+        // Convert to screen coordinates
+        int minx = x0 * model->zoom + model->offsetX;
+        int maxx = x1 * model->zoom + model->offsetX;
+        int miny = y0 * model->zoom + model->offsetY;
+        int maxy = y1 * model->zoom + model->offsetY;
+        
+        // Loop through all pixels in the domain
+        for (int y = miny+1; y < maxy-1; y++) {
+            for (int x = minx+1; x < maxx-1; x++) {
+                // Do nothing if this pixel is not visible
+                if (x < 0 || x >= pixels->width()) continue;
+                if (y < 0 || y >= pixels->height()) continue;
+                
+                /*// Interpolate this pixel to the kernel grid
+                double tx = (double) (x - minx) / (maxx - minx);
+                double ty = (double) (maxy - y) / (maxy - miny);
+                int ix0 = (int) (tx * (fwidth-1));
+                int ix1 = ix0 + 1;
+                int iy0 = (int) (ty * (fheight-1));
+                int iy1 = iy0 + 1;
+                double ttx = tx - ix0/(fwidth-1);
+                double tty = ty - iy0/(fheight-1);
+                
+                double p00 = frames[shownFrame]->getSample(ix0, iy0, i);
+                double p01 = frames[shownFrame]->getSample(ix0, iy1, i);
+                double p10 = frames[shownFrame]->getSample(ix1, iy0, i);
+                double p11 = frames[shownFrame]->getSample(ix1, iy1, i);
+                
+                double px0 = (1-ttx)*p00 + ttx*p01;
+                double px1 = (1-ttx)*p10 + ttx*p11;
+                double pressure = (1-tty)*px0 + tty*px1;*/
+                
+                double xk = (double) (x-minx) * (fwidth-1) / (maxx-minx);
+                double yk = (double) (maxy-y) * (fheight-1) / (maxy-miny);
+                int xk0 = (int) xk;
+                int xk1 = xk0 + 1;
+                int yk0 = (int) yk;
+                int yk1 = yk0 + 1;
+                double tx = xk - xk0;
+                double ty = yk - yk0;
+                double p00 = frames[shownFrame].getSample(xk0, yk1, i);
+                double p10 = frames[shownFrame].getSample(xk1, yk1, i);
+                double p01 = frames[shownFrame].getSample(xk0, yk0, i);
+                double p11 = frames[shownFrame].getSample(xk1, yk0, i);
+                double pt0 = (1-tx)*p00 + tx*p01;
+                double pt1 = (1-tx)*p01 + tx*p11;
+                double pressure = p00;
+                
+                // Get the pressure value at this position
+                if (pressure < 0) pressure = 0;
+                QRgb color = qRgb(pressure * 255 * brightness, 0, 0);
+                
+                // Draw the pressure on the scene
+                pixels->setPixel(
+                    x,
+                    y,
+                    color
+                );
+            }
+        }
     }
     
     // Draw the background
@@ -234,18 +307,18 @@ void Simulator::draw(QImage* pixels) {
     
     // Draw the samples of all frames
     if (frames.size() > 0) {
-        int px = model->receivers[0].getX() * model->zoom + model->offsetX;
-        int py = model->receivers[0].getY() * model->zoom + model->offsetY;
-        int x0 = model->domains[0].getX0();
-        int x1 = model->domains[0].getX1();
-        int y0 = model->domains[0].getY0();
-        int y1 = model->domains[0].getY1();
+        int px = model->receivers[receiverID].getX() * model->zoom + model->offsetX;
+        int py = model->receivers[receiverID].getY() * model->zoom + model->offsetY;
+        int x0 = model->domains[receiverDID].getX0();
+        int x1 = model->domains[receiverDID].getX1();
+        int y0 = model->domains[receiverDID].getY0();
+        int y1 = model->domains[receiverDID].getY1();
         int minx = x0 * model->zoom + model->offsetX;
         int maxx = x1 * model->zoom + model->offsetX;
         int miny = y0 * model->zoom + model->offsetY;
         int maxy = y1 * model->zoom + model->offsetY;
-        int fwidth = frames[0]->getWidth(0);
-        int fheight = frames[0]->getHeight(0);
+        int fwidth = frames[0].getWidth(0);
+        int fheight = frames[0].getHeight(0);
         int ix = (px - minx) * (fwidth-1) / (maxx - minx) + 1;
         int iy = (maxy - py) * (fheight-1) / (maxy - miny) + 1;
         
@@ -254,8 +327,8 @@ void Simulator::draw(QImage* pixels) {
             int m = (x * numframes) % pixels->width();
             double t = (double) m / pixels->width();
             if (i >= numcomputed) break;
-            double v0 = frames[i]->getSample(ix, iy, 0); // TODO: Compute which domain the receiver is in
-            double v1 = (m == 0 || i+1 >= numcomputed ? v0 : frames[i+1]->getSample(ix, iy, 0)); // TODO: Compute which domain the receiver is in
+            double v0 = frames[i].getSample(ix, iy, receiverDID);
+            double v1 = (m == 0 || i+1 >= numcomputed ? v0 : frames[i+1].getSample(ix, iy, receiverDID));
             double value = v0 * (1-t) + v1 * t;
             int y = pixels->height() - 10 - h/2 - value * scale;
             pixels->setPixel(x, y, qRgb(255, 255, 255));
@@ -271,50 +344,7 @@ void Simulator::draw(QImage* pixels) {
     drawImage(x0     , y, ":/new/prefix1/icons/output_play.png", pixels);
     drawImage(x0 + 32, y, ":/new/prefix1/icons/output_end.png", pixels);
     drawImage(x0 + 64, y, ":/new/prefix1/icons/output_sound.png", pixels);
-    
-    // Draw the resulting pressure on the scene
-    for (unsigned int i = 0; i < model->domains.size(); i++) {
-        if (frames.size() == 0) return;
-        int fwidth = frames[0]->getWidth(i);
-        int fheight = frames[0]->getHeight(i);
-        
-        // Get the corner coordinates of this domain
-        int x0 = model->domains[i].getX0();
-        int x1 = model->domains[i].getX1();
-        int y0 = model->domains[i].getY0();
-        int y1 = model->domains[i].getY1();
-        
-        // Convert to screen coordinates
-        int minx = x0 * model->zoom + model->offsetX;
-        int maxx = x1 * model->zoom + model->offsetX;
-        int miny = y0 * model->zoom + model->offsetY;
-        int maxy = y1 * model->zoom + model->offsetY;
-        
-        // Loop through all pixels in the domain
-        for (int y = miny+1; y < maxy-1; y++) {
-            for (int x = minx+1; x < maxx-1; x++) {
-                // Do nothing if this pixel is not visible
-                if (x < 0 || x >= pixels->width()) continue;
-                if (y < 0 || y >= pixels->height()) continue;
-                
-                // Interpolate this pixel to the kernel grid
-                int ix = (x - minx) * (fwidth-1) / (maxx - minx);
-                int iy = (maxy - y) * (fheight-1) / (maxy - miny);
-                
-                // Get the pressure value at this position
-                double pressure = frames[shownFrame]->getSample(ix, iy, i);
-                if (pressure < 0) pressure = 0;
-                QRgb color = qRgb(pressure * 255 * brightness, 0, 0);
-                
-                // Draw the pressure on the scene
-                pixels->setPixel(
-                    x,
-                    y,
-                    color
-                );
-            }
-        }
-    }
+    mutex.unlock();
 }
 
 /**
@@ -365,6 +395,40 @@ void Simulator::pressButton(int x) {
 }
 
 /**
+ * Sets the ID of the receiver of which to display
+ * the pressure in the pressure graph.
+ * 
+ * @param i  The receiver ID
+ */
+void Simulator::setReceiver(int i) {
+    // Save the receiver ID
+    receiverID = i;
+    
+    // Get the position of the receiver
+    if (i >= model->receivers.size()) return;
+    int rx = model->receivers[i].getX();
+    int ry = model->receivers[i].getY();
+    
+    // Loop through all domains
+    for (int j = 0; j < model->domains.size(); j++) {
+        // Get the position of this domain
+        int dx0 = model->domains[j].getX0();
+        int dx1 = model->domains[j].getX1();
+        int dy0 = model->domains[j].getY0();
+        int dy1 = model->domains[j].getY1();
+        
+        // Check if the receiver is inside this domain
+        bool x = dx0 <= rx && rx <= dx1;
+        bool y = dy0 <= ry && ry <= dy1;
+        if (x && y) {
+            // Save the receiver domain ID
+            receiverDID = j;
+            break;
+        }
+    }
+}
+
+/**
  * Runs the kernel, and handles its output.
  * 
  * @param cmd  The command to run
@@ -394,10 +458,11 @@ void Simulator::runcmd(std::string cmd) {
                     }
                     
                     // Frame finished, load the new frame
-                    Frame* f = new Frame(frameID, model->domains.size());
-                    frames.push_back(f);
+                    mutex.lock();
+                    frames.push_back(Frame(frameID, model->domains.size()));
                     frameID++;
                     numcomputed++;
+                    mutex.unlock();
                     
                     // Reset result for the next line
                     result = "";

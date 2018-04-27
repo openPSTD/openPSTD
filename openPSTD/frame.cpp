@@ -14,17 +14,7 @@ Frame::Frame(int frameID, unsigned int numdomains) {
         std::string filename = "testdata/cpp_" + std::to_string(frameID) + "_domain_" + std::to_string(i) + ".csv";
         
         // Create a new Frame_Domain, and add it to the domains vector
-        domains.push_back(new Frame_Domain(filename));
-    }
-}
-
-/**
- * Destructor.
- */
-Frame::~Frame() {
-    // Delete all domains
-    for (unsigned int i = 0; i < domains.size(); i++) {
-        delete domains[i];
+        domains.push_back(Frame_Domain(filename));
     }
 }
 
@@ -81,7 +71,7 @@ double Frame::getSample(int x, int y, int domainID) {
     }
     
     // Delegate to the corresponding domain
-    return domains[domainID]->getSample(x, y);
+    return domains[domainID].getSample(x, y);
 }
 
 /**

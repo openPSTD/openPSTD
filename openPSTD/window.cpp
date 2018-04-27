@@ -119,6 +119,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionMoveToCenter, SIGNAL(triggered(bool)), this, SLOT(slot_movetocenter()));
     connect(ui->actionChangeAbsorption, SIGNAL(triggered(bool)), this, SLOT(slot_changeabsorption()));
     connect(ui->actionstart, SIGNAL(triggered(bool)), this, SLOT(slot_start()));
+    connect(ui->actionstop, SIGNAL(triggered(bool)), this, SLOT(slot_stop()));
     
     // Disable the change absorption action
     ui->actionChangeAbsorption->setEnabled(false);
@@ -158,7 +159,7 @@ void Window::slot_exporttocsv() {
     ).toStdString();
     
     // Get the frame data from Simulator
-    std::vector<Frame*> frames = view->renderer->simulator->getFrames();
+    std::vector<Frame> frames = view->renderer->simulator->getFrames();
     
     // Loop through all receivers
     for (int i = 0; i < view->model->receivers.size(); i++) {
@@ -169,26 +170,44 @@ void Window::slot_exporttocsv() {
         // Open a file stream for this file
         std::ofstream outfile(dir + "/receiver_" + std::to_string(x) + "_" + std::to_string(-y) + ".csv");
         
+        // Compute which domain the receiver is in
+        int domainID;
+        for (int j = 0; j < view->model->domains.size(); j++) {
+            // Get the position of this domain
+            int dx0 = view->model->domains[j].getX0();
+            int dx1 = view->model->domains[j].getX1();
+            int dy0 = view->model->domains[j].getY0();
+            int dy1 = view->model->domains[j].getY1();
+            
+            // Check if the receiver is inside this domain
+            bool xm = dx0 <= x && x <= dx1;
+            bool ym = dy0 <= y && y <= dy1;
+            if (xm && ym) {
+                domainID = j;
+                break;
+            }
+        }
+        
         // Compute the position of the receiver in kernel coordinates
-        int px = view->model->receivers[0].getX() * view->model->zoom + view->model->offsetX;
-        int py = view->model->receivers[0].getY() * view->model->zoom + view->model->offsetY;
-        int x0 = view->model->domains[0].getX0();
-        int x1 = view->model->domains[0].getX1();
-        int y0 = view->model->domains[0].getY0();
-        int y1 = view->model->domains[0].getY1();
+        int px = view->model->receivers[i].getX() * view->model->zoom + view->model->offsetX;
+        int py = view->model->receivers[i].getY() * view->model->zoom + view->model->offsetY;
+        int x0 = view->model->domains[domainID].getX0();
+        int x1 = view->model->domains[domainID].getX1();
+        int y0 = view->model->domains[domainID].getY0();
+        int y1 = view->model->domains[domainID].getY1();
         int minx = x0 * view->model->zoom + view->model->offsetX;
         int maxx = x1 * view->model->zoom + view->model->offsetX;
         int miny = y0 * view->model->zoom + view->model->offsetY;
         int maxy = y1 * view->model->zoom + view->model->offsetY;
-        int fwidth = frames[0]->getWidth(0);
-        int fheight = frames[0]->getHeight(0);
+        int fwidth = frames[0].getWidth(domainID);
+        int fheight = frames[0].getHeight(domainID);
         int ix = (px - minx) * (fwidth-1) / (maxx - minx) + 1;
         int iy = (maxy - py) * (fheight-1) / (maxy - miny) + 1;
         
         // Loop through all frames
         for (int j = 0; j < frames.size(); j++) {
             // Get the pressure of the receiver at this frame
-            double pressure = frames[j]->getSample(ix, iy, 0); // TODO: Compute which domain the receiver is in
+            double pressure = frames[j].getSample(ix, iy, domainID);
             if (j != 0) outfile << ",";
             outfile << pressure;
         }
