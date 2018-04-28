@@ -94,7 +94,10 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionPSTD_grid_size, SIGNAL(triggered(bool)), this, SLOT(slot_pstdgridsize()));
     connect(ui->actionWindow_size, SIGNAL(triggered(bool)), this, SLOT(slot_windowsize()));
     connect(ui->actionRender_time, SIGNAL(triggered(bool)), this, SLOT(slot_rendertime()));
+    connect(ui->actionPML_Cells, SIGNAL(triggered(bool)), this, SLOT(slot_pmlcells()));
+    connect(ui->actionAttenuation_of_PML_cells, SIGNAL(triggered(bool)), this, SLOT(slot_attenuationpmlcells()));
     connect(ui->actionAir_density, SIGNAL(triggered(bool)), this, SLOT(slot_airdensity()));
+    connect(ui->actionMax_frequency, SIGNAL(triggered(bool)), this, SLOT(slot_maxfrequency()));
     connect(ui->actionSound_speed, SIGNAL(triggered(bool)), this, SLOT(slot_soundspeed()));
     
     // Connect actions in scene menu
@@ -150,6 +153,10 @@ void Window::paintEvent(QPaintEvent* event) {
     view->renderer->draw();
 }
 
+/**
+ * Callback method for the exporttocsv action in the settings menu.
+ * Exports the simulation output to csv files.
+ */
 void Window::slot_exporttocsv() {
     // Get an output directory
     std::string dir = QFileDialog::getExistingDirectory(
@@ -216,6 +223,10 @@ void Window::slot_exporttocsv() {
     }
 }
 
+/**
+ * Callback method for the close action in the settings menu.
+ * Closes the application.
+ */
 void Window::slot_close() {
     QApplication::quit();
 }
@@ -267,6 +278,7 @@ void Window::slot_pstdgridsize() {
 }
 
 void Window::slot_windowsize() {
+    // TODO: Window size has to be 16 or 32
     Settings* settings = Settings::getInstance();
     int windowsize = QInputDialog::getInt(
         this,
@@ -288,6 +300,28 @@ void Window::slot_rendertime() {
     settings->renderTime = rendertime;
 }
 
+void Window::slot_pmlcells() {
+    Settings* settings = Settings::getInstance();
+    int pmlcells = QInputDialog::getInt(
+        this,
+        "Choose a number of PML cells",
+        "Choose a number of PML cells",
+        settings->pmlcells
+    );
+    settings->pmlcells = pmlcells;
+}
+
+void Window::slot_attenuationpmlcells() {
+    Settings* settings = Settings::getInstance();
+    int attenuationpmlcells = QInputDialog::getInt(
+        this,
+        "Choose an attenuation of PML cells",
+        "Choose an attenuation of PML cells",
+        settings->attenuationpmlcells
+    );
+    settings->attenuationpmlcells = attenuationpmlcells;
+}
+
 void Window::slot_airdensity() {
     Settings* settings = Settings::getInstance();
     double airdensity = QInputDialog::getDouble(
@@ -297,6 +331,17 @@ void Window::slot_airdensity() {
         settings->airDensity
     );
     settings->airDensity = airdensity;
+}
+
+void Window::slot_maxfrequency() {
+    Settings* settings = Settings::getInstance();
+    int maxfrequency = QInputDialog::getInt(
+        this,
+        "Choose a max frequency",
+        "Choose a max frequency",
+        settings->maxfrequency
+    );
+    settings->maxfrequency = maxfrequency;
 }
 
 void Window::slot_soundspeed() {

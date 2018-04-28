@@ -78,7 +78,10 @@
     <addaction name="actionPSTD_grid_size"/>
     <addaction name="actionWindow_size"/>
     <addaction name="actionRender_time"/>
+    <addaction name="actionPML_Cells"/>
+    <addaction name="actionAttenuation_of_PML_cells"/>
     <addaction name="actionAir_density"/>
+    <addaction name="actionMax_frequency"/>
     <addaction name="actionSound_speed"/>
    </widget>
    <widget class="QMenu" name="menuScene">
@@ -412,6 +415,21 @@
   <action name="actionExport_to_CSV">
    <property name="text">
     <string>Export to CSV</string>
+   </property>
+  </action>
+  <action name="actionPML_Cells">
+   <property name="text">
+    <string>PML Cells</string>
+   </property>
+  </action>
+  <action name="actionAttenuation_of_PML_cells">
+   <property name="text">
+    <string>Attenuation of PML cells</string>
+   </property>
+  </action>
+  <action name="actionMax_frequency">
+   <property name="text">
+    <string>Max frequency</string>
    </property>
   </action>
  </widget>

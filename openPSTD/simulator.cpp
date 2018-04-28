@@ -130,7 +130,10 @@ void Simulator::run() {
     runcmd(kernel + " edit --grid-spacing " + std::to_string(settings->pstdGridSize) + " -f test");
     runcmd(kernel + " edit --window-size " + std::to_string(settings->windowSize) + " -f test");
     runcmd(kernel + " edit --render-time " + std::to_string(settings->renderTime) + " -f test");
+    runcmd(kernel + " edit --pml-cells " + std::to_string(settings->pmlcells) + " -f test");
+    runcmd(kernel + " edit --attenuation-of-pml-cells " + std::to_string(settings->attenuationpmlcells) + " -f test");
     runcmd(kernel + " edit --density-of-air " + std::to_string(settings->airDensity) + " -f test");
+    runcmd(kernel + " edit --max-frequency " + std::to_string(settings->maxfrequency) + " -f test");
     runcmd(kernel + " edit --sound-speed " + std::to_string(settings->soundSpeed) + " -f test");
     
     // Reset the output directory
@@ -187,8 +190,8 @@ void Simulator::draw(QImage* pixels) {
         int maxy = y1 * model->zoom + model->offsetY;
         
         // Loop through all pixels in the domain
-        for (int y = miny+1; y < maxy-1; y++) {
-            for (int x = minx+1; x < maxx-1; x++) {
+        for (int y = miny; y < maxy; y++) {
+            for (int x = minx; x < maxx; x++) {
                 // Do nothing if this pixel is not visible
                 if (x < 0 || x >= pixels->width()) continue;
                 if (y < 0 || y >= pixels->height()) continue;
@@ -212,8 +215,8 @@ void Simulator::draw(QImage* pixels) {
                 double px1 = (1-ttx)*p10 + ttx*p11;
                 double pressure = (1-tty)*px0 + tty*px1;*/
                 
-                double xk = (double) (x-minx) * (fwidth-1) / (maxx-minx);
-                double yk = (double) (maxy-y) * (fheight-1) / (maxy-miny);
+                double xk = (double) (x-minx) * (fwidth-1) / (maxx-minx-3);
+                double yk = (double) (y-miny) * (fheight-1) / (maxy-miny-3);
                 int xk0 = (int) xk;
                 int xk1 = xk0 + 1;
                 int yk0 = (int) yk;

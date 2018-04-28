@@ -63,7 +63,10 @@ public slots:
     void slot_pstdgridsize();
     void slot_windowsize();
     void slot_rendertime();
+    void slot_pmlcells();
+    void slot_attenuationpmlcells();
     void slot_airdensity();
+    void slot_maxfrequency();
     void slot_soundspeed();
     
     // Scene menu slots
