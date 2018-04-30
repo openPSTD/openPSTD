@@ -30,6 +30,7 @@ CoordinateDialog::~CoordinateDialog() {
 
 void CoordinateDialog::slot_cancel() {
     // Close the window without saving
+    saved = false;
     close();
 }
 
@@ -49,5 +50,6 @@ void CoordinateDialog::slot_save() {
     }
     
     // Close the window
+    saved = true;
     close();
 }

@@ -19,9 +19,10 @@
 class GraphicsView : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0, QAction* showoutput = 0);
+    explicit GraphicsView(QWidget* parent = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0, QAction* showoutput = 0, QStatusBar* statusbar = 0);
     ~GraphicsView();
     
+    inline void saveState() { modelmanager->saveState(); }
     inline void undo() { modelmanager->undo(); }
     inline void redo() { modelmanager->redo(); }
     

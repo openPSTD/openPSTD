@@ -84,13 +84,17 @@ public slots:
     inline void slot_move() { view->renderer->setState(MOVE); }
     inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
     inline void slot_addsource() {
+        view->saveState();
         CoordinateDialog* cd = new CoordinateDialog(this, view->model, true);
         cd->exec();
+        if (!cd->getSaved()) view->undo();
         delete cd;
     }
     inline void slot_addreceiver() {
+        view->saveState();
         CoordinateDialog* cd = new CoordinateDialog(this, view->model, false);
         cd->exec();
+        if (!cd->getSaved()) view->undo();
         delete cd;
     }
     inline void slot_measure() { view->renderer->setState(MEASURE); }

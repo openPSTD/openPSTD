@@ -14,10 +14,12 @@ class CoordinateDialog : public QDialog {
 public:
     explicit CoordinateDialog(QWidget* parent = 0, Model* model = 0, bool isSource = true);
     ~CoordinateDialog();
+    inline bool getSaved() { return saved; }
 private:
     Ui::CoordinateDialog* ui;
     Model* model;
     bool isSource;
+    bool saved;
 private slots:
     void slot_cancel();
     void slot_save();

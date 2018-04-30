@@ -8,7 +8,7 @@
  * @param settings  A reference to the Settings instance
  * @param slZoom  A reference to the zoom level slider
  */
-GraphicsView::GraphicsView(QWidget* parent, QSlider* slZoom, QAction* changeabsorption, QAction* showoutput) : QGraphicsView(parent) {
+GraphicsView::GraphicsView(QWidget* parent, QSlider* slZoom, QAction* changeabsorption, QAction* showoutput, QStatusBar* statusbar) : QGraphicsView(parent) {
     // Create a new QGraphicsScene
     scene = new QGraphicsScene();
     setScene(scene);
@@ -23,7 +23,7 @@ GraphicsView::GraphicsView(QWidget* parent, QSlider* slZoom, QAction* changeabso
     modelmanager = new ModelManager(model);
     
     // Create a Simulator instance
-    simulator = new Simulator(model, showoutput);
+    simulator = new Simulator(model, showoutput, statusbar);
     
     // Create a new Renderer
     renderer = new Renderer(scene, model, modelmanager, parent, changeabsorption, simulator);

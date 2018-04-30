@@ -17,7 +17,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Create a GraphicsView for the main frame
     slZoom = new QSlider(Qt::Horizontal);
-    view = new GraphicsView(this, slZoom, ui->actionChangeAbsorption, ui->actionShow_Output);
+    view = new GraphicsView(this, slZoom, ui->actionChangeAbsorption, ui->actionShow_Output, ui->statusBar);
     view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->horizontalLayout->addWidget(view);
     
@@ -126,6 +126,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     
     // Disable the change absorption action
     ui->actionChangeAbsorption->setEnabled(false);
+    ui->statusBar->showMessage("Status: Ready");
 }
 
 /**

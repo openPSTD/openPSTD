@@ -6,10 +6,11 @@
  * @param model  A reference to the model
  * @param showoutput  A reference to the showoutput action
  */
-Simulator::Simulator(Model* model, QAction* showoutput) {
+Simulator::Simulator(Model* model, QAction* showoutput, QStatusBar* statusbar) {
     // Save reference to Model instance
     this->model = model;
     this->showoutput = showoutput;
+    this->statusbar = statusbar;
     
     // Initialize the state variables
     shown = false;
@@ -28,7 +29,7 @@ Simulator::Simulator(Model* model, QAction* showoutput) {
 Simulator::~Simulator() {
     // Stop the simulator thread if it is running
     if (threadRunning) {
-        thread.join();
+        pthread_cancel(thread);
     }
 }
 
@@ -47,11 +48,11 @@ void Simulator::start() {
     
     // Stop the simulator thread if it is running
     if (threadRunning) {
-        thread.join();
+        pthread_cancel(thread);
     }
     
     // Run the simulator in a new thread
-    thread = std::thread(&Simulator::run, this);
+    threadID = pthread_create(&thread, NULL, &Simulator::runstatic, this);
     threadRunning = true;
 }
 
@@ -216,7 +217,7 @@ void Simulator::draw(QImage* pixels) {
                 double pressure = (1-tty)*px0 + tty*px1;*/
                 
                 double xk = (double) (x-minx) * (fwidth-1) / (maxx-minx-3);
-                double yk = (double) (y-miny) * (fheight-1) / (maxy-miny-3);
+                double yk = (double) (maxy-y) * (fheight-1) / (maxy-miny-3);
                 int xk0 = (int) xk;
                 int xk1 = xk0 + 1;
                 int yk0 = (int) yk;
