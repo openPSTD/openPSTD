@@ -39,6 +39,25 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
     // Remove the measuring tool
     measuring = false;
     
+    // Check if moving the scene
+    if (button == Qt::LeftButton && model->state == MOVE) {
+        // Save the start coordinates
+        moveSceneX = x;
+        moveSceneY = y;
+    }
+    
+    // Check if measuring
+    if (button == Qt::LeftButton && model->state == MEASURE) {
+        // Save the start coordinates
+        bool clamped;
+        QPoint p = Grid::clampGrid(x, y, model, &clamped);
+        measureStart.first = p.x();
+        measureStart.second = p.y();
+        measureEnd.first = p.x();
+        measureEnd.second = p.y();
+        measuring = true;
+    }
+    
     // Check if the simulation output is shown
     if (simulator->isShown() && button == Qt::LeftButton && !addingDomain && !measuring) {
         // Check if clicking on the receiver pressure graph
@@ -98,13 +117,6 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         select(modifiers == Qt::CTRL, true);
     }
     
-    // Check if moving the scene
-    if (button == Qt::LeftButton && model->state == MOVE) {
-        // Save the start coordinates
-        moveSceneX = x;
-        moveSceneY = y;
-    }
-    
     // Check if adding a new domain
     if (button == Qt::LeftButton && model->state == ADDDOMAIN) {
         // Check if a domain is already being added
@@ -141,18 +153,6 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
         
         // Add a new receiver
         addReceiver(x, y);
-    }
-    
-    // Check if measuring
-    if (button == Qt::LeftButton && model->state == MEASURE) {
-        // Save the start coordinates
-        bool clamped;
-        QPoint p = Grid::clampGrid(x, y, model, &clamped);
-        measureStart.first = p.x();
-        measureStart.second = p.y();
-        measureEnd.first = p.x();
-        measureEnd.second = p.y();
-        measuring = true;
     }
     
     // Check if a domain is selected
