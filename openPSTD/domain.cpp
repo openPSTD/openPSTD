@@ -313,10 +313,10 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
             
             // Create a new wall from toMerge.second to x1
             Wall* newWall = new Wall(
-                wall->getY0(),
                 toMerge.second,
                 wall->getY0(),
                 x1,
+                wall->getY1(),
                 wall->getSide(),
                 getAbsorption(wall->getSide())
             );
@@ -330,10 +330,10 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
             
             // Create a new wall from toMerge.second to x0
             Wall* newWall = new Wall(
-                wall->getY0(),
                 toMerge.second,
                 wall->getY0(),
                 x0,
+                wall->getY1(),
                 wall->getSide(),
                 getAbsorption(wall->getSide())
             );
