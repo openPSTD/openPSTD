@@ -241,10 +241,9 @@ void Simulator::draw(QImage* pixels) {
                 double p11 = frames[shownFrame].getSample(xk1, yk0, i);
                 double pt0 = (1-tx)*p00 + tx*p01;
                 double pt1 = (1-tx)*p01 + tx*p11;
-                double pressure = p00;
+                double pressure = std::abs(p00);
                 
                 // Get the pressure value at this position
-                if (pressure < 0) pressure = 0;
                 QRgb color = qRgb(pressure * 255 * brightness, 0, 0);
                 
                 // Draw the pressure on the scene
