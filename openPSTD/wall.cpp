@@ -10,8 +10,9 @@
  * @param side  The side of the domain that this wall is on
  * @param settings  A reference to a Settings instance
  * @param absorption  The initial absorption coefficient of the wall
+ * @param e  The edge local reacting value of the wall
  */
-Wall::Wall(int x0, int y0, int x1, int y1, Side side, double absorption) {
+Wall::Wall(int x0, int y0, int x1, int y1, Side side, double absorption, bool e) {
     // Save end point coordinates locally
     this->x0 = x0;
     this->y0 = y0;
@@ -19,9 +20,7 @@ Wall::Wall(int x0, int y0, int x1, int y1, Side side, double absorption) {
     this->y1 = y1;
     this->side = side;
     this->absorption = absorption;
-    
-    // Set initial absorption coefficient
-    absorption = 0;
+    this->edgelocalreacting = e;
     
     // Set initial wall length text state
     drawWallLength = true;

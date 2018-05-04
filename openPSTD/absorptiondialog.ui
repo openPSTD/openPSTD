@@ -119,6 +119,58 @@
     <string>Save</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="elrTop">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>10</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ELR</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="elrBottom">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>170</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ELR</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="elrLeft">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>120</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ELR</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="elrRight">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>120</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ELR</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

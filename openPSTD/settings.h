@@ -51,7 +51,6 @@ public:
     int pmlcells = 60;
     int attenuationpmlcells = 20000;
     double airDensity = 1.2;
-    int maxfrequency = 1000;
     int soundSpeed = 340;
 private:
     static Settings* instance;

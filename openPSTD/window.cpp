@@ -97,7 +97,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->actionPML_Cells, SIGNAL(triggered(bool)), this, SLOT(slot_pmlcells()));
     connect(ui->actionAttenuation_of_PML_cells, SIGNAL(triggered(bool)), this, SLOT(slot_attenuationpmlcells()));
     connect(ui->actionAir_density, SIGNAL(triggered(bool)), this, SLOT(slot_airdensity()));
-    connect(ui->actionMax_frequency, SIGNAL(triggered(bool)), this, SLOT(slot_maxfrequency()));
     connect(ui->actionSound_speed, SIGNAL(triggered(bool)), this, SLOT(slot_soundspeed()));
     
     // Connect actions in scene menu
@@ -332,17 +331,6 @@ void Window::slot_airdensity() {
         settings->airDensity
     );
     settings->airDensity = airdensity;
-}
-
-void Window::slot_maxfrequency() {
-    Settings* settings = Settings::getInstance();
-    int maxfrequency = QInputDialog::getInt(
-        this,
-        "Choose a max frequency",
-        "Choose a max frequency",
-        settings->maxfrequency
-    );
-    settings->maxfrequency = maxfrequency;
 }
 
 void Window::slot_soundspeed() {

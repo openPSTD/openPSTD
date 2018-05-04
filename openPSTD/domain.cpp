@@ -21,6 +21,10 @@ Domain::Domain(int x0, int y0, int x1, int y1) {
     absorptionBottom = 0;
     absorptionLeft = 0;
     absorptionRight = 0;
+    edgelocalreactingTop = false;
+    edgelocalreactingBottom = false;
+    edgelocalreactingLeft = false;
+    edgelocalreactingRight = false;
 }
 
 /**
@@ -87,10 +91,10 @@ void Domain::resetWalls() {
     walls.clear();
     
     // Recreate the original four non-merged walls
-    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, absorptionLeft));
-    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, absorptionRight));
-    walls.push_back(new Wall(x0, y0, x1, y0, TOP, absorptionTop));
-    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, absorptionBottom));
+    walls.push_back(new Wall(x0, y0, x0, y1, LEFT, absorptionLeft, edgelocalreactingTop));
+    walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, absorptionRight, edgelocalreactingBottom));
+    walls.push_back(new Wall(x0, y0, x1, y0, TOP, absorptionTop, edgelocalreactingLeft));
+    walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, absorptionBottom, edgelocalreactingRight));
 }
 
 /**
@@ -242,7 +246,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getX0(),
                 y1,
                 wall->getSide(),
-                getAbsorption(wall->getSide())
+                getAbsorption(wall->getSide()),
+                getEdgeLocalReacting(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -259,7 +264,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 wall->getX0(),
                 y0,
                 wall->getSide(),
-                getAbsorption(wall->getSide())
+                getAbsorption(wall->getSide()),
+                getEdgeLocalReacting(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -318,7 +324,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 x1,
                 wall->getY1(),
                 wall->getSide(),
-                getAbsorption(wall->getSide())
+                getAbsorption(wall->getSide()),
+                getEdgeLocalReacting(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -335,7 +342,8 @@ void Domain::handleIntersection(Domain* parent, int wallID, std::pair<int, int> 
                 x0,
                 wall->getY1(),
                 wall->getSide(),
-                getAbsorption(wall->getSide())
+                getAbsorption(wall->getSide()),
+                getEdgeLocalReacting(wall->getSide())
             );
             parent->getWalls()->push_back(newWall);
         }
@@ -353,6 +361,20 @@ double Domain::getAbsorption(Side side) {
     if (side == BOTTOM) return absorptionBottom;
     if (side == LEFT) return absorptionLeft;
     if (side == RIGHT) return absorptionRight;
+}
+
+/**
+ * Returns the edge local reacting value of a wall
+ * given its side.
+ * 
+ * @param side  The side of the wall
+ * @return  The edge local reacting value of this wall
+ */
+bool Domain::getEdgeLocalReacting(Side side) {
+    if (side == TOP) return edgelocalreactingTop;
+    if (side == BOTTOM) return edgelocalreactingBottom;
+    if (side == LEFT) return edgelocalreactingLeft;
+    if (side == RIGHT) return edgelocalreactingRight;
 }
 
 /**
@@ -379,4 +401,17 @@ void Domain::setAbsorption(Side side, double value) {
     if (side == BOTTOM) absorptionBottom = value;
     if (side == LEFT) absorptionLeft = value;
     if (side == RIGHT) absorptionRight = value;
+}
+
+/**
+ * Updates the domain's edge local reacting values given a side to update.
+ * 
+ * @param side  The side of which to update the edge local reacting
+ * @param e  The new value of edge local reacting
+ */
+void Domain::setEdgeLocalReacting(Side side, bool e) {
+    if (side == TOP) edgelocalreactingTop = e;
+    if (side == BOTTOM) edgelocalreactingBottom = e;
+    if (side == LEFT) edgelocalreactingLeft = e;
+    if (side == RIGHT) edgelocalreactingRight = e;
 }

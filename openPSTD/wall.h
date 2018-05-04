@@ -23,7 +23,7 @@ class Wall {
 public:
     // Constructor
     inline Wall() {}
-    Wall(int x0, int y0, int x1, int y1, Side side, double absorption);
+    Wall(int x0, int y0, int x1, int y1, Side side, double absorption, bool e);
     
     // Drawing method
     void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
@@ -35,6 +35,7 @@ public:
     inline int getY1() { return y1; }
     inline Side getSide() { return side; }
     inline double getAbsorption() { return absorption; }
+    inline bool getEgdeLocalReacting() { return edgelocalreacting; }
     
     // Set methods
     inline void setX0(int x0) { this->x0 = x0; }
@@ -43,6 +44,7 @@ public:
     inline void setY1(int y1) { this->y1 = y1; }
     inline void setSide(Side side) { this->side = side; }
     inline void setAbsorption(double absorption) { this->absorption = absorption; }
+    inline void setEdgeLocalReacting(double e) { this->edgelocalreacting = e; }
     void setDrawWallLength(bool drawWallLength) { this->drawWallLength = drawWallLength; }
     
     // Checks if two given walls need to be merged
@@ -59,6 +61,7 @@ private:
     
     // Absorption coefficient
     double absorption;
+    bool edgelocalreacting;
     
     // Whether or not to draw the wall length text
     bool drawWallLength;

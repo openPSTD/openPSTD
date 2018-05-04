@@ -66,7 +66,6 @@ public slots:
     void slot_pmlcells();
     void slot_attenuationpmlcells();
     void slot_airdensity();
-    void slot_maxfrequency();
     void slot_soundspeed();
     
     // Scene menu slots

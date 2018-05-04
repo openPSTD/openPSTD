@@ -100,6 +100,18 @@ void Simulator::run() {
         runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",b," + std::to_string(ab) + ")\" -f test");
         runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",l," + std::to_string(al) + ")\" -f test");
         runcmd(kernel + " edit -a \"(" + std::to_string(i) + ",r," + std::to_string(ar) + ")\" -f test");
+        
+        // Get the edge local reacting values of the four walls
+        std::string et = (model->domains[i].getEdgeLocalReacting(TOP) ? "true" : "false");
+        std::string eb = (model->domains[i].getEdgeLocalReacting(BOTTOM) ? "true" : "false");
+        std::string el = (model->domains[i].getEdgeLocalReacting(LEFT) ? "true" : "false");
+        std::string er = (model->domains[i].getEdgeLocalReacting(RIGHT) ? "true" : "false");
+        
+        // Set the edge local reacting values of the four walls
+        runcmd(kernel + " edit -l \"(" + std::to_string(i) + ",t," + et + ")\" -f test");
+        runcmd(kernel + " edit -l \"(" + std::to_string(i) + ",b," + eb + ")\" -f test");
+        runcmd(kernel + " edit -l \"(" + std::to_string(i) + ",l," + el + ")\" -f test");
+        runcmd(kernel + " edit -l \"(" + std::to_string(i) + ",r," + er + ")\" -f test");
     }
     
     // Add all sources
@@ -134,7 +146,6 @@ void Simulator::run() {
     runcmd(kernel + " edit --pml-cells " + std::to_string(settings->pmlcells) + " -f test");
     runcmd(kernel + " edit --attenuation-of-pml-cells " + std::to_string(settings->attenuationpmlcells) + " -f test");
     runcmd(kernel + " edit --density-of-air " + std::to_string(settings->airDensity) + " -f test");
-    runcmd(kernel + " edit --max-frequency " + std::to_string(settings->maxfrequency) + " -f test");
     runcmd(kernel + " edit --sound-speed " + std::to_string(settings->soundSpeed) + " -f test");
     
     // Reset the output directory

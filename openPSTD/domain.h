@@ -49,8 +49,10 @@ public:
     
     // Get method for the absorption of a wall given its side
     double getAbsorption(Side side);
+    bool getEdgeLocalReacting(Side side);
     void updateAbsorption();
     void setAbsorption(Side side, double value);
+    void setEdgeLocalReacting(Side side, bool e);
 private:
     // Domain walls
     int x0;
@@ -64,6 +66,10 @@ private:
     double absorptionBottom;
     double absorptionLeft;
     double absorptionRight;
+    bool edgelocalreactingTop;
+    bool edgelocalreactingBottom;
+    bool edgelocalreactingLeft;
+    bool edgelocalreactingRight;
     
     // Method for updating the side of all walls
     void updateWallSides();
