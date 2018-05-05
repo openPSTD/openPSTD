@@ -104,6 +104,9 @@ public slots:
     inline void slot_start() {
         view->simulator->start();
         view->renderer->eh->moveToCenter();
+        view->renderer->eh->selectReceiver(0);
+        ui->actionSelect_Domain->setChecked(true);
+        view->model->state = SELECTDOMAIN;
     }
     inline void slot_stop() { view->simulator->stop(); }
 };

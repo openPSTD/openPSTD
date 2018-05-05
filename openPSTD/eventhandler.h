@@ -51,6 +51,10 @@ public:
     void clearSelection();
     inline void removeMeasure() { measuring = false; }
     void cancelNewDomain();
+    inline void selectReceiver(int i) {
+        selectedReceivers.clear();
+        selectedReceivers.push_back(i);
+    }
     
     void changeabsorptiondialog();
     inline void setWidth(int width) { this->width = width; }

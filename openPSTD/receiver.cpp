@@ -39,27 +39,28 @@ void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool sel
     // Check if this receiver is selected
     if (selected) {
         // Draw a square around the receiver
-        for (int i = -5; i <= 5; i++) {
+        int d = 8;
+        for (int i = -d; i <= d; i++) {
             setPixel(
                 zoom * x + i + offsetX,
-                zoom * y + 5 + offsetY,
+                zoom * y + d + offsetY,
                 qRgb(0, 255, 255),
                 pixels
             );
             setPixel(
                 zoom * x + i + offsetX,
-                zoom * y - 5 + offsetY,
+                zoom * y - d + offsetY,
                 qRgb(0, 255, 255),
                 pixels
             );
             setPixel(
-                zoom * x + 5 + offsetX,
+                zoom * x + d + offsetX,
                 zoom * y + i + offsetY,
                 qRgb(0, 255, 255),
                 pixels
             );
             setPixel(
-                zoom * x - 5 + offsetX,
+                zoom * x - d + offsetX,
                 zoom * y + i + offsetY,
                 qRgb(0, 255, 255),
                 pixels

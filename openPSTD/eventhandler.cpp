@@ -86,6 +86,9 @@ void EventHandler::mousePress(int x, int y, Qt::MouseButton button, Qt::Keyboard
             if (dx < 5 && dy < 5) {
                 // Tell the simulator to show the pressure at this receiver
                 simulator->setReceiver(i);
+                
+                // Select this receiver
+                selectReceiver(i);
             }
         }
         
