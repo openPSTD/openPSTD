@@ -21,6 +21,7 @@ Simulator::Simulator(Model* model, QAction* showoutput, QStatusBar* statusbar) {
     numframes = 1000;
     playspeed = 0;
     setReceiver(0);
+    completed = false;
 }
 
 /**
@@ -61,6 +62,7 @@ void Simulator::start() {
  */
 void Simulator::run() {
     // Show the pressure at the first receiver initially
+    completed = false;
     setReceiver(0);
     
     // Create a new file for this simulation
@@ -466,6 +468,10 @@ void Simulator::runcmd(std::string cmd) {
                 if (c == '\n') {
                     // Full line read, only handle "Finished frame" lines
                     std::cout << result << std::endl;
+                    if (result == "Succesfully finished simulation") {
+                        completed = true;
+                        continue;
+                    }
                     if (result.substr(0, 16) != "Finished frame: ") {
                         result = "";
                         continue;

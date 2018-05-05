@@ -158,6 +158,16 @@ void Window::paintEvent(QPaintEvent* event) {
  * Exports the simulation output to csv files.
  */
 void Window::slot_exporttocsv() {
+    // Verify that a simulation has been completed
+    if (!view->simulator->getCompleted()) {
+        QMessageBox::information(
+            this,
+            "Export to csv",
+            "Cannot export the simulation results, simulation has not completed yet."
+        );
+        return;
+    }
+    
     // Get an output directory
     std::string dir = QFileDialog::getExistingDirectory(
         this,

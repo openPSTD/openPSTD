@@ -38,6 +38,8 @@ public:
         return fs;
     }
     void setReceiver(int i);
+    
+    inline bool getCompleted() { return completed; }
 private:
     Model* model;
     QAction* showoutput;
@@ -57,6 +59,7 @@ private:
     std::vector<Frame> frames;
     const std::string kernel = "../OpenPSTD-cli";
     std::mutex mutex;
+    bool completed;
     
     int brightness = 10;
     int scale = 200;
