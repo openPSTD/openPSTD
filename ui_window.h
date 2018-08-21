@@ -32,33 +32,30 @@ public:
     QAction *actionAddDomain;
     QAction *actionAddSource;
     QAction *actionAddReceiver;
-    QAction *actionNew;
-    QAction *actionOpen;
-    QAction *actionSave;
-    QAction *actionSave_As;
     QAction *actionClose;
     QAction *actionstop;
     QAction *actionstart;
     QAction *actionFPS_counter;
-    QAction *actionGrid_color;
-    QAction *actionBackground_color;
-    QAction *actionZoom_color;
-    QAction *actionFPS_color;
     QAction *actionClamp_distance;
     QAction *actionClear_all;
-    QAction *actionSource_color;
-    QAction *actionReceiver_color;
-    QAction *actionChangelog;
     QAction *actionUndo;
     QAction *actionRedo;
     QAction *actionDelete_selected;
     QAction *actionGrid;
     QAction *actionMeasure;
-    QAction *actionPSTD_grid_size;
+    QAction *actionGUI_grid_size;
     QAction *actionMoveToCenter;
     QAction *actionChangeAbsorption;
     QAction *actionSelect_Domain;
     QAction *actionShow_Output;
+    QAction *actionPSTD_grid_size;
+    QAction *actionWindow_size;
+    QAction *actionRender_time;
+    QAction *actionAir_density;
+    QAction *actionSound_speed;
+    QAction *actionExport_to_CSV;
+    QAction *actionPML_Cells;
+    QAction *actionAttenuation_of_PML_cells;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QMenuBar *menuBar;
@@ -69,7 +66,6 @@ public:
     QMenu *menuScene;
     QMenu *menuView;
     QMenu *menuOperate;
-    QMenu *menuAbout;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -103,21 +99,13 @@ public:
         actionAddSource = new QAction(Window);
         actionAddSource->setObjectName(QStringLiteral("actionAddSource"));
         QIcon icon4;
-        icon4.addFile(QStringLiteral(":/new/prefix1/icons/source.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon4.addFile(QStringLiteral(":/new/prefix1/icons/source_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAddSource->setIcon(icon4);
         actionAddReceiver = new QAction(Window);
         actionAddReceiver->setObjectName(QStringLiteral("actionAddReceiver"));
         QIcon icon5;
-        icon5.addFile(QStringLiteral(":/new/prefix1/icons/receiver.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon5.addFile(QStringLiteral(":/new/prefix1/icons/receiver_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAddReceiver->setIcon(icon5);
-        actionNew = new QAction(Window);
-        actionNew->setObjectName(QStringLiteral("actionNew"));
-        actionOpen = new QAction(Window);
-        actionOpen->setObjectName(QStringLiteral("actionOpen"));
-        actionSave = new QAction(Window);
-        actionSave->setObjectName(QStringLiteral("actionSave"));
-        actionSave_As = new QAction(Window);
-        actionSave_As->setObjectName(QStringLiteral("actionSave_As"));
         actionClose = new QAction(Window);
         actionClose->setObjectName(QStringLiteral("actionClose"));
         actionstop = new QAction(Window);
@@ -134,24 +122,10 @@ public:
         actionFPS_counter->setObjectName(QStringLiteral("actionFPS_counter"));
         actionFPS_counter->setCheckable(true);
         actionFPS_counter->setChecked(false);
-        actionGrid_color = new QAction(Window);
-        actionGrid_color->setObjectName(QStringLiteral("actionGrid_color"));
-        actionBackground_color = new QAction(Window);
-        actionBackground_color->setObjectName(QStringLiteral("actionBackground_color"));
-        actionZoom_color = new QAction(Window);
-        actionZoom_color->setObjectName(QStringLiteral("actionZoom_color"));
-        actionFPS_color = new QAction(Window);
-        actionFPS_color->setObjectName(QStringLiteral("actionFPS_color"));
         actionClamp_distance = new QAction(Window);
         actionClamp_distance->setObjectName(QStringLiteral("actionClamp_distance"));
         actionClear_all = new QAction(Window);
         actionClear_all->setObjectName(QStringLiteral("actionClear_all"));
-        actionSource_color = new QAction(Window);
-        actionSource_color->setObjectName(QStringLiteral("actionSource_color"));
-        actionReceiver_color = new QAction(Window);
-        actionReceiver_color->setObjectName(QStringLiteral("actionReceiver_color"));
-        actionChangelog = new QAction(Window);
-        actionChangelog->setObjectName(QStringLiteral("actionChangelog"));
         actionUndo = new QAction(Window);
         actionUndo->setObjectName(QStringLiteral("actionUndo"));
         QIcon icon8;
@@ -174,8 +148,8 @@ public:
         QIcon icon10;
         icon10.addFile(QStringLiteral(":/new/prefix1/icons/measure.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionMeasure->setIcon(icon10);
-        actionPSTD_grid_size = new QAction(Window);
-        actionPSTD_grid_size->setObjectName(QStringLiteral("actionPSTD_grid_size"));
+        actionGUI_grid_size = new QAction(Window);
+        actionGUI_grid_size->setObjectName(QStringLiteral("actionGUI_grid_size"));
         actionMoveToCenter = new QAction(Window);
         actionMoveToCenter->setObjectName(QStringLiteral("actionMoveToCenter"));
         QIcon icon11;
@@ -196,6 +170,22 @@ public:
         actionShow_Output = new QAction(Window);
         actionShow_Output->setObjectName(QStringLiteral("actionShow_Output"));
         actionShow_Output->setCheckable(true);
+        actionPSTD_grid_size = new QAction(Window);
+        actionPSTD_grid_size->setObjectName(QStringLiteral("actionPSTD_grid_size"));
+        actionWindow_size = new QAction(Window);
+        actionWindow_size->setObjectName(QStringLiteral("actionWindow_size"));
+        actionRender_time = new QAction(Window);
+        actionRender_time->setObjectName(QStringLiteral("actionRender_time"));
+        actionAir_density = new QAction(Window);
+        actionAir_density->setObjectName(QStringLiteral("actionAir_density"));
+        actionSound_speed = new QAction(Window);
+        actionSound_speed->setObjectName(QStringLiteral("actionSound_speed"));
+        actionExport_to_CSV = new QAction(Window);
+        actionExport_to_CSV->setObjectName(QStringLiteral("actionExport_to_CSV"));
+        actionPML_Cells = new QAction(Window);
+        actionPML_Cells->setObjectName(QStringLiteral("actionPML_Cells"));
+        actionAttenuation_of_PML_cells = new QAction(Window);
+        actionAttenuation_of_PML_cells->setObjectName(QStringLiteral("actionAttenuation_of_PML_cells"));
         centralWidget = new QWidget(Window);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setEnabled(true);
@@ -227,8 +217,6 @@ public:
         menuView->setObjectName(QStringLiteral("menuView"));
         menuOperate = new QMenu(menuBar);
         menuOperate->setObjectName(QStringLiteral("menuOperate"));
-        menuAbout = new QMenu(menuBar);
-        menuAbout->setObjectName(QStringLiteral("menuAbout"));
         Window->setMenuBar(menuBar);
         mainToolBar = new QToolBar(Window);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -245,14 +233,18 @@ public:
         menuBar->addAction(menuScene->menuAction());
         menuBar->addAction(menuView->menuAction());
         menuBar->addAction(menuOperate->menuAction());
-        menuBar->addAction(menuAbout->menuAction());
-        menuOpenPSTD->addAction(actionNew);
-        menuOpenPSTD->addAction(actionOpen);
-        menuOpenPSTD->addAction(actionSave);
-        menuOpenPSTD->addAction(actionSave_As);
+        menuOpenPSTD->addAction(actionExport_to_CSV);
         menuOpenPSTD->addAction(actionClose);
         menuSettings->addAction(actionClamp_distance);
+        menuSettings->addAction(actionGUI_grid_size);
+        menuSettings->addSeparator();
         menuSettings->addAction(actionPSTD_grid_size);
+        menuSettings->addAction(actionWindow_size);
+        menuSettings->addAction(actionRender_time);
+        menuSettings->addAction(actionPML_Cells);
+        menuSettings->addAction(actionAttenuation_of_PML_cells);
+        menuSettings->addAction(actionAir_density);
+        menuSettings->addAction(actionSound_speed);
         menuScene->addAction(actionClear_all);
         menuScene->addAction(actionDelete_selected);
         menuView->addAction(actionFPS_counter);
@@ -273,7 +265,6 @@ public:
         menuOperate->addAction(actionRedo);
         menuOperate->addAction(actionMoveToCenter);
         menuOperate->addAction(actionChangeAbsorption);
-        menuAbout->addAction(actionChangelog);
         mainToolBar->addAction(actionSelect_Domain);
         mainToolBar->addAction(actionSelect);
         mainToolBar->addAction(actionMoveScene);
@@ -333,13 +324,6 @@ public:
 #ifndef QT_NO_SHORTCUT
         actionAddReceiver->setShortcut(QApplication::translate("Window", "R", Q_NULLPTR));
 #endif // QT_NO_SHORTCUT
-        actionNew->setText(QApplication::translate("Window", "New", Q_NULLPTR));
-#ifndef QT_NO_SHORTCUT
-        actionNew->setShortcut(QString());
-#endif // QT_NO_SHORTCUT
-        actionOpen->setText(QApplication::translate("Window", "Open", Q_NULLPTR));
-        actionSave->setText(QApplication::translate("Window", "Save", Q_NULLPTR));
-        actionSave_As->setText(QApplication::translate("Window", "Save As", Q_NULLPTR));
         actionClose->setText(QApplication::translate("Window", "Close", Q_NULLPTR));
         actionstop->setText(QApplication::translate("Window", "stop", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
@@ -350,15 +334,8 @@ public:
         actionstart->setToolTip(QApplication::translate("Window", "Start Simulation", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         actionFPS_counter->setText(QApplication::translate("Window", "FPS counter", Q_NULLPTR));
-        actionGrid_color->setText(QApplication::translate("Window", "Grid color", Q_NULLPTR));
-        actionBackground_color->setText(QApplication::translate("Window", "Background color", Q_NULLPTR));
-        actionZoom_color->setText(QApplication::translate("Window", "Zoom color", Q_NULLPTR));
-        actionFPS_color->setText(QApplication::translate("Window", "FPS color", Q_NULLPTR));
         actionClamp_distance->setText(QApplication::translate("Window", "Clamp distance", Q_NULLPTR));
         actionClear_all->setText(QApplication::translate("Window", "Clear all", Q_NULLPTR));
-        actionSource_color->setText(QApplication::translate("Window", "Source color", Q_NULLPTR));
-        actionReceiver_color->setText(QApplication::translate("Window", "Receiver color", Q_NULLPTR));
-        actionChangelog->setText(QApplication::translate("Window", "Changelog", Q_NULLPTR));
         actionUndo->setText(QApplication::translate("Window", "Undo", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
         actionUndo->setToolTip(QApplication::translate("Window", "Undo the last operation", Q_NULLPTR));
@@ -370,11 +347,19 @@ public:
         actionDelete_selected->setText(QApplication::translate("Window", "Delete selected", Q_NULLPTR));
         actionGrid->setText(QApplication::translate("Window", "Grid", Q_NULLPTR));
         actionMeasure->setText(QApplication::translate("Window", "Measure", Q_NULLPTR));
-        actionPSTD_grid_size->setText(QApplication::translate("Window", "PSTD grid size", Q_NULLPTR));
+        actionGUI_grid_size->setText(QApplication::translate("Window", "GUI grid size", Q_NULLPTR));
         actionMoveToCenter->setText(QApplication::translate("Window", "MoveToCenter", Q_NULLPTR));
         actionChangeAbsorption->setText(QApplication::translate("Window", "ChangeAbsorption", Q_NULLPTR));
         actionSelect_Domain->setText(QApplication::translate("Window", "Select Domain", Q_NULLPTR));
         actionShow_Output->setText(QApplication::translate("Window", "Show Output", Q_NULLPTR));
+        actionPSTD_grid_size->setText(QApplication::translate("Window", "PSTD grid size", Q_NULLPTR));
+        actionWindow_size->setText(QApplication::translate("Window", "Window size", Q_NULLPTR));
+        actionRender_time->setText(QApplication::translate("Window", "Render time", Q_NULLPTR));
+        actionAir_density->setText(QApplication::translate("Window", "Air density", Q_NULLPTR));
+        actionSound_speed->setText(QApplication::translate("Window", "Sound speed", Q_NULLPTR));
+        actionExport_to_CSV->setText(QApplication::translate("Window", "Export to CSV", Q_NULLPTR));
+        actionPML_Cells->setText(QApplication::translate("Window", "PML Cells", Q_NULLPTR));
+        actionAttenuation_of_PML_cells->setText(QApplication::translate("Window", "Attenuation of PML cells", Q_NULLPTR));
         menuOpenPSTD->setTitle(QApplication::translate("Window", "File", Q_NULLPTR));
         menuEdit->setTitle(QApplication::translate("Window", "Edit", Q_NULLPTR));
         menuModule->setTitle(QApplication::translate("Window", "Module", Q_NULLPTR));
@@ -382,7 +367,6 @@ public:
         menuScene->setTitle(QApplication::translate("Window", "Scene", Q_NULLPTR));
         menuView->setTitle(QApplication::translate("Window", "View", Q_NULLPTR));
         menuOperate->setTitle(QApplication::translate("Window", "Operate", Q_NULLPTR));
-        menuAbout->setTitle(QApplication::translate("Window", "About", Q_NULLPTR));
     } // retranslateUi
 
 };

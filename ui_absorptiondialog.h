@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFrame>
@@ -31,6 +32,10 @@ public:
     QDoubleSpinBox *spinBoxRight;
     QPushButton *buttonCancel;
     QPushButton *buttonSave;
+    QCheckBox *elrTop;
+    QCheckBox *elrBottom;
+    QCheckBox *elrLeft;
+    QCheckBox *elrRight;
 
     void setupUi(QDialog *AbsorptionDialog)
     {
@@ -68,6 +73,18 @@ public:
         buttonSave = new QPushButton(AbsorptionDialog);
         buttonSave->setObjectName(QStringLiteral("buttonSave"));
         buttonSave->setGeometry(QRect(220, 200, 80, 23));
+        elrTop = new QCheckBox(AbsorptionDialog);
+        elrTop->setObjectName(QStringLiteral("elrTop"));
+        elrTop->setGeometry(QRect(200, 10, 51, 21));
+        elrBottom = new QCheckBox(AbsorptionDialog);
+        elrBottom->setObjectName(QStringLiteral("elrBottom"));
+        elrBottom->setGeometry(QRect(200, 170, 51, 21));
+        elrLeft = new QCheckBox(AbsorptionDialog);
+        elrLeft->setObjectName(QStringLiteral("elrLeft"));
+        elrLeft->setGeometry(QRect(10, 120, 51, 21));
+        elrRight = new QCheckBox(AbsorptionDialog);
+        elrRight->setObjectName(QStringLiteral("elrRight"));
+        elrRight->setGeometry(QRect(240, 120, 51, 21));
 
         retranslateUi(AbsorptionDialog);
 
@@ -79,6 +96,10 @@ public:
         AbsorptionDialog->setWindowTitle(QApplication::translate("AbsorptionDialog", "Absorption", Q_NULLPTR));
         buttonCancel->setText(QApplication::translate("AbsorptionDialog", "Cancel", Q_NULLPTR));
         buttonSave->setText(QApplication::translate("AbsorptionDialog", "Save", Q_NULLPTR));
+        elrTop->setText(QApplication::translate("AbsorptionDialog", "ELR", Q_NULLPTR));
+        elrBottom->setText(QApplication::translate("AbsorptionDialog", "ELR", Q_NULLPTR));
+        elrLeft->setText(QApplication::translate("AbsorptionDialog", "ELR", Q_NULLPTR));
+        elrRight->setText(QApplication::translate("AbsorptionDialog", "ELR", Q_NULLPTR));
     } // retranslateUi
 
 };

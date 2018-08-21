@@ -67,12 +67,30 @@ void Simulator::run() {
     
     // Create a new file for this simulation
     runcmd(kernel + " create test");
+    sleep(1);
     
-    // Remove the two default domains, source, and receiver
-    runcmd(kernel + " edit -D 0 -f test");
-    runcmd(kernel + " edit -D 0 -f test");
-    runcmd(kernel + " edit -R 0 -f test");
-    runcmd(kernel + " edit -P 0 -f test");
+    /*// Remove the two default domains, source, and receiver
+    std::cout << system((kernel + " edit -D 0 -f test").c_str()) << std::endl;
+    
+    
+    // Execute the command and read its output
+    std::string cmd = kernel + " list -f test";
+    char* buffer = new char[128];
+    std::string result = "";
+    std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+    int frameID = 0;
+    while (!feof(pipe.get())) {
+        if (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
+            // Output the printed line
+            std::string s = buffer;
+            std::cout << s;
+        }
+    }
+    
+    
+    std::cout << system((kernel + " edit -D 0 -f test").c_str()) << std::endl;
+    std::cout << system((kernel + " edit -R 0 -f test").c_str()) << std::endl;
+    std::cout << system((kernel + " edit -P 0 -f test").c_str()) << std::endl;
     
     // Add all domains
     for (unsigned int i = 0; i < model->domains.size(); i++) {
@@ -149,10 +167,10 @@ void Simulator::run() {
     runcmd(kernel + " edit --attenuation-of-pml-cells " + std::to_string(settings->attenuationpmlcells) + " -f test");
     runcmd(kernel + " edit --density-of-air " + std::to_string(settings->airDensity) + " -f test");
     runcmd(kernel + " edit --sound-speed " + std::to_string(settings->soundSpeed) + " -f test");
-    
+    */
     // Reset the output directory
-    system("rm -r testdata/");
-    system("mkdir testdata");
+    //system("rm -r testdata/");
+    //system("mkdir testdata");
     
     // Run the simulation
     runcmd(kernel + " run -f test");
@@ -168,7 +186,7 @@ void Simulator::draw(QImage* pixels) {
     if (!shown) return;
     
     // Update width
-    mutex.lock();
+    pthread_mutex_lock(&mutex); //mutex.lock();
     width = pixels->width();
     
     // Update shownFrame
@@ -185,7 +203,7 @@ void Simulator::draw(QImage* pixels) {
     // Draw the resulting pressure on the scene
     for (unsigned int i = 0; i < model->domains.size(); i++) {
         if (frames.size() == 0) {
-            mutex.unlock();
+            pthread_mutex_unlock(&mutex); //mutex.unlock();
             return;
         }
         int fwidth = frames[0].getWidth(i);
@@ -243,7 +261,7 @@ void Simulator::draw(QImage* pixels) {
                 double p11 = frames[shownFrame].getSample(xk1, yk0, i);
                 double pt0 = (1-tx)*p00 + tx*p01;
                 double pt1 = (1-tx)*p01 + tx*p11;
-                double pressure = std::abs(p00);
+                double pressure = (pressure < 0 ? -p00 : p00); //std::abs(p00);
                 
                 // Get the pressure value at this position
                 QRgb color = qRgb(pressure * 255 * brightness, 0, 0);
@@ -360,7 +378,7 @@ void Simulator::draw(QImage* pixels) {
     drawImage(x0     , y, ":/new/prefix1/icons/output_play.png", pixels);
     drawImage(x0 + 32, y, ":/new/prefix1/icons/output_end.png", pixels);
     drawImage(x0 + 64, y, ":/new/prefix1/icons/output_sound.png", pixels);
-    mutex.unlock();
+    pthread_mutex_unlock(&mutex); //mutex.unlock();
 }
 
 /**
@@ -478,11 +496,11 @@ void Simulator::runcmd(std::string cmd) {
                     }
                     
                     // Frame finished, load the new frame
-                    mutex.lock();
+                    pthread_mutex_lock(&mutex); //mutex.lock();
                     frames.push_back(Frame(frameID, model->domains.size()));
                     frameID++;
                     numcomputed++;
-                    mutex.unlock();
+                    pthread_mutex_unlock(&mutex); //mutex.unlock();
                     
                     // Reset result for the next line
                     result = "";

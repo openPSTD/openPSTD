@@ -87,3 +87,6 @@ FORMS += \
 
 RESOURCES += \
     resources.qrc \
+
+QMAKE_CXXFLAGS += -std=c++0x -pthread
+LIBS += -pthread

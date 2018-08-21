@@ -14,6 +14,8 @@
 #include "frame.h"
 #include <iostream>
 
+#include <pthread.h>
+
 class Simulator {
 public:
     Simulator(Model* model, QAction* showoutput, QStatusBar* statusbar);
@@ -32,9 +34,9 @@ public:
     void showFrame(int x);
     void pressButton(int x);
     inline std::vector<Frame> getFrames() { 
-        mutex.lock();
+        pthread_mutex_lock(&mutex); //mutex.lock();
         std::vector<Frame> fs = frames;
-        mutex.unlock();
+        pthread_mutex_unlock(&mutex); //mutex.unlock();
         return fs;
     }
     void setReceiver(int i);
@@ -57,8 +59,8 @@ private:
     int receiverID;
     int receiverDID;
     std::vector<Frame> frames;
-    const std::string kernel = "../OpenPSTD-cli";
-    std::mutex mutex;
+    const std::string kernel = "OpenPSTD-cli.exe"; // "../OpenPSTD-cli";
+    pthread_mutex_t mutex; //std::mutex mutex;
     bool completed;
     
     int brightness = 10;
