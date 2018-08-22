@@ -11,18 +11,18 @@
  */
 class Frame_Domain {
 public:
-    // Constructor
-    Frame_Domain(std::string filename);
-    
-    // Get method for a sample
-    double getSample(int x, int y);
-    
-    // Data vector
-    std::vector<double> samples;
-    
-    // Width and height of the domain according to the kernel grid
-    int width;
-    int height;
+	// Constructor
+	Frame_Domain(std::string filename);
+	
+	// Get method for a sample
+	double getSample(unsigned int x, unsigned int y);
+	
+	// Data vector
+	std::vector<double> samples;
+	
+	// Width and height of the domain according to the kernel grid
+	unsigned int width;
+	unsigned int height;
 };
 
 /**
@@ -30,21 +30,21 @@ public:
  */
 class Frame {
 public:
-    // Constructor, destructor
-    Frame(int frameID, unsigned int numdomains);
-    
-    // Get method for a sample
-    double getSample(int x, int y, int domainID);
-    
-    // Get method for the width and height of the domains
-    int getWidth(int domainID) { return domains[domainID].width; }
-    int getHeight(int domainID) { return domains[domainID].height; }
+	// Constructor, destructor
+	Frame(int frameID, unsigned int numdomains);
+	
+	// Get method for a sample
+	double getSample(unsigned int x, unsigned int y, unsigned int domainID);
+	
+	// Get method for the width and height of the domains
+	unsigned int getWidth(unsigned int domainID) { return domains[domainID].width; }
+	unsigned int getHeight(unsigned int domainID) { return domains[domainID].height; }
 private:
-    // Data vector
-    std::vector<Frame_Domain> domains;
-    
-    // Fills the domains vector with Frame_Domain instances
-    void readDomainFile(std::string filename, int i);
+	// Data vector
+	std::vector<Frame_Domain> domains;
+	
+	// Fills the domains vector with Frame_Domain instances
+	void readDomainFile(std::string filename, int i);
 };
 
 #endif

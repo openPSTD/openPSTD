@@ -5,21 +5,25 @@
 #include "model.h"
 
 namespace Ui {
-    class AbsorptionDialog;
+	class AbsorptionDialog;
 }
 
 class AbsorptionDialog : public QDialog {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit AbsorptionDialog(QWidget* parent = 0, unsigned int domain = 0, Model* model = 0);
-    ~AbsorptionDialog();
+	explicit AbsorptionDialog(
+		QWidget* parent = nullptr,
+		unsigned int domain = 0,
+		Model* model = nullptr
+	);
+	~AbsorptionDialog();
 private:
-    Ui::AbsorptionDialog* ui;
-    Model* model;
-    unsigned int domain;
+	Ui::AbsorptionDialog* ui;
+	Model* model;
+	unsigned int domain;
 private slots:
-    void slot_cancel();
-    void slot_save();
+	void slot_cancel();
+	void slot_save();
 };
 
 #endif

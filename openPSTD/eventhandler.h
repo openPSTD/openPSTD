@@ -23,86 +23,92 @@
  */
 class EventHandler {
 public:
-    // Constructor
-    EventHandler(Model* model, ModelManager* modelmanager, Simulator* simulator, QWidget* parent, QAction* changeabsorption, QImage* pixels);
-    
-    // Public event handling methods
-    void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void mouseRelease(int x, int y, Qt::MouseButton button);
-    void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
-    void doubleClick(int x, int y, Qt::MouseButton button);
-    
-    // Get method for current mouse position
-    QPoint getMousePos() { return QPoint(mouseX, mouseY); }
-    
-    // Get methods for selected objects
-    bool isSourceSelected(unsigned int i);
-    bool isReceiverSelected(unsigned int i);
-    std::vector<unsigned int> getSelectedWalls(unsigned int domainID);
-    
-    // Drawing methods
-    void drawSelection(QImage* pixels);
-    void drawMeasure(QImage* pixels);
-    void drawOverlap(QImage* pixels);
-    void drawZerowall(QImage* pixels);
-    
-    // Deletes all selected objects
-    void deleteSelected();
-    void clearSelection();
-    inline void removeMeasure() { measuring = false; }
-    void cancelNewDomain();
-    inline void selectReceiver(int i) {
-        selectedReceivers.clear();
-        selectedReceivers.push_back(i);
-    }
-    
-    void changeabsorptiondialog();
-    inline void setWidth(int width) { this->width = width; }
-    inline void setHeight(int height) { this->height = height; }
-    
-    void moveToCenter();
+	// Constructor
+	EventHandler(
+		Model* model,
+		ModelManager* modelmanager,
+		Simulator* simulator,
+		QWidget* parent,
+		QAction* changeabsorption,
+		QImage* pixels
+	);
+	
+	// Public event handling methods
+	void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+	void mouseRelease(int x, int y, Qt::MouseButton button);
+	void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
+
+	// Get method for current mouse position
+	QPoint getMousePos() { return QPoint(mouseX, mouseY); }
+	
+	// Get methods for selected objects
+	bool isSourceSelected(unsigned int i);
+	bool isReceiverSelected(unsigned int i);
+	std::vector<unsigned int> getSelectedWalls(unsigned int domainID);
+	
+	// Drawing methods
+	void drawSelection(QImage* pixels);
+	void drawMeasure(QImage* pixels);
+	void drawOverlap(QImage* pixels);
+	void drawZerowall(QImage* pixels);
+	
+	// Deletes all selected objects
+	void deleteSelected();
+	void clearSelection();
+	inline void removeMeasure() { measuring = false; }
+	void cancelNewDomain();
+	inline void selectReceiver(unsigned int i) {
+		selectedReceivers.clear();
+		selectedReceivers.push_back(i);
+	}
+	
+	void changeabsorptiondialog();
+	inline void setWidth(int width) { this->width = width; }
+	inline void setHeight(int height) { this->height = height; }
+	
+	void moveToCenter();
 private:
-    // Class instance variables
-    Model* model;
-    ModelManager* modelmanager;
-    Simulator* simulator;
-    QWidget* parent;
-    QAction* changeabsorption;
-    QImage* pixels;
-    
-    // State variables
-    bool addingDomain;
-    int mouseX;
-    int mouseY;
-    int moveSceneX;
-    int moveSceneY;
-    std::pair<int, int> selectStart;
-    std::pair<int, int> selectEnd;
-    bool selecting;
-    std::vector<std::pair<unsigned int, unsigned int>> selectedWalls;
-    std::vector<unsigned int> selectedSources;
-    std::vector<unsigned int> selectedReceivers;
-    std::pair<int, int> measureStart;
-    std::pair<int, int> measureEnd;
-    bool measuring;
-    bool overlap;
-    bool zerowall;
-    int width;
-    int height;
-    
-    // Private event handling methods
-    void addDomainStart(int x, int y);
-    void addDomainStop(int x, int y);
-    void addSource(int x, int y);
-    void addReceiver(int x, int y);
-    void select(bool ctrl, bool deselect);
-    void selectDomains(bool ctrl, bool deselect);
-    
-    // Private drawing methods
-    void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
-    
-    // Update method for walls' length text state
-    void updateWallTextState();
+	// Class instance variables
+	Model* model;
+	ModelManager* modelmanager;
+	Simulator* simulator;
+	QWidget* parent;
+	QAction* changeabsorption;
+	QImage* pixels;
+	
+	// State variables
+	bool addingDomain;
+	int mouseX;
+	int mouseY;
+	int moveSceneX;
+	int moveSceneY;
+	std::pair<int, int> selectStart;
+	std::pair<int, int> selectEnd;
+	bool selecting;
+	std::vector<std::pair<unsigned int, unsigned int>> selectedWalls;
+	std::vector<unsigned int> selectedSources;
+	std::vector<unsigned int> selectedReceivers;
+	std::pair<int, int> measureStart;
+	std::pair<int, int> measureEnd;
+	bool measuring;
+	bool overlap;
+	bool zerowall;
+	int width;
+	int height;
+	
+	// Private event handling methods
+	void addDomainStart(int x, int y);
+	void addDomainStop(int x, int y);
+	void addSource(int x, int y);
+	void addReceiver(int x, int y);
+	void select(bool ctrl, bool deselect);
+	void selectDomains(bool ctrl, bool deselect);
+	
+	// Private drawing methods
+	void drawText(std::string text, int x, int y, int size, QRgb color, QImage* pixels);
+	
+	// Update method for walls' length text state
+	void updateWallTextState();
 };
 
 #endif

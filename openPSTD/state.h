@@ -5,13 +5,13 @@
  * State of the main toolbar (i.e. which button is selected).
  */
 enum State {
-    SELECTDOMAIN,
-    SELECT,
-    MOVE,
-    ADDDOMAIN,
-    ADDSOURCE,
-    ADDRECEIVER,
-    MEASURE
+	SELECTDOMAIN,
+	SELECT,
+	MOVE,
+	ADDDOMAIN,
+	ADDSOURCE,
+	ADDRECEIVER,
+	MEASURE
 };
 
 #endif

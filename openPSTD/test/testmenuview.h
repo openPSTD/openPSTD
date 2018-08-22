@@ -8,13 +8,13 @@
  * Tests the functionality of the view menu.
  */
 class TestMenuView : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    TestMenuView(Window* window);
+	TestMenuView(Window* window);
 private:
-    Window* window;
+	Window* window;
 private slots:
-    void toggleFPS();
+	void toggleFPS();
 };
 
 #endif

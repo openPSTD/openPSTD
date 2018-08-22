@@ -8,15 +8,15 @@
  * Tests the functionality of the undo and redo operations.
  */
 class TestUndoRedo : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    TestUndoRedo(Window* window);
+	TestUndoRedo(Window* window);
 private:
-    Window* window;
+	Window* window;
 private slots:
-    void addDomain();
-    void addSource();
-    void addReceiver();
+	void addDomain();
+	void addSource();
+	void addReceiver();
 };
 
 #endif

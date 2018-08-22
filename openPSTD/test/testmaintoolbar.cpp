@@ -6,8 +6,8 @@
  * @param window  A reference to the main window
  */
 TestMainToolbar::TestMainToolbar(Window* window) {
-    // Save reference variables locally
-    this->window = window;
+	// Save reference variables locally
+	this->window = window;
 }
 
 /**
@@ -15,11 +15,11 @@ TestMainToolbar::TestMainToolbar(Window* window) {
  * once the select button is clicked.
  */
 void TestMainToolbar::select() {
-    // Click the select button
-    window->ui->actionSelect->activate(QAction::Trigger);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->view->model->state == SELECT);
+	// Click the select button
+	window->ui->actionSelect->activate(QAction::Trigger);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->view->model->state == SELECT);
 }
 
 /**
@@ -27,11 +27,11 @@ void TestMainToolbar::select() {
  * once the move button is clicked.
  */
 void TestMainToolbar::move() {
-    // Click the move button
-    window->ui->actionMoveScene->activate(QAction::Trigger);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->view->model->state == MOVE);
+	// Click the move button
+	window->ui->actionMoveScene->activate(QAction::Trigger);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->view->model->state == MOVE);
 }
 
 /**
@@ -39,11 +39,11 @@ void TestMainToolbar::move() {
  * once the add domain button is clicked.
  */
 void TestMainToolbar::addDomain() {
-    // Click the add domain button
-    window->ui->actionAddDomain->activate(QAction::Trigger);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->view->model->state == ADDDOMAIN);
+	// Click the add domain button
+	window->ui->actionAddDomain->activate(QAction::Trigger);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->view->model->state == ADDDOMAIN);
 }
 
 /**
@@ -51,11 +51,11 @@ void TestMainToolbar::addDomain() {
  * once the add source button is clicked.
  */
 void TestMainToolbar::addSource() {
-    // Click the add source button
-    window->ui->actionAddSource->activate(QAction::Trigger);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->view->model->state == ADDSOURCE);
+	// Click the add source button
+	window->ui->actionAddSource->activate(QAction::Trigger);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->view->model->state == ADDSOURCE);
 }
 
 /**
@@ -63,11 +63,11 @@ void TestMainToolbar::addSource() {
  * once the add receiver button is clicked.
  */
 void TestMainToolbar::addReceiver() {
-    // Click the add receiver button
-    window->ui->actionAddReceiver->activate(QAction::Trigger);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->view->model->state == ADDRECEIVER);
+	// Click the add receiver button
+	window->ui->actionAddReceiver->activate(QAction::Trigger);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->view->model->state == ADDRECEIVER);
 }
 
 /**
@@ -75,13 +75,13 @@ void TestMainToolbar::addReceiver() {
  * once the value of the zoom spinbox was changed.
  */
 void TestMainToolbar::zoom() {
-    /*// Change the value of the zoom spinbox
-    int value = window->sbZoom->value();
-    window->sbZoom->setValue(value + 1);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->sbZoom->value() == value + 1);
-    QVERIFY(window->view->model->zoom == value + 1);*/
+	/*// Change the value of the zoom spinbox
+	int value = window->sbZoom->value();
+	window->sbZoom->setValue(value + 1);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->sbZoom->value() == value + 1);
+	QVERIFY(window->view->model->zoom == value + 1);*/
 }
 
 /**
@@ -89,11 +89,11 @@ void TestMainToolbar::zoom() {
  * once the value of the grid size spinbox was changed.
  */
 void TestMainToolbar::gridSize() {
-    // Change the value of the grid size spinbox
-    int value = window->sbGridSize->value();
-    window->sbGridSize->setValue(value + 1);
-    
-    // Verify that the model's state was correctly updated
-    QVERIFY(window->sbGridSize->value() == value + 1);
-    QVERIFY(window->view->model->gridsize == value + 1);
+	// Change the value of the grid size spinbox
+	int value = window->sbGridSize->value();
+	window->sbGridSize->setValue(value + 1);
+	
+	// Verify that the model's state was correctly updated
+	QVERIFY(window->sbGridSize->value() == value + 1);
+	QVERIFY(window->view->model->gridsize == value + 1);
 }

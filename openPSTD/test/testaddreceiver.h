@@ -8,13 +8,13 @@
  * Tests the functionality of the add receiver state.
  */
 class TestAddReceiver : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    TestAddReceiver(Window* window);
+	TestAddReceiver(Window* window);
 private:
-    Window* window;
+	Window* window;
 private slots:
-    void addReceiver();
+	void addReceiver();
 };
 
 #endif

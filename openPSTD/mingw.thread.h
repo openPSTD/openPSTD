@@ -49,11 +49,11 @@ namespace detail
   template<bool PMemFunc, bool PMemData>
   struct Invoker
   {
-    template<class F, class... Args>
-    inline static typename std::result_of<F(Args...)>::type invoke (F&& f, Args&&... args)
-    {
-      return std::forward<F>(f)(std::forward<Args>(args)...);
-    }
+	template<class F, class... Args>
+	inline static typename std::result_of<F(Args...)>::type invoke (F&& f, Args&&... args)
+	{
+	  return std::forward<F>(f)(std::forward<Args>(args)...);
+	}
   };
   template<bool>
   struct InvokerHelper;
@@ -61,258 +61,258 @@ namespace detail
   template<>
   struct InvokerHelper<false>
   {
-    template<class T1>
-    inline static auto get (T1&& t1) -> decltype(*std::forward<T1>(t1))
-    {
-      return *std::forward<T1>(t1);
-    }
+	template<class T1>
+	inline static auto get (T1&& t1) -> decltype(*std::forward<T1>(t1))
+	{
+	  return *std::forward<T1>(t1);
+	}
 
-    template<class T1>
-    inline static auto get (const std::reference_wrapper<T1>& t1) -> decltype(t1.get())
-    {
-      return t1.get();
-    }
+	template<class T1>
+	inline static auto get (const std::reference_wrapper<T1>& t1) -> decltype(t1.get())
+	{
+	  return t1.get();
+	}
   };
 
   template<>
   struct InvokerHelper<true>
   {
-    template<class T1>
-    inline static auto get (T1&& t1) -> decltype(std::forward<T1>(t1))
-    {
-      return std::forward<T1>(t1);
-    }
+	template<class T1>
+	inline static auto get (T1&& t1) -> decltype(std::forward<T1>(t1))
+	{
+	  return std::forward<T1>(t1);
+	}
   };
 
   template<>
   struct Invoker<true, false>
   {
-    template<class T, class F, class T1, class... Args>
-    inline static auto invoke (F T::* f, T1&& t1, Args&&... args) ->\
-      decltype((InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...))
-    {
-      return (InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
-    }
+	template<class T, class F, class T1, class... Args>
+	inline static auto invoke (F T::* f, T1&& t1, Args&&... args) ->\
+	  decltype((InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...))
+	{
+	  return (InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
+	}
   };
 
   template<>
   struct Invoker<false, true>
   {
-    template<class T, class F, class T1, class... Args>
-    inline static auto invoke (F T::* f, T1&& t1, Args&&... args) ->\
-      decltype(InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(t1).*f)
-    {
-      return InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(t1).*f;
-    }
+	template<class T, class F, class T1, class... Args>
+	inline static auto invoke (F T::* f, T1&& t1, Args&&... args) ->\
+	  decltype(InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(t1).*f)
+	{
+	  return InvokerHelper<std::is_base_of<T,typename std::decay<T1>::type>::value>::get(t1).*f;
+	}
   };
 
   template<class F, class... Args>
   struct InvokeResult
   {
-    typedef Invoker<std::is_member_function_pointer<typename std::remove_reference<F>::type>::value,
-                    std::is_member_object_pointer<typename std::remove_reference<F>::type>::value &&
-                    (sizeof...(Args) == 1)> invoker;
-    inline static auto invoke (F&& f, Args&&... args) -> decltype(invoker::invoke(std::forward<F>(f), std::forward<Args>(args)...))
-    {
-      return invoker::invoke(std::forward<F>(f), std::forward<Args>(args)...);
-    };
+	typedef Invoker<std::is_member_function_pointer<typename std::remove_reference<F>::type>::value,
+					std::is_member_object_pointer<typename std::remove_reference<F>::type>::value &&
+					(sizeof...(Args) == 1)> invoker;
+	inline static auto invoke (F&& f, Args&&... args) -> decltype(invoker::invoke(std::forward<F>(f), std::forward<Args>(args)...))
+	{
+	  return invoker::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+	};
   };
 
   template<class F, class...Args>
   auto invoke (F&& f, Args&&... args) -> decltype(InvokeResult<F, Args...>::invoke(std::forward<F>(f), std::forward<Args>(args)...))
   {
-    return InvokeResult<F, Args...>::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+	return InvokeResult<F, Args...>::invoke(std::forward<F>(f), std::forward<Args>(args)...);
   }
 #else
-    using std::invoke;
+	using std::invoke;
 #endif
 
-    template<int...>
-    struct IntSeq {};
+	template<int...>
+	struct IntSeq {};
 
-    template<int N, int... S>
-    struct GenIntSeq : GenIntSeq<N-1, N-1, S...> { };
+	template<int N, int... S>
+	struct GenIntSeq : GenIntSeq<N-1, N-1, S...> { };
 
-    template<int... S>
-    struct GenIntSeq<0, S...> { typedef IntSeq<S...> type; };
+	template<int... S>
+	struct GenIntSeq<0, S...> { typedef IntSeq<S...> type; };
 
-    // We can't define the Call struct in the function - the standard forbids template methods in that case
-    template<class Func, typename... Args>
-    struct ThreadFuncCall
-    {
-      typedef std::tuple<Args...> Tuple;
-      Func mFunc;
-      Tuple mArgs;
-      ThreadFuncCall(Func&& aFunc, Args&&... aArgs)
-      :mFunc(std::forward<Func>(aFunc)), mArgs(std::forward<Args>(aArgs)...){}
-      template <int... S>
-      void callFunc(detail::IntSeq<S...>)
-      {
-          detail::invoke(std::forward<Func>(mFunc), std::get<S>(std::forward<Tuple>(mArgs)) ...);
-      }
-    };
+	// We can't define the Call struct in the function - the standard forbids template methods in that case
+	template<class Func, typename... Args>
+	struct ThreadFuncCall
+	{
+	  typedef std::tuple<Args...> Tuple;
+	  Func mFunc;
+	  Tuple mArgs;
+	  ThreadFuncCall(Func&& aFunc, Args&&... aArgs)
+	  :mFunc(std::forward<Func>(aFunc)), mArgs(std::forward<Args>(aArgs)...){}
+	  template <int... S>
+	  void callFunc(detail::IntSeq<S...>)
+	  {
+		  detail::invoke(std::forward<Func>(mFunc), std::get<S>(std::forward<Tuple>(mArgs)) ...);
+	  }
+	};
 
 }
 
 class thread
 {
 public:
-    class id
-    {
-        DWORD mId;
-        void clear() {mId = 0;}
-        friend class thread;
-        friend class std::hash<id>;
-    public:
-        explicit id(DWORD aId=0) noexcept : mId(aId){}
-        friend bool operator==(id x, id y) noexcept {return x.mId == y.mId; }
-        friend bool operator!=(id x, id y) noexcept {return x.mId != y.mId; }
-        friend bool operator< (id x, id y) noexcept {return x.mId <  y.mId; }
-        friend bool operator<=(id x, id y) noexcept {return x.mId <= y.mId; }
-        friend bool operator> (id x, id y) noexcept {return x.mId >  y.mId; }
-        friend bool operator>=(id x, id y) noexcept {return x.mId >= y.mId; }
+	class id
+	{
+		DWORD mId;
+		void clear() {mId = 0;}
+		friend class thread;
+		friend class std::hash<id>;
+	public:
+		explicit id(DWORD aId=0) noexcept : mId(aId){}
+		friend bool operator==(id x, id y) noexcept {return x.mId == y.mId; }
+		friend bool operator!=(id x, id y) noexcept {return x.mId != y.mId; }
+		friend bool operator< (id x, id y) noexcept {return x.mId <  y.mId; }
+		friend bool operator<=(id x, id y) noexcept {return x.mId <= y.mId; }
+		friend bool operator> (id x, id y) noexcept {return x.mId >  y.mId; }
+		friend bool operator>=(id x, id y) noexcept {return x.mId >= y.mId; }
 
-        template<class _CharT, class _Traits>
-        friend std::basic_ostream<_CharT, _Traits>&
-        operator<<(std::basic_ostream<_CharT, _Traits>& __out, id __id)
-        {
-            if (__id.mId == 0)
-            {
-                return __out << "(invalid std::thread::id)";
-            }
-            else
-            {
-                return __out << __id.mId;
-            }
-        }
-    };
+		template<class _CharT, class _Traits>
+		friend std::basic_ostream<_CharT, _Traits>&
+		operator<<(std::basic_ostream<_CharT, _Traits>& __out, id __id)
+		{
+			if (__id.mId == 0)
+			{
+				return __out << "(invalid std::thread::id)";
+			}
+			else
+			{
+				return __out << __id.mId;
+			}
+		}
+	};
 protected:
-    HANDLE mHandle;
-    id mThreadId;
+	HANDLE mHandle;
+	id mThreadId;
 public:
-    typedef HANDLE native_handle_type;
-    id get_id() const noexcept {return mThreadId;}
-    native_handle_type native_handle() const {return mHandle;}
-    thread(): mHandle(_STD_THREAD_INVALID_HANDLE), mThreadId(){}
+	typedef HANDLE native_handle_type;
+	id get_id() const noexcept {return mThreadId;}
+	native_handle_type native_handle() const {return mHandle;}
+	thread(): mHandle(_STD_THREAD_INVALID_HANDLE), mThreadId(){}
 
-    thread(thread&& other)
-    :mHandle(other.mHandle), mThreadId(other.mThreadId)
-    {
-        other.mHandle = _STD_THREAD_INVALID_HANDLE;
-        other.mThreadId.clear();
-    }
+	thread(thread&& other)
+	:mHandle(other.mHandle), mThreadId(other.mThreadId)
+	{
+		other.mHandle = _STD_THREAD_INVALID_HANDLE;
+		other.mThreadId.clear();
+	}
 
-    thread(const thread &other)=delete;
+	thread(const thread &other)=delete;
 
-    template<class Func, typename... Args>
-    explicit thread(Func&& func, Args&&... args) : mHandle(), mThreadId()
-    {
-        typedef detail::ThreadFuncCall<Func, Args...> Call;
-        auto call = new Call(
-            std::forward<Func>(func), std::forward<Args>(args)...);
-        mHandle = (HANDLE)_beginthreadex(NULL, 0, threadfunc<Call, Args...>,
-            (LPVOID)call, 0, (unsigned*)&(mThreadId.mId));
-        if (mHandle == _STD_THREAD_INVALID_HANDLE)
-        {
-            int errnum = errno;
-            delete call;
-            throw std::system_error(errnum, std::generic_category());
-        }
-    }
-    template <class Call, typename... Args>
-    static unsigned __stdcall threadfunc(void* arg)
-    {
-        std::unique_ptr<Call> call(static_cast<Call*>(arg));
-        call->callFunc(typename detail::GenIntSeq<sizeof...(Args)>::type());
-        return 0;
-    }
-    bool joinable() const {return mHandle != _STD_THREAD_INVALID_HANDLE;}
-    void join()
-    {
-        if (get_id() == id(GetCurrentThreadId()))
-            throw std::system_error(EDEADLK, std::generic_category());
-        if (mHandle == _STD_THREAD_INVALID_HANDLE)
-            throw std::system_error(ESRCH, std::generic_category());
-        if (!joinable())
-            throw std::system_error(EINVAL, std::generic_category());
-        WaitForSingleObject(mHandle, INFINITE);
-        CloseHandle(mHandle);
-        mHandle = _STD_THREAD_INVALID_HANDLE;
-        mThreadId.clear();
-    }
+	template<class Func, typename... Args>
+	explicit thread(Func&& func, Args&&... args) : mHandle(), mThreadId()
+	{
+		typedef detail::ThreadFuncCall<Func, Args...> Call;
+		auto call = new Call(
+			std::forward<Func>(func), std::forward<Args>(args)...);
+		mHandle = (HANDLE)_beginthreadex(NULL, 0, threadfunc<Call, Args...>,
+			(LPVOID)call, 0, (unsigned*)&(mThreadId.mId));
+		if (mHandle == _STD_THREAD_INVALID_HANDLE)
+		{
+			int errnum = errno;
+			delete call;
+			throw std::system_error(errnum, std::generic_category());
+		}
+	}
+	template <class Call, typename... Args>
+	static unsigned __stdcall threadfunc(void* arg)
+	{
+		std::unique_ptr<Call> call(static_cast<Call*>(arg));
+		call->callFunc(typename detail::GenIntSeq<sizeof...(Args)>::type());
+		return 0;
+	}
+	bool joinable() const {return mHandle != _STD_THREAD_INVALID_HANDLE;}
+	void join()
+	{
+		if (get_id() == id(GetCurrentThreadId()))
+			throw std::system_error(EDEADLK, std::generic_category());
+		if (mHandle == _STD_THREAD_INVALID_HANDLE)
+			throw std::system_error(ESRCH, std::generic_category());
+		if (!joinable())
+			throw std::system_error(EINVAL, std::generic_category());
+		WaitForSingleObject(mHandle, INFINITE);
+		CloseHandle(mHandle);
+		mHandle = _STD_THREAD_INVALID_HANDLE;
+		mThreadId.clear();
+	}
 
-    ~thread()
-    {
-        if (joinable())
-            std::terminate();
-    }
-    thread& operator=(const thread&) = delete;
-    thread& operator=(thread&& other) noexcept
-    {
-        if (joinable())
-          std::terminate();
-        swap(std::forward<thread>(other));
-        return *this;
-    }
-    void swap(thread&& other) noexcept
-    {
-        std::swap(mHandle, other.mHandle);
-        std::swap(mThreadId.mId, other.mThreadId.mId);
-    }
+	~thread()
+	{
+		if (joinable())
+			std::terminate();
+	}
+	thread& operator=(const thread&) = delete;
+	thread& operator=(thread&& other) noexcept
+	{
+		if (joinable())
+		  std::terminate();
+		swap(std::forward<thread>(other));
+		return *this;
+	}
+	void swap(thread&& other) noexcept
+	{
+		std::swap(mHandle, other.mHandle);
+		std::swap(mThreadId.mId, other.mThreadId.mId);
+	}
 
-    static unsigned int _hardware_concurrency_helper() noexcept
-    {
-        SYSTEM_INFO sysinfo;
-        ::GetSystemInfo(&sysinfo);
-        return sysinfo.dwNumberOfProcessors;
-    }
+	static unsigned int _hardware_concurrency_helper() noexcept
+	{
+		SYSTEM_INFO sysinfo;
+		::GetSystemInfo(&sysinfo);
+		return sysinfo.dwNumberOfProcessors;
+	}
 
-    static unsigned int hardware_concurrency() noexcept
-    {
-        static unsigned int cached = _hardware_concurrency_helper();
-        return cached;
-    }
+	static unsigned int hardware_concurrency() noexcept
+	{
+		static unsigned int cached = _hardware_concurrency_helper();
+		return cached;
+	}
 
-    void detach()
-    {
-        if (!joinable())
-            throw std::system_error(EINVAL, std::generic_category());
-        if (mHandle != _STD_THREAD_INVALID_HANDLE)
-        {
-            CloseHandle(mHandle);
-            mHandle = _STD_THREAD_INVALID_HANDLE;
-        }
-        mThreadId.clear();
-    }
+	void detach()
+	{
+		if (!joinable())
+			throw std::system_error(EINVAL, std::generic_category());
+		if (mHandle != _STD_THREAD_INVALID_HANDLE)
+		{
+			CloseHandle(mHandle);
+			mHandle = _STD_THREAD_INVALID_HANDLE;
+		}
+		mThreadId.clear();
+	}
 };
 
 namespace this_thread
 {
-    inline thread::id get_id() noexcept {return thread::id(GetCurrentThreadId());}
-    inline void yield() noexcept {Sleep(0);}
-    template< class Rep, class Period >
-    void sleep_for( const std::chrono::duration<Rep,Period>& sleep_duration)
-    {
-        Sleep(std::chrono::duration_cast<std::chrono::milliseconds>(sleep_duration).count());
-    }
-    template <class Clock, class Duration>
-    void sleep_until(const std::chrono::time_point<Clock,Duration>& sleep_time)
-    {
-        sleep_for(sleep_time-Clock::now());
-    }
+	inline thread::id get_id() noexcept {return thread::id(GetCurrentThreadId());}
+	inline void yield() noexcept {Sleep(0);}
+	template< class Rep, class Period >
+	void sleep_for( const std::chrono::duration<Rep,Period>& sleep_duration)
+	{
+		Sleep(std::chrono::duration_cast<std::chrono::milliseconds>(sleep_duration).count());
+	}
+	template <class Clock, class Duration>
+	void sleep_until(const std::chrono::time_point<Clock,Duration>& sleep_time)
+	{
+		sleep_for(sleep_time-Clock::now());
+	}
 }
 } //  Namespace mingw_stdthread
 
 namespace std
 {
-//    Because of quirks of the compiler, the common "using namespace std;"
+//	Because of quirks of the compiler, the common "using namespace std;"
 //  directive would flatten the namespaces and introduce ambiguity where there
 //  was none. Direct specification (std::), however, would be unaffected.
-//    Take the safe option, and include only in the presence of MinGW's win32
+//	Take the safe option, and include only in the presence of MinGW's win32
 //  implementation.
 #if defined(__MINGW32__ ) && !defined(_GLIBCXX_HAS_GTHREADS)
 using mingw_stdthread::thread;
-//    Remove ambiguity immediately, to avoid problems arising from the above.
+//	Remove ambiguity immediately, to avoid problems arising from the above.
 //using std::thread;
 namespace this_thread
 {
@@ -328,17 +328,17 @@ using namespace mingw_stdthread::this_thread;
  namespace mingw_stdthread."
 #endif
 
-//    Specialize hash for this implementation's thread::id, even if the
+//	Specialize hash for this implementation's thread::id, even if the
 //  std::thread::id already has a hash.
 template<>
 struct hash<mingw_stdthread::thread::id>
 {
-    typedef mingw_stdthread::thread::id argument_type;
-    typedef size_t result_type;
-    size_t operator() (const argument_type & i) const noexcept
-    {
-        return i.mId;
-    }
+	typedef mingw_stdthread::thread::id argument_type;
+	typedef size_t result_type;
+	size_t operator() (const argument_type & i) const noexcept
+	{
+		return i.mId;
+	}
 };
 }
 #endif // WIN32STDTHREAD_H

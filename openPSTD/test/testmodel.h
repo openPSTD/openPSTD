@@ -10,15 +10,15 @@
  * in the Model class.
  */
 class TestModel : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    TestModel(Window* window);
+	TestModel(Window* window);
 private:
-    Window* window;
-    Model* model;
+	Window* window;
+	Model* model;
 private slots:
-    void clampGrid();
-    void isOnGrid();
+	void clampGrid();
+	void isOnGrid();
 };
 
 #endif

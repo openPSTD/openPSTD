@@ -10,19 +10,19 @@
  */
 class ModelManager {
 public:
-    ModelManager(Model* current);
-    ~ModelManager();
-    
-    void saveState();
-    void undo();
-    void redo();
+	ModelManager(Model* current);
+	~ModelManager();
+	
+	void saveState();
+	void undo();
+	void redo();
 private:
-    std::vector<Model*> previous;
-    Model* current;
-    std::vector<Model*> next;
-    
-    Model* copyCurrent();
-    void saveCurrent(Model* model);
+	std::vector<Model*> previous;
+	Model* current;
+	std::vector<Model*> next;
+	
+	Model* copyCurrent();
+	void saveCurrent(Model* model);
 };
 
 #endif

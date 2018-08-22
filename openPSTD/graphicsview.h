@@ -17,32 +17,37 @@
  * Custom QGraphicsView widget for drawing the main frame.
  */
 class GraphicsView : public QGraphicsView {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit GraphicsView(QWidget* parent = 0, QSlider* slZoom = 0, QAction* changeabsorption = 0, QAction* showoutput = 0, QStatusBar* statusbar = 0);
-    ~GraphicsView();
-    
-    inline void saveState() { modelmanager->saveState(); }
-    inline void undo() { modelmanager->undo(); }
-    inline void redo() { modelmanager->redo(); }
-    
-    Renderer* renderer;
-    Model* model;
-    Simulator* simulator;
+	explicit GraphicsView(
+		QWidget* parent = nullptr,
+		QSlider* slZoom = nullptr,
+		QAction* changeabsorption = nullptr,
+		QAction* showoutput = nullptr,
+		QStatusBar* statusbar = nullptr
+	);
+	~GraphicsView();
+	
+	inline void saveState() { modelmanager->saveState(); }
+	inline void undo() { modelmanager->undo(); }
+	inline void redo() { modelmanager->redo(); }
+	
+	Renderer* renderer;
+	Model* model;
+	Simulator* simulator;
 protected:
-    void paintEvent(QPaintEvent* event);
-    void resizeEvent(QResizeEvent* event);
+	void paintEvent(QPaintEvent* event);
+	void resizeEvent(QResizeEvent* event);
 public slots:
-    void mousePressEvent(QMouseEvent* event);
-    void mouseReleaseEvent(QMouseEvent* event);
-    void mouseMoveEvent(QMouseEvent* event);
-    void mouseDoubleClickEvent(QMouseEvent* event);
-    void wheelEvent(QWheelEvent* event);
-    void keyPressEvent(QKeyEvent* event);
+	void mousePressEvent(QMouseEvent* event);
+	void mouseReleaseEvent(QMouseEvent* event);
+	void mouseMoveEvent(QMouseEvent* event);
+	void wheelEvent(QWheelEvent* event);
+	void keyPressEvent(QKeyEvent* event);
 private:
-    QGraphicsScene* scene;
-    ModelManager* modelmanager;
-    QSlider* slZoom;
+	QGraphicsScene* scene;
+	ModelManager* modelmanager;
+	QSlider* slZoom;
 };
 
 #endif

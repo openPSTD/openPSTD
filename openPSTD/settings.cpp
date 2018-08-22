@@ -1,3 +1,3 @@
 #include "settings.h"
 
-Settings* Settings::instance = 0;
+Settings* Settings::instance = nullptr;

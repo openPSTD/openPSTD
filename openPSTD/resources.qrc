@@ -1,28 +1,28 @@
 <RCC>
-    <qresource prefix="/new/prefix1">
-        <file>icons/adddomain.png</file>
-        <file>icons/cursor.png</file>
-        <file>icons/logo.png</file>
-        <file>icons/move.png</file>
-        <file>icons/receiver.png</file>
-        <file>icons/select.png</file>
-        <file>icons/source.png</file>
-        <file>icons/start.png</file>
-        <file>icons/stop.png</file>
-        <file>icons/undo.png</file>
-        <file>icons/redo.png</file>
-        <file>icons/measure.png</file>
-        <file>icons/movetocenter.png</file>
-        <file>icons/changeabsorption.png</file>
-        <file>icons/changeabsorption_disabled.png</file>
-        <file>icons/selectdomain.png</file>
-        <file>icons/output_end.png</file>
-        <file>icons/output_home.png</file>
-        <file>icons/output_play.png</file>
-        <file>icons/output_playreversed.png</file>
-        <file>icons/output_sound.png</file>
-        <file>icons/output_pause.png</file>
-        <file>icons/source_icon.png</file>
-        <file>icons/receiver_icon.png</file>
-    </qresource>
+	<qresource prefix="/new/prefix1">
+		<file>icons/adddomain.png</file>
+		<file>icons/cursor.png</file>
+		<file>icons/logo.png</file>
+		<file>icons/move.png</file>
+		<file>icons/receiver.png</file>
+		<file>icons/select.png</file>
+		<file>icons/source.png</file>
+		<file>icons/start.png</file>
+		<file>icons/stop.png</file>
+		<file>icons/undo.png</file>
+		<file>icons/redo.png</file>
+		<file>icons/measure.png</file>
+		<file>icons/movetocenter.png</file>
+		<file>icons/changeabsorption.png</file>
+		<file>icons/changeabsorption_disabled.png</file>
+		<file>icons/selectdomain.png</file>
+		<file>icons/output_end.png</file>
+		<file>icons/output_home.png</file>
+		<file>icons/output_play.png</file>
+		<file>icons/output_playreversed.png</file>
+		<file>icons/output_sound.png</file>
+		<file>icons/output_pause.png</file>
+		<file>icons/source_icon.png</file>
+		<file>icons/receiver_icon.png</file>
+	</qresource>
 </RCC>

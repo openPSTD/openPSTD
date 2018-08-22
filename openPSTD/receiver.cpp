@@ -8,12 +8,12 @@
  * @param settings  A reference to the Settings instance
  */
 Receiver::Receiver(int x, int y) {
-    // Save position locally
-    this->x = x;
-    this->y = y;
-    
-    // Load the receiver image
-    image = QImage(":/new/prefix1/icons/receiver.png");
+	// Save position locally
+	this->x = x;
+	this->y = y;
+	
+	// Load the receiver image
+	image = QImage(":/new/prefix1/icons/receiver.png");
 }
 
 /**
@@ -26,47 +26,47 @@ Receiver::Receiver(int x, int y) {
  * @param selected  Whether or not the receiver is currently selected
  */
 void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
-    // Draw the receiver image
-    QPainter p;
-    p.begin(pixels);
-    p.drawImage(
-        zoom * x + offsetX - 5,
-        zoom * y + offsetY - 5,
-        image
-    );
-    p.end();
-    
-    // Check if this receiver is selected
-    if (selected) {
-        // Draw a square around the receiver
-        int d = 8;
-        for (int i = -d; i <= d; i++) {
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y + d + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-            setPixel(
-                zoom * x + i + offsetX,
-                zoom * y - d + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-            setPixel(
-                zoom * x + d + offsetX,
-                zoom * y + i + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-            setPixel(
-                zoom * x - d + offsetX,
-                zoom * y + i + offsetY,
-                qRgb(0, 255, 255),
-                pixels
-            );
-        }
-    }
+	// Draw the receiver image
+	QPainter p;
+	p.begin(pixels);
+	p.drawImage(
+		zoom * x + offsetX - 5,
+		zoom * y + offsetY - 5,
+		image
+	);
+	p.end();
+	
+	// Check if this receiver is selected
+	if (selected) {
+		// Draw a square around the receiver
+		int d = 8;
+		for (int i = -d; i <= d; i++) {
+			setPixel(
+				zoom * x + i + offsetX,
+				zoom * y + d + offsetY,
+				qRgb(0, 255, 255),
+				pixels
+			);
+			setPixel(
+				zoom * x + i + offsetX,
+				zoom * y - d + offsetY,
+				qRgb(0, 255, 255),
+				pixels
+			);
+			setPixel(
+				zoom * x + d + offsetX,
+				zoom * y + i + offsetY,
+				qRgb(0, 255, 255),
+				pixels
+			);
+			setPixel(
+				zoom * x - d + offsetX,
+				zoom * y + i + offsetY,
+				qRgb(0, 255, 255),
+				pixels
+			);
+		}
+	}
 }
 
 /**
@@ -78,7 +78,7 @@ void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool sel
  * @param pixels  A pixels array to draw to
  */
 void Receiver::setPixel(int x, int y, QRgb color, QImage* pixels) {
-    if (x < 0 || y < 0) return;
-    if (x >= pixels->width() || y >= pixels->height()) return;
-    pixels->setPixel(x, y, color);
+	if (x < 0 || y < 0) return;
+	if (x >= pixels->width() || y >= pixels->height()) return;
+	pixels->setPixel(x, y, color);
 }

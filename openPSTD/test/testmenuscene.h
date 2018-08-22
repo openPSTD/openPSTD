@@ -8,13 +8,13 @@
  * Tests the functionality of the scene menu.
  */
 class TestMenuScene : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    TestMenuScene(Window* window);
+	TestMenuScene(Window* window);
 private:
-    Window* window;
+	Window* window;
 private slots:
-    void clearScene();
+	void clearScene();
 };
 
 #endif

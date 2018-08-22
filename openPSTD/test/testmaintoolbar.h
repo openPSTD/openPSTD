@@ -8,19 +8,19 @@
  * Tests the functionality of the main toolbar.
  */
 class TestMainToolbar : public QObject {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    TestMainToolbar(Window* window);
+	TestMainToolbar(Window* window);
 private:
-    Window* window;
+	Window* window;
 private slots:
-    void select();
-    void move();
-    void addDomain();
-    void addSource();
-    void addReceiver();
-    void zoom();
-    void gridSize();
+	void select();
+	void move();
+	void addDomain();
+	void addSource();
+	void addReceiver();
+	void zoom();
+	void gridSize();
 };
 
 #endif
