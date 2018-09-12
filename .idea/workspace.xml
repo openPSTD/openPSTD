@@ -23,37 +23,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="eae46ac3-f9eb-47fe-8607-8c76d21048fe" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/openPSTD.iml" afterPath="$PROJECT_DIR$/.idea/openPSTD.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/edit.cpp" afterPath="$PROJECT_DIR$/CLI/edit.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/edit.h" afterPath="$PROJECT_DIR$/CLI/edit.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/exportCLI.cpp" afterPath="$PROJECT_DIR$/CLI/exportCLI.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/exportCLI.h" afterPath="$PROJECT_DIR$/CLI/exportCLI.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/main.cpp" afterPath="$PROJECT_DIR$/CLI/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/main.h" afterPath="$PROJECT_DIR$/CLI/main.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CLI/output.h" afterPath="$PROJECT_DIR$/CLI/output.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/install.cmake" afterPath="$PROJECT_DIR$/install.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/KernelInterface.cpp" afterPath="$PROJECT_DIR$/kernel/KernelInterface.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/PSTDKernel.cpp" afterPath="$PROJECT_DIR$/kernel/PSTDKernel.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/Solver.cpp" afterPath="$PROJECT_DIR$/kernel/Solver.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Domain.cpp" afterPath="$PROJECT_DIR$/kernel/core/Domain.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Receiver.cpp" afterPath="$PROJECT_DIR$/kernel/core/Receiver.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Scene.cpp" afterPath="$PROJECT_DIR$/kernel/core/Scene.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Speaker.cpp" afterPath="$PROJECT_DIR$/kernel/core/Speaker.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Speaker.h" afterPath="$PROJECT_DIR$/kernel/core/Speaker.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/kernel_functions.cpp" afterPath="$PROJECT_DIR$/kernel/core/kernel_functions.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/Colors.h" afterPath="$PROJECT_DIR$/shared/Colors.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/InvalidationData.h" afterPath="$PROJECT_DIR$/shared/InvalidationData.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/PSTDFile.cpp" afterPath="$PROJECT_DIR$/shared/PSTDFile.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/PSTDFile.h" afterPath="$PROJECT_DIR$/shared/PSTDFile.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/PSTDFileAccess.h" afterPath="$PROJECT_DIR$/shared/PSTDFileAccess.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/export/Export.cpp" afterPath="$PROJECT_DIR$/shared/export/Export.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/export/Export.h" afterPath="$PROJECT_DIR$/shared/export/Export.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/export/HDF5Export.cpp" afterPath="$PROJECT_DIR$/shared/export/HDF5Export.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/export/HDF5Export.h" afterPath="$PROJECT_DIR$/shared/export/HDF5Export.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/export/Image.cpp" afterPath="$PROJECT_DIR$/shared/export/Image.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/export/Image.h" afterPath="$PROJECT_DIR$/shared/export/Image.h" />
     </list>
     <ignored path="openPSTD.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -732,7 +702,7 @@
       <workItem from="1535965195966" duration="6000" />
       <workItem from="1536062581555" duration="17818000" />
       <workItem from="1536170097509" duration="22438000" />
-      <workItem from="1536577867076" duration="18120000" />
+      <workItem from="1536577867076" duration="18133000" />
     </task>
     <task id="LOCAL-00001" summary="Updated kernel">
       <created>1524140105286</created>
@@ -748,11 +718,18 @@
       <option name="project" value="LOCAL" />
       <updated>1524581665030</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Updated kernel">
+      <created>1536774868969</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1536774868969</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1849861000" />
+    <option name="totallyTimeSpent" value="1849874000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -1092,6 +1069,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5238">
           <caret line="291" column="0" selection-start-line="291" selection-start-column="0" selection-end-line="291" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1106,6 +1084,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2286">
           <caret line="127" column="0" selection-start-line="127" selection-start-column="0" selection-end-line="127" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1120,6 +1099,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3708">
           <caret line="206" column="15" selection-start-line="206" selection-start-column="15" selection-end-line="206" selection-end-column="15" />
+          <folding />
         </state>
       </provider>
     </entry>
