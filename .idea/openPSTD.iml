@@ -1,65 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-gui_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-gui_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-shared_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-shared_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-test_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-test_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-test_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-test_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-gui_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-gui_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-shared_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-shared_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-test_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-test_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-test_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-test_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-gui_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-gui_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-shared_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-shared_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-test_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-test_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-test_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-test_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-gui_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-gui_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-gui_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-shared_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-shared_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-shared_automoc.cpp" isTestSource="false" />
     </content>
-    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-test_automoc.cpp">
-      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-test_automoc.cpp" isTestSource="false" />
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-test_automoc.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-test_automoc.cpp" isTestSource="false" />
     </content>
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/kernel/MockKernel.h" isTestSource="false" />
@@ -92,22 +92,21 @@
       <sourceFolder url="file://$MODULE_DIR$/unqlite/unqlite.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/Kernel/Scene.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test/Kernel/Speaker.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/Kernel/WisdomCache.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test/Kernel/kernel_functions.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test/Kernel/Speaker.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/Kernel/Domain.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/Kernel/Geometry.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test/Kernel/kernel_functions.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/test.cmake" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/GUI/Edges-test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/GUI/LongOperationRunner-test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/GUI/DocumentSettings.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/GUI/AddReceiverSpeaker.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GUI/MainWindow.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/Snapping.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/ExportImage.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/main.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/GUI/MainWindow.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GUI/DocumentSettings.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/Snapping.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/layers/ResultsLayer.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/layers/InteractiveLayer.h" isTestSource="false" />
@@ -122,16 +121,16 @@
       <sourceFolder url="file://$MODULE_DIR$/GUI/Edges.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/DocumentSettings.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/EditOperations.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GUI/operations/MouseOperations.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/SelectionOperations.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/ViewOperations.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/LambdaOperation.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/InitializationOperation.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/LambdaOperation.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/GUI/operations/InitializationOperation.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/FileOperations.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/SelectionOperations.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/SettingsOperations.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/GUI/operations/ViewOperations.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GUI/operations/InitializationOperation.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/long/LongOperationRunner.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/long/SimulateLOperation.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/long/LOperationOperation.h" isTestSource="false" />
@@ -144,7 +143,7 @@
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/BaseOperation.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/FileOperations.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/operations/SettingsOperations.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/GUI/operations/MouseOperations.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GUI/operations/ViewOperations.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/DomainProperties.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/Settings.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/MainWindow.h" isTestSource="false" />
@@ -155,6 +154,7 @@
       <sourceFolder url="file://$MODULE_DIR$/GUI/PstdAlgorithm.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/Model.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/GUI.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/GUI/AddReceiverSpeaker.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/Edges.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/ApplicationSettings.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GUI/Resources.qrc" isTestSource="false" />
@@ -210,10 +210,10 @@
           <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/local/include" />
           <root url="file:///usr/local/hdf5/include" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0" />
           <root url="file://$USER_HOME$/Documents/boost_1_62_0" />
         </CLASSES>
         <SOURCES>
@@ -223,33 +223,33 @@
           <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/local/include" />
           <root url="file:///usr/local/hdf5/include" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0" />
           <root url="file://$USER_HOME$/Documents/boost_1_62_0" />
         </SOURCES>
         <excluded>
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-gui_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-test_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Release/OpenPSTD-shared_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-gui_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-test_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/Debug/OpenPSTD-shared_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-gui_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-test_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/RelWithDebInfo/OpenPSTD-shared_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-gui_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-test_automoc.cpp" />
-          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/openPSTD_version_backend-d3ec0120/d3ec0120/MinSizeRel/OpenPSTD-shared_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-gui_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-test_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Debug0/OpenPSTD-shared_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-gui_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-test_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/Release0/OpenPSTD-shared_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-gui_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-test_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/RelWithDebInfo0/OpenPSTD-shared_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-gui_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/CMakeFiles/OpenPSTD-gui.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/CMakeFiles/OpenPSTD-test.dir/qrc_Resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-test_automoc.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/version_backend-752bf058/752bf058/MinSizeRel0/OpenPSTD-shared_automoc.cpp" />
         </excluded>
       </library>
     </orderEntry>

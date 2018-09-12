@@ -5,7 +5,7 @@
 #ifndef OPENPSTD_PSTDFILEACCESS_H
 #define OPENPSTD_PSTDFILEACCESS_H
 
-#include "openpstd-shared_export.h"
+#include "../openpstd-shared_export.h"
 #include "PSTDFile.h"
 #include <memory>
 #include <string>

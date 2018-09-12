@@ -3,7 +3,7 @@
 //
 
 #include "HDF5Export.h"
-#include "kernel/MockKernel.h"
+#include "../../kernel/MockKernel.h"
 
 #include <hdf5.h>
 #include <hdf5_hl.h>

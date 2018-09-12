@@ -6,7 +6,7 @@
 #define OPENPSTD_EXPORTCLI_H
 
 #include <boost/program_options.hpp>
-#include <shared/PSTDFile.h>
+#include "../shared/PSTDFile.h"
 
 namespace OpenPSTD
 {

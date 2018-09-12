@@ -2,7 +2,7 @@
 // Created by michiel on 24-1-2016.
 //
 
-#include <kernel/core/kernel_functions.h>
+#include "core/kernel_functions.h"
 #include "KernelInterface.h"
 
 namespace OpenPSTD {

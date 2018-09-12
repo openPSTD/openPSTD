@@ -35,7 +35,7 @@
 #define OPENPSTD_EDIT_CLI_H
 
 #include <boost/program_options.hpp>
-#include <kernel/KernelInterface.h>
+#include "../kernel/KernelInterface.h"
 
 namespace OpenPSTD
 {

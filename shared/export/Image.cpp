@@ -4,8 +4,8 @@
 
 #include "Image.h"
 #include <boost/lexical_cast.hpp>
-#include <shared/Colors.h>
-#include "kernel/MockKernel.h"
+#include "../Colors.h"
+#include "../../kernel/MockKernel.h"
 
 namespace OpenPSTD
 {

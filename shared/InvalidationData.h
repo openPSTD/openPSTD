@@ -36,7 +36,7 @@
 #ifndef OPENPSTD_INVALIDATIONDATA_H
 #define OPENPSTD_INVALIDATIONDATA_H
 
-#include "openpstd-shared_export.h"
+#include "../openpstd-shared_export.h"
 #include <memory>
 #include <vector>
 

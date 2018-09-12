@@ -7,7 +7,7 @@
 
 #include <string>
 #include <memory>
-#include <shared/export/Export.h>
+#include "../shared/export/Export.h"
 
 namespace OpenPSTD
 {

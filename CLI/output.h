@@ -5,7 +5,7 @@
 #ifndef OPENPSTD_OUTPUT_CLI_H
 #define OPENPSTD_OUTPUT_CLI_H
 
-#include <shared/PSTDFile.h>
+#include "../shared/PSTDFile.h"
 namespace OpenPSTD
 {
     namespace CLI

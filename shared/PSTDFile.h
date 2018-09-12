@@ -35,7 +35,7 @@
 #ifndef OPENPSTD_PSTDFILE_H
 #define OPENPSTD_PSTDFILE_H
 
-#include "openpstd-shared_export.h"
+#include "../openpstd-shared_export.h"
 #include <string>
 #include <Eigen/Dense>
 #include <boost/filesystem.hpp>
@@ -43,14 +43,14 @@
 
 extern "C"
 {
-#include <unqlite.h>
+#include "../unqlite/unqlite.h"
 }
 
 #include <memory>
 #include <vector>
-#include <kernel/GeneralTypes.h>
-#include <kernel/KernelInterface.h>
-#include <shared/InvalidationData.h>
+#include "../kernel/GeneralTypes.h"
+#include "../kernel/KernelInterface.h"
+#include "InvalidationData.h"
 #include <QVector2D>
 #include <QVector3D>
 #include <boost/serialization/split_free.hpp>

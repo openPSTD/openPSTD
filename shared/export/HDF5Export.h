@@ -5,8 +5,8 @@
 #ifndef OPENPSTD_HDF5_H
 #define OPENPSTD_HDF5_H
 
-#include "openpstd-shared_export.h"
-#include <shared/PSTDFile.h>
+#include "../../openpstd-shared_export.h"
+#include "../PSTDFile.h"
 
 namespace OpenPSTD
 {

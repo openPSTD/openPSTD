@@ -48,12 +48,22 @@ namespace OpenPSTD {
 
         void Speaker::addDomainContribution(std::shared_ptr<Domain> domain) {
 
-            if (domain->is_pml!=1){
-                if (this->x>domain->top_left.x && this->y>domain->top_left.y)
-                {
+           /* if (domain->is_pml!=1){*/
+              /*  if (this->x>domain->top_left.x && this->y>domain->top_left.y)
+                {*/
+
+            int temp=this->x;
+            this->x=this->y;
+            this->y=temp;
+
+
                     float dx = domain->settings->GetGridSpacing();
                     float rel_x = (this->x - domain->top_left.x);
                     float rel_y = (this->y - domain->top_left.y);
+
+
+
+
                     for (int i = 0; i <= domain->size.x; i++) {
                         for (int j = 0; j <= domain->size.y; j++) {
                             float squared_distance = SQR((rel_x - i)*dx ) + SQR((rel_y - j)*dx );
@@ -61,15 +71,13 @@ namespace OpenPSTD {
                             // Vectorized versions of above expressions exists
                              // but we need to get into a for loop anyway, because of atan2
                             float angle = std::atan2(rel_x - i,rel_y - j);
+
                             float horizontal_component = SQR(std::cos(angle)) * pressure;
                             float vertical_component = SQR(std::sin(angle)) * pressure;
                             domain->current_values.p0(i, j) += pressure;
                             domain->current_values.px0(i, j) += horizontal_component;
                             domain->current_values.py0(i, j) += vertical_component;
-                           /* std::cout<<*domain<<std::endl;
 
-                            std::cout<<"domain->bottom_right.x   "<<domain->bottom_right.x<<"\n";
-                            std::cout<<"domain->bottom_right.y   "<<domain->bottom_right.y<<"\n";*/
 
                            /* if (pressure!=0)
                             {
@@ -79,11 +87,25 @@ namespace OpenPSTD {
                                 std::cin.get();
                             }*/
 
-                        }
-                    }
+                        /*}*/
+                    /*}*/
+
+
+
+
+
                 }
             }
+
+
+
+
+
+
+
+
         }
+
 
     }
 }

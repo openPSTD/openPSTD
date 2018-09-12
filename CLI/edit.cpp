@@ -280,6 +280,7 @@ namespace OpenPSTD
             for (int i = 0; i < add.size(); ++i)
             {
                 model->Speakers.push_back(QVector3D(add[i].x, add[i].y, 0));
+
             }
         }
 

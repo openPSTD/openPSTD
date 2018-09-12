@@ -185,8 +185,8 @@ namespace OpenPSTD {
             for (auto speaker: this->config->Speakers) {
                 vector<float> location = scale_to_grid(speaker);
                 debug("Initializing Speaker (" + to_string(location.at(0)) + ", " + to_string(location.at(1)) + ")");
-               /* cout<<location.at(0);
-                cin.get();*/
+
+
                 this->scene->add_speaker(location.at(0), location.at(1), 0); // Z-coordinate is 0
 
 
@@ -199,7 +199,7 @@ namespace OpenPSTD {
             for (unsigned long i = 0; i < this->config->Receivers.size(); i++) {
                 auto receiver = this->config->Receivers.at(i);
                 vector<float> location = scale_to_grid(receiver);
-                this->scene->add_receiver(location.at(0), location.at(1), 0, i);
+               this->scene->add_receiver(location.at(0), location.at(1), 0, i);
             }
         }
 

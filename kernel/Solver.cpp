@@ -28,6 +28,7 @@
 
 #include "Solver.h"
 #include <fstream>
+#include <sys/stat.h>
 
 namespace OpenPSTD {
     namespace Kernel {
@@ -39,6 +40,10 @@ namespace OpenPSTD {
             Kernel::debug("Number of time step: " + std::to_string(this->settings->GetTimeStep()));
 
             this->number_of_time_steps = (int) (this->settings->GetRenderTime() / this->settings->GetTimeStep());
+
+            const int dir_err = mkdir("testdata", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            mkdir("recdata", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
 
         }
 

@@ -247,7 +247,10 @@ namespace OpenPSTD {
                 zero_pad = ArrayXXf::Zero(fft_batch, fft_length - 2 * wlen - p2.cols());
 
                 //this looks inefficient, but the compiler optimizes almost all of it away
-                dom1 = p1.rightCols(wlen) * rho_array.pressure(2, 1) +
+
+              /*  std::cout<<rho_array.pressure(2, 1);
+                std::cin.get();*/
+;                dom1 = p1.rightCols(wlen) * rho_array.pressure(2, 1) +
                         (p2.leftCols(wlen)).rowwise().reverse() * rho_array.pressure(0, 0);
                 dom3 = p3.leftCols(wlen) * rho_array.pressure(3, 1) +
                         (p2.rightCols(wlen)).rowwise().reverse() * rho_array.pressure(1, 0);

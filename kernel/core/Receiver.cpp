@@ -91,9 +91,11 @@ namespace OpenPSTD {
             cin.get();*/
             Point rel_location = grid_location - container_domain->top_left;
             return container_domain->current_values.p0(rel_location.x, rel_location.y);
+
         }
 
         float Receiver::compute_with_si() {
+
             shared_ptr<Domain> top_domain = container_domain->get_neighbour_at(Direction::TOP, location);
             shared_ptr<Domain> bottom_domain = container_domain->get_neighbour_at(Direction::BOTTOM, location);
             ArrayXXf p0dx = calc_domain_fields(container_domain, CalcDirection::X);

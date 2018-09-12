@@ -2,7 +2,7 @@
 // Created by michiel on 24-1-2016.
 //
 
-#include "Export.h"
+#include "Image.h"
 
 
 namespace OpenPSTD

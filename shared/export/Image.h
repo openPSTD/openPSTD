@@ -5,9 +5,9 @@
 #ifndef OPENPSTD_IMAGE_H
 #define OPENPSTD_IMAGE_H
 
-#include "openpstd-shared_export.h"
+#include "../../openpstd-shared_export.h"
 #include "Export.h"
-#include <shared/PSTDFile.h>
+#include "../PSTDFile.h"
 #include <string>
 #include <vector>
 #include <QImage>

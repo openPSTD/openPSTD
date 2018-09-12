@@ -30,7 +30,7 @@
 
 extern "C"
 {
-#include <unqlite.h>
+#include "../unqlite/unqlite.h"
 }
 
 #include <boost/lexical_cast.hpp>

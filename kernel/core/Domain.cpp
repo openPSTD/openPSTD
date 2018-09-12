@@ -60,7 +60,7 @@ namespace OpenPSTD {
                                        map<Direction, EdgeParameters> edge_param_map,
                                        const shared_ptr<Domain> pml_for_domain) {
             this->settings = settings;
-            this->top_left = top_left;
+
             this->size = size; // Remember PML domains have a fixed size.
             this->bottom_right = top_left + size;
 
@@ -97,7 +97,7 @@ namespace OpenPSTD {
 
         }
 
-       void Domain:: calcwind(std::shared_ptr<Domain> domain) {
+       /*void Domain:: calcwind(std::shared_ptr<Domain> domain) {
 
 
            //std::cout << *domain << std::endl;
@@ -121,7 +121,7 @@ namespace OpenPSTD {
             Eigen :: ArrayXXf umat(gridy,gridx), umat_stag(gridy,gridx), dumat(gridy,gridx), dumat_stag(gridy,gridx);
            l_values.umatarray(gridy,gridx), l_values.dumatarray(gridy,gridx),l_values.umatstagarray(gridy,gridx), l_values.dumatstagarray(gridy,gridx);
 
-          /* for (int i = 0; i <gridy; i++) {
+          *//* for (int i = 0; i <gridy; i++) {
                 z(i) = topy + i * domain->settings->GetGridSpacing();
 
                 z_stag(i) = topy + (domain->settings->GetGridSpacing() / 2) + i *domain->settings->GetGridSpacing();
@@ -133,7 +133,7 @@ namespace OpenPSTD {
                 du_stag(i)=z_stag(i)*ustar/k;
 
                  //cout << u[i] << " ";
-            }*/
+            }*//*
             // cout << endl;
 
 
@@ -152,10 +152,10 @@ namespace OpenPSTD {
            l_values.umatstagarray=umat_stag;
            l_values.dumatarray=dumat;
            l_values.dumatstagarray=dumat_stag;
-           /*cout<<"umatarray"<<l_values.umatarray.rows();
+           *//*cout<<"umatarray"<<l_values.umatarray.rows();
            cin.get();
-*/
-        }
+*//*
+        }*/
 
 
         /*void Domain:: calcwind(std::shared_ptr<Domain> domain) {
@@ -265,8 +265,8 @@ namespace OpenPSTD {
                 domains2 = right;
             }
             else {
-                domains1 = bottom;
-                domains2 = top;
+                domains1 = top;
+                domains2 = bottom;
             }
             /*//debug
             cout << "\n\ndomains1:\n";
@@ -715,7 +715,7 @@ namespace OpenPSTD {
                         this->l_values.Lvy = source;
                     }
                 }
-                else if (ct==CalculationType::PRESSURE_nonstag)
+                /*else if (ct==CalculationType::PRESSURE_nonstag)
                 {if (cd == CalcDirection::X) {
                         this->l_values.Lpx_nonstag = source;
                     }
@@ -746,7 +746,7 @@ namespace OpenPSTD {
                 else if (ct==CalculationType::VELOCITY_stagright)
                 {
                     this->l_values.Lvy_xstag=source;
-                }
+                }*/
             }
             // Do for non-staggered also for both directions TODO sai
             return source;
@@ -757,7 +757,7 @@ namespace OpenPSTD {
          * a default empty vector as dest.
          */
         void Domain::calc(CalcDirection cd, CalculationType ct) {
-            if (ct == CalculationType::VELOCITY_dvydx && cd == CalcDirection::Y)
+           /* if (ct == CalculationType::VELOCITY_dvydx && cd == CalcDirection::Y)
             {
                 return;
         }
@@ -768,7 +768,7 @@ namespace OpenPSTD {
             if (ct == CalculationType::VELOCITY_stagright && cd == CalcDirection::Y)
             {
                 return;
-            }
+            }*/
 
             ArrayXcf nulldest;
             Domain::calc(cd, ct, nulldest);
@@ -781,9 +781,16 @@ namespace OpenPSTD {
         }
 
         bool Domain::contains_location(vector<float> location) {
+
+
+
             for (unsigned long dim = 0; dim < location.size(); dim++) {
+              //  std::cout<<top_left.array.at(dim);
+                std::cin.get();
                 if (top_left.array.at(dim) > location.at(dim) or
                     location.at(dim) > bottom_right.array.at(dim)) {
+
+
                     return false;
                 }
             }

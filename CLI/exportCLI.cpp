@@ -4,8 +4,8 @@
 
 #include "exportCLI.h"
 #include <boost/program_options.hpp>
-#include <shared/export/Image.h>
-#include <shared/export/HDF5Export.h>
+#include "../shared/export/Image.h"
+#include "../shared/export/HDF5Export.h"
 
 
 namespace po = boost::program_options;

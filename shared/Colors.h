@@ -36,7 +36,7 @@
 #ifndef OPENPSTD_COLORS_H
 #define OPENPSTD_COLORS_H
 
-#include "openpstd-shared_export.h"
+#include "../openpstd-shared_export.h"
 #include <qcolor.h>
 #include <vector>
 #include <memory>

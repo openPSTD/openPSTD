@@ -9,7 +9,7 @@ endmacro(WinInstallBoost)
 
 #------------------------------------
 # INSTALL
-if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")
+#[[if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")]]
     message(STATUS "Package for osx")
 
     install(TARGETS OpenPSTD-gui DESTINATION .)
@@ -26,7 +26,7 @@ if(OPENPSTD_SYSTEM_NAME STREQUAL "osx")
 	   fixup_bundle(\"${APPS}\"   \"\"   \"${OPENPSTD_DEPENDENCIES_SEARCH_PATH}\")
 	   " COMPONENT Runtime)
 
-elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
+#[[elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")]]
     message(STATUS "Package for win64")
 
     install(TARGETS OpenPSTD DESTINATION .)
@@ -72,7 +72,7 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "win64")
     install(FILES ${HDF5_LIBRARY} DESTINATION .)
     install(FILES ${HDF5_HL_LIBRARY} DESTINATION .)
 
-elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")
+#[[elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")]]
     message(STATUS "Package for linux")
 
      add_definitions(-DNDEBUG)
@@ -92,7 +92,7 @@ elseif(OPENPSTD_SYSTEM_NAME STREQUAL "linux")
     install(FILES ${HDF5_HL_LIBRARY} DESTINATION lib)
 
     message(STATUS "Package for linux")
-endif()
+#[[endif()]]
 
 set(CPACK_BUNDLE_NAME OpenPSTD)
 set(CPACK_BUNDLE_ICON GUI/OpenPSTD.icns)

@@ -51,8 +51,8 @@ namespace OpenPSTD {
         class Speaker {
 
         public:
-            const float x;
-            const float y;
+            float x;
+             float y;
             const float z;
             std::vector<float> location;
             Point grid_point = Point((int) x, (int) y, (int) z);

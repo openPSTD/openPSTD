@@ -35,10 +35,10 @@
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
 
-#include <kernel/PSTDKernel.h>
-#include <kernel/MockKernel.h>
+#include "../kernel/PSTDKernel.h"
+#include "../kernel/MockKernel.h"
 
-#include <shared/PSTDFile.h>
+#include "../shared/PSTDFile.h"
 
 #include "edit.h"
 #include "output.h"

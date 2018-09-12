@@ -245,8 +245,9 @@ namespace OpenPSTD {
         shared_ptr<Domain> Scene::get_singular_parent_domain(shared_ptr<Domain> domain) {
             if (domain != nullptr) {
                /* std::cout<<domain->pml_for_domain_list.size();
-                cin.get();*/
+                */
                 if (domain->is_pml && domain->pml_for_domain_list.size() == 1) {
+
                     return domain->pml_for_domain_list.at(0);
 
                 }
@@ -257,13 +258,17 @@ namespace OpenPSTD {
 
         void Scene::add_receiver(const float x, const float y, const float z, unsigned long id) {
             vector<float> grid_like_location = {x, y, z};
+
             shared_ptr<Domain> container(nullptr);
             for (auto domain:domain_list) {
+
                 if (!domain->is_pml && domain->contains_location(grid_like_location)) {
+
                     container = domain;
                 }
             }
             assert(container != nullptr);
+
             shared_ptr<Receiver> receiver = make_shared<Receiver>(grid_like_location, settings, id, container);
             receiver_list.push_back(receiver);
         }
@@ -276,15 +281,19 @@ namespace OpenPSTD {
                     vector<float> grid_like_location = {x - dx_2, y - dx_2, z - dx_2};
                     shared_ptr<Speaker> speaker = make_shared<Speaker>(grid_like_location);
 
+
+
                     for (unsigned long i = 0; i < domain_list.size(); i++) {
                         /* std::cout<<domain_list.at(i)->size;
                          std::cin.get();*/
 
                         if (domain_list.at(i)->is_pml!=1) {
-                            if (speaker->x > domain_list.at(i)->top_left.x && speaker->y > domain_list.at(i)->top_left.y) {
+
+
                         speaker->addDomainContribution(domain_list.at(i));
                         // Todo: Only add when speaker in domain
-                    }
+
+
                         }
                     }
 
