@@ -27,16 +27,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
 	main.cpp \
-	window.cpp \
-	graphicsview.cpp \
-	renderer.cpp \
-	eventhandler.cpp \
-	domain.cpp \
-	wall.cpp \
-	source.cpp \
 	receiver.cpp \
+	renderer.cpp \
 	modelmanager.cpp \
+	frame.cpp \
+	simulator.cpp \
+	domain.cpp \
+	settings.cpp \
+	graphicsview.cpp \
+	window.cpp \
+	wall.cpp \
+	coordinatedialog.cpp \
 	absorptiondialog.cpp \
+	source.cpp \
+	eventhandler.cpp \
 	test/testrobustness.cpp \
 	test/testadddomain.cpp \
 	test/testaddreceiver.cpp \
@@ -45,89 +49,31 @@ SOURCES += \
 	test/testmenuscene.cpp \
 	test/testmenuview.cpp \
 	test/testmodel.cpp \
-	test/testundoredo.cpp \
-	simulator.cpp \
-	coordinatedialog.cpp \
-	frame.cpp \
-	settings.cpp \
-    test/testadddomain.cpp \
-    test/testaddreceiver.cpp \
-    test/testaddsource.cpp \
-    test/testmaintoolbar.cpp \
-    test/testmenuscene.cpp \
-    test/testmenuview.cpp \
-    test/testmodel.cpp \
-    test/testrobustness.cpp \
-    test/testundoredo.cpp \
-    absorptiondialog.cpp \
-    coordinatedialog.cpp \
-    domain.cpp \
-    eventhandler.cpp \
-    frame.cpp \
-    graphicsview.cpp \
-    main.cpp \
-    modelmanager.cpp \
-    receiver.cpp \
-    renderer.cpp \
-    settings.cpp \
-    simulator.cpp \
-    source.cpp \
-    wall.cpp \
-    window.cpp \
-    test/testadddomain.cpp \
-    test/testaddreceiver.cpp \
-    test/testaddsource.cpp \
-    test/testmaintoolbar.cpp \
-    test/testmenuscene.cpp \
-    test/testmenuview.cpp \
-    test/testmodel.cpp \
-    test/testrobustness.cpp \
-    test/testundoredo.cpp \
-    absorptiondialog.cpp \
-    coordinatedialog.cpp \
-    domain.cpp \
-    eventhandler.cpp \
-    frame.cpp \
-    graphicsview.cpp \
-    main.cpp \
-    modelmanager.cpp \
-    receiver.cpp \
-    renderer.cpp \
-    settings.cpp \
-    simulator.cpp \
-    source.cpp \
-    wall.cpp \
-    window.cpp \
-    eventhandler/eventhandler.cpp
+	test/testundoredo.cpp
 
 HEADERS += \
-	window.h \
-	graphicsview.h \
-	renderer.h \
-	state.h \
-	eventhandler.h \
-	domain.h \
-	model.h \
-	settings.h \
-	test/testmaintoolbar.h \
-	test/testmenuview.h \
-	test/testmodel.h \
-	grid.h \
-	wall.h \
-	test/testadddomain.h \
-	test/testmenuscene.h \
-	source.h \
-	test/testaddsource.h \
 	receiver.h \
-	test/testaddreceiver.h \
-	modelmanager.h \
-	test/testundoredo.h \
-	absorptiondialog.h \
-	test/testrobustness.h \
-	simulator.h \
-	coordinatedialog.h \
-	mingw.thread.h \
 	frame.h \
+	coordinatedialog.h \
+	state.h \
+	absorptiondialog.h \
+	renderer.h \
+	grid.h \
+	graphicsview.h \
+	modelmanager.h \
+	renderer.h \
+	grid.h \
+	graphicsview.h \
+	modelmanager.h \
+	source.h \
+	domain.h \
+	wall.h \
+	eventhandler.h \
+	settings.h \
+	mingw.thread.h \
+	model.h \
+	simulator.h \
+	window.h \
     test/testadddomain.h \
     test/testaddreceiver.h \
     test/testaddsource.h \
@@ -136,53 +82,7 @@ HEADERS += \
     test/testmenuview.h \
     test/testmodel.h \
     test/testrobustness.h \
-    test/testundoredo.h \
-    absorptiondialog.h \
-    coordinatedialog.h \
-    domain.h \
-    eventhandler.h \
-    frame.h \
-    graphicsview.h \
-    grid.h \
-    mingw.thread.h \
-    model.h \
-    modelmanager.h \
-    receiver.h \
-    renderer.h \
-    settings.h \
-    simulator.h \
-    source.h \
-    state.h \
-    wall.h \
-    window.h \
-    test/testadddomain.h \
-    test/testaddreceiver.h \
-    test/testaddsource.h \
-    test/testmaintoolbar.h \
-    test/testmenuscene.h \
-    test/testmenuview.h \
-    test/testmodel.h \
-    test/testrobustness.h \
-    test/testundoredo.h \
-    absorptiondialog.h \
-    coordinatedialog.h \
-    domain.h \
-    eventhandler.h \
-    frame.h \
-    graphicsview.h \
-    grid.h \
-    mingw.thread.h \
-    model.h \
-    modelmanager.h \
-    receiver.h \
-    renderer.h \
-    settings.h \
-    simulator.h \
-    source.h \
-    state.h \
-    wall.h \
-    window.h \
-    eventhandler/eventhandler.h
+    test/testundoredo.h
 
 FORMS += \
 	window.ui \
