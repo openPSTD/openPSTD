@@ -2,10 +2,7 @@ Installation instructions for Arch Linux
 ========================================
 
 The following packages should be installed (use "$ pacman -S <package>" to install a package):
-qt5-base
-boost
-boost-libs
-eigen
+qt5-base, boost, boost-libs, eigen
 
 openPSTD [![Build Status](https://travis-ci.org/openPSTD/openPSTD.svg)](https://travis-ci.org/openPSTD/openPSTD)
 ========
