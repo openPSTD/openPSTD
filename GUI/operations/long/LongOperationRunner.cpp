@@ -27,6 +27,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "LongOperationRunner.h"
+#include <iostream>
 
 using namespace OpenPSTD::GUI;
 using namespace boost;
