@@ -34,6 +34,7 @@
 
 #include <Eigen/Dense>
 #include "GeneralTypes.h"
+#include <vector>
 
 namespace OpenPSTD
 {
