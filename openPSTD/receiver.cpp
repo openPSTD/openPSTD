@@ -1,5 +1,8 @@
 #include "receiver.h"
 
+#include "modelmanager.h"
+#include "point.h"
+
 /**
  * Constructor.
  * 
@@ -7,13 +10,21 @@
  * @param y  The y coordinate of the receiver
  * @param settings  A reference to the Settings instance
  */
-Receiver::Receiver(int x, int y) {
+Receiver::Receiver(Point* p) {
 	// Save position locally
-	this->x = x;
-	this->y = y;
+	this->p = p;
 	
 	// Load the receiver image
 	image = QImage(":/new/prefix1/icons/receiver.png");
+	
+	// Initialize state variables
+	this->selected = false;
+}
+
+Receiver* Receiver::copy() {
+	Point* pp = new Point(p->getObject(), OBJECT);
+	Receiver* c = new Receiver(pp);
+	return c;
 }
 
 /**
@@ -25,13 +36,16 @@ Receiver::Receiver(int x, int y) {
  * @param offsetY  The current y offset of the scene (as in model)
  * @param selected  Whether or not the receiver is currently selected
  */
-void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
+void Receiver::draw(QImage* pixels) {
+	int x = this->p->getScreen().x();
+	int y = this->p->getScreen().y();
+	
 	// Draw the receiver image
 	QPainter p;
 	p.begin(pixels);
 	p.drawImage(
-		zoom * x + offsetX - 5,
-		zoom * y + offsetY - 5,
+		x - 5,
+		y - 5,
 		image
 	);
 	p.end();
@@ -42,26 +56,26 @@ void Receiver::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool sel
 		int d = 8;
 		for (int i = -d; i <= d; i++) {
 			setPixel(
-				zoom * x + i + offsetX,
-				zoom * y + d + offsetY,
+				x + i,
+				y + d,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				zoom * x + i + offsetX,
-				zoom * y - d + offsetY,
+				x + i,
+				y - d,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				zoom * x + d + offsetX,
-				zoom * y + i + offsetY,
+				x + d,
+				y + i,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				zoom * x - d + offsetX,
-				zoom * y + i + offsetY,
+				x - d,
+				y + i,
 				qRgb(0, 255, 255),
 				pixels
 			);
@@ -81,4 +95,12 @@ void Receiver::setPixel(int x, int y, QRgb color, QImage* pixels) {
 	if (x < 0 || y < 0) return;
 	if (x >= pixels->width() || y >= pixels->height()) return;
 	pixels->setPixel(x, y, color);
+}
+
+int Receiver::getX() { return p->getObject().x(); }
+int Receiver::getY() { return p->getObject().y(); }
+
+void Receiver::moveReceiver(QPoint deltaObject) {
+	// Move p by deltaObject
+	p->setObject(p->getObject() + deltaObject);
 }

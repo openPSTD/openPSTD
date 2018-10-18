@@ -11,16 +11,12 @@
  */
 Renderer::Renderer(
 	QGraphicsScene* scene,
-	Model* model,
-	ModelManager* modelmanager,
 	QWidget* parent,
 	QAction* changeabsorption,
 	Simulator* simulator
 ) {
 	// Save reference variables locally
 	this->scene = scene;
-	this->model = model;
-	this->modelmanager = modelmanager;
 	this->simulator = simulator;
 	this->centered = false;
 	
@@ -28,7 +24,7 @@ Renderer::Renderer(
 	pixels = new QImage(1024, 768, QImage::Format_RGB32);
 	
 	// Create a new EventHandler instance
-	eh = new EventHandler(model, modelmanager, simulator, parent, changeabsorption, pixels);
+	eh = new EventHandler(parent);
 	
 	// Update the width and height according to the scene
 	width = static_cast<int>(scene->sceneRect().width());
@@ -63,6 +59,10 @@ Renderer::~Renderer() {
  * Redraws the scene.
  */
 void Renderer::draw() {
+	// Reset the pixels array
+	delete pixels;
+	pixels = new QImage(width, height, QImage::Format_RGB32);
+	
 	// Clear the scene
 	scene->clear();
 	
@@ -73,60 +73,43 @@ void Renderer::draw() {
 	drawAxes();
 	
 	// Draw all domains
-	std::vector<Domain> domains = model->domains;
+	Model* model = ModelManager::getInstance()->getCurrent();
+	std::vector<Domain*> domains = model->domains;
 	for (unsigned int i = 0; i < domains.size(); i++) {
-		domains[i].draw(
-			pixels,
-			model->zoom,
-			model->offsetX,
-			model->offsetY,
-			eh->getSelectedWalls(i)
-		);
+		domains[i]->draw(pixels);
 	}
 	
 	// Draw the simulator output
 	simulator->draw(pixels);
 	
 	// Draw all sources
-	std::vector<Source> sources = model->sources;
+	std::vector<Source*> sources = model->sources;
 	for (unsigned int i = 0; i < sources.size(); i++) {
-		sources[i].draw(pixels,
-			model->zoom,
-			model->offsetX,
-			model->offsetY,
-			eh->isSourceSelected(i)
-		);
+		sources[i]->draw(pixels);
 	}
 	
 	// Draw all receivers
-	std::vector<Receiver> receivers = model->receivers;
+	std::vector<Receiver*> receivers = model->receivers;
 	for (unsigned int i = 0; i < receivers.size(); i++) {
-		receivers[i].draw(
-			pixels,
-			model->zoom,
-			model->offsetX,
-			model->offsetY,
-			eh->isReceiverSelected(i)
-		);
+		receivers[i]->draw(pixels);
 	}
 	
 	// Draw the selection rectangle
-	eh->drawSelection(pixels);
+	//eh->drawSelection(pixels);
 	
 	// Draw the measure tool
 	eh->drawMeasure(pixels);
 	
 	// Draw the overlap message text
-	eh->drawOverlap(pixels);
+	//eh->drawOverlap(pixels);
 	
 	// Draw the zero wall message text
-	eh->drawZerowall(pixels);
+	//eh->drawZerowall(pixels);
 	
 	// Draw cursor if adding domain or measuring
 	if (model->state == ADDDOMAIN || model->state == MEASURE) {
-		QPoint pos = eh->getMousePos();
-		QPoint clamped = Grid::clampFull(pos.x(), pos.y(), model, true);
-		drawCursor(clamped.x() + model->offsetX, clamped.y() + model->offsetY);
+		Point c = eh->getMousePos().clampToGrid();
+		drawCursor(c.getScreen().x(), c.getScreen().y());
 	}
 	
 	// Draw zoom level reference
@@ -146,17 +129,18 @@ void Renderer::draw() {
 		drawText(std::to_string(fps), 5, height - 19, 14, Settings::getInstance()->fpsColor);
 	}
 	
+	Point p(16, 16, OBJECT);
+	QPoint pp = p.getScreen();
+	//std::cout << "object (16, 16) is at screen (" << pp.x() << ", " << pp.y() << ")" << std::endl;
+	//std::cout << "zoom: " << model->zoom << std::endl;
+	
 	// Draw the pixels array
 	QPixmap qpm = QPixmap::fromImage(*pixels);
 	scene->addPixmap(qpm);
 	
-	// Reset the pixels array
-	delete pixels;
-	pixels = new QImage(width, height, QImage::Format_RGB32);
-	
 	// Center the scene initially
 	if (!centered) {
-		eh->moveToCenter();
+		//eh->moveToCenter();
 		centered = true;
 	}
 }
@@ -176,7 +160,8 @@ void Renderer::mousePress(
 	Qt::KeyboardModifiers modifiers
 ) {
 	// Delegate event to EventHandler
-	eh->mousePress(x, y, button, modifiers);
+	eh->mousePress(QPoint(x, y), button, modifiers);
+	draw();
 }
 
 /**
@@ -188,7 +173,8 @@ void Renderer::mousePress(
  */
 void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
 	// Delegate event to EventHandler
-	eh->mouseRelease(x, y, button);
+	eh->mouseRelease(QPoint(x, y), button);
+	draw();
 }
 
 /**
@@ -201,7 +187,9 @@ void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
  */
 void Renderer::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers) {
 	// Delegate event to EventHandler
-	eh->mouseDrag(x, y, drag, modifiers);
+	if (!drag) eh->mouseMove(QPoint(x, y), modifiers);
+	if ( drag) eh->mouseDrag(QPoint(x, y), modifiers);
+	draw();
 }
 
 /**
@@ -216,16 +204,17 @@ void Renderer::setDimensions(int width, int height) {
 	this->height = height;
 	
 	// Update the dimension of the scene to match the QGraphicsView
-	scene->setSceneRect(0, 0, width, height);
-	eh->setWidth(width);
-	eh->setHeight(height);
+	// TODO
+	//scene->setSceneRect(0, 0, width, height);
+	//eh->setWidth(width);
+	//eh->setHeight(height);
 	
-	// Create a new pixels array with the new dimensions
+	/*// Create a new pixels array with the new dimensions
 	delete pixels;
-	pixels = new QImage(width, height, QImage::Format_RGB32);
+	pixels = new QImage(width, height, QImage::Format_RGB32);*/
 	
 	// Redraw the scene
-	draw();
+	//draw();
 }
 
 /**
@@ -236,7 +225,7 @@ void Renderer::drawGrid() {
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			// Check if this point is on the grid
-			if (Grid::isOnGrid(x, y, model)) {
+			if (Grid::isOnGrid(x, y)) {
 				pixels->setPixel(QPoint(x, y), Settings::getInstance()->gridColor);
 				continue;
 			}
@@ -268,6 +257,7 @@ void Renderer::drawCursor(int x, int y) {
  */
 void Renderer::drawZoom(int zoomaim) {
 	// Draw the zoom level reference line
+	Model* model = ModelManager::getInstance()->getCurrent();
 	int width = model->zoom * zoomaim;
 	for (int i = 5; i < 5 + width; i++) {
 		if (i < pixels->width()) pixels->setPixel(i, 5, Settings::getInstance()->zoomColor);
@@ -285,12 +275,14 @@ void Renderer::drawZoom(int zoomaim) {
 
 void Renderer::drawAxes() {
 	// Draw horizontal axis at (0, 0)
+	Model* model = ModelManager::getInstance()->getCurrent();
 	for (int i = 0; i < pixels->width(); i++) {
 		for (int d = -1; d < 1; d++) {
-			if (model->offsetY + d < 0 || model->offsetY >= pixels->height()) continue;
+			int y = model->zoom * model->offsetY + d;
+			if (y < 0 || y >= pixels->height()) continue;
 			pixels->setPixel(
 				i,
-				model->offsetY + d,
+				y,
 				qRgb(0, 0, 255)
 			);
 		}
@@ -299,9 +291,10 @@ void Renderer::drawAxes() {
 	// Draw vertical axis at (0, 0)
 	for (int j = 0; j < pixels->height(); j++) {
 		for (int d = -1; d < 1; d++) {
-			if (model->offsetX + d < 0 || model->offsetX >= pixels->width()) continue;
+			int x = model->zoom * model->offsetX + d;
+			if (x < 0 || x >= pixels->width()) continue;
 			pixels->setPixel(
-				model->offsetX + d,
+				x,
 				j,
 				qRgb(0, 0, 255)
 			);
@@ -309,8 +302,8 @@ void Renderer::drawAxes() {
 	}
 	
 	// Draw horizontal offset text
-	int mousex = (eh->getMousePos().x() - model->offsetX) / model->zoom;
-	int mousey = -(eh->getMousePos().y() - model->offsetY) / model->zoom;
+	int mousex = eh->getMousePos().getObject().x(); //(eh->getMousePos().getScreen().x() - model->offsetX) / model->zoom;
+	int mousey = eh->getMousePos().getObject().y(); //-(eh->getMousePos().getScreen().y() - model->offsetY) / model->zoom;
 	drawText(
 		"X: " + std::to_string(mousex),
 		0,

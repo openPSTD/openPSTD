@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "model.h"
+#include "domain.h"
 
 namespace Ui {
 	class AbsorptionDialog;
@@ -13,14 +14,12 @@ class AbsorptionDialog : public QDialog {
 public:
 	explicit AbsorptionDialog(
 		QWidget* parent = nullptr,
-		unsigned int domain = 0,
-		Model* model = nullptr
+		Domain* domain = nullptr
 	);
 	~AbsorptionDialog();
 private:
 	Ui::AbsorptionDialog* ui;
-	Model* model;
-	unsigned int domain;
+	Domain* domain;
 private slots:
 	void slot_cancel();
 	void slot_save();

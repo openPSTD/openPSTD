@@ -3,7 +3,7 @@
 
 #include <QPoint>
 #include "settings.h"
-#include "model.h"
+#include "modelmanager.h"
 
 /**
  * Class providing methods for comparing a point against the grid.
@@ -22,18 +22,19 @@ public:
 	 * @param clamped  Whether or not the given (x, y) position could be clamped
 	 * @return  The clamped point
 	 */
-	inline static QPoint clampGrid(int x, int y, Model* model, bool* clamped) {
-		// Update x according to the scene offset
-		int xx = x - model->offsetX;
-		int yy = y - model->offsetY;
+	inline static QPoint clampGrid(int x, int y, bool* clamped) {
+		/*// Update x according to the scene offset
+		int xx = x; // - model->offsetX;
+		int yy = y; // - model->offsetY;
 		
 		// Do not clamp if there is no grid
 		if (!model->showGrid) {
+			if (clamped != nullptr) *clamped = false;
 			return QPoint(xx, yy);
 		}
 		
 		// Compute the coordinates of the nearest grid corner
-		int gz = model->gridsize * model->zoom;
+		int gz = model->gridsize; // * model->zoom;
 		int gridx = static_cast<int>(gz * round(static_cast<double>(xx) / gz));
 		int gridy = static_cast<int>(gz * round(static_cast<double>(yy) / gz));
 		
@@ -47,8 +48,33 @@ public:
 		int py = (dy < settings->clampDist ? gridy : yy);
 		
 		// Return the clamped point
-		*clamped = dx < settings->clampDist || dy < settings->clampDist;
-		return QPoint(px, py);
+		if (clamped != nullptr) {
+			*clamped = dx < settings->clampDist || dy < settings->clampDist;
+		}
+		return QPoint(px, py);*/
+		
+		// TODO: Input mouse coordinates instead of object coordinates
+		// Then compute mouse coordinates of the lower grid edge.
+		// Clamp within the clamp distance (in mouse coordinates).
+		// Return result in mouse coordinates.
+		
+		int gridsize = 16; // Object coordinates
+		
+		// Convert the input point into mouse coordinates
+		QPoint p = Grid::object2mouse(QPoint(x, y));
+		
+		// Compute the mouse coordinates of the lower grid edge
+		QPoint g0 = QPoint(
+			(int) (x / gridsize) * gridsize,
+			(int) (y / gridsize) * gridsize
+		);
+		QPoint gg0 = Grid::object2mouse(g0);
+		
+		QPoint delta = gg0 - p;
+		if (delta.x() < gridsize) p.setX(gg0.x());
+		if (delta.y() < gridsize) p.setY(gg0.y());
+		
+		return Grid::mouse2object(p);
 	}
 	
 	/**
@@ -68,12 +94,12 @@ public:
 	inline static QPoint clampDomains(
 		int x,
 		int y,
-		std::vector<Domain> domains,
-		Model* model,
+		std::vector<Domain*> domains,
 		bool* clamped,
 		bool clampLastDomain
 	) {
 		// Update x according to the scene offset and zoom level
+		Model* model = ModelManager::getInstance()->getCurrent();
 		int xx = (x - model->offsetX) / model->zoom;
 		int yy = (y - model->offsetY) / model->zoom;
 		
@@ -97,7 +123,7 @@ public:
 			if (!clampLastDomain && i == domains.size() - 1) continue;
 			
 			// Loop through all walls in the domain
-			std::vector<Wall*>* walls = domains[i].getWalls();
+			std::vector<Wall*>* walls = domains[i]->getWalls();
 			for (unsigned int j = 0; j < walls->size(); j++) {
 				// Get a pointer to this wall
 				Wall* wall = walls->at(j);
@@ -145,18 +171,18 @@ public:
 	 * @param clampLastDomain  Whether or not to clamp to the last domain as well
 	 * @return  The clamped point
 	 */
-	inline static QPoint clampFull(int x, int y, Model* model, bool clampLastDomain) {
+	inline static QPoint clampFull(int x, int y, bool clampLastDomain) {
 		// Clamp the input point to the grid
 		bool clampedGrid;
-		QPoint clampgrid = Grid::clampGrid(x, y, model, &clampedGrid);
+		QPoint clampgrid = Grid::clampGrid(x, y, &clampedGrid);
 		
 		// Clamp the input point to domain walls
+		Model* model = ModelManager::getInstance()->getCurrent();
 		bool clampedWall;
 		QPoint clampwall = Grid::clampDomains(
 			x,
 			y,
 			model->domains,
-			model,
 			&clampedWall,
 			clampLastDomain
 		);
@@ -196,14 +222,37 @@ public:
 	 * @param model  A reference to the Model
 	 * @return  Whether or not the given point is on a grid edge
 	 */
-	inline static bool isOnGrid(int x, int y, Model* model) {
+	inline static bool isOnGrid(int x, int y) {
 		// Pixel is not on grid if there is no grid
+		Model* model = ModelManager::getInstance()->getCurrent();
 		if (!model->showGrid) return false;
 		
+		QPoint p = mouse2object(QPoint(x, y));
+		bool on_x = (p.x() % model->gridsize == 0 && x % model->zoom == 0);
+		bool on_y = (p.y() % model->gridsize == 0 && y % model->zoom == 0);
+		
 		// Return whether or not the given point is on a grid edge
-		bool on_x = (x - model->offsetX) % (model->zoom * model->gridsize) == 0;
-		bool on_y = (y - model->offsetY) % (model->zoom * model->gridsize) == 0;
+		//bool on_x = (x - model->offsetX) % (model->zoom * model->gridsize) == 0;
+		//bool on_y = (y - model->offsetY) % (model->zoom * model->gridsize) == 0;
 		return on_x || on_y;
+	}
+	
+	// TODO
+	inline static QPoint mouse2object(QPoint mouse) {
+		Model* model = ModelManager::getInstance()->getCurrent();
+		return QPoint(
+			mouse.x() / model->zoom - model->offsetX,
+			mouse.y() / model->zoom - model->offsetY
+		);
+	}
+	
+	// TODO
+	inline static QPoint object2mouse(QPoint object) {
+		Model* model = ModelManager::getInstance()->getCurrent();
+		return QPoint(
+			(object.x() + model->offsetX) * model->zoom,
+			(object.y() + model->offsetY) * model->zoom
+		);
 	}
 private:
 	/**
@@ -218,30 +267,30 @@ private:
 		// Check if the wall is vertical or horizontal
 		if (wall->getSide() == LEFT || wall->getSide() == RIGHT) {
 			// Get the lowest and highest points of the wall
-			int miny = std::min(wall->getY0(), wall->getY1());
-			int maxy = std::max(wall->getY0(), wall->getY1());
+			int miny = std::min(wall->getMinY(), wall->getMaxY());
+			int maxy = std::max(wall->getMinY(), wall->getMaxY());
 			
 			// Return the lowest point if y < miny
-			if (y < miny) return QPoint(wall->getX0(), miny);
+			if (y < miny) return QPoint(wall->getMinX(), miny);
 			
 			// Return the highest point if y > maxy
-			if (y > maxy) return QPoint(wall->getX0(), maxy);
+			if (y > maxy) return QPoint(wall->getMinX(), maxy);
 			
 			// Return the same y coordinate otherwise
-			return QPoint(wall->getX0(), y);
+			return QPoint(wall->getMinX(), y);
 		} else {
 			// Get the leftmost and rightmost points of the wall
-			int minx = std::min(wall->getX0(), wall->getX1());
-			int maxx = std::max(wall->getX0(), wall->getX1());
+			int minx = std::min(wall->getMinX(), wall->getMaxX());
+			int maxx = std::max(wall->getMinX(), wall->getMaxX());
 			
 			// Return the leftmost point if x < minx
-			if (x < minx) return QPoint(minx, wall->getY0());
+			if (x < minx) return QPoint(minx, wall->getMinY());
 			
 			// Return the rightmost point if x > maxx
-			if (x > maxx) return QPoint(maxx, wall->getY0());
+			if (x > maxx) return QPoint(maxx, wall->getMinY());
 			
 			// Return the same x coordinate otherwise
-			return QPoint(x, wall->getY0());
+			return QPoint(x, wall->getMinY());
 		}
 	}
 };

@@ -5,31 +5,39 @@
 #include <QPainter>
 #include "settings.h"
 
+class Point;
+
 /**
  * Representation of a single source.
  */
 class Source {
 public:
 	// Constructor
-	Source(int x, int y);
+	Source(Point* p);
+	Source* copy();
 	
 	// Drawing method
-	void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
+	void draw(QImage* pixels);
 	
-	// Get methods for the position of the source
-	int getX() { return x; }
-	int getY() { return y; }
+	// Get methods
+	int getX();
+	int getY();
+	bool getSelected() { return selected; }
 	
-	// Set methods for the position of the source
-	void setX(int x) { this->x = x; }
-	void setY(int y) { this->y = y; }
+	// Set methods
+	void toggleSelected() { this->selected = !this->selected; }
+	void setSelected(bool selected) { this->selected = selected; }
+	
+	void moveSource(QPoint deltaObject);
 private:
 	// Source image
 	QImage image;
 	
 	// Position of the source
-	int x;
-	int y;
+	Point* p;
+	
+	// Whether or not this source is selected
+	bool selected;
 	
 	// Sets a single pixel's color
 	void setPixel(int x, int y, QRgb color, QImage* pixels);

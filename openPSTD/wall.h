@@ -9,6 +9,8 @@
 #include <algorithm>
 #include "settings.h"
 
+class Point;
+
 enum Side {
 	LEFT,
 	RIGHT,
@@ -23,45 +25,52 @@ class Wall {
 public:
 	// Constructor
 	inline Wall() {}
-	Wall(int x0, int y0, int x1, int y1, Side side, double absorption, bool e);
+	Wall(Point p1, Point p2, Side side, double* absorption, bool* e, bool* selected);
 	
 	// Drawing method
-	void draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected);
+	void draw(QImage* pixels, bool domainSelected);
 	
 	// Get methods
-	inline int getX0() { return x0; }
-	inline int getY0() { return y0; }
-	inline int getX1() { return x1; }
-	inline int getY1() { return y1; }
+	int getMinX();
+	int getMaxX();
+	int getMinY();
+	int getMaxY();
+	inline Point* getP1() { return p1; }
+	inline Point* getP2() { return p2; }
 	inline Side getSide() { return side; }
-	inline double getAbsorption() { return absorption; }
-	inline bool getEgdeLocalReacting() { return edgelocalreacting; }
+	inline double getAbsorption() { return *absorption; }
+	inline bool getEgdeLocalReacting() { return *edgelocalreacting; }
+	inline bool getSelected() { return *selected; }
 	
 	// Set methods
-	inline void setX0(int x0) { this->x0 = x0; }
-	inline void setY0(int y0) { this->y0 = y0; }
-	inline void setX1(int x1) { this->x1 = x1; }
-	inline void setY1(int y1) { this->y1 = y1; }
+	void setMinX(int x);
+	void setMaxX(int x);
+	void setMinY(int y);
+	void setMaxY(int y);
 	inline void setSide(Side side) { this->side = side; }
-	inline void setAbsorption(double absorption) { this->absorption = absorption; }
-	inline void setEdgeLocalReacting(bool e) { this->edgelocalreacting = e; }
-	void setDrawWallLength(bool drawWallLength) { this->drawWallLength = drawWallLength; }
+	inline void setAbsorption(double absorption) { *(this->absorption) = absorption; }
+	inline void setEdgeLocalReacting(bool e) { *(this->edgelocalreacting) = e; }
+	inline void setDrawWallLength(bool draw) { this->drawWallLength = draw; }
+	
+	inline void toggleSelected() { *(this->selected) = !*(this->selected); }
+	inline void setSelected(bool s) { *(this->selected) = s; }
 	
 	// Checks if two given walls need to be merged
 	static bool mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge);
 private:
 	// Corner coordinates
-	int x0;
-	int y0;
-	int x1;
-	int y1;
+	Point* p1;
+	Point* p2;
 	
 	// Side of the wall
 	Side side;
 	
+	// Whether or not the wall is selected
+	bool* selected;
+	
 	// Absorption coefficient
-	double absorption;
-	bool edgelocalreacting;
+	double* absorption;
+	bool* edgelocalreacting;
 	
 	// Whether or not to draw the wall length text
 	bool drawWallLength;

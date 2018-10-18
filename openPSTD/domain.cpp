@@ -1,5 +1,7 @@
 #include "domain.h"
 
+#include "point.h"
+
 /**
  * Constructor.
  * 
@@ -9,12 +11,10 @@
  * @param y1  The y coordinate of the second corner of the domain
  * @param settings  A reference to a Settings instance
  */
-Domain::Domain(int x0, int y0, int x1, int y1) {
+Domain::Domain(Point* p1, Point* p2) {
 	// Save the domain's corner coordinates
-	this->x0 = x0;
-	this->y0 = y0;
-	this->x1 = x1;
-	this->y1 = y1;
+	this->p1 = p1;
+	this->p2 = p2;
 
 	// Initialize the domain's absorption coefficients
 	absorptionTop = 0;
@@ -25,6 +25,30 @@ Domain::Domain(int x0, int y0, int x1, int y1) {
 	elrBottom = false;
 	elrLeft = false;
 	elrRight = false;
+	selected = false;
+	selectedLeft = false;
+	selectedRight = false;
+	selectedTop = false;
+	selectedBottom = false;
+	
+	// Initialize the walls vector
+	resetWalls();
+}
+
+// TODO: Method contract.
+Domain* Domain::copy() {
+	Point* pp1 = new Point(p1->getObject(), OBJECT);
+	Point* pp2 = new Point(p2->getObject(), OBJECT);
+	Domain* c = new Domain(pp1, pp2);
+	c->setAbsorption(LEFT, absorptionLeft);
+	c->setAbsorption(RIGHT, absorptionRight);
+	c->setAbsorption(TOP, absorptionTop);
+	c->setAbsorption(BOTTOM, absorptionBottom);
+	c->setEdgeLocalReacting(LEFT, elrLeft);
+	c->setEdgeLocalReacting(RIGHT, elrRight);
+	c->setEdgeLocalReacting(TOP, elrTop);
+	c->setEdgeLocalReacting(BOTTOM, elrBottom);
+	return c;
 }
 
 /**
@@ -37,20 +61,58 @@ Domain::Domain(int x0, int y0, int x1, int y1) {
  * @param offsetY  The current y offset of the scene
  * @param selectedWalls  A vector of indices in the walls vector of all selected walls
  */
-void Domain::draw(
-	QImage* pixels,
-	int zoom,
-	int offsetX,
-	int offsetY,
-	std::vector<unsigned int> selectedWalls
-) {
+void Domain::draw(QImage* pixels) {
 	// Update the sides of all walls
 	updateWallSides();
 
 	// Draw all walls
 	for (unsigned int i = 0; i < walls.size(); i++) {
-		bool selected = std::find(selectedWalls.begin(), selectedWalls.end(), i) != selectedWalls.end();
-		walls[i]->draw(pixels, zoom, offsetX, offsetY, selected);
+		walls[i]->draw(pixels, selected);
+	}
+	
+	// Overlay dashed walls if domain is selected
+	if (selected) {
+		// Get the corner coordinates of the domain
+		int x1 = std::min(p1->getScreen().x(), p2->getScreen().x());
+		int x2 = std::max(p1->getScreen().x(), p2->getScreen().x());
+		int y1 = std::min(p1->getScreen().y(), p2->getScreen().y());
+		int y2 = std::max(p1->getScreen().y(), p2->getScreen().y());
+		
+		// Draw a dashed line for the left wall
+		for (int y = y1; y < y2; y++) {
+			if ((y/10) % 2 == 0) {
+				for (int d = -1; d <= 1; d++) {
+					pixels->setPixel(x1 + d, y, qRgb(0, 255, 255));
+				}
+			}
+		}
+		
+		// Draw a dashed line for the right wall
+		for (int y = y1; y < y2; y++) {
+			if ((y/10) % 2 == 0) {
+				for (int d = -1; d <= 1; d++) {
+					pixels->setPixel(x2 + d, y, qRgb(0, 255, 255));
+				}
+			}
+		}
+		
+		// Draw a dashed line for the top wall
+		for (int x = x1; x < x2; x++) {
+			if ((x/10) % 2 == 0) {
+				for (int d = -1; d <= 1; d++) {
+					pixels->setPixel(x, y1 + d, qRgb(0, 255, 255));
+				}
+			}
+		}
+		
+		// Draw a dashed line for the bottom wall
+		for (int x = x1; x < x2; x++) {
+			if ((x/10) % 2 == 0) {
+				for (int d = -1; d <= 1; d++) {
+					pixels->setPixel(x, y2 + d, qRgb(0, 255, 255));
+				}
+			}
+		}
 	}
 }
 
@@ -61,7 +123,7 @@ void Domain::draw(
  * @param domains  A pointer to the domains vector
  * @param ownID  The index in the domains vector of this domain
  */
-void Domain::mergeDomains(std::vector<Domain>* domains, unsigned int ownID) {
+void Domain::mergeDomains(std::vector<Domain*>* domains, unsigned int ownID) {
 	// Loop through all walls in this domain
 	for (unsigned int i = 0; i < walls.size(); i++) {
 		// Loop through all domains
@@ -70,8 +132,8 @@ void Domain::mergeDomains(std::vector<Domain>* domains, unsigned int ownID) {
 			if (j == ownID) continue;
 
 			// Loop through all walls in the domain
-			for (unsigned int k = 0; k < domains->at(j).getWalls()->size(); k++) {
-				Wall* wallk = domains->at(j).getWalls()->at(k);
+			for (unsigned int k = 0; k < domains->at(j)->getWalls()->size(); k++) {
+				Wall* wallk = domains->at(j)->getWalls()->at(k);
 
 				// Merge with our wall
 				std::pair<int, int> toMerge;
@@ -79,7 +141,7 @@ void Domain::mergeDomains(std::vector<Domain>* domains, unsigned int ownID) {
 				if (merge) {
 					// The walls intersect, update both walls according to the intersection
 					handleIntersection(this, i, toMerge);
-					handleIntersection(&(domains->at(j)), k, toMerge);
+					handleIntersection(domains->at(j), k, toMerge);
 				}
 			}
 		}
@@ -95,12 +157,17 @@ void Domain::resetWalls() {
 		delete walls[i];
 	}
 	walls.clear();
-
+	
+	Point tl(getMinX(), getMaxY(), OBJECT);
+	Point bl(getMinX(), getMinY(), OBJECT);
+	Point tr(getMaxX(), getMaxY(), OBJECT);
+	Point br(getMaxX(), getMinY(), OBJECT);
+	
 	// Recreate the original four non-merged walls
-	walls.push_back(new Wall(x0, y0, x0, y1, LEFT, absorptionLeft, elrTop));
-	walls.push_back(new Wall(x1, y0, x1, y1, RIGHT, absorptionRight, elrBottom));
-	walls.push_back(new Wall(x0, y0, x1, y0, TOP, absorptionTop, elrLeft));
-	walls.push_back(new Wall(x0, y1, x1, y1, BOTTOM, absorptionBottom, elrRight));
+	walls.push_back(new Wall(tl, bl, LEFT, &absorptionLeft, &elrLeft, &selectedLeft));
+	walls.push_back(new Wall(tr, br, RIGHT, &absorptionRight, &elrRight, &selectedRight));
+	walls.push_back(new Wall(tl, tr, TOP, &absorptionTop, &elrTop, &selectedTop));
+	walls.push_back(new Wall(bl, br, BOTTOM, &absorptionBottom, &elrBottom, &selectedBottom));
 }
 
 /**
@@ -111,16 +178,16 @@ void Domain::resetWalls() {
  */
 bool Domain::overlaps(Domain* other) {
 	// Get corner coordinates of this domain
-	int x0a = getX0();
-	int y0a = getY0();
-	int x1a = getX1();
-	int y1a = getY1();
+	int x0a = getMinX();
+	int y0a = getMinY();
+	int x1a = getMaxX();
+	int y1a = getMaxY();
 
 	// Get corner coordinates of other domain
-	int x0b = other->getX0();
-	int y0b = other->getY0();
-	int x1b = other->getX1();
-	int y1b = other->getY1();
+	int x0b = other->getMinX();
+	int y0b = other->getMinY();
+	int x1b = other->getMaxX();
+	int y1b = other->getMaxY();
 
 	// Check if the domains overlap in the x direction
 	bool overlapxa = ((x0a < x0b && x0b < x1a) || (x0a < x1b && x1b < x1a));
@@ -137,6 +204,20 @@ bool Domain::overlaps(Domain* other) {
 }
 
 /**
+ * Deselects the domain, and all walls.
+ */
+void Domain::deselectAll() {
+	// Deselect this domain
+	selected = false;
+	
+	// Loop through all walls
+	for (unsigned int i = 0; i < walls.size(); i++) {
+		// Deselect this wall
+		walls[i]->setSelected(false);
+	}
+}
+
+/**
  * Updates the side of all walls.
  */
 void Domain::updateWallSides() {
@@ -146,10 +227,10 @@ void Domain::updateWallSides() {
 	int miny = -1;
 	int maxy = -1;
 	for (unsigned int i = 0; i < walls.size(); i++) {
-		int x0 = walls[i]->getX0();
-		int x1 = walls[i]->getX1();
-		int y0 = walls[i]->getY0();
-		int y1 = walls[i]->getY1();
+		int x0 = walls[i]->getMinX();
+		int x1 = walls[i]->getMaxX();
+		int y0 = walls[i]->getMinY();
+		int y1 = walls[i]->getMaxY();
 
 		if (minx == -1 || std::min(x0, x1) < minx) minx = std::min(x0, x1);
 		if (maxx == -1 || std::max(x0, x1) > maxx) maxx = std::max(x0, x1);
@@ -164,10 +245,10 @@ void Domain::updateWallSides() {
 	// Loop through all walls
 	for (unsigned int i = 0; i < walls.size(); i++) {
 		// Get the corner coordinates of this wall
-		int x0 = walls[i]->getX0();
-		int x1 = walls[i]->getX1();
-		int y0 = walls[i]->getY0();
-		int y1 = walls[i]->getY1();
+		int x0 = walls[i]->getMinX();
+		int x1 = walls[i]->getMaxX();
+		int y0 = walls[i]->getMinY();
+		int y1 = walls[i]->getMaxY();
 
 		// Check if this is a vertical wall
 		if (x0 == x1 && y0 != y1) {
@@ -179,8 +260,8 @@ void Domain::updateWallSides() {
 		// Check if this is a horizontal wall
 		if (x0 != x1 && y0 == y1) {
 			// Set side according to position relative to the midpoint
-			if (y0 < midy) walls[i]->setSide(TOP);
-			if (y0 > midy) walls[i]->setSide(BOTTOM);
+			if (y0 > midy) walls[i]->setSide(TOP);
+			if (y0 < midy) walls[i]->setSide(BOTTOM);
 		}
 	}
 }
@@ -202,160 +283,120 @@ void Domain::handleIntersection(
 	// Check if the wall is horizontal or vertical
 	Wall* wall = parent->getWalls()->at(wallID);
 	if (wall->getSide() == LEFT || wall->getSide() == RIGHT) {
-		// Get the end point coordinates of the wall
-		int y0 = wall->getY0();
-		int y1 = wall->getY1();
-
-		// Check intersection type 1a
-		if (y0 == toMerge.first && y1 > toMerge.second) {
-			// Set y0 to equal toMerge.second
-			wall->setY0(toMerge.second);
-		}
-
-		// Check intersection type 1b
-		if (y1 == toMerge.first && y0 > toMerge.second) {
-			// Set y1 to equal toMerge.second
-			wall->setY1(toMerge.second);
-		}
-
-		// Check intersection type 2a
-		if (y0 < toMerge.first && y1 == toMerge.second) {
-			// Set y1 to equal toMerge.first
-			wall->setY1(toMerge.first);
-		}
-
-		// Check intersection type 2b
-		if (y1 < toMerge.first && y0 == toMerge.second) {
-			// Set y0 to equal toMerge.first
-			wall->setY0(toMerge.first);
-		}
-
-		// Check intersection type 3a
-		if (y0 == toMerge.first && y1 == toMerge.second) {
-			// Remove wall
-			std::vector<Wall*>* domwalls = parent->getWalls();
-			domwalls->erase(domwalls->begin() + wallID);
-		}
-
-		// Check intersection type 3b
-		if (y1 == toMerge.first && y0 == toMerge.second) {
-			// Remove wall
-			std::vector<Wall*>* domwalls = parent->getWalls();
-			domwalls->erase(domwalls->begin() + wallID);
-		}
-
-		// Check intersection type 4a
-		if (y0 < toMerge.first && y1 > toMerge.second) {
-			// Set y1 to equal toMerge.first
-			wall->setY1(toMerge.first);
-
-			// Create a new wall from toMerge.second to y1
-			Wall* newWall = new Wall(
-				wall->getX0(),
-				toMerge.second,
-				wall->getX0(),
-				y1,
-				wall->getSide(),
-				getAbsorption(wall->getSide()),
-				getEdgeLocalReacting(wall->getSide())
+		// Get the end points of the wall and merge segment
+		int p1 = wall->getMinY();
+		int p2 = wall->getMaxY();
+		int q1 = toMerge.first;
+		int q2 = toMerge.second;
+		
+		// Sort the points on increasing coordinate
+		//   Note that p1 and q1 are both at most p2
+		//   and q2.
+		int a = std::min(p1, q1);
+		int b = std::max(p1, q1);
+		int c = std::min(p2, q2);
+		int d = std::max(p2, q2);
+		
+		// Save some variables from the current wall
+		std::vector<Wall*>* walls = parent->getWalls();
+		int x = walls->at(wallID)->getP1()->getObject().x();
+		Side side = walls->at(wallID)->getSide();
+		
+		// Remove the current wall
+		walls->erase(walls->begin() + wallID);
+		
+		// Add two new walls from a to b and from c to d
+		//   Note that the overlapping segment is always
+		//   from b to c.
+		if (a != b) {
+			bool* selected;
+			if (side == LEFT) selected = &selectedLeft;
+			if (side == RIGHT) selected = &selectedRight;
+			if (side == TOP) selected = &selectedTop;
+			if (side == BOTTOM) selected = &selectedBottom;
+			Wall* ab = new Wall(
+				Point(x, a, OBJECT),
+				Point(x, b, OBJECT),
+				side,
+				parent->getAbsorption(side),
+				parent->getEdgeLocalReacting(side),
+				selected
 			);
-			parent->getWalls()->push_back(newWall);
+			walls->push_back(ab);
 		}
-
-		// Check intersection type 4b
-		if (y1 < toMerge.first && y0 > toMerge.second) {
-			// Set y0 to equal toMerge.first
-			wall->setY0(toMerge.first);
-
-			// Create a new wall from toMerge.second to y0
-			Wall* newWall = new Wall(
-				wall->getX0(),
-				toMerge.second,
-				wall->getX0(),
-				y0,
-				wall->getSide(),
-				getAbsorption(wall->getSide()),
-				getEdgeLocalReacting(wall->getSide())
+		if (c != d) {
+			bool* selected;
+			if (side == LEFT) selected = &selectedLeft;
+			if (side == RIGHT) selected = &selectedRight;
+			if (side == TOP) selected = &selectedTop;
+			if (side == BOTTOM) selected = &selectedBottom;
+			Wall* cd = new Wall(
+				Point(x, c, OBJECT),
+				Point(x, d, OBJECT),
+				side,
+				parent->getAbsorption(side),
+				parent->getEdgeLocalReacting(side),
+				selected
 			);
-			parent->getWalls()->push_back(newWall);
+			walls->push_back(cd);
 		}
 	} else {
-		// Get the end point coordinates of the wall
-		int x0 = wall->getX0();
-		int x1 = wall->getX1();
-
-		// Check intersection type 1a
-		if (x0 == toMerge.first && x1 > toMerge.second) {
-			// Set x0 to equal toMerge.second
-			wall->setX0(toMerge.second);
-		}
-
-		// Check intersection type 1b
-		if (x1 == toMerge.first && x0 > toMerge.second) {
-			// Set x1 to equal toMerge.second
-			wall->setX1(toMerge.second);
-		}
-
-		// Check intersection type 2a
-		if (x0 < toMerge.first && x1 == toMerge.second) {
-			// Set x1 to equal toMerge.first
-			wall->setX1(toMerge.first);
-		}
-
-		// Check intersection type 2b
-		if (x1 < toMerge.first && x0 == toMerge.second) {
-			// Set x0 to equal toMerge.first
-			wall->setX0(toMerge.first);
-		}
-
-		// Check intersection type 3a
-		if (x0 == toMerge.first && x1 == toMerge.second) {
-			// Remove wall
-			std::vector<Wall*>* domwalls = parent->getWalls();
-			domwalls->erase(domwalls->begin() + wallID);
-		}
-
-		// Check intersection type 3b
-		if (x1 == toMerge.first && x0 == toMerge.second) {
-			// Remove wall
-			std::vector<Wall*>* domwalls = parent->getWalls();
-			domwalls->erase(domwalls->begin() + wallID);
-		}
-
-		// Check intersection type 4a
-		if (x0 < toMerge.first && x1 > toMerge.second) {
-			// Set x1 to equal toMerge.first
-			wall->setX1(toMerge.first);
-
-			// Create a new wall from toMerge.second to x1
-			Wall* newWall = new Wall(
-				toMerge.second,
-				wall->getY0(),
-				x1,
-				wall->getY1(),
-				wall->getSide(),
-				getAbsorption(wall->getSide()),
-				getEdgeLocalReacting(wall->getSide())
+		// Get the end points of the wall and merge segment
+		int p1 = wall->getMinX();
+		int p2 = wall->getMaxX();
+		int q1 = toMerge.first;
+		int q2 = toMerge.second;
+		
+		// Sort the points on increasing coordinate
+		//   Note that p1 and q1 are both at most p2
+		//   and q2.
+		int a = std::min(p1, q1);
+		int b = std::max(p1, q1);
+		int c = std::min(p2, q2);
+		int d = std::max(p2, q2);
+		
+		// Save some variables from the current wall
+		std::vector<Wall*>* walls = parent->getWalls();
+		int y = walls->at(wallID)->getP1()->getObject().y();
+		Side side = walls->at(wallID)->getSide();
+		
+		// Remove the current wall
+		walls->erase(walls->begin() + wallID);
+		
+		// Add two new walls from a to b and from c to d
+		//   Note that the overlapping segment is always
+		//   from b to c.
+		if (a != b) {
+			bool* selected;
+			if (side == LEFT) selected = &selectedLeft;
+			if (side == RIGHT) selected = &selectedRight;
+			if (side == TOP) selected = &selectedTop;
+			if (side == BOTTOM) selected = &selectedBottom;
+			Wall* ab = new Wall(
+				Point(a, y, OBJECT),
+				Point(b, y, OBJECT),
+				side,
+				parent->getAbsorption(side),
+				parent->getEdgeLocalReacting(side),
+				selected
 			);
-			parent->getWalls()->push_back(newWall);
+			walls->push_back(ab);
 		}
-
-		// Check intersection type 4b
-		if (x1 < toMerge.first && x0 > toMerge.second) {
-			// Set x0 to equal toMerge.first
-			wall->setX0(toMerge.first);
-
-			// Create a new wall from toMerge.second to x0
-			Wall* newWall = new Wall(
-				toMerge.second,
-				wall->getY0(),
-				x0,
-				wall->getY1(),
-				wall->getSide(),
-				getAbsorption(wall->getSide()),
-				getEdgeLocalReacting(wall->getSide())
+		if (c != d) {
+			bool* selected;
+			if (side == LEFT) selected = &selectedLeft;
+			if (side == RIGHT) selected = &selectedRight;
+			if (side == TOP) selected = &selectedTop;
+			if (side == BOTTOM) selected = &selectedBottom;
+			Wall* cd = new Wall(
+				Point(c, y, OBJECT),
+				Point(d, y, OBJECT),
+				side,
+				parent->getAbsorption(side),
+				parent->getEdgeLocalReacting(side),
+				selected
 			);
-			parent->getWalls()->push_back(newWall);
+			walls->push_back(cd);
 		}
 	}
 }
@@ -366,11 +407,11 @@ void Domain::handleIntersection(
  * @param side  The side of the wall
  * @return  The absorption coefficient of this wall
  */
-double Domain::getAbsorption(Side side) {
-	if (side == TOP) return absorptionTop;
-	if (side == BOTTOM) return absorptionBottom;
-	if (side == LEFT) return absorptionLeft;
-	if (side == RIGHT) return absorptionRight;
+double* Domain::getAbsorption(Side side) {
+	if (side == TOP) return &absorptionTop;
+	if (side == BOTTOM) return &absorptionBottom;
+	if (side == LEFT) return &absorptionLeft;
+	if (side == RIGHT) return &absorptionRight;
 }
 
 /**
@@ -380,11 +421,11 @@ double Domain::getAbsorption(Side side) {
  * @param side  The side of the wall
  * @return  The edge local reacting value of this wall
  */
-bool Domain::getEdgeLocalReacting(Side side) {
-	if (side == TOP) return elrTop;
-	if (side == BOTTOM) return elrBottom;
-	if (side == LEFT) return elrLeft;
-	if (side == RIGHT) return elrRight;
+bool* Domain::getEdgeLocalReacting(Side side) {
+	if (side == TOP) return &elrTop;
+	if (side == BOTTOM) return &elrBottom;
+	if (side == LEFT) return &elrLeft;
+	if (side == RIGHT) return &elrRight;
 }
 
 /**
@@ -392,12 +433,12 @@ bool Domain::getEdgeLocalReacting(Side side) {
  * the domain's absorption coefficient.
  */
 void Domain::updateAbsorption() {
-	for (unsigned int i = 0; i < walls.size(); i++) {
+	/*for (unsigned int i = 0; i < walls.size(); i++) {
 		if (walls[i]->getSide() == TOP) walls[i]->setAbsorption(absorptionTop);
 		if (walls[i]->getSide() == BOTTOM) walls[i]->setAbsorption(absorptionBottom);
 		if (walls[i]->getSide() == LEFT) walls[i]->setAbsorption(absorptionLeft);
 		if (walls[i]->getSide() == RIGHT) walls[i]->setAbsorption(absorptionRight);
-	}
+	}*/
 }
 
 /**
@@ -424,4 +465,96 @@ void Domain::setEdgeLocalReacting(Side side, bool e) {
 	if (side == BOTTOM) elrBottom = e;
 	if (side == LEFT) elrLeft = e;
 	if (side == RIGHT) elrRight = e;
+}
+
+int Domain::getMinX() { return std::min(p1->getObject().x(), p2->getObject().x()); }
+int Domain::getMaxX() { return std::max(p1->getObject().x(), p2->getObject().x()); }
+int Domain::getMinY() { return std::min(p1->getObject().y(), p2->getObject().y()); }
+int Domain::getMaxY() { return std::max(p1->getObject().y(), p2->getObject().y()); }
+Point* Domain::getMinXP() { return (p1->getObject().x() <  p2->getObject().x() ? p1 : p2); }
+Point* Domain::getMaxXP() { return (p1->getObject().x() >= p2->getObject().x() ? p1 : p2); }
+Point* Domain::getMinYP() { return (p1->getObject().y() <  p2->getObject().y() ? p1 : p2); }
+Point* Domain::getMaxYP() { return (p1->getObject().y() >= p2->getObject().y() ? p1 : p2); }
+void Domain::setP1(Point p1) { this->p1 = new Point(p1.getObject(), OBJECT); }
+void Domain::setP2(Point p2) { this->p2 = new Point(p2.getObject(), OBJECT); }
+
+void Domain::moveDomain(QPoint deltaObject) {
+	// Move p1 and p2 by deltaObject
+	p1->setObject(p1->getObject() + deltaObject);
+	p2->setObject(p2->getObject() + deltaObject);
+	resetWalls();
+}
+
+void Domain::moveWalls(std::set<Side> toMove, QPoint deltaObject) {
+	// Loop through all sides to move
+	for (std::set<Side>::iterator i = toMove.begin(); i != toMove.end(); i++) {
+		// Check the side to move
+		if (*i == LEFT) {
+			// Get the points with min and max x-coordinate
+			Point* min = getMinXP();
+			Point* max = getMaxXP();
+			
+			// Update the min (left) according to deltaObject (horizontal only)
+			min->setObject(min->getObject() + QPoint(deltaObject.x(), 0));
+			
+			// Check if min and max have switched
+			if (min->getObject().x() > max->getObject().x()) {
+				switchSelectedWalls(LEFT, RIGHT);
+			}
+		}
+		if (*i == RIGHT) {
+			// Get the points with min and max x-coordinate
+			Point* min = getMinXP();
+			Point* max = getMaxXP();
+			
+			// Update the max (right) according to deltaObject (horizontal only)
+			max->setObject(max->getObject() + QPoint(deltaObject.x(), 0));
+			
+			// Check if min and max have switched
+			if (min->getObject().x() > max->getObject().x()) {
+				switchSelectedWalls(RIGHT, LEFT);
+			}
+		}
+		if (*i == TOP) {
+			// Get the points with min and max y-coordinate
+			Point* min = getMinYP();
+			Point* max = getMaxYP();
+			
+			// Update the max (top) according to deltaObject (vertical only)
+			max->setObject(max->getObject() + QPoint(0, deltaObject.y()));
+			
+			// Check if min and max have switched
+			if (min->getObject().y() > max->getObject().y()) {
+				switchSelectedWalls(TOP, BOTTOM);
+			}
+		}
+		if (*i == BOTTOM) {
+			// Get the points with min and max y-coordinate
+			Point* min = getMinYP();
+			Point* max = getMaxYP();
+			
+			// Update the min (bottom) according to deltaObject (vertical only)
+			min->setObject(min->getObject() + QPoint(0, deltaObject.y()));
+			
+			// Check if min and max have switched
+			if (min->getObject().y() > max->getObject().y()) {
+				switchSelectedWalls(BOTTOM, TOP);
+			}
+		}
+	}
+}
+
+void Domain::switchSelectedWalls(Side oldside, Side newside) {
+	std::cout << "switching" << std::endl;
+	// Deselect the old walls
+	if (oldside == LEFT) selectedLeft = false;
+	if (oldside == RIGHT) selectedRight = false;
+	if (oldside == TOP) selectedTop = false;
+	if (oldside == BOTTOM) selectedBottom = false;
+	
+	// Select the new walls
+	if (newside == LEFT) selectedLeft = true;
+	if (newside == RIGHT) selectedRight = true;
+	if (newside == TOP) selectedTop = true;
+	if (newside == BOTTOM) selectedBottom = true;
 }

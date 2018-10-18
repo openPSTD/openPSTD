@@ -1,4 +1,5 @@
 build-openPSTD-Desktop-Debug/*
+build/*
 openPSTD/openPSTD.pro.user
 docs/.~lock.*
 .oldversion

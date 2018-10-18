@@ -163,7 +163,7 @@ void TestRobustness::execAction(int actionID, Window* window, int x, int y, bool
 	if (actionID == 8) window->view->renderer->eh->moveToCenter();
 	if (actionID == 9) window->view->renderer->eh->mousePress(x, y, Qt::LeftButton, Qt::NoModifier);
 	if (actionID == 10) window->view->renderer->eh->mouseRelease(x, y, Qt::LeftButton);
-	if (actionID == 11) window->view->renderer->eh->mouseDrag(x, y, d, Qt::NoModifier);
+	if (actionID == 11) window->view->renderer->eh->mouseMove(x, y, Qt::NoModifier);
 	if (actionID == 12) window->view->renderer->eh->deleteSelected();
 	if (actionID == 13) window->view->renderer->eh->clearSelection();
 	if (actionID == 14) window->slot_zoom(z);

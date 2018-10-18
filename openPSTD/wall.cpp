@@ -1,5 +1,8 @@
 #include "wall.h"
 
+#include "modelmanager.h"
+#include "point.h"
+
 /**
  * Constructor.
  * 
@@ -12,17 +15,16 @@
  * @param absorption  The initial absorption coefficient of the wall
  * @param e  The edge local reacting value of the wall
  */
-Wall::Wall(int x0, int y0, int x1, int y1, Side side, double absorption, bool e) {
+Wall::Wall(Point p1, Point p2, Side side, double* absorption, bool* e, bool* selected) {
 	// Save end point coordinates locally
-	this->x0 = x0;
-	this->y0 = y0;
-	this->x1 = x1;
-	this->y1 = y1;
+	this->p1 = new Point(p1.getObject(), OBJECT);
+	this->p2 = new Point(p2.getObject(), OBJECT);
 	this->side = side;
 	this->absorption = absorption;
 	this->edgelocalreacting = e;
+	this->selected = selected;
 	
-	// Set initial wall length text state
+	// Initialize the state variables
 	drawWallLength = true;
 }
 
@@ -35,18 +37,26 @@ Wall::Wall(int x0, int y0, int x1, int y1, Side side, double absorption, bool e)
  * @param offsetY  The current y offset of the scene (as in model)
  * @param selected  Whether or not the wall is currently selected
  */
-void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
+void Wall::draw(QImage* pixels, bool domainSelected) {
+	int x0 = p1->getScreen().x();
+	int x1 = p2->getScreen().x();
+	int y0 = p1->getScreen().y();
+	int y1 = p2->getScreen().y();
+	
 	// Verify that the wall is orthogonal
 	if (x0 != x1 && y0 != y1) {
 		std::cerr << "Cannot draw non-orthogonal wall length text" << std::endl;
 		return;
 	}
 	
+	ModelManager* modelmanager = ModelManager::getInstance();
+	Model* model = modelmanager->getCurrent();
+	
 	// Get the minimum and maximum x and y coordinates of the corners
-	int minx = std::min(x0, x1) * zoom + offsetX;
-	int maxx = std::max(x0, x1) * zoom + offsetX;
-	int miny = std::min(y0, y1) * zoom + offsetY;
-	int maxy = std::max(y0, y1) * zoom + offsetY;
+	int minx = std::min(x0, x1);
+	int maxx = std::max(x0, x1);
+	int miny = std::min(y0, y1);
+	int maxy = std::max(y0, y1);
 	
 	// Draw all points on the wall
 	Settings* settings = Settings::getInstance();
@@ -55,8 +65,8 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
 			for (int d = -1; d <= 1; d++) {
 				int x = minx + d;
 				int y = j;
-				QRgb color = gradient(settings->wallColor0, settings->wallColor1, absorption);
-				if (selected) color = qRgb(0, 255, 255);
+				QRgb color = gradient(settings->wallColor0, settings->wallColor1, *absorption);
+				if (*selected || domainSelected) color = qRgb(0, 255, 255);
 				if (x < 0 || y < 0) continue;
 				if (x >= pixels->width() || y >= pixels->height()) continue;
 				pixels->setPixel(x, y, color);
@@ -68,8 +78,8 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
 			for (int d = -1; d <= 1; d++) {
 				int x = i;
 				int y = miny + d;
-				QRgb color = gradient(settings->wallColor0, settings->wallColor1, absorption);
-				if (selected) color = qRgb(0, 255, 255);
+				QRgb color = gradient(settings->wallColor0, settings->wallColor1, *absorption);
+				if (*selected || domainSelected) color = qRgb(0, 255, 255);
 				if (x < 0 || y < 0) continue;
 				if (x >= pixels->width() || y >= pixels->height()) continue;
 				pixels->setPixel(x, y, color);
@@ -78,7 +88,9 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
 	}
 	
 	// Compute the length of the wall
-	int length = std::abs((x1 - x0) + (y1 - y0));
+	int lx = p2->getObject().x() - p1->getObject().x();
+	int ly = p2->getObject().y() - p1->getObject().y();
+	int length = std::abs(lx + ly);
 	std::string lengthtext = std::to_string(length);
 	
 	// Compute the midpoint of the wall
@@ -90,15 +102,15 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
 		midx -= 12 * lengthtext.size();
 	}
 	if (side == RIGHT) {
-		midx++;
+		midx += 2;
 	}
 	if (side == TOP) {
 		midx -= 5 * lengthtext.size();
-		midy -= 9;
+		midy -= 10;
 	}
 	if (side == BOTTOM) {
 		midx -= 5 * lengthtext.size();
-		midy += 10;
+		midy += 8;
 	}
 	
 	// Draw the wall length text
@@ -125,15 +137,72 @@ void Wall::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selecte
  * @return  Whether or not the two walls need to be merged
  */
 bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
-	// Get the end point coordinates of both walls
-	int p1x = one.getX0();
-	int p1y = one.getY0();
-	int p2x = one.getX1();
-	int p2y = one.getY1();
-	int p3x = two.getX0();
-	int p3y = two.getY0();
-	int p4x = two.getX1();
-	int p4y = two.getY1();
+	// Compute the orientation of the walls
+	bool o1 = one.getSide() == LEFT || one.getSide() == RIGHT;
+	bool o2 = two.getSide() == LEFT || two.getSide() == RIGHT;
+	
+	// Check if both walls are vertical
+	if (o1 && o2 && one.getMinX() == two.getMinX()) {
+		// Get the start and end points of both walls
+		int p1 = one.getMinY();
+		int p2 = one.getMaxY();
+		int q1 = two.getMinY();
+		int q2 = two.getMaxY();
+		std::cout << std::endl;
+		std::cout << p1 << ", " << p2 << std::endl;
+		std::cout << q1 << ", " << q2 << std::endl;
+		
+		// Check if the two walls overlap
+		// Do nothing if the walls do not overlap
+		if (p2 <= q1 || p1 >= q2) return false;
+		
+		// Compute the overlapping segment
+		//   We know that there is overlap, so
+		//   p1 and q1 are both smaller than p2 and q2.
+		//   Hence the overlapping segment is from
+		//   max(p1, q1) to min(p2, q2).
+		int start = std::max(p1, q1);
+		int end = std::min(p2, q2);
+		*toMerge = std::make_pair(start, end);
+		std::cout << "overlap" << std::endl;
+		return true;
+	}
+	
+	// Check if both walls are horizontal
+	if (!o1 && !o2 && one.getMinY() == two.getMinY()) {
+		// Get the start and end points of both walls
+		int p1 = one.getMinX();
+		int p2 = one.getMaxX();
+		int q1 = two.getMinX();
+		int q2 = two.getMaxX();
+		
+		// Check if the two walls overlap
+		// Do nothing if the walls do not overlap
+		if (p2 <= q1 || p1 >= q2) return false;
+		
+		// Compute the overlapping segment
+		//   We know that there is overlap, so
+		//   p1 and q1 are both smaller than p2 and q2.
+		//   Hence the overlapping segment is from
+		//   max(p1, q1) to min(p2, q2).
+		int start = std::max(p1, q1);
+		int end = std::min(p2, q2);
+		*toMerge = std::make_pair(start, end);
+		return true;
+	}
+	
+	/*// Get the end point coordinates of both walls
+	int p1x = one.getMinX();
+	int p1y = one.getMinY();
+	int p2x = one.getMaxX();
+	int p2y = one.getMaxY();
+	int p3x = two.getMinX();
+	int p3y = two.getMinY();
+	int p4x = two.getMaxX();
+	int p4y = two.getMaxY();
+	std::cout << p1x << ", " << p1y << " - " << p2x << ", " << p2y << std::endl;
+	std::cout << p3x << ", " << p3y << " - " << p4x << ", " << p4y << std::endl;
+	std::cout << std::endl;
 	
 	// Check if the walls are horizontal or vertical
 	if (one.getSide() == LEFT || one.getSide() == RIGHT) {
@@ -190,7 +259,7 @@ bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
 		
 		// There is no intersection
 		return false;
-	}
+	}*/
 }
 
 /**
@@ -266,4 +335,58 @@ QRgb Wall::gradient(QRgb color1, QRgb color2, double t) {
 		(1-t) * g1 + t * g2,
 		(1-t) * b1 + t * b2
 	);
+}
+
+int Wall::getMinX() { return std::min(p1->getObject().x(), p2->getObject().x()); }
+int Wall::getMaxX() { return std::max(p1->getObject().x(), p2->getObject().x()); }
+int Wall::getMinY() { return std::min(p1->getObject().y(), p2->getObject().y()); }
+int Wall::getMaxY() { return std::max(p1->getObject().y(), p2->getObject().y()); }
+
+// TODO
+void Wall::setMinX(int x) {
+	if (p1->getObject().x() < p2->getObject().x()) {
+		QPoint object = p1->getObject();
+		object.setX(x);
+		p1->setObject(object);
+	} else {
+		QPoint object = p2->getObject();
+		object.setX(x);
+		p2->setObject(object);
+	}
+}
+
+void Wall::setMaxX(int x) {
+	if (p1->getObject().x() > p2->getObject().x()) {
+		QPoint object = p1->getObject();
+		object.setX(x);
+		p1->setObject(object);
+	} else {
+		QPoint object = p2->getObject();
+		object.setX(x);
+		p2->setObject(object);
+	}
+}
+
+void Wall::setMinY(int y) {
+	if (p1->getObject().y() < p2->getObject().y()) {
+		QPoint object = p1->getObject();
+		object.setY(y);
+		p1->setObject(object);
+	} else {
+		QPoint object = p2->getObject();
+		object.setY(y);
+		p2->setObject(object);
+	}
+}
+
+void Wall::setMaxY(int y) {
+	if (p1->getObject().y() > p2->getObject().y()) {
+		QPoint object = p1->getObject();
+		object.setY(y);
+		p1->setObject(object);
+	} else {
+		QPoint object = p2->getObject();
+		object.setY(y);
+		p2->setObject(object);
+	}
 }

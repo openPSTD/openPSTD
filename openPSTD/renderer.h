@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include "model.h"
-#include "eventhandler.h"
+#include "eventhandler/eventhandler.h"
 #include "settings.h"
 #include "modelmanager.h"
 #include "grid.h"
@@ -23,8 +23,6 @@ public:
 	// Constructor, destructor
 	Renderer(
 		QGraphicsScene* scene,
-		Model* model,
-		ModelManager* modelmanager,
 		QWidget* parent,
 		QAction* changeabsorption,
 		Simulator* simulator
@@ -41,7 +39,7 @@ public:
 
 	// Set methods for private variables
 	inline void setState(State state) {
-		model->state = state;
+		ModelManager::getInstance()->getCurrent()->state = state;
 		if (state != MEASURE) eh->removeMeasure();
 	}
 	void setDimensions(int width, int height);
@@ -52,8 +50,6 @@ public:
 private:
 	// Class instance variables
 	QGraphicsScene* scene;
-	Model* model;
-	ModelManager* modelmanager;
 	
 	// State variables
 	int width;
@@ -72,7 +68,9 @@ private:
 	void drawAxes();
 	void drawText(std::string text, int x, int y, int size, QRgb color);
 public slots:
-	void setGridSize(int gridsize) { model->gridsize = gridsize; }
+	void setGridSize(int gridsize) {
+		ModelManager::getInstance()->getCurrent()->gridsize = gridsize;
+	}
 };
 
 #endif

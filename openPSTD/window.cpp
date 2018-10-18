@@ -9,6 +9,9 @@
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	// Setup basic UI
 	ui->setupUi(this);
+	ModelManager::getInstance()->getCurrent()->actionUndo = ui->actionUndo;
+	ModelManager::getInstance()->getCurrent()->actionRedo = ui->actionRedo;
+	ModelManager::getInstance()->getCurrent()->actionChangeAbsorption = ui->actionChangeAbsorption;
 	
 	// Add a spacer to the main toolbar
 	spacer = new QWidget();
@@ -21,8 +24,11 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	ui->horizontalLayout->addWidget(view);
 	
+	// Create a Simulator instance
+	simulator = new Simulator2(ui->statusBar);
+	
 	// Set initial model variables
-	view->model->showFPS = ui->actionFPS_counter->isChecked();
+	ModelManager::getInstance()->getCurrent()->showFPS = ui->actionFPS_counter->isChecked();
 	
 	// Add a label for the zoom level spinbox
 	lZoom = new QLabel();
@@ -35,7 +41,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	slZoom->setMaximum(100);
 	slZoom->setValue(5);
 	slZoom->setFixedWidth(100);
-	view->model->zoom = 5;
+	ModelManager::getInstance()->getCurrent()->zoom = 5;
 	ui->mainToolBar->addWidget(slZoom);
 	connect(slZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
 	
@@ -64,9 +70,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	lGridSize2 = new QLabel();
 	lGridSize2->setText("(m)");
 	ui->mainToolBar->addWidget(lGridSize2);
-	
-	// Set initial scene offset
-	view->model->state = SELECT;
 	
 	// Center main window on screen
 	QDesktopWidget* desktop = QApplication::desktop();
@@ -179,22 +182,23 @@ void Window::slot_exporttocsv() {
 	std::vector<Frame> frames = view->renderer->simulator->getFrames();
 	
 	// Loop through all receivers
-	for (unsigned int i = 0; i < view->model->receivers.size(); i++) {
+	Model* model = ModelManager::getInstance()->getCurrent();
+	for (unsigned int i = 0; i < model->receivers.size(); i++) {
 		// Get the position of this receiver
-		int x = view->model->receivers[i].getX();
-		int y = view->model->receivers[i].getY();
+		int x = model->receivers[i]->getX();
+		int y = model->receivers[i]->getY();
 		
 		// Open a file stream for this file
 		std::ofstream outfile(dir + "/receiver_" + std::to_string(x) + "_" + std::to_string(-y) + ".csv");
 		
 		// Compute which domain the receiver is in
 		unsigned int domainID;
-		for (unsigned int j = 0; j < view->model->domains.size(); j++) {
+		for (unsigned int j = 0; j < model->domains.size(); j++) {
 			// Get the position of this domain
-			int dx0 = view->model->domains[j].getX0();
-			int dx1 = view->model->domains[j].getX1();
-			int dy0 = view->model->domains[j].getY0();
-			int dy1 = view->model->domains[j].getY1();
+			int dx0 = model->domains[j]->getMinX();
+			int dx1 = model->domains[j]->getMaxX();
+			int dy0 = model->domains[j]->getMinY();
+			int dy1 = model->domains[j]->getMaxY();
 			
 			// Check if the receiver is inside this domain
 			bool xm = dx0 <= x && x <= dx1;
@@ -206,16 +210,16 @@ void Window::slot_exporttocsv() {
 		}
 		
 		// Compute the position of the receiver in kernel coordinates
-		int px = view->model->receivers[i].getX() * view->model->zoom + view->model->offsetX;
-		int py = view->model->receivers[i].getY() * view->model->zoom + view->model->offsetY;
-		int x0 = view->model->domains[domainID].getX0();
-		int x1 = view->model->domains[domainID].getX1();
-		int y0 = view->model->domains[domainID].getY0();
-		int y1 = view->model->domains[domainID].getY1();
-		int minx = x0 * view->model->zoom + view->model->offsetX;
-		int maxx = x1 * view->model->zoom + view->model->offsetX;
-		int miny = y0 * view->model->zoom + view->model->offsetY;
-		int maxy = y1 * view->model->zoom + view->model->offsetY;
+		int px = model->receivers[i]->getX() * model->zoom + model->offsetX;
+		int py = model->receivers[i]->getY() * model->zoom + model->offsetY;
+		int x0 = model->domains[domainID]->getMinX();
+		int x1 = model->domains[domainID]->getMaxX();
+		int y0 = model->domains[domainID]->getMinY();
+		int y1 = model->domains[domainID]->getMaxY();
+		int minx = x0 * model->zoom + model->offsetX;
+		int maxx = x1 * model->zoom + model->offsetX;
+		int miny = y0 * model->zoom + model->offsetY;
+		int maxy = y1 * model->zoom + model->offsetY;
 		unsigned int fwidth = frames[0].getWidth(domainID);
 		unsigned int fheight = frames[0].getHeight(domainID);
 		int ix = (px - minx) * static_cast<int>(fwidth-1) / (maxx - minx) + 1;
@@ -364,13 +368,15 @@ void Window::slot_soundspeed() {
  */
 void Window::slot_clearscene() {
 	// Delete all domains
-	view->model->domains.clear();
+	ModelManager::getInstance()->saveState();
+	Model* model = ModelManager::getInstance()->getCurrent();
+	model->domains.clear();
 	
 	// Delete all sources
-	view->model->sources.clear();
+	model->sources.clear();
 	
 	// Delete all receivers
-	view->model->receivers.clear();
+	model->receivers.clear();
 	
 	// Clear the selected objects vector
 	view->renderer->eh->clearSelection();
@@ -390,7 +396,7 @@ void Window::slot_deleteselected() {
  * Toggles the display of the on-screen FPS counter.
  */
 void Window::slot_fpscounter() {
-	view->model->showFPS = ui->actionFPS_counter->isChecked();
+	ModelManager::getInstance()->getCurrent()->showFPS = ui->actionFPS_counter->isChecked();
 }
 
 /**
@@ -398,5 +404,5 @@ void Window::slot_fpscounter() {
  * Toggles the display of the grid.
  */
 void Window::slot_grid() {
-	view->model->showGrid = ui->actionGrid->isChecked();
+	ModelManager::getInstance()->getCurrent()->showGrid = ui->actionGrid->isChecked();
 }

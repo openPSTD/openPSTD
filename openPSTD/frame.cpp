@@ -7,9 +7,10 @@
  * @param frameID  The ID of the frame being represented
  * @param numdomains  The number of domains in the frame
  */
-Frame::Frame(int frameID, unsigned int numdomains) {
+Frame::Frame(int frameID) {
 	// Loop through all domains
-	for (unsigned int i = 0; i < numdomains; i++) {
+	Model* model = ModelManager::getInstance()->getCurrent();
+	for (unsigned int i = 0; i < model->domains.size(); i++) {
 		// Compute the filename of the data file outputted by the kernel
 		std::stringstream ss;
 		ss << "testdata/cpp_" << frameID << "_domain_" << i << ".csv";

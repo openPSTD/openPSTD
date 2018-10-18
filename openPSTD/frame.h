@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include "modelmanager.h"
 
 /**
  * Represents a single domain inside a single frame.
@@ -30,8 +31,8 @@ public:
  */
 class Frame {
 public:
-	// Constructor, destructor
-	Frame(int frameID, unsigned int numdomains);
+	// Constructor
+	Frame(int frameID);
 	
 	// Get method for a sample
 	double getSample(unsigned int x, unsigned int y, unsigned int domainID);

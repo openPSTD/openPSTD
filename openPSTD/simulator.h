@@ -10,7 +10,7 @@
 #include <QImage>
 #include <QAction>
 #include <QStatusBar>
-#include "model.h"
+#include "modelmanager.h"
 #include "frame.h"
 #include <iostream>
 
@@ -18,7 +18,7 @@
 
 class Simulator {
 public:
-	Simulator(Model* model, QAction* showoutput, QStatusBar* statusbar);
+	Simulator(QAction* showoutput, QStatusBar* statusbar);
 	~Simulator();
 	
 	void start();
@@ -43,7 +43,6 @@ public:
 	
 	inline bool getCompleted() { return completed; }
 private:
-	Model* model;
 	QAction* showoutput;
 	QStatusBar* statusbar;
 	bool shown;

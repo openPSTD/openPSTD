@@ -3,12 +3,10 @@
 /**
  * Constructor.
  * 
- * @param model  A reference to the model
  * @param showoutput  A reference to the showoutput action
  */
-Simulator::Simulator(Model* model, QAction* showoutput, QStatusBar* statusbar) {
+Simulator::Simulator(QAction* showoutput, QStatusBar* statusbar) {
 	// Save reference to Model instance
-	this->model = model;
 	this->showoutput = showoutput;
 	this->statusbar = statusbar;
 	
@@ -201,6 +199,7 @@ void Simulator::draw(QImage* pixels) {
 	}
 	
 	// Draw the resulting pressure on the scene
+	Model* model = ModelManager::getInstance()->getCurrent();
 	for (unsigned int i = 0; i < model->domains.size(); i++) {
 		if (frames.size() == 0) {
 			pthread_mutex_unlock(&mutex); //mutex.unlock();
@@ -210,10 +209,10 @@ void Simulator::draw(QImage* pixels) {
 		unsigned int fheight = frames[0].getHeight(i);
 		
 		// Get the corner coordinates of this domain
-		int x0 = model->domains[i].getX0();
-		int x1 = model->domains[i].getX1();
-		int y0 = model->domains[i].getY0();
-		int y1 = model->domains[i].getY1();
+		int x0 = model->domains[i]->getMinX();
+		int x1 = model->domains[i]->getMaxX();
+		int y0 = model->domains[i]->getMinY();
+		int y1 = model->domains[i]->getMaxY();
 		
 		// Convert to screen coordinates
 		int minx = x0 * model->zoom + model->offsetX;
@@ -341,12 +340,12 @@ void Simulator::draw(QImage* pixels) {
 	
 	// Draw the samples of all frames
 	if (frames.size() > 0) {
-		int px = model->receivers[receiverID].getX() * model->zoom + model->offsetX;
-		int py = model->receivers[receiverID].getY() * model->zoom + model->offsetY;
-		int x0 = model->domains[receiverDID].getX0();
-		int x1 = model->domains[receiverDID].getX1();
-		int y0 = model->domains[receiverDID].getY0();
-		int y1 = model->domains[receiverDID].getY1();
+		int px = model->receivers[receiverID]->getX() * model->zoom + model->offsetX;
+		int py = model->receivers[receiverID]->getY() * model->zoom + model->offsetY;
+		int x0 = model->domains[receiverDID]->getMinX();
+		int x1 = model->domains[receiverDID]->getMaxX();
+		int y0 = model->domains[receiverDID]->getMinY();
+		int y1 = model->domains[receiverDID]->getMaxY();
 		int minx = x0 * model->zoom + model->offsetX;
 		int maxx = x1 * model->zoom + model->offsetX;
 		int miny = y0 * model->zoom + model->offsetY;
@@ -439,17 +438,18 @@ void Simulator::setReceiver(int i) {
 	receiverID = i;
 	
 	// Get the position of the receiver
+	Model* model = ModelManager::getInstance()->getCurrent();
 	if (i >= model->receivers.size()) return;
-	int rx = model->receivers[i].getX();
-	int ry = model->receivers[i].getY();
+	int rx = model->receivers[i]->getX();
+	int ry = model->receivers[i]->getY();
 	
 	// Loop through all domains
 	for (int j = 0; j < model->domains.size(); j++) {
 		// Get the position of this domain
-		int dx0 = model->domains[j].getX0();
-		int dx1 = model->domains[j].getX1();
-		int dy0 = model->domains[j].getY0();
-		int dy1 = model->domains[j].getY1();
+		int dx0 = model->domains[j]->getMinX();
+		int dx1 = model->domains[j]->getMaxX();
+		int dy0 = model->domains[j]->getMinY();
+		int dy1 = model->domains[j]->getMaxY();
 		
 		// Check if the receiver is inside this domain
 		bool x = dx0 <= rx && rx <= dx1;
@@ -497,7 +497,7 @@ void Simulator::runcmd(std::string cmd) {
 					
 					// Frame finished, load the new frame
 					pthread_mutex_lock(&mutex); //mutex.lock();
-					frames.push_back(Frame(frameID, model->domains.size()));
+					frames.push_back(Frame(frameID));
 					frameID++;
 					numcomputed++;
 					pthread_mutex_unlock(&mutex); //mutex.unlock();

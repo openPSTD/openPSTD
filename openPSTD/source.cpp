@@ -1,5 +1,8 @@
 #include "source.h"
 
+#include "modelmanager.h"
+#include "point.h"
+
 /**
  * Constructor.
  * 
@@ -7,13 +10,21 @@
  * @param y  The y coordinate of the source
  * @param settings  A reference to the Settings instance
  */
-Source::Source(int x, int y) {
+Source::Source(Point* p) {
 	// Save position locally
-	this->x = x;
-	this->y = y;
+	this->p = p;
 	
 	// Load the source image
 	image = QImage(":/new/prefix1/icons/source.png");
+	
+	// Initialize state variables
+	this->selected = false;
+}
+
+Source* Source::copy() {
+	Point* pp = new Point(p->getObject(), OBJECT);
+	Source* c = new Source(pp);
+	return c;
 }
 
 /**
@@ -25,13 +36,17 @@ Source::Source(int x, int y) {
  * @param offsetY  The current y offset of the scene (as in model)
  * @param selected  Whether or not the source is currently selected
  */
-void Source::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selected) {
+void Source::draw(QImage* pixels) {
+	int x = this->p->getScreen().x();
+	int y = this->p->getScreen().y();
+	
 	// Draw the source image
+	Model* model = ModelManager::getInstance()->getCurrent();
 	QPainter p;
 	p.begin(pixels);
 	p.drawImage(
-		zoom * x + offsetX - 5,
-		zoom * y + offsetY - 5,
+		x - 5,
+		y - 5,
 		image
 	);
 	p.end();
@@ -41,26 +56,26 @@ void Source::draw(QImage* pixels, int zoom, int offsetX, int offsetY, bool selec
 		// Draw a square around the source
 		for (int i = -5; i <= 5; i++) {
 			setPixel(
-				zoom * x + i + offsetX,
-				zoom * y + 5 + offsetY,
+				x + i,
+				y + 5,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				zoom * x + i + offsetX,
-				zoom * y - 5 + offsetY,
+				x + i,
+				y - 5,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				zoom * x + 5 + offsetX,
-				zoom * y + i + offsetY,
+				x + 5,
+				y + i,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				zoom * x - 5 + offsetX,
-				zoom * y + i + offsetY,
+				x - 5,
+				y + i,
 				qRgb(0, 255, 255),
 				pixels
 			);
@@ -80,4 +95,12 @@ void Source::setPixel(int x, int y, QRgb color, QImage* pixels) {
 	if (x < 0 || y < 0) return;
 	if (x >= pixels->width() || y >= pixels->height()) return;
 	pixels->setPixel(x, y, color);
+}
+
+int Source::getX() { return p->getObject().x(); }
+int Source::getY() { return p->getObject().y(); }
+
+void Source::moveSource(QPoint deltaObject) {
+	// Move p by deltaObject
+	p->setObject(p->getObject() + deltaObject);
 }

@@ -1,13 +1,15 @@
 #include "modelmanager.h"
 
-/**
- * Constructor.
- * 
- * @param current  A reference to the current model
- */
-ModelManager::ModelManager(Model* current) {
-	// Save reference variables locally
-	this->current = current;
+ModelManager* ModelManager::instance = nullptr;
+
+ModelManager* ModelManager::getInstance() {
+	if (!instance) instance = new ModelManager();
+	return instance;
+}
+
+ModelManager::ModelManager() {
+	current = new Model();
+	current->state = SELECT;
 }
 
 /**
@@ -40,20 +42,24 @@ void ModelManager::saveState() {
 		delete next[i];
 	}
 	next.clear();
+	
+	updateWindowActions();
 }
 
 /**
  * Undo the last operation.
  */
-void ModelManager::undo() {
+void ModelManager::undo(bool allowRedo) {
 	// Do nothing if there is no previous state
 	if (previous.size() == 0) return;
 	
-	// Create a copy of the current model
-	Model* copy = copyCurrent();
-	
-	// Add this copy to the end of the next vector
-	next.push_back(copy);
+	if (allowRedo) {
+		// Create a copy of the current model
+		Model* copy = copyCurrent();
+		
+		// Add this copy to the end of the next vector
+		next.push_back(copy);
+	}
 	
 	// Copy the previous model into the current model
 	unsigned long index = previous.size() - 1;
@@ -65,11 +71,13 @@ void ModelManager::undo() {
 	
 	// Reset and re-merge all domain's walls
 	for (unsigned int i = 0; i < current->domains.size(); i++) {
-		current->domains[i].resetWalls();
+		current->domains[i]->resetWalls();
 	}
 	for (unsigned int i = 0; i < current->domains.size(); i++) {
-		current->domains[i].mergeDomains(&current->domains, i);
+		current->domains[i]->mergeDomains(&current->domains, i);
 	}
+	
+	updateWindowActions();
 }
 
 /**
@@ -95,11 +103,13 @@ void ModelManager::redo() {
 	
 	// Reset and re-merge all domain's walls
 	for (unsigned int i = 0; i < current->domains.size(); i++) {
-		current->domains[i].resetWalls();
+		current->domains[i]->resetWalls();
 	}
 	for (unsigned int i = 0; i < current->domains.size(); i++) {
-		current->domains[i].mergeDomains(&current->domains, i);
+		current->domains[i]->mergeDomains(&current->domains, i);
 	}
+	
+	updateWindowActions();
 }
 
 /**
@@ -114,18 +124,20 @@ Model* ModelManager::copyCurrent() {
 	// Copy all state variables from the current model
 	copy->state = current->state;
 	for (unsigned int i = 0; i < current->domains.size(); i++) {
-		copy->domains.push_back(Domain(
-			current->domains[i].getX0(),
-			current->domains[i].getY0(),
-			current->domains[i].getX1(),
-			current->domains[i].getY1()
-		));
+		copy->domains.push_back(current->domains[i]->copy());
 	}
-	copy->sources = current->sources;
-	copy->receivers = current->receivers;
+	for (unsigned int i = 0; i < current->sources.size(); i++) {
+		copy->sources.push_back(current->sources[i]->copy());
+	}
+	for (unsigned int i = 0; i < current->receivers.size(); i++) {
+		copy->receivers.push_back(current->receivers[i]->copy());
+	}
 	copy->gridsize = current->gridsize;
 	copy->zoom = current->zoom;
 	copy->showFPS = current->showFPS;
+	copy->actionUndo = current->actionUndo;
+	copy->actionRedo = current->actionRedo;
+	copy->actionChangeAbsorption = current->actionChangeAbsorption;
 	
 	// Return the copy
 	return copy;
@@ -141,16 +153,28 @@ void ModelManager::saveCurrent(Model* model) {
 	current->state = model->state;
 	current->domains.clear();
 	for (unsigned int i = 0; i < model->domains.size(); i++) {
-		current->domains.push_back(Domain(
-			model->domains[i].getX0(),
-			model->domains[i].getY0(),
-			model->domains[i].getX1(),
-			model->domains[i].getY1()
-		));
+		current->domains.push_back(model->domains[i]->copy());
 	}
-	current->sources = model->sources;
-	current->receivers = model->receivers;
+	current->sources.clear();
+	for (unsigned int i = 0; i < model->sources.size(); i++) {
+		current->sources.push_back(model->sources[i]->copy());
+	}
+	current->receivers.clear();
+	for (unsigned int i = 0; i < model->receivers.size(); i++) {
+		current->receivers.push_back(model->receivers[i]->copy());
+	}
 	current->gridsize = model->gridsize;
 	current->zoom = model->zoom;
 	current->showFPS = model->showFPS;
+	current->actionUndo = model->actionUndo;
+	current->actionRedo = model->actionRedo;
+	current->actionChangeAbsorption = model->actionChangeAbsorption;
+}
+
+void ModelManager::updateWindowActions() {
+	bool hasPrev = previous.size() > 0;
+	bool hasNext = next.size() > 0;
+	
+	current->actionUndo->setEnabled(hasPrev);
+	current->actionRedo->setEnabled(hasNext);
 }

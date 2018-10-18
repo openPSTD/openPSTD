@@ -2,6 +2,7 @@
 #define COORDINATEDIALOG_H
 
 #include <QDialog>
+#include <QPoint>
 #include "model.h"
 #include "settings.h"
 
@@ -14,16 +15,16 @@ class CoordinateDialog : public QDialog {
 public:
 	explicit CoordinateDialog(
 		QWidget* parent = nullptr,
-		Model* model = nullptr,
 		bool isSource = true
 	);
 	~CoordinateDialog();
 	inline bool getSaved() { return saved; }
+	QPoint getCoords();
 private:
 	Ui::CoordinateDialog* ui;
-	Model* model;
 	bool isSource;
 	bool saved;
+	QPoint coords;
 private slots:
 	void slot_cancel();
 	void slot_save();

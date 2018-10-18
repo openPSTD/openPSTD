@@ -3,11 +3,9 @@
 
 CoordinateDialog::CoordinateDialog(
 	QWidget* parent,
-	Model* model,
 	bool isSource
 ) : QDialog(parent), ui(new Ui::CoordinateDialog) {
-	// Save reference to model
-	this->model = model;
+	// Save reference to model (TODO)
 	this->isSource = isSource;
 
 	// Setup the base UI
@@ -32,6 +30,10 @@ CoordinateDialog::~CoordinateDialog() {
 	delete ui;
 }
 
+QPoint CoordinateDialog::getCoords() {
+	return coords;
+}
+
 void CoordinateDialog::slot_cancel() {
 	// Close the window without saving
 	saved = false;
@@ -39,21 +41,11 @@ void CoordinateDialog::slot_cancel() {
 }
 
 void CoordinateDialog::slot_save() {
-	if (isSource) {
-		// Add a new source to the model
-		model->sources.push_back(Source(
-			ui->sbX->value(),
-			-ui->sbY->value()
-		));
-	} else {
-		// Add a new receiver to the model
-		model->receivers.push_back(Receiver(
-			ui->sbX->value(),
-			-ui->sbY->value()
-		));
-	}
-
 	// Close the window
+	coords = QPoint(
+		ui->sbX->value(),
+		ui->sbY->value()
+	);
 	saved = true;
 	close();
 }

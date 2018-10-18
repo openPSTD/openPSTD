@@ -17,6 +17,7 @@
 #include "graphicsview.h"
 #include "ui_window.h"
 #include "coordinatedialog.h"
+#include "simulator2.h"
 
 namespace Ui {
 class Window;
@@ -40,6 +41,7 @@ private:
 	QLabel* lGridSize2;
 	QLabel* lZoom;
 	QActionGroup* qagMainToolbar;
+	Simulator2* simulator;
 	
 	// Creates a QPixmap of a single given color
 	inline QPixmap color2pixmap(QRgb color) {
@@ -47,11 +49,10 @@ private:
 		result.fill(color);
 		return result;
 	}
-
 public slots:
 	// Toolbar button slots
 	inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
-	inline void slot_zoom(int zoom) { view->model->zoom = zoom; }
+	inline void slot_zoom(int zoom) { ModelManager::getInstance()->getCurrent()->zoom = zoom; }
 	
 	// File menu slots
 	void slot_exporttocsv();
@@ -82,33 +83,22 @@ public slots:
 	inline void slot_select() { view->renderer->setState(SELECT); }
 	inline void slot_move() { view->renderer->setState(MOVE); }
 	inline void slot_adddomain() { view->renderer->setState(ADDDOMAIN); }
-	inline void slot_addsource() {
-		view->saveState();
-		CoordinateDialog* cd = new CoordinateDialog(this, view->model, true);
-		cd->exec();
-		if (!cd->getSaved()) view->undo();
-		delete cd;
-	}
-	inline void slot_addreceiver() {
-		view->saveState();
-		CoordinateDialog* cd = new CoordinateDialog(this, view->model, false);
-		cd->exec();
-		if (!cd->getSaved()) view->undo();
-		delete cd;
-	}
+	inline void slot_addsource() { view->renderer->eh->addSource(); }
+	inline void slot_addreceiver() { view->renderer->eh->addReceiver(); }
 	inline void slot_measure() { view->renderer->setState(MEASURE); }
-	inline void slot_undo() { view->undo(); }
-	inline void slot_redo() { view->redo(); }
-	inline void slot_movetocenter() { view->renderer->eh->moveToCenter(); }
-	inline void slot_changeabsorption() { view->renderer->eh->changeabsorptiondialog(); }
+	inline void slot_undo() { ModelManager::getInstance()->undo(); }
+	inline void slot_redo() { ModelManager::getInstance()->redo(); }
+	inline void slot_movetocenter() { /*view->renderer->eh->moveToCenter();*/ }
+	inline void slot_changeabsorption() { view->renderer->eh->changeAbsorption(); }
 	inline void slot_start() {
-		view->simulator->start();
-		view->renderer->eh->moveToCenter();
+		simulator->start();
+		/*view->simulator->start();
+		//view->renderer->eh->moveToCenter();
 		view->renderer->eh->selectReceiver(0);
 		ui->actionSelect_Domain->setChecked(true);
-		view->model->state = SELECTDOMAIN;
+		ModelManager::getInstance()->getCurrent()->state = SELECTDOMAIN;*/
 	}
-	inline void slot_stop() { view->simulator->stop(); }
+	inline void slot_stop() { simulator->stop(); }
 };
 
 #endif

@@ -4,10 +4,10 @@
  <widget class="QMainWindow" name="Window">
   <property name="geometry">
    <rect>
-	<x>0</x>
-	<y>0</y>
-	<width>1024</width>
-	<height>768</height>
+    <x>0</x>
+    <y>0</y>
+    <width>1024</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,108 +15,108 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-	<normaloff>:/new/prefix1/icons/logo.png</normaloff>:/new/prefix1/icons/logo.png</iconset>
+    <normaloff>:/new/prefix1/icons/logo.png</normaloff>:/new/prefix1/icons/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="enabled">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="sizePolicy">
-	<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-	 <horstretch>0</horstretch>
-	 <verstretch>0</verstretch>
-	</sizepolicy>
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
-	<property name="leftMargin">
-	 <number>0</number>
-	</property>
-	<property name="topMargin">
-	 <number>0</number>
-	</property>
-	<property name="rightMargin">
-	 <number>0</number>
-	</property>
-	<property name="bottomMargin">
-	 <number>0</number>
-	</property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
-	<rect>
-	 <x>0</x>
-	 <y>0</y>
-	 <width>1024</width>
-	 <height>20</height>
-	</rect>
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>19</height>
+    </rect>
    </property>
    <widget class="QMenu" name="menuOpenPSTD">
-	<property name="title">
-	 <string>File</string>
-	</property>
-	<addaction name="actionExport_to_CSV"/>
-	<addaction name="actionClose"/>
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExport_to_CSV"/>
+    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
-	<property name="title">
-	 <string>Edit</string>
-	</property>
+    <property name="title">
+     <string>Edit</string>
+    </property>
    </widget>
    <widget class="QMenu" name="menuModule">
-	<property name="title">
-	 <string>Module</string>
-	</property>
+    <property name="title">
+     <string>Module</string>
+    </property>
    </widget>
    <widget class="QMenu" name="menuSettings">
-	<property name="title">
-	 <string>Settings</string>
-	</property>
-	<addaction name="actionClamp_distance"/>
-	<addaction name="actionGUI_grid_size"/>
-	<addaction name="separator"/>
-	<addaction name="actionPSTD_grid_size"/>
-	<addaction name="actionWindow_size"/>
-	<addaction name="actionRender_time"/>
-	<addaction name="actionPML_Cells"/>
-	<addaction name="actionAttenuation_of_PML_cells"/>
-	<addaction name="actionAir_density"/>
-	<addaction name="actionSound_speed"/>
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionClamp_distance"/>
+    <addaction name="actionGUI_grid_size"/>
+    <addaction name="separator"/>
+    <addaction name="actionPSTD_grid_size"/>
+    <addaction name="actionWindow_size"/>
+    <addaction name="actionRender_time"/>
+    <addaction name="actionPML_Cells"/>
+    <addaction name="actionAttenuation_of_PML_cells"/>
+    <addaction name="actionAir_density"/>
+    <addaction name="actionSound_speed"/>
    </widget>
    <widget class="QMenu" name="menuScene">
-	<property name="title">
-	 <string>Scene</string>
-	</property>
-	<addaction name="actionClear_all"/>
-	<addaction name="actionDelete_selected"/>
+    <property name="title">
+     <string>Scene</string>
+    </property>
+    <addaction name="actionClear_all"/>
+    <addaction name="actionDelete_selected"/>
    </widget>
    <widget class="QMenu" name="menuView">
-	<property name="title">
-	 <string>View</string>
-	</property>
-	<addaction name="actionFPS_counter"/>
-	<addaction name="actionGrid"/>
-	<addaction name="actionShow_Output"/>
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionFPS_counter"/>
+    <addaction name="actionGrid"/>
+    <addaction name="actionShow_Output"/>
    </widget>
    <widget class="QMenu" name="menuOperate">
-	<property name="title">
-	 <string>Operate</string>
-	</property>
-	<addaction name="actionSelect_Domain"/>
-	<addaction name="actionSelect"/>
-	<addaction name="actionMoveScene"/>
-	<addaction name="actionAddDomain"/>
-	<addaction name="actionAddSource"/>
-	<addaction name="actionAddReceiver"/>
-	<addaction name="actionMeasure"/>
-	<addaction name="separator"/>
-	<addaction name="actionstop"/>
-	<addaction name="actionstart"/>
-	<addaction name="separator"/>
-	<addaction name="actionUndo"/>
-	<addaction name="actionRedo"/>
-	<addaction name="actionMoveToCenter"/>
-	<addaction name="actionChangeAbsorption"/>
+    <property name="title">
+     <string>Operate</string>
+    </property>
+    <addaction name="actionSelect_Domain"/>
+    <addaction name="actionSelect"/>
+    <addaction name="actionMoveScene"/>
+    <addaction name="actionAddDomain"/>
+    <addaction name="actionAddSource"/>
+    <addaction name="actionAddReceiver"/>
+    <addaction name="actionMeasure"/>
+    <addaction name="separator"/>
+    <addaction name="actionstop"/>
+    <addaction name="actionstart"/>
+    <addaction name="separator"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="actionMoveToCenter"/>
+    <addaction name="actionChangeAbsorption"/>
    </widget>
    <addaction name="menuOpenPSTD"/>
    <addaction name="menuEdit"/>
@@ -128,13 +128,13 @@
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="movable">
-	<bool>false</bool>
+    <bool>false</bool>
    </property>
    <attribute name="toolBarArea">
-	<enum>TopToolBarArea</enum>
+    <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-	<bool>false</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionSelect_Domain"/>
    <addaction name="actionSelect"/>
@@ -155,275 +155,284 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSelect">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="checked">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/select.png</normaloff>:/new/prefix1/icons/select.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/select.png</normaloff>:/new/prefix1/icons/select.png</iconset>
    </property>
    <property name="text">
-	<string>Select</string>
+    <string>Select</string>
    </property>
    <property name="toolTip">
-	<string>Select</string>
+    <string>Select</string>
    </property>
    <property name="shortcut">
-	<string>S</string>
+    <string>S</string>
    </property>
   </action>
   <action name="actionMoveScene">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/move.png</normaloff>:/new/prefix1/icons/move.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/move.png</normaloff>:/new/prefix1/icons/move.png</iconset>
    </property>
    <property name="text">
-	<string>MoveScene</string>
+    <string>MoveScene</string>
    </property>
    <property name="toolTip">
-	<string>Move Scene</string>
+    <string>Move Scene</string>
    </property>
    <property name="shortcut">
-	<string>M</string>
+    <string>M</string>
    </property>
   </action>
   <action name="actionAddDomain">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/adddomain.png</normaloff>:/new/prefix1/icons/adddomain.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/adddomain.png</normaloff>:/new/prefix1/icons/adddomain.png</iconset>
    </property>
    <property name="text">
-	<string>AddDomain</string>
+    <string>AddDomain</string>
    </property>
    <property name="toolTip">
-	<string>Add Domain</string>
+    <string>Add Domain</string>
    </property>
    <property name="shortcut">
-	<string>D</string>
+    <string>D</string>
    </property>
   </action>
   <action name="actionAddSource">
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/source_icon.png</normaloff>:/new/prefix1/icons/source_icon.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/source_icon.png</normaloff>:/new/prefix1/icons/source_icon.png</iconset>
    </property>
    <property name="text">
-	<string>AddSource</string>
+    <string>AddSource</string>
    </property>
    <property name="toolTip">
-	<string>Add Source</string>
+    <string>Add Source</string>
    </property>
    <property name="shortcut">
-	<string>S</string>
+    <string>S</string>
    </property>
   </action>
   <action name="actionAddReceiver">
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/receiver_icon.png</normaloff>:/new/prefix1/icons/receiver_icon.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/receiver_icon.png</normaloff>:/new/prefix1/icons/receiver_icon.png</iconset>
    </property>
    <property name="text">
-	<string>AddReceiver</string>
+    <string>AddReceiver</string>
    </property>
    <property name="toolTip">
-	<string>Add Receiver</string>
+    <string>Add Receiver</string>
    </property>
    <property name="shortcut">
-	<string>R</string>
+    <string>R</string>
    </property>
   </action>
   <action name="actionClose">
    <property name="text">
-	<string>Close</string>
+    <string>Close</string>
    </property>
   </action>
   <action name="actionstop">
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/stop.png</normaloff>:/new/prefix1/icons/stop.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/stop.png</normaloff>:/new/prefix1/icons/stop.png</iconset>
    </property>
    <property name="text">
-	<string>stop</string>
+    <string>stop</string>
    </property>
    <property name="toolTip">
-	<string>Stop Simulation</string>
+    <string>Stop Simulation</string>
    </property>
   </action>
   <action name="actionstart">
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/start.png</normaloff>:/new/prefix1/icons/start.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/start.png</normaloff>:/new/prefix1/icons/start.png</iconset>
    </property>
    <property name="text">
-	<string>start</string>
+    <string>start</string>
    </property>
    <property name="toolTip">
-	<string>Start Simulation</string>
+    <string>Start Simulation</string>
    </property>
   </action>
   <action name="actionFPS_counter">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="checked">
-	<bool>false</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
-	<string>FPS counter</string>
+    <string>FPS counter</string>
    </property>
   </action>
   <action name="actionClamp_distance">
    <property name="text">
-	<string>Clamp distance</string>
+    <string>Clamp distance</string>
    </property>
   </action>
   <action name="actionClear_all">
    <property name="text">
-	<string>Clear all</string>
+    <string>Clear all</string>
    </property>
   </action>
   <action name="actionUndo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/undo.png</normaloff>:/new/prefix1/icons/undo.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/undo.png</normaloff>:/new/prefix1/icons/undo.png</iconset>
    </property>
    <property name="text">
-	<string>Undo</string>
+    <string>Undo</string>
    </property>
    <property name="toolTip">
-	<string>Undo the last operation</string>
+    <string>Undo the last operation</string>
    </property>
   </action>
   <action name="actionRedo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/redo.png</normaloff>:/new/prefix1/icons/redo.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/redo.png</normaloff>:/new/prefix1/icons/redo.png</iconset>
    </property>
    <property name="text">
-	<string>Redo</string>
+    <string>Redo</string>
    </property>
    <property name="toolTip">
-	<string>Redo the last operation</string>
+    <string>Redo the last operation</string>
    </property>
   </action>
   <action name="actionDelete_selected">
    <property name="text">
-	<string>Delete selected</string>
+    <string>Delete selected</string>
    </property>
   </action>
   <action name="actionGrid">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="checked">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-	<string>Grid</string>
+    <string>Grid</string>
    </property>
   </action>
   <action name="actionMeasure">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/measure.png</normaloff>:/new/prefix1/icons/measure.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/measure.png</normaloff>:/new/prefix1/icons/measure.png</iconset>
    </property>
    <property name="text">
-	<string>Measure</string>
+    <string>Measure</string>
    </property>
   </action>
   <action name="actionGUI_grid_size">
    <property name="text">
-	<string>GUI grid size</string>
+    <string>GUI grid size</string>
    </property>
   </action>
   <action name="actionMoveToCenter">
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/movetocenter.png</normaloff>:/new/prefix1/icons/movetocenter.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/movetocenter.png</normaloff>:/new/prefix1/icons/movetocenter.png</iconset>
    </property>
    <property name="text">
-	<string>MoveToCenter</string>
+    <string>MoveToCenter</string>
    </property>
   </action>
   <action name="actionChangeAbsorption">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/changeabsorption.png</normaloff>
-	 <disabledoff>:/new/prefix1/icons/changeabsorption_disabled.png</disabledoff>:/new/prefix1/icons/changeabsorption.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/changeabsorption.png</normaloff>
+     <disabledoff>:/new/prefix1/icons/changeabsorption_disabled.png</disabledoff>:/new/prefix1/icons/changeabsorption.png</iconset>
    </property>
    <property name="text">
-	<string>ChangeAbsorption</string>
+    <string>ChangeAbsorption</string>
    </property>
   </action>
   <action name="actionSelect_Domain">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
-	<iconset resource="resources.qrc">
-	 <normaloff>:/new/prefix1/icons/selectdomain.png</normaloff>:/new/prefix1/icons/selectdomain.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/selectdomain.png</normaloff>:/new/prefix1/icons/selectdomain.png</iconset>
    </property>
    <property name="text">
-	<string>Select Domain</string>
+    <string>Select Domain</string>
    </property>
   </action>
   <action name="actionShow_Output">
    <property name="checkable">
-	<bool>true</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-	<string>Show Output</string>
+    <string>Show Output</string>
    </property>
   </action>
   <action name="actionPSTD_grid_size">
    <property name="text">
-	<string>PSTD grid size</string>
+    <string>PSTD grid size</string>
    </property>
   </action>
   <action name="actionWindow_size">
    <property name="text">
-	<string>Window size</string>
+    <string>Window size</string>
    </property>
   </action>
   <action name="actionRender_time">
    <property name="text">
-	<string>Render time</string>
+    <string>Render time</string>
    </property>
   </action>
   <action name="actionAir_density">
    <property name="text">
-	<string>Air density</string>
+    <string>Air density</string>
    </property>
   </action>
   <action name="actionSound_speed">
    <property name="text">
-	<string>Sound speed</string>
+    <string>Sound speed</string>
    </property>
   </action>
   <action name="actionExport_to_CSV">
    <property name="text">
-	<string>Export to CSV</string>
+    <string>Export to CSV</string>
    </property>
   </action>
   <action name="actionPML_Cells">
    <property name="text">
-	<string>PML Cells</string>
+    <string>PML Cells</string>
    </property>
   </action>
   <action name="actionAttenuation_of_PML_cells">
    <property name="text">
-	<string>Attenuation of PML cells</string>
+    <string>Attenuation of PML cells</string>
    </property>
   </action>
  </widget>

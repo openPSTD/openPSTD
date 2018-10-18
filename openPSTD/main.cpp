@@ -1,6 +1,6 @@
 #include <QApplication>
 #include "window.h"
-#include "test/testmaintoolbar.h"
+/*#include "test/testmaintoolbar.h"
 #include "test/testmenuscene.h"
 #include "test/testmenuview.h"
 #include "test/testmodel.h"
@@ -8,7 +8,7 @@
 #include "test/testaddsource.h"
 #include "test/testaddreceiver.h"
 #include "test/testundoredo.h"
-#include "test/testrobustness.h"
+#include "test/testrobustness.h"*/
 
 int main(int argc, char** argv) {
 	// Create QApplication and Window instances
@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 	QApplication a(argcm, argv);
 	Window window;
 	
-	// Check if "test" argument is provided
+	/*// Check if "test" argument is provided
 	if (argc == 2 && strcmp(argv[1], "test") == 0) {
 		// Execute test cases
 		int status = 0;
@@ -54,9 +54,9 @@ int main(int argc, char** argv) {
 			res = TestRobustness::test(std::atoi(argv[2]), &window);
 		}
 		return res;
-	} else {
+	} else {*/
 		// Run the regular application
 		window.show();
 		return a.exec();
-	}
+	//}
 }

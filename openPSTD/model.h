@@ -3,11 +3,13 @@
 
 #include <vector>
 #include <math.h>
+#include <QAction>
 #include "state.h"
-#include "domain.h"
 #include "source.h"
 #include "receiver.h"
 #include "settings.h"
+
+class Domain;
 
 /**
  * Representation of the current scene.
@@ -15,20 +17,23 @@
 class Model {
 public:
 	// Constructor
-	Model() {}
+	Model() {
+		offsetX = 0;
+		offsetY = 0;
+	}
 	
 	// State of the main tool bar buttons
 	State state;
 	
 	// Vector of all domains
-	std::vector<Domain> domains;
-	Domain* lastDomain() { return &domains[domains.size() - 1]; }
+	std::vector<Domain*> domains;
+	Domain* lastDomain() { return domains[domains.size() - 1]; }
 	
 	// Vector of all sources
-	std::vector<Source> sources;
+	std::vector<Source*> sources;
 	
 	// Vector of all receivers
-	std::vector<Receiver> receivers;
+	std::vector<Receiver*> receivers;
 	
 	// Size of the background grid
 	int gridsize; // Multiple of PSTD grid size
@@ -45,6 +50,11 @@ public:
 	
 	// Grid
 	bool showGrid = true;
+	
+	QAction* actionUndo;
+	QAction* actionRedo;
+	QAction* actionChangeAbsorption;
+	bool simulating = false;
 };
 
 #endif

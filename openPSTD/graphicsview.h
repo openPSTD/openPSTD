@@ -28,12 +28,7 @@ public:
 	);
 	~GraphicsView();
 	
-	inline void saveState() { modelmanager->saveState(); }
-	inline void undo() { modelmanager->undo(); }
-	inline void redo() { modelmanager->redo(); }
-	
 	Renderer* renderer;
-	Model* model;
 	Simulator* simulator;
 protected:
 	void paintEvent(QPaintEvent* event);
@@ -46,8 +41,9 @@ public slots:
 	void keyPressEvent(QKeyEvent* event);
 private:
 	QGraphicsScene* scene;
-	ModelManager* modelmanager;
 	QSlider* slZoom;
+	
+	void printModel();
 };
 
 #endif
