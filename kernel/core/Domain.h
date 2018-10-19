@@ -187,6 +187,7 @@ namespace OpenPSTD {
         public:
 
             /**
+             *
              * Default constructor
              * @param settings: pointer to PSTDFile settings
              * @param id integer identifier for this domain

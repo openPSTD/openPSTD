@@ -60,7 +60,7 @@ namespace OpenPSTD {
                                        map<Direction, EdgeParameters> edge_param_map,
                                        const shared_ptr<Domain> pml_for_domain) {
             this->settings = settings;
-
+            this->top_left = top_left;
             this->size = size; // Remember PML domains have a fixed size.
             this->bottom_right = top_left + size;
 
@@ -785,7 +785,7 @@ namespace OpenPSTD {
 
 
             for (unsigned long dim = 0; dim < location.size(); dim++) {
-              //  std::cout<<top_left.array.at(dim);
+               std::cout<<top_left.array.at(dim);
                 std::cin.get();
                 if (top_left.array.at(dim) > location.at(dim) or
                     location.at(dim) > bottom_right.array.at(dim)) {
