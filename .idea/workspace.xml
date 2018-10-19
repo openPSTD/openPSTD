@@ -24,8 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="eae46ac3-f9eb-47fe-8607-8c76d21048fe" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Domain.cpp" afterPath="$PROJECT_DIR$/kernel/core/Domain.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Domain.h" afterPath="$PROJECT_DIR$/kernel/core/Domain.h" />
     </list>
     <ignored path="openPSTD.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -705,7 +703,7 @@
       <workItem from="1536062581555" duration="17818000" />
       <workItem from="1536170097509" duration="22438000" />
       <workItem from="1536577867076" duration="21043000" />
-      <workItem from="1539935541890" duration="8240000" />
+      <workItem from="1539935541890" duration="8250000" />
     </task>
     <task id="LOCAL-00001" summary="Updated kernel">
       <created>1524140105286</created>
@@ -756,11 +754,18 @@
       <option name="project" value="LOCAL" />
       <updated>1536774921777</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Updated kernel">
+      <created>1539951173368</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1539951173368</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1861024000" />
+    <option name="totallyTimeSpent" value="1861034000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
