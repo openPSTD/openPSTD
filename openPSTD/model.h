@@ -51,10 +51,33 @@ public:
 	// Grid
 	bool showGrid = true;
 	
+	// PSTD settings
+	double gridspacing = 0.2;
+	int windowsize = 32;
+	double rendertime = 1;
+	double airdensity = 1.2;
+	int soundspeed = 340;
+	int pmlcells = 50;
+	int attenuationpmlcells = 20000;
+	
+	// Simulator state
+	bool simulating = false;
+	unsigned int simulatorHeight = 0; // 0 if hidden, height otherwise
+	
+	// Window actions
+	QAction* actionSelect_Domain;
+	QAction* actionSelect;
+	QAction* actionMoveScene;
+	QAction* actionAddDomain;
+	QAction* actionAddSource;
+	QAction* actionAddReceiver;
+	QAction* actionMeasure;
 	QAction* actionUndo;
 	QAction* actionRedo;
+	QAction* actionMoveToCenter;
 	QAction* actionChangeAbsorption;
-	bool simulating = false;
+	QAction* actionShow_Output;
+	QAction* actionShowSidebar;
 };
 
 #endif

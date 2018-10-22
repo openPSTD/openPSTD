@@ -97,6 +97,7 @@
     <addaction name="actionFPS_counter"/>
     <addaction name="actionGrid"/>
     <addaction name="actionShow_Output"/>
+    <addaction name="actionSettings_Sidebar"/>
    </widget>
    <widget class="QMenu" name="menuOperate">
     <property name="title">
@@ -151,6 +152,8 @@
    <addaction name="actionRedo"/>
    <addaction name="actionMoveToCenter"/>
    <addaction name="actionChangeAbsorption"/>
+   <addaction name="separator"/>
+   <addaction name="actionSettings_Sidebar"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSelect">
@@ -433,6 +436,18 @@
   <action name="actionAttenuation_of_PML_cells">
    <property name="text">
     <string>Attenuation of PML cells</string>
+   </property>
+  </action>
+  <action name="actionSettings_Sidebar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/settings.png</normaloff>:/new/prefix1/icons/settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings Sidebar</string>
    </property>
   </action>
  </widget>

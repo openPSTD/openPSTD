@@ -9,12 +9,7 @@
  * @param modelmanager  A reference to the ModelManager instance
  * @param parent  A reference to the main window
  */
-Renderer::Renderer(
-	QGraphicsScene* scene,
-	QWidget* parent,
-	QAction* changeabsorption,
-	Simulator* simulator
-) {
+Renderer::Renderer(QGraphicsScene* scene, QWidget* parent, Simulator2* simulator) {
 	// Save reference variables locally
 	this->scene = scene;
 	this->simulator = simulator;
@@ -24,13 +19,13 @@ Renderer::Renderer(
 	pixels = new QImage(1024, 768, QImage::Format_RGB32);
 	
 	// Create a new EventHandler instance
-	eh = new EventHandler(parent);
+	eh = new EventHandler(parent, simulator);
 	
 	// Update the width and height according to the scene
 	width = static_cast<int>(scene->sceneRect().width());
 	height = static_cast<int>(scene->sceneRect().height());
-	eh->setWidth(width);
-	eh->setHeight(height);
+	eh->setWidth(static_cast<unsigned int>(width));
+	eh->setHeight(static_cast<unsigned int>(height));
 	
 	// Load the cursor image
 	image = QImage(":/new/prefix1/icons/cursor.png");
@@ -126,11 +121,11 @@ void Renderer::draw() {
 	
 	// Draw fps
 	if (model->showFPS) {
-		drawText(std::to_string(fps), 5, height - 19, 14, Settings::getInstance()->fpsColor);
+		drawText(std::to_string(fps) + " FPS", 0, height - 54, 16, qRgb(0, 0, 0));
 	}
 	
-	Point p(16, 16, OBJECT);
-	QPoint pp = p.getScreen();
+	//Point p(16, 16, OBJECT);
+	//QPoint pp = p.getScreen();
 	//std::cout << "object (16, 16) is at screen (" << pp.x() << ", " << pp.y() << ")" << std::endl;
 	//std::cout << "zoom: " << model->zoom << std::endl;
 	
@@ -185,10 +180,10 @@ void Renderer::mouseRelease(int x, int y, Qt::MouseButton button) {
  * @param drag  Whether or not the left mouse button is pressed
  * @param modifiers  The KeyboardModifiers of the mouse drag event
  */
-void Renderer::mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers) {
+void Renderer::mouseDrag(int x, int y, bool drag) {
 	// Delegate event to EventHandler
-	if (!drag) eh->mouseMove(QPoint(x, y), modifiers);
-	if ( drag) eh->mouseDrag(QPoint(x, y), modifiers);
+	if (!drag) eh->mouseMove(QPoint(x, y));
+	if ( drag) eh->mouseDrag(QPoint(x, y));
 	draw();
 }
 
@@ -203,18 +198,18 @@ void Renderer::setDimensions(int width, int height) {
 	this->width = width;
 	this->height = height;
 	
-	// Update the dimension of the scene to match the QGraphicsView
-	// TODO
-	//scene->setSceneRect(0, 0, width, height);
-	//eh->setWidth(width);
-	//eh->setHeight(height);
+	eh->setWidth(static_cast<unsigned int>(width));
+	eh->setHeight(static_cast<unsigned int>(height));
 	
-	/*// Create a new pixels array with the new dimensions
+	// Update the dimension of the scene to match the QGraphicsView
+	scene->setSceneRect(0, 0, width, height);
+	
+	// Create a new pixels array with the new dimensions
 	delete pixels;
-	pixels = new QImage(width, height, QImage::Format_RGB32);*/
+	pixels = new QImage(width, height, QImage::Format_RGB32);
 	
 	// Redraw the scene
-	//draw();
+	draw();
 }
 
 /**

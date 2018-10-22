@@ -11,25 +11,22 @@
 GraphicsView::GraphicsView(
 	QWidget* parent,
 	QSlider* slZoom,
-	QAction* changeabsorption,
-	QAction* showoutput,
-	QStatusBar* statusbar
+	Simulator2* simulator
 ) : QGraphicsView(parent) {
 	// Create a new QGraphicsScene
 	scene = new QGraphicsScene();
 	setScene(scene);
 	
-	// Create a Simulator instance
-	simulator = new Simulator(showoutput, statusbar);
-	
 	// Create a new Renderer
-	renderer = new Renderer(scene, parent, changeabsorption, simulator);
+	renderer = new Renderer(scene, parent, simulator);
 	
 	// Enable mouse tracking
 	setMouseTracking(true);
 	
 	// Save the reference to the zoom level slider
 	this->slZoom = slZoom;
+	
+	offsetInitialized = false;
 }
 
 /**
@@ -38,7 +35,6 @@ GraphicsView::GraphicsView(
 GraphicsView::~GraphicsView() {
 	// Delete class instance variables
 	delete renderer;
-	delete simulator;
 	delete scene;
 }
 
@@ -70,9 +66,12 @@ void GraphicsView::resizeEvent(QResizeEvent* event) {
 	);
 	
 	// Reset the scene offset
-	Model* model = ModelManager::getInstance()->getCurrent();
-	model->offsetX = 7;
-	model->offsetY = (geometry().height() - 4) / model->zoom - 6;
+	if (!offsetInitialized) {
+		Model* model = ModelManager::getInstance()->getCurrent();
+		model->offsetX = 7;
+		model->offsetY = (geometry().height() - 4) / model->zoom - 6;
+		offsetInitialized = true;
+	}
 }
 
 /**
@@ -123,8 +122,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
 	renderer->mouseDrag(
 		static_cast<int>(point.x()),
 		static_cast<int>(point.y()),
-		event->buttons() == Qt::LeftButton,
-		event->modifiers()
+		event->buttons() == Qt::LeftButton
 	);
 }
 

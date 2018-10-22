@@ -18,6 +18,7 @@
 #include "ui_window.h"
 #include "coordinatedialog.h"
 #include "simulator2.h"
+#include "sidebar.h"
 
 namespace Ui {
 class Window;
@@ -42,6 +43,7 @@ private:
 	QLabel* lZoom;
 	QActionGroup* qagMainToolbar;
 	Simulator2* simulator;
+	Sidebar* sidebar;
 	
 	// Creates a QPixmap of a single given color
 	inline QPixmap color2pixmap(QRgb color) {
@@ -76,7 +78,8 @@ public slots:
 	// View menu slots
 	void slot_fpscounter();
 	void slot_grid();
-	inline void slot_showoutput() { view->simulator->toggle(); }
+	inline void slot_showoutput() { simulator->toggle(); }
+	inline void slot_showsidebar() { sidebar->updateVisibility(); }
 	
 	// Operate menu slots
 	inline void slot_selectdomain() { view->renderer->setState(SELECTDOMAIN); }
@@ -88,7 +91,7 @@ public slots:
 	inline void slot_measure() { view->renderer->setState(MEASURE); }
 	inline void slot_undo() { ModelManager::getInstance()->undo(); }
 	inline void slot_redo() { ModelManager::getInstance()->redo(); }
-	inline void slot_movetocenter() { /*view->renderer->eh->moveToCenter();*/ }
+	inline void slot_movetocenter() { view->renderer->eh->moveToCenter(); }
 	inline void slot_changeabsorption() { view->renderer->eh->changeAbsorption(); }
 	inline void slot_start() {
 		simulator->start();

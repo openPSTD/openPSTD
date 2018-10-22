@@ -46,8 +46,8 @@ Point Point::clampToGrid() {
 	QPoint orig(getScreen().x() - ozx, getScreen().y() - ozy);
 	
 	// Compute the clamped position (without any maximum clamping distance)
-	int clamped_x = (int) std::round((double) orig.x() / gz) * gz;
-	int clamped_y = (int) std::round((double) orig.y() / gz) * gz;
+	int clamped_x = static_cast<int>(std::round(static_cast<double>(orig.x()) / gz)) * gz;
+	int clamped_y = static_cast<int>(std::round(static_cast<double>(orig.y()) / gz)) * gz;
 	
 	// Compute the clamped distance
 	int dx = std::abs(orig.x() - clamped_x);
@@ -80,15 +80,15 @@ void Point::setObject(QPoint p) {
 }
 
 void Point::convertToObject() {
-	object = QPoint(std::round(object.x()), std::round(object.y()));
+	object = QPoint(
+		static_cast<int>(std::round(object.x())),
+		static_cast<int>(std::round(object.y()))
+	);
 }
 
 QPoint Point::object2screen(QPoint p) {
 	model = ModelManager::getInstance()->getCurrent();
-	if (model == NULL) std::cout << "ERROR" << std::endl;
-	int ox = model->offsetX;
-	int oy = model->offsetY;
-	int z = model->zoom;
+	if (model == nullptr) std::cout << "ERROR" << std::endl;
 	return QPoint(
 		//p.x() * model->zoom + model->offsetX,
 		//p.y() * model->zoom + model->offsetY

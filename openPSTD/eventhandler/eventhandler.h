@@ -10,47 +10,19 @@
 #include "sourcehandler.h"
 #include "receiverhandler.h"
 #include "measurehandler.h"
+#include "simulator2.h"
 
-/**
- * Event:
- *   MouseButton
- *   Modifiers
- *   State
- * 
- * EventHandler:
- *   mousePress
- *   mouseRelease
- *   mouseDrag
- * 
- * DomainHandler:
- *   selectDomain
- *   deselectAll
- *   deleteSelected
- *   addDomain
- * 
- * SourceHandler:
- *   selectSource
- *   deselectAll
- *   deleteSelected
- *   addSource
- * 
- * ReceiverHandler:
- *   selectReceiver
- *   deselectAll
- *   deleteSelected
- *   addReceiver
- */
 class EventHandler {
 public:
 	// Constructor, destructor
-	EventHandler(QWidget* window);
+	EventHandler(QWidget* window, Simulator2* simulator);
 	~EventHandler();
 	
 	// Event handling methods
 	void mousePress(QPoint screen, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 	void mouseRelease(QPoint screen, Qt::MouseButton button);
-	void mouseMove(QPoint screen, Qt::KeyboardModifiers modifiers);
-	void mouseDrag(QPoint screen, Qt::KeyboardModifiers modifiers);
+	void mouseMove(QPoint screen);
+	void mouseDrag(QPoint screen);
 	void changeAbsorption();
 	
 	// Returns the current mouse position
@@ -82,6 +54,7 @@ public:
 private:
 	// Reference variables
 	QWidget* window;
+	Simulator2* simulator;
 	
 	// Class instance variables
 	DomainHandler* dh;

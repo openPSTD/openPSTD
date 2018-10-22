@@ -68,7 +68,6 @@ void DomainHandler::addP2(bool final) {
 	if (!hasP1) return;
 	
 	// Check if P2 has been set
-	QPoint m = mouse->clampToGrid().getObject();
 	Model* model = ModelManager::getInstance()->getCurrent();
 	if (hasP2) {
 		// Update the end coordinate of the last domain

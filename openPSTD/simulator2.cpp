@@ -1,9 +1,18 @@
 #include "simulator2.h"
 
-Simulator2::Simulator2(QStatusBar* statusbar) {
+Simulator2::Simulator2(QWidget* parent, QStatusBar* statusbar) {
 	// Initialize the state variables
 	this->threadRunning = false;
 	this->statusbar = statusbar;
+	
+	this->so = new SimulatorOutput();
+	
+	parent->connect(this, SIGNAL(updateText(QString)), this, SLOT(setText(QString)));
+	parent->connect(this, SIGNAL(centerScene()), parent, SLOT(slot_movetocenter()));
+}
+
+Simulator2::~Simulator2() {
+	delete so;
 }
 
 void Simulator2::start() {
@@ -16,13 +25,16 @@ void Simulator2::start() {
 	
 	// Update the status bar text
 	model->simulating = true;
-	statusbar->showMessage("Status: Starting Simulator");
+	emit updateText("Status: Starting Simulator");
 	
 	// Disable all interfering actions
-	disableActions();
+	so->updateActions();
+	
+	// Show the simulator output
+	so->setShown(true);
 	
 	// Center the scene
-	// TODO
+	emit centerScene();
 	
 	// Select the first receiver by default
 	// TODO
@@ -33,17 +45,19 @@ void Simulator2::start() {
 }
 
 void Simulator2::stop() {
+	// Do nothing if the simulator is not running
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (!model->simulating) return;
+	
 	// TODO: Request a stop through a boolean variable.
 	// If pressed twice, force stop the thread.
-	statusbar->showMessage("Status: Stopping Simulator");
-	
-	// Enable the disabled interfering actions
-	enableActions();
+	emit updateText("Status: Stopping Simulator");
 	
 	// Update the status bar text
-	Model* model = ModelManager::getInstance()->getCurrent();
 	model->simulating = false;
-	statusbar->showMessage("Status: Ready");
+	
+	// Re-enable the state selecting actions
+	so->updateActions();
 }
 
 void* Simulator2::run(void* args) {
@@ -51,7 +65,7 @@ void* Simulator2::run(void* args) {
 	Simulator2* instance = static_cast<Simulator2*>(args);
 	
 	// Create a file for this simulation
-	instance->statusbar->showMessage("Status: Initializing kernel");
+	emit instance->updateText("Status: Initializing kernel");
 	instance->exec(instance->kernel + " create " + instance->filename);
 	
 	// Delete all default domains, sources, and receivers
@@ -110,11 +124,11 @@ void* Simulator2::run(void* args) {
 	// TODO (grid spacing, window size, render time, ...)
 	
 	// Run the simulation
-	instance->statusbar->showMessage("Status: Running simulation");
+	emit instance->updateText("Status: Running simulation");
 	instance->runSimulation(instance->kernel + " run -f " + instance->filename);
 	
 	// Remove the scene file
-	instance->statusbar->showMessage("Status: Ready");
+	//instance->statusbar->showMessage("Status: Ready");
 	remove(instance->filename.c_str());
 	
 	// Don't return anything
@@ -123,48 +137,48 @@ void* Simulator2::run(void* args) {
 
 bool Simulator2::sceneValid() {
 	// Update the status bar text
-	statusbar->showMessage("Status: Validating scene");
+	emit updateText("Status: Validating scene");
 	
 	// Verify that there is at least one domain
 	Model* model = ModelManager::getInstance()->getCurrent();
 	if (model->domains.size() == 0) {
-		statusbar->showMessage("Status: Error occurred (at least one domain is required)");
+		emit updateText("Status: Error occurred (at least one domain is required)");
 		return false;
 	}
 	
 	// Verify that there is at least one source
 	if (model->sources.size() == 0) {
-		statusbar->showMessage("Status: Error occurred (at least one source is required)");
+		emit updateText("Status: Error occurred (at least one source is required)");
 		return false;
 	}
 	
 	// Verify that there is at least one receiver
 	if (model->receivers.size() == 0) {
-		statusbar->showMessage("Status: Error occurred (at least one receiver is required)");
+		emit updateText("Status: Error occurred (at least one receiver is required)");
 		return false;
 	}
 	
 	// Verify that all domains are connected
 	if (!domainsConnected()) {
-		statusbar->showMessage("Status: Error occurred (not all domains are connected)");
+		emit updateText("Status: Error occurred (not all domains are connected)");
 		return false;
 	}
 	
 	// Verify that no domains overlap
 	if (domainsOverlap()) {
-		statusbar->showMessage("Status: Error occurred (domains should not overlap)");
+		emit updateText("Status: Error occurred (domains should not overlap)");
 		return false;
 	}
 	
 	// Verify that all sources are inside a domain
 	if (!sourcesInDomain()) {
-		statusbar->showMessage("Status: Error occurred (all sources should be inside a domain)");
+		emit updateText("Status: Error occurred (all sources should be inside a domain)");
 		return false;
 	}
 	
 	// Verify that all receivers are inside a domain
 	if (!receiversInDomain()) {
-		statusbar->showMessage("Status: Error occurred (all receivers should be inside a domain)");
+		emit updateText("Status: Error occurred (all receivers should be inside a domain)");
 		return false;
 	}
 	
@@ -294,35 +308,6 @@ bool Simulator2::receiversInDomain() {
 	return true;
 }
 
-bool Simulator2::domainSelected() {
-	Model* model = ModelManager::getInstance()->getCurrent();
-	unsigned int numSelected = 0;
-	for (unsigned int i = 0; i < model->domains.size(); i++) {
-		if (model->domains[i]->getSelected()) numSelected++;
-	}
-	return numSelected == 1;
-}
-
-void Simulator2::disableActions() {
-	// Disable the undo and redo actions
-	Model* model = ModelManager::getInstance()->getCurrent();
-	model->actionUndo->setEnabled(false);
-	model->actionRedo->setEnabled(false);
-	
-	// Disable the change absorption action
-	model->actionChangeAbsorption->setEnabled(false);
-}
-
-void Simulator2::enableActions() {
-	// Enable the undo and redo actions
-	Model* model = ModelManager::getInstance()->getCurrent();
-	model->actionUndo->setEnabled(ModelManager::getInstance()->canUndo());
-	model->actionRedo->setEnabled(ModelManager::getInstance()->canRedo());
-	
-	// Enable the change absorption action
-	model->actionChangeAbsorption->setEnabled(domainSelected());
-}
-
 void Simulator2::exec(std::string cmd) {
 	// Output the command being executed
 	std::cout << "> \"" << cmd << "\"" << std::endl;
@@ -356,6 +341,7 @@ void Simulator2::runSimulation(std::string cmd) {
 	FILE* fp = popen(cmd.c_str(), "r");
 	char buffer[40];
 	std::string line = "";
+	Model* model = ModelManager::getInstance()->getCurrent();
 	while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
 		// Add the received buffer to the line
 		line += buffer;
@@ -369,16 +355,28 @@ void Simulator2::runSimulation(std::string cmd) {
 			// Check if a new frame has been computed
 			if (line.substr(0, frameFinishString.size()) == frameFinishString) {
 				// Load the new frame
-				int frameID = std::atoi(line.substr(frameFinishString.size()+1).c_str());
-				frames.push_back(Frame(frameID)); // TODO: Update Frame class
+				std::string frameIDstring = line.substr(frameFinishString.size());
+				int frameID = std::atoi(frameIDstring.c_str());
+				so->loadFrame(frameID);
+				
+				// Emit an updateText signal, such that the
+				// main thread will redraw the window
+				emit updateText("Status: Running simulation");
 			}
 			
 			// Check if the simulation has finished
-			if (line == simulationFinshString) {
+			if (line == simulationFinishString) {
 				// TODO
 			}
 			
 			line = "";
+		}
+		
+		// Check if the simulator should be stopped
+		if (!model->simulating) {
+			pclose(fp);
+			emit updateText("Status: Ready");
+			return;
 		}
 	}
 	pclose(fp);

@@ -22,8 +22,8 @@ public:
 	 * @param clamped  Whether or not the given (x, y) position could be clamped
 	 * @return  The clamped point
 	 */
-	inline static QPoint clampGrid(int x, int y, bool* clamped) {
-		/*// Update x according to the scene offset
+	/*inline static QPoint clampGrid(int x, int y, bool* clamped) {
+		/ * // Update x according to the scene offset
 		int xx = x; // - model->offsetX;
 		int yy = y; // - model->offsetY;
 		
@@ -51,7 +51,7 @@ public:
 		if (clamped != nullptr) {
 			*clamped = dx < settings->clampDist || dy < settings->clampDist;
 		}
-		return QPoint(px, py);*/
+		return QPoint(px, py);* /
 		
 		// TODO: Input mouse coordinates instead of object coordinates
 		// Then compute mouse coordinates of the lower grid edge.
@@ -75,7 +75,7 @@ public:
 		if (delta.y() < gridsize) p.setY(gg0.y());
 		
 		return Grid::mouse2object(p);
-	}
+	}*/
 	
 	/**
 	 * Clamps a point to a domain wall, given its x and y
@@ -91,7 +91,7 @@ public:
 	 * @param clampLastDomain  Whether or not to clamp to the last domain as well
 	 * @return  The clamped point
 	 */
-	inline static QPoint clampDomains(
+	/*inline static QPoint clampDomains(
 		int x,
 		int y,
 		std::vector<Domain*> domains,
@@ -158,7 +158,7 @@ public:
 		// Return the clamped point otherwise
 		*clamped = true;
 		return domainClamp;
-	}
+	}*/
 	
 	/**
 	 * Clamps a point to the grid and to domain walls. Returns the input point
@@ -171,7 +171,7 @@ public:
 	 * @param clampLastDomain  Whether or not to clamp to the last domain as well
 	 * @return  The clamped point
 	 */
-	inline static QPoint clampFull(int x, int y, bool clampLastDomain) {
+	/*inline static QPoint clampFull(int x, int y, bool clampLastDomain) {
 		// Clamp the input point to the grid
 		bool clampedGrid;
 		QPoint clampgrid = Grid::clampGrid(x, y, &clampedGrid);
@@ -212,7 +212,7 @@ public:
 		
 		// If neither is within clampDist, return the input point
 		return QPoint(x - model->offsetX, y - model->offsetY);
-	}
+	}*/
 	
 	/**
 	 * Checks whether or not a given point is on a grid edge.
@@ -247,13 +247,13 @@ public:
 	}
 	
 	// TODO
-	inline static QPoint object2mouse(QPoint object) {
+	/*inline static QPoint object2mouse(QPoint object) {
 		Model* model = ModelManager::getInstance()->getCurrent();
 		return QPoint(
 			(object.x() + model->offsetX) * model->zoom,
 			(object.y() + model->offsetY) * model->zoom
 		);
-	}
+	}*/
 private:
 	/**
 	 * Clamps a point to a given wall. Always returns a point on the wall.
@@ -263,7 +263,7 @@ private:
 	 * @param wall  A reference to the wall to clamp to
 	 * @return  The clamped point
 	 */
-	inline static QPoint clampWall(int x, int y, Wall* wall) {
+	/*inline static QPoint clampWall(int x, int y, Wall* wall) {
 		// Check if the wall is vertical or horizontal
 		if (wall->getSide() == LEFT || wall->getSide() == RIGHT) {
 			// Get the lowest and highest points of the wall
@@ -292,7 +292,7 @@ private:
 			// Return the same x coordinate otherwise
 			return QPoint(x, wall->getMinY());
 		}
-	}
+	}*/
 };
 
 #endif

@@ -11,7 +11,7 @@
 #include "renderer.h"
 #include "settings.h"
 #include "modelmanager.h"
-#include "simulator.h"
+#include "simulator2.h"
 
 /**
  * Custom QGraphicsView widget for drawing the main frame.
@@ -22,14 +22,11 @@ public:
 	explicit GraphicsView(
 		QWidget* parent = nullptr,
 		QSlider* slZoom = nullptr,
-		QAction* changeabsorption = nullptr,
-		QAction* showoutput = nullptr,
-		QStatusBar* statusbar = nullptr
+		Simulator2* simulator = nullptr
 	);
 	~GraphicsView();
 	
 	Renderer* renderer;
-	Simulator* simulator;
 protected:
 	void paintEvent(QPaintEvent* event);
 	void resizeEvent(QResizeEvent* event);
@@ -42,6 +39,8 @@ public slots:
 private:
 	QGraphicsScene* scene;
 	QSlider* slZoom;
+	
+	bool offsetInitialized;
 	
 	void printModel();
 };

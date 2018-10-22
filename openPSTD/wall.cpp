@@ -49,9 +49,6 @@ void Wall::draw(QImage* pixels, bool domainSelected) {
 		return;
 	}
 	
-	ModelManager* modelmanager = ModelManager::getInstance();
-	Model* model = modelmanager->getCurrent();
-	
 	// Get the minimum and maximum x and y coordinates of the corners
 	int minx = std::min(x0, x1);
 	int maxx = std::max(x0, x1);
@@ -191,6 +188,8 @@ bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
 		return true;
 	}
 	
+	return false;
+	
 	/*// Get the end point coordinates of both walls
 	int p1x = one.getMinX();
 	int p1y = one.getMinY();
@@ -300,7 +299,7 @@ std::vector<int> Wall::sort(std::vector<int> original) {
 		for (unsigned int i = 0; i < original.size(); i++) {
 			if (std::find(result.begin(), result.end(), i) != result.end()) continue;
 			if (minIndex == -1 || original[i] < minValue) {
-				minIndex = i;
+				minIndex = static_cast<int>(i);
 				minValue = original[i];
 			}
 		}
@@ -331,9 +330,9 @@ QRgb Wall::gradient(QRgb color1, QRgb color2, double t) {
 	int b2 = QColor(color2).blue();
 	
 	return qRgb(
-		(1-t) * r1 + t * r2,
-		(1-t) * g1 + t * g2,
-		(1-t) * b1 + t * b2
+		static_cast<int>((1-t) * r1 + t * r2),
+		static_cast<int>((1-t) * g1 + t * g2),
+		static_cast<int>((1-t) * b1 + t * b2)
 	);
 }
 

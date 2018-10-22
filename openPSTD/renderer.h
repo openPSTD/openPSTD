@@ -13,7 +13,7 @@
 #include "settings.h"
 #include "modelmanager.h"
 #include "grid.h"
-#include "simulator.h"
+#include "simulator2.h"
 
 /**
  * Handles all drawing and eventhandling of the QGraphicsScene.
@@ -21,12 +21,7 @@
 class Renderer {
 public:
 	// Constructor, destructor
-	Renderer(
-		QGraphicsScene* scene,
-		QWidget* parent,
-		QAction* changeabsorption,
-		Simulator* simulator
-	);
+	Renderer(QGraphicsScene* scene, QWidget* parent, Simulator2* simulator);
 	~Renderer();
 	
 	// Drawing method
@@ -35,7 +30,7 @@ public:
 	// Event handling methods
 	void mousePress(int x, int y, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 	void mouseRelease(int x, int y, Qt::MouseButton button);
-	void mouseDrag(int x, int y, bool drag, Qt::KeyboardModifiers modifiers);
+	void mouseDrag(int x, int y, bool drag);
 
 	// Set methods for private variables
 	inline void setState(State state) {
@@ -46,7 +41,7 @@ public:
 	
 	EventHandler* eh;
 	QImage* pixels;
-	Simulator* simulator;
+	Simulator2* simulator;
 private:
 	// Class instance variables
 	QGraphicsScene* scene;

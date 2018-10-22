@@ -14,8 +14,12 @@ ReceiverHandler::ReceiverHandler(Point* mouse, QWidget* window) {
 
 // TODO
 bool ReceiverHandler::isSelected(unsigned int id) {
-	// TODO
-	return false;
+	// Do nothing if this receiver does not exist
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (id >= model->receivers.size()) return false;
+	
+	// Return whether or not the receiver is selected
+	return model->receivers[id]->getSelected();
 }
 
 /**
@@ -89,6 +93,10 @@ bool ReceiverHandler::deleteSelected() {
  * and then adds a new receiver at those coordinates.
  */
 void ReceiverHandler::addReceiver() {
+	// Do nothing if the Simulator is running
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (model->simulating) return;
+	
 	// Open a CoordinateDialog to request the coordinates for the new receiver
 	CoordinateDialog* cd = new CoordinateDialog(window, true);
 	cd->exec();
@@ -101,7 +109,6 @@ void ReceiverHandler::addReceiver() {
 	
 	// Add a new receiver at the entered coordinates
 	QPoint coords = cd->getCoords();
-	Model* model = ModelManager::getInstance()->getCurrent();
 	Point* pos = new Point(coords.x(), coords.y(), OBJECT);
 	model->receivers.push_back(new Receiver(pos));
 	

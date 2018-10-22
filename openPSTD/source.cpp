@@ -41,7 +41,6 @@ void Source::draw(QImage* pixels) {
 	int y = this->p->getScreen().y();
 	
 	// Draw the source image
-	Model* model = ModelManager::getInstance()->getCurrent();
 	QPainter p;
 	p.begin(pixels);
 	p.drawImage(

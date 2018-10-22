@@ -309,7 +309,7 @@ void Domain::handleIntersection(
 		//   Note that the overlapping segment is always
 		//   from b to c.
 		if (a != b) {
-			bool* selected;
+			bool* selected = nullptr;
 			if (side == LEFT) selected = &selectedLeft;
 			if (side == RIGHT) selected = &selectedRight;
 			if (side == TOP) selected = &selectedTop;
@@ -325,7 +325,7 @@ void Domain::handleIntersection(
 			walls->push_back(ab);
 		}
 		if (c != d) {
-			bool* selected;
+			bool* selected = nullptr;
 			if (side == LEFT) selected = &selectedLeft;
 			if (side == RIGHT) selected = &selectedRight;
 			if (side == TOP) selected = &selectedTop;
@@ -367,7 +367,7 @@ void Domain::handleIntersection(
 		//   Note that the overlapping segment is always
 		//   from b to c.
 		if (a != b) {
-			bool* selected;
+			bool* selected = nullptr;
 			if (side == LEFT) selected = &selectedLeft;
 			if (side == RIGHT) selected = &selectedRight;
 			if (side == TOP) selected = &selectedTop;
@@ -383,7 +383,7 @@ void Domain::handleIntersection(
 			walls->push_back(ab);
 		}
 		if (c != d) {
-			bool* selected;
+			bool* selected = nullptr;
 			if (side == LEFT) selected = &selectedLeft;
 			if (side == RIGHT) selected = &selectedRight;
 			if (side == TOP) selected = &selectedTop;
@@ -412,6 +412,7 @@ double* Domain::getAbsorption(Side side) {
 	if (side == BOTTOM) return &absorptionBottom;
 	if (side == LEFT) return &absorptionLeft;
 	if (side == RIGHT) return &absorptionRight;
+	return nullptr;
 }
 
 /**
@@ -426,6 +427,7 @@ bool* Domain::getEdgeLocalReacting(Side side) {
 	if (side == BOTTOM) return &elrBottom;
 	if (side == LEFT) return &elrLeft;
 	if (side == RIGHT) return &elrRight;
+	return nullptr;
 }
 
 /**

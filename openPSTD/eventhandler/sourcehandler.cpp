@@ -14,8 +14,12 @@ SourceHandler::SourceHandler(Point* mouse, QWidget* window) {
 
 // TODO
 bool SourceHandler::isSelected(unsigned int id) {
-	// TODO
-	return false;
+	// Do nothing if this source does not exist
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (id >= model->sources.size()) return false;
+	
+	// Return whether or not the source is selected
+	return model->sources[id]->getSelected();
 }
 
 /**
@@ -89,6 +93,10 @@ bool SourceHandler::deleteSelected() {
  * and then adds a new source at those coordinates.
  */
 void SourceHandler::addSource() {
+	// Do nothing if the Simulator is running
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (model->simulating) return;
+	
 	// Open a CoordinateDialog to request the coordinates for the new source
 	CoordinateDialog* cd = new CoordinateDialog(window, true);
 	cd->exec();
@@ -101,7 +109,6 @@ void SourceHandler::addSource() {
 	
 	// Add a new source at the entered coordinates
 	QPoint coords = cd->getCoords();
-	Model* model = ModelManager::getInstance()->getCurrent();
 	Point* pos = new Point(coords.x(), coords.y(), OBJECT);
 	model->sources.push_back(new Source(pos));
 	

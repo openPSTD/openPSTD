@@ -9,23 +9,39 @@
 Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	// Setup basic UI
 	ui->setupUi(this);
-	ModelManager::getInstance()->getCurrent()->actionUndo = ui->actionUndo;
-	ModelManager::getInstance()->getCurrent()->actionRedo = ui->actionRedo;
-	ModelManager::getInstance()->getCurrent()->actionChangeAbsorption = ui->actionChangeAbsorption;
+	Model* model = ModelManager::getInstance()->getCurrent();
+	model->actionSelect_Domain = ui->actionSelect_Domain;
+	model->actionSelect = ui->actionSelect;
+	model->actionMoveScene = ui->actionMoveScene;
+	model->actionAddDomain = ui->actionAddDomain;
+	model->actionAddSource = ui->actionAddSource;
+	model->actionAddReceiver = ui->actionAddReceiver;
+	model->actionMeasure = ui->actionMeasure;
+	model->actionUndo = ui->actionUndo;
+	model->actionRedo = ui->actionRedo;
+	model->actionMoveToCenter = ui->actionMoveToCenter;
+	model->actionChangeAbsorption = ui->actionChangeAbsorption;
+	model->actionShow_Output = ui->actionShow_Output;
+	model->actionShowSidebar = ui->actionSettings_Sidebar;
 	
 	// Add a spacer to the main toolbar
 	spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui->mainToolBar->addWidget(spacer);
 	
+	// Create a Simulator instance
+	simulator = new Simulator2(this, ui->statusBar);
+	
 	// Create a GraphicsView for the main frame
 	slZoom = new QSlider(Qt::Horizontal);
-	view = new GraphicsView(this, slZoom, ui->actionChangeAbsorption, ui->actionShow_Output, ui->statusBar);
+	view = new GraphicsView(this, slZoom, simulator);
 	view->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	ui->horizontalLayout->addWidget(view);
 	
-	// Create a Simulator instance
-	simulator = new Simulator2(ui->statusBar);
+	// Add the sidebar
+	sidebar = new Sidebar();
+	ui->horizontalLayout->addWidget(sidebar);
+	connect(ui->actionSettings_Sidebar, SIGNAL(triggered()), this, SLOT(slot_showsidebar()));
 	
 	// Set initial model variables
 	ModelManager::getInstance()->getCurrent()->showFPS = ui->actionFPS_counter->isChecked();
@@ -137,6 +153,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 Window::~Window() {
 	// Delete class instance variables
 	Settings::getInstance()->destruct();
+	delete sidebar;
 	delete qagMainToolbar;
 	delete sbGridSize;
 	delete view;
@@ -161,7 +178,7 @@ void Window::paintEvent(QPaintEvent* event) {
  * Exports the simulation output to csv files.
  */
 void Window::slot_exporttocsv() {
-	// Verify that a simulation has been completed
+	/*// Verify that a simulation has been completed
 	if (!view->simulator->getCompleted()) {
 		QMessageBox::information(
 			this,
@@ -238,7 +255,7 @@ void Window::slot_exporttocsv() {
 		}
 		outfile.close();
 		std::cout << "Saved receiver " << i << std::endl;
-	}
+	}*/
 }
 
 /**

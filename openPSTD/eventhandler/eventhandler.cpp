@@ -6,9 +6,10 @@
  * 
  * @param window  A reference to the main window
  */
-EventHandler::EventHandler(QWidget* window) {
+EventHandler::EventHandler(QWidget* window, Simulator2* simulator) {
 	// Initialize reference variables
 	this->window = window;
+	this->simulator = simulator;
 	
 	// Initialize class instance variables
 	mouse = new Point(0, 0, OBJECT);
@@ -112,6 +113,12 @@ void EventHandler::mousePress(
 		dh->selectWall(modifiers == Qt::Modifier::CTRL);
 		s0 = screen;
 	}
+	
+	// LMB + Simulating = Delegate to Simulator
+	if (button == Qt::LeftButton && model->simulatorHeight > 0) {
+		// Delegate to Simulator
+		simulator->mousePress(mouse->getScreen().x(), mouse->getScreen().y());
+	}
 }
 
 /**
@@ -164,7 +171,7 @@ void EventHandler::mouseRelease(QPoint screen, Qt::MouseButton button) {
  * @param y  The y-coordinate of the mouse
  * @param modifiers  The modifiers of the event
  */
-void EventHandler::mouseMove(QPoint screen, Qt::KeyboardModifiers modifiers) {
+void EventHandler::mouseMove(QPoint screen) {
 	// Update the mouse position
 	*mouse = Point(screen, SCREEN);
 	
@@ -181,7 +188,7 @@ void EventHandler::mouseMove(QPoint screen, Qt::KeyboardModifiers modifiers) {
 }
 
 // TODO
-void EventHandler::mouseDrag(QPoint screen, Qt::KeyboardModifiers modifiers) {
+void EventHandler::mouseDrag(QPoint screen) {
 	// Update the mouse position
 	//mouse = Grid::mouse2object(QPoint(x, y), model);
 	*mouse = Point(screen, SCREEN);
@@ -317,4 +324,73 @@ void EventHandler::clearSelection() {
 	
 	// Deselect all receivers
 	rh->deselectAll();
+}
+
+/**
+ * Centers the scene on the screen.
+ * The algorithm implemented in this method is documented
+ * in docs/Center Scene.docx.
+ */
+void EventHandler::moveToCenter() {
+	// Do nothing if there are no domains
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (model->domains.size() == 0) return;
+	
+	// Compute the minimum and maximum x and y coordinates
+	// of all domains, sources, and receivers
+	int minX = 0, maxX = 0, minY = 0, maxY = 0;
+	for (unsigned int i = 0; i < model->domains.size(); i++) {
+		int x0 = model->domains[i]->getMinX();
+		int x1 = model->domains[i]->getMaxX();
+		int y0 = model->domains[i]->getMinY();
+		int y1 = model->domains[i]->getMaxY();
+		
+		if (i == 0 || x0 < minX) minX = x0;
+		if (i == 0 || x1 > maxX) maxX = x1;
+		if (i == 0 || y0 < minY) minY = y0;
+		if (i == 0 || y1 > maxY) maxY = y1;
+	}
+	for (unsigned int i = 0; i < model->sources.size(); i++) {
+		int x = model->sources[i]->getX();
+		int y = model->sources[i]->getY();
+		
+		if (x < minX) minX = x;
+		if (x > maxX) maxX = x;
+		if (y < minY) minY = y;
+		if (y > maxY) maxY = y;
+	}
+	for (unsigned int i = 0; i < model->receivers.size(); i++) {
+		int x = model->receivers[i]->getX();
+		int y = model->receivers[i]->getY();
+		
+		if (x < minX) minX = x;
+		if (x > maxX) maxX = x;
+		if (y < minY) minY = y;
+		if (y > maxY) maxY = y;
+	}
+	
+	// Compute the available screen size
+	unsigned int w = width;
+	unsigned int h = height - model->simulatorHeight;
+	
+	// Compute the new zoom level
+	int zoom = static_cast<int>(std::min(
+		static_cast<double>(w-32)/(maxX-minX),
+		static_cast<double>(h-32)/(maxY-minY)
+	));
+	
+	// Compute the new offset
+	int offsetX = static_cast<int>(
+		static_cast<double>(w)/(2*zoom) -
+		static_cast<double>(minX+maxX)/2
+	);
+	int offsetY = static_cast<int>(
+		static_cast<double>(h)/(2*zoom) +
+		static_cast<double>(minY+maxY)/2
+	);
+	
+	// Apply the new zoom level and offset
+	model->offsetX = offsetX;
+	model->offsetY = offsetY;
+	model->zoom = zoom;
 }

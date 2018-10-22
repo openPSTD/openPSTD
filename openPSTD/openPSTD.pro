@@ -46,7 +46,10 @@ SOURCES += \
 	eventhandler/receiverhandler.cpp \
 	eventhandler/sourcehandler.cpp \
     point.cpp \
-    simulator2.cpp
+    simulator2.cpp \
+    simulatoroutput.cpp \
+    sidebar.cpp \
+    simulatorbutton.cpp
 
 HEADERS += \
 	absorptiondialog.h \
@@ -70,7 +73,10 @@ HEADERS += \
 	eventhandler/receiverhandler.h \
 	eventhandler/sourcehandler.h \
     point.h \
-    simulator2.h
+    simulator2.h \
+    simulatoroutput.h \
+    sidebar.h \
+    simulatorbutton.h
 
 FORMS += \
 	window.ui \
