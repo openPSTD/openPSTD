@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QPainter>
 #include <iostream>
+#include "frame.h"
 
 enum ButtonType {
 	BEGIN, // Go to frame 0
@@ -15,13 +16,23 @@ enum ButtonType {
 
 class SimulatorButton {
 public:
-	SimulatorButton(ButtonType type);
+	SimulatorButton(
+        ButtonType type,
+        int* shownFrame,
+        int* frameSpeed,
+        std::vector<Frame>* frames
+    );
 	void draw(int x, int y, int size, QImage* pixels);
 	
 	void mousePress(int x, int y);
 private:
 	// Representation variables
 	ButtonType type;
+    
+    // Reference variables
+    int* shownFrame;
+    int* frameSpeed;
+    std::vector<Frame>* frames;
 	
 	// State variables
 	bool initialized;

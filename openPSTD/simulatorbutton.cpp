@@ -1,8 +1,20 @@
 #include "simulatorbutton.h"
 
-SimulatorButton::SimulatorButton(ButtonType type) {
+SimulatorButton::SimulatorButton(
+    ButtonType type,
+    int* shownFrame,
+    int* frameSpeed,
+    std::vector<Frame>* frames
+) {
 	// Initialize representation variables
 	this->type = type;
+    
+    // Initialize reference variables
+    this->shownFrame = shownFrame;
+    this->frameSpeed = frameSpeed;
+    this->frames = frames;
+    
+    // Initialize state variables
 	this->initialized = false;
 }
 
@@ -21,10 +33,17 @@ void SimulatorButton::mousePress(int x, int y) {
 	// Do nothing if the state variables have not been initialized yet
 	if (!initialized) return;
 	
-	// Check if this button was pressed
-	if (std::abs(this->x - x) <= this->s/2 && std::abs(this->y - y) <= this->s/2) {
-		std::cout << "BUTTON PRESSED" << std::endl;
-	}
+    // Do nothing if this button was not pressed
+    if (std::abs(this->x - x) > this->s/2 || std::abs(this->y - y) > this->s/2) {
+        return;
+    }
+    
+    // Update the shownFrame variable based on this button's type
+    if (type == BEGIN) *shownFrame = 0;
+    if (type == BACK)  *frameSpeed = -1;
+    if (type == PAUSE) *frameSpeed = 0;
+    if (type == PLAY)  *frameSpeed = 1;
+    if (type == END)   *shownFrame = frames->size() - 1;
 }
 
 void SimulatorButton::drawBackground(int x, int y, int s, QImage* pixels) {

@@ -27,7 +27,7 @@ private:
 	SimulatorOutput* so;
 	
 	// Settings variables
-	std::string kernel = "/home/jeroen/programming/openPSTD/GUI/build/OpenPSTD-cli";
+	std::string kernel = "./OpenPSTD-cli";
 	std::string filename = "test"; // Filename for the scene file (for kernel)
 	std::string frameFinishString = "Finished frame: ";
 	std::string simulationFinishString = "Succesfully finished simulation";

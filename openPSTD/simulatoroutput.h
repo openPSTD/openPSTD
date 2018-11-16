@@ -30,7 +30,8 @@ private:
 	QRgb backgroundColor = qRgb(100, 100, 100);
 	
 	bool shown;
-	unsigned int shownFrame;
+	int shownFrame;
+    int frameSpeed;
 	
 	void drawScene(QImage* pixels);
 	void drawBackground(QImage* pixels);

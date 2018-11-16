@@ -4,19 +4,25 @@ SimulatorOutput::SimulatorOutput() {
 	// Initialize state variables
 	this->shown = false;
 	this->shownFrame = 0;
+    this->frameSpeed = 1;
 	
 	// Register the simulator buttons
-	buttons.push_back(SimulatorButton(BEGIN));
-	buttons.push_back(SimulatorButton(BACK));
-	buttons.push_back(SimulatorButton(PAUSE));
-	buttons.push_back(SimulatorButton(PLAY));
-	buttons.push_back(SimulatorButton(END));
+	buttons.push_back(SimulatorButton(BEGIN, &shownFrame, &frameSpeed, &frames));
+	buttons.push_back(SimulatorButton(BACK,  &shownFrame, &frameSpeed, &frames));
+	buttons.push_back(SimulatorButton(PAUSE, &shownFrame, &frameSpeed, &frames));
+	buttons.push_back(SimulatorButton(PLAY,  &shownFrame, &frameSpeed, &frames));
+	buttons.push_back(SimulatorButton(END,   &shownFrame, &frameSpeed, &frames));
 }
 
 void SimulatorOutput::draw(QImage* pixels) {
 	// Do nothing if the output should not be shown
 	if (!shown) return;
 	
+    // Update shownFrame based on frameSpeed
+    shownFrame += frameSpeed;
+    if (shownFrame < 0) shownFrame = 0;
+    if (shownFrame >= frames.size()) shownFrame = frames.size() - 1;
+    
 	// Draw the pressure overlay on the scene
 	drawScene(pixels);
 	
@@ -40,7 +46,6 @@ void SimulatorOutput::mousePress(int x, int y) {
 void SimulatorOutput::loadFrame(int frameID) {
 	framesMutex.lock();
 	frames.push_back(Frame(frameID));
-	shownFrame = static_cast<unsigned int>(frameID);
 	framesMutex.unlock();
 }
 
@@ -71,6 +76,10 @@ void SimulatorOutput::updateActions() {
 	
 	// Update the state of the show output action
 	model->actionShow_Output->setChecked(shown);
+    
+    // Select the SELECT_DOMAIN action
+    model->actionSelect_Domain->setChecked(true);
+    model->state = SELECTDOMAIN;
 }
 
 void SimulatorOutput::drawScene(QImage* pixels) {

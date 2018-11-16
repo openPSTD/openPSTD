@@ -93,14 +93,7 @@ public slots:
 	inline void slot_redo() { ModelManager::getInstance()->redo(); }
 	inline void slot_movetocenter() { view->renderer->eh->moveToCenter(); }
 	inline void slot_changeabsorption() { view->renderer->eh->changeAbsorption(); }
-	inline void slot_start() {
-		simulator->start();
-		/*view->simulator->start();
-		//view->renderer->eh->moveToCenter();
-		view->renderer->eh->selectReceiver(0);
-		ui->actionSelect_Domain->setChecked(true);
-		ModelManager::getInstance()->getCurrent()->state = SELECTDOMAIN;*/
-	}
+	inline void slot_start() { simulator->start(); }
 	inline void slot_stop() { simulator->stop(); }
 };
 

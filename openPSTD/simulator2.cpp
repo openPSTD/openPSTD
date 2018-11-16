@@ -26,10 +26,10 @@ void Simulator2::start() {
 	// Update the status bar text
 	model->simulating = true;
 	emit updateText("Status: Starting Simulator");
-	
+    
 	// Disable all interfering actions
 	so->updateActions();
-	
+    
 	// Show the simulator output
 	so->setShown(true);
 	
@@ -64,6 +64,9 @@ void* Simulator2::run(void* args) {
 	// Get the Simulator instance from the args parameter
 	Simulator2* instance = static_cast<Simulator2*>(args);
 	
+    // Create an output directory if it does not exist yet
+    system("[ ! -d testdata ] && mkdir testdata");
+    
 	// Create a file for this simulation
 	emit instance->updateText("Status: Initializing kernel");
 	instance->exec(instance->kernel + " create " + instance->filename);
@@ -121,14 +124,19 @@ void* Simulator2::run(void* args) {
 	}
 	
 	// Update the PSTD settings
-	// TODO (grid spacing, window size, render time, ...)
+    instance->exec(instance->kernel + " edit --grid-spacing " + std::to_string(model->gridspacing) + " -f " + instance->filename);
+    instance->exec(instance->kernel + " edit --window-size " + std::to_string(model->windowsize) + " -f " + instance->filename);
+    instance->exec(instance->kernel + " edit --render-time " + std::to_string(model->rendertime) + " -f " + instance->filename);
+    instance->exec(instance->kernel + " edit --density-of-air " + std::to_string(model->airdensity) + " -f " + instance->filename);
+    instance->exec(instance->kernel + " edit --sound-speed " + std::to_string(model->soundspeed) + " -f " + instance->filename);
+    instance->exec(instance->kernel + " edit --pml-cells " + std::to_string(model->pmlcells) + " -f " + instance->filename);
+    instance->exec(instance->kernel + " edit --attenuation-of-pml-cells " + std::to_string(model->attenuationpmlcells) + " -f " + instance->filename);
 	
 	// Run the simulation
 	emit instance->updateText("Status: Running simulation");
 	instance->runSimulation(instance->kernel + " run -f " + instance->filename);
 	
 	// Remove the scene file
-	//instance->statusbar->showMessage("Status: Ready");
 	remove(instance->filename.c_str());
 	
 	// Don't return anything
@@ -366,7 +374,8 @@ void Simulator2::runSimulation(std::string cmd) {
 			
 			// Check if the simulation has finished
 			if (line == simulationFinishString) {
-				// TODO
+                emit updateText("Status: Finished simulation");
+                break;
 			}
 			
 			line = "";
