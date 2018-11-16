@@ -24,10 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="eae46ac3-f9eb-47fe-8607-8c76d21048fe" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Domain.cpp" afterPath="$PROJECT_DIR$/kernel/core/Domain.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Scene.cpp" afterPath="$PROJECT_DIR$/kernel/core/Scene.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Speaker.cpp" afterPath="$PROJECT_DIR$/kernel/core/Speaker.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/PSTDFile.cpp" afterPath="$PROJECT_DIR$/shared/PSTDFile.cpp" />
     </list>
     <ignored path="openPSTD.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -745,7 +741,7 @@
       <workItem from="1536577867076" duration="21043000" />
       <workItem from="1539935541890" duration="15062000" />
       <workItem from="1541069328837" duration="34801000" />
-      <workItem from="1542286409019" duration="17034000" />
+      <workItem from="1542286409019" duration="17077000" />
     </task>
     <task id="LOCAL-00001" summary="Updated kernel">
       <created>1524140105286</created>
@@ -810,11 +806,18 @@
       <option name="project" value="LOCAL" />
       <updated>1539951179187</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Updated kernel">
+      <created>1542380620278</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1542380620278</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1919681000" />
+    <option name="totallyTimeSpent" value="1919724000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
