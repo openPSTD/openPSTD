@@ -63,7 +63,7 @@ void Wall::draw(QImage* pixels, bool domainSelected) {
 				int x = minx + d;
 				int y = j;
 				QRgb color = gradient(settings->wallColor0, settings->wallColor1, *absorption);
-				if (*selected || domainSelected) color = qRgb(0, 255, 255);
+				if (*selected || domainSelected) color = qRgb(0, 128, 255);
 				if (x < 0 || y < 0) continue;
 				if (x >= pixels->width() || y >= pixels->height()) continue;
 				pixels->setPixel(x, y, color);
@@ -76,10 +76,10 @@ void Wall::draw(QImage* pixels, bool domainSelected) {
 				int x = i;
 				int y = miny + d;
 				QRgb color = gradient(settings->wallColor0, settings->wallColor1, *absorption);
-				if (*selected || domainSelected) color = qRgb(0, 255, 255);
+				if (*selected || domainSelected) color = qRgb(0, 128, 255);
 				if (x < 0 || y < 0) continue;
 				if (x >= pixels->width() || y >= pixels->height()) continue;
-				pixels->setPixel(x, y, color);
+                pixels->setPixel(x, y, color);
 			}
 		}
 	}

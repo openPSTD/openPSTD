@@ -82,7 +82,7 @@ void Domain::draw(QImage* pixels) {
 		for (int y = y1; y < y2; y++) {
 			if ((y/10) % 2 == 0) {
 				for (int d = -1; d <= 1; d++) {
-					pixels->setPixel(x1 + d, y, qRgb(0, 255, 255));
+					pixels->setPixel(x1 + d, y, qRgb(0, 128, 255));
 				}
 			}
 		}
@@ -91,7 +91,7 @@ void Domain::draw(QImage* pixels) {
 		for (int y = y1; y < y2; y++) {
 			if ((y/10) % 2 == 0) {
 				for (int d = -1; d <= 1; d++) {
-					pixels->setPixel(x2 + d, y, qRgb(0, 255, 255));
+					pixels->setPixel(x2 + d, y, qRgb(0, 128, 255));
 				}
 			}
 		}
@@ -100,7 +100,7 @@ void Domain::draw(QImage* pixels) {
 		for (int x = x1; x < x2; x++) {
 			if ((x/10) % 2 == 0) {
 				for (int d = -1; d <= 1; d++) {
-					pixels->setPixel(x, y1 + d, qRgb(0, 255, 255));
+					pixels->setPixel(x, y1 + d, qRgb(0, 128, 255));
 				}
 			}
 		}
@@ -109,7 +109,7 @@ void Domain::draw(QImage* pixels) {
 		for (int x = x1; x < x2; x++) {
 			if ((x/10) % 2 == 0) {
 				for (int d = -1; d <= 1; d++) {
-					pixels->setPixel(x, y2 + d, qRgb(0, 255, 255));
+					pixels->setPixel(x, y2 + d, qRgb(0, 128, 255));
 				}
 			}
 		}
