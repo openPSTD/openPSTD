@@ -11,13 +11,17 @@
 namespace OpenPSTD {
     namespace Kernel {
 
-        Speaker::Speaker(std::vector<float> location) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
+   /**/ Speaker::Speaker(std::vector<float> location) : x(location.at(0)), y(location.at(1)), z(location.at(2)) {
             this->location = location;
             //this->grid_point=Point((int)location.at(0),(int)location.at(1),(int)location.at(2));
             grid_offset = std::vector<float>{this->location.at(0) - grid_point.x,
                                              this->location.at(1) - grid_point.y,
                                              this->location.at(2) - grid_point.z};
+
+
         }
+
+
 /*
        void Speaker::addDomainContribution(std::shared_ptr<Domain> domain) {
             float dx = domain->settings->GetGridSpacing();
@@ -48,9 +52,11 @@ namespace OpenPSTD {
 
         void Speaker::addDomainContribution(std::shared_ptr<Domain> domain) {
 
-           /* if (domain->is_pml!=1){*/
-              /*  if (this->x>domain->top_left.x && this->y>domain->top_left.y)
+            /*if (domain->is_pml!=1){
+                if (this->x>domain->top_left.x && this->y>domain->top_left.y)
                 {*/
+
+
 
             int temp=this->x;
             this->x=this->y;
@@ -85,11 +91,11 @@ namespace OpenPSTD {
                                 std::cout<<"Squared distance"<<squared_distance<<"\n";
                                 std::cout<<"Pressure "<<pressure<<"\n";
                                 std::cin.get();
-                            }*/
+)                            }*/
 
-                        /*}*/
-                    /*}*/
-
+                   /*     }
+                    }
+*/
 
 
 

@@ -287,17 +287,19 @@ namespace OpenPSTD {
                         /* std::cout<<domain_list.at(i)->size;
                          std::cin.get();*/
 
-                        if (domain_list.at(i)->is_pml!=1) {
+                     //   if (domain_list.at(i)->is_pml!=1) {
 
 
                         speaker->addDomainContribution(domain_list.at(i));
                         // Todo: Only add when speaker in domain
 
 
-                        }
+                       // }
                     }
 
                   speaker_list.push_back(speaker);
+
+
                 }
 
 
@@ -326,6 +328,9 @@ namespace OpenPSTD {
             if (not domain->is_pml) {
                 top_left = Point(min(top_left.x, domain->top_left.x),
                                  min(top_left.y, domain->top_left.y));
+
+
+
                 bottom_right = Point(max(bottom_right.x, domain->bottom_right.x),
                                      max(bottom_right.y, domain->bottom_right.y));
                 size = Point(bottom_right.x - top_left.x, bottom_right.y - top_left.y);

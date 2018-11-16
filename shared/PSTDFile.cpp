@@ -413,6 +413,7 @@ namespace OpenPSTD
                 boost::archive::text_iarchive ia(input_stream);
 
                 ia >> data_in;
+//std::cout<<"PSTDFile: "  << data_in.Speakers[0].x() << ", " << data_in.Speakers[0].y()<<std::endl;
 
                 delete[] data;
 

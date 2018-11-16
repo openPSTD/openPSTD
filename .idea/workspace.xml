@@ -24,6 +24,10 @@
   <component name="ChangeListManager">
     <list default="true" id="eae46ac3-f9eb-47fe-8607-8c76d21048fe" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Domain.cpp" afterPath="$PROJECT_DIR$/kernel/core/Domain.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Scene.cpp" afterPath="$PROJECT_DIR$/kernel/core/Scene.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kernel/core/Speaker.cpp" afterPath="$PROJECT_DIR$/kernel/core/Speaker.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/shared/PSTDFile.cpp" afterPath="$PROJECT_DIR$/shared/PSTDFile.cpp" />
     </list>
     <ignored path="openPSTD.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -43,21 +47,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Domain.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Domain.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kernel/core/Domain.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="440">
-              <caret line="80" column="34" selection-start-line="80" selection-start-column="34" selection-end-line="80" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Domain.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/kernel/core/Domain.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="171" column="71" selection-start-line="171" selection-start-column="71" selection-end-line="171" selection-end-column="71" />
+            <state relative-caret-position="6426">
+              <caret line="357" column="39" selection-start-line="357" selection-start-column="39" selection-end-line="357" selection-end-column="39" />
               <folding />
             </state>
           </provider>
@@ -66,18 +60,18 @@
       <file leaf-file-name="Scene.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kernel/core/Scene.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="287" column="33" selection-start-line="287" selection-start-column="30" selection-end-line="287" selection-end-column="33" />
+            <state relative-caret-position="468">
+              <caret line="292" column="38" selection-start-line="292" selection-start-column="33" selection-end-line="292" selection-end-column="54" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Receiver.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/kernel/core/Receiver.cpp">
+      <file leaf-file-name="KernelInterface.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/kernel/KernelInterface.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1746">
-              <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+            <state relative-caret-position="1098">
+              <caret line="61" column="28" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -86,20 +80,10 @@
       <file leaf-file-name="PSTDKernel.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kernel/PSTDKernel.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1638">
-              <caret line="91" column="44" selection-start-line="91" selection-start-column="44" selection-end-line="91" selection-end-column="44" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/CLI/main.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2358">
-              <caret line="131" column="0" selection-start-line="131" selection-start-column="0" selection-end-line="131" selection-end-column="0" />
+            <state relative-caret-position="309">
+              <caret line="268" column="45" selection-start-line="268" selection-start-column="45" selection-end-line="268" selection-end-column="45" />
               <folding>
-                <element signature="e#1464#1483#0" expanded="true" />
+                <element signature="e#1550#1569#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -108,18 +92,38 @@
       <file leaf-file-name="PSTDFile.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/shared/PSTDFile.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1962">
-              <caret line="109" column="44" selection-start-line="109" selection-start-column="44" selection-end-line="109" selection-end-column="44" />
+            <state relative-caret-position="5346">
+              <caret line="297" column="24" selection-start-line="297" selection-start-column="23" selection-end-line="297" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Speaker.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PSTDKernel.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/kernel/PSTDKernel.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1134">
+              <caret line="63" column="47" selection-start-line="63" selection-start-column="47" selection-end-line="63" selection-end-column="47" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Speaker.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/kernel/core/Speaker.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
-              <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+            <state relative-caret-position="360">
+              <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Speaker.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/kernel/core/Speaker.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1044">
+              <caret line="58" column="31" selection-start-line="58" selection-start-column="31" selection-end-line="58" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -157,7 +161,6 @@
         <option value="$PROJECT_DIR$/kernel/Solver.cpp" />
         <option value="$PROJECT_DIR$/kernel/core/kernel_functions.cpp" />
         <option value="$PROJECT_DIR$/CLI/main.h" />
-        <option value="$PROJECT_DIR$/shared/PSTDFile.cpp" />
         <option value="$PROJECT_DIR$/shared/export/Image.cpp" />
         <option value="$PROJECT_DIR$/CLI/edit.h" />
         <option value="$PROJECT_DIR$/CLI/exportCLI.h" />
@@ -174,12 +177,13 @@
         <option value="$PROJECT_DIR$/shared/export/HDF5Export.h" />
         <option value="$PROJECT_DIR$/shared/export/HDF5Export.cpp" />
         <option value="$PROJECT_DIR$/kernel/KernelInterface.cpp" />
-        <option value="$PROJECT_DIR$/kernel/PSTDKernel.cpp" />
         <option value="$PROJECT_DIR$/kernel/core/Receiver.cpp" />
-        <option value="$PROJECT_DIR$/kernel/core/Speaker.cpp" />
-        <option value="$PROJECT_DIR$/kernel/core/Scene.cpp" />
         <option value="$PROJECT_DIR$/kernel/core/Domain.h" />
+        <option value="$PROJECT_DIR$/shared/PSTDFile.cpp" />
         <option value="$PROJECT_DIR$/kernel/core/Domain.cpp" />
+        <option value="$PROJECT_DIR$/kernel/PSTDKernel.cpp" />
+        <option value="$PROJECT_DIR$/kernel/core/Scene.cpp" />
+        <option value="$PROJECT_DIR$/kernel/core/Speaker.cpp" />
       </list>
     </option>
   </component>
@@ -267,6 +271,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="shared" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="version_backend" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="openPSTD" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="version_backend" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="kernel" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -293,18 +315,36 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="version_backend" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="openPSTD" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="version_backend" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CLI" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../openPSTD_S1_edit" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../openPSTD_master" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/strikootam/ownCloud/ClionProjects/version_backend/unqlite/unqlite.cmake&#10;OpenPSTD::Kernel::wind&#9;null&#9;null" />
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
     <property name="settings.editor.splitter.proportion" value="0.27307326" />
   </component>
-  <component name="RunManager" selected="Application.OpenPSTD-cli">
+  <component name="RunManager" selected="Application.cli-release">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="INTERPRETER_PATH" value="/bin/bash" />
@@ -481,11 +521,11 @@
       <envs />
       <method />
     </configuration>
-    <configuration default="false" name="OpenPSTD-cli" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="list -f test2domains" WORKING_DIR="" PASS_PARENT_ENVS_2="true" PROJECT_NAME="OpenPSTD" TARGET_NAME="OpenPSTD-cli" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="OpenPSTD" RUN_TARGET_NAME="OpenPSTD-cli">
+    <configuration default="false" name="OpenPSTD-cli" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="export -f test2domains -F application/x-hdf -n result_domain_backend" WORKING_DIR="" PASS_PARENT_ENVS_2="true" PROJECT_NAME="OpenPSTD" TARGET_NAME="OpenPSTD-cli" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="OpenPSTD" RUN_TARGET_NAME="OpenPSTD-cli">
       <envs />
       <method />
     </configuration>
-    <configuration default="false" name="cli-release" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="run -f mytest" WORKING_DIR="" PASS_PARENT_ENVS_2="true" PROJECT_NAME="OpenPSTD" TARGET_NAME="OpenPSTD-cli" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="OpenPSTD" RUN_TARGET_NAME="OpenPSTD-cli">
+    <configuration default="false" name="cli-release" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="export -f test1611 -F application/x-hdf -n result_domain_nonsquare" WORKING_DIR="" PASS_PARENT_ENVS_2="true" PROJECT_NAME="OpenPSTD" TARGET_NAME="OpenPSTD-cli" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="OpenPSTD" RUN_TARGET_NAME="OpenPSTD-cli">
       <envs />
       <method />
     </configuration>
@@ -703,7 +743,9 @@
       <workItem from="1536062581555" duration="17818000" />
       <workItem from="1536170097509" duration="22438000" />
       <workItem from="1536577867076" duration="21043000" />
-      <workItem from="1539935541890" duration="8250000" />
+      <workItem from="1539935541890" duration="15062000" />
+      <workItem from="1541069328837" duration="34801000" />
+      <workItem from="1542286409019" duration="17034000" />
     </task>
     <task id="LOCAL-00001" summary="Updated kernel">
       <created>1524140105286</created>
@@ -761,11 +803,18 @@
       <option name="project" value="LOCAL" />
       <updated>1539951173368</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Updated kernel">
+      <created>1539951179187</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1539951179187</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1861034000" />
+    <option name="totallyTimeSpent" value="1919681000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -799,26 +848,6 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3580376" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32881" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36743215" sideWeight="0.4978166" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.434238" sideWeight="0.48908296" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.348643" sideWeight="0.5021834" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32881" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3455115" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985386" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20032752" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3580376" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39770356" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -862,13 +891,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/include/c++/5/bits/shared_ptr.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="103" column="16" selection-start-line="103" selection-start-column="16" selection-end-line="103" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/GUI/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -894,13 +916,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/core/WisdomCache.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2160">
-          <caret line="120" column="17" selection-start-line="120" selection-start-column="17" selection-end-line="120" selection-end-column="17" />
         </state>
       </provider>
     </entry>
@@ -965,13 +980,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="936">
           <caret line="52" column="0" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/core/Speaker.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1062">
-          <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1094,13 +1102,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/KernelInterface.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="195" column="15" selection-start-line="195" selection-start-column="15" selection-end-line="195" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CLI/edit.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5238">
@@ -1115,14 +1116,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/KernelInterface.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2286">
-          <caret line="127" column="0" selection-start-line="127" selection-start-column="0" selection-end-line="127" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Documents/boost_1_62_0/boost/program_options/options_description.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="309">
@@ -1130,43 +1123,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/shared/PSTDFile.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3708">
-          <caret line="206" column="15" selection-start-line="206" selection-start-column="15" selection-end-line="206" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CLI/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2358">
-          <caret line="131" column="0" selection-start-line="131" selection-start-column="0" selection-end-line="131" selection-end-column="0" />
-          <folding>
-            <element signature="e#1464#1483#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/bin/cmake/share/cmake-3.6/Modules/FindBoost.cmake">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
           <caret line="440" column="33" selection-start-line="440" selection-start-column="33" selection-end-line="440" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/shared/PSTDFile.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1962">
-          <caret line="109" column="44" selection-start-line="109" selection-start-column="44" selection-end-line="109" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/core/Receiver.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1746">
-          <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1192,22 +1152,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/core/Speaker.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/PSTDKernel.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1638">
-          <caret line="91" column="44" selection-start-line="91" selection-start-column="44" selection-end-line="91" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/kernel/core/Domain.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1216,18 +1160,103 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kernel/core/Scene.cpp">
+    <entry file="file://$PROJECT_DIR$/kernel/core/WisdomCache.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="287" column="33" selection-start-line="287" selection-start-column="30" selection-end-line="287" selection-end-column="33" />
+        <state relative-caret-position="561">
+          <caret line="120" column="17" selection-start-line="120" selection-start-column="17" selection-end-line="120" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/PSTDFile.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="159" column="0" selection-start-line="159" selection-start-column="0" selection-end-line="159" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/core/Receiver.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CLI/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="271">
+          <caret line="343" column="0" selection-start-line="343" selection-start-column="0" selection-end-line="343" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/KernelInterface.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="195" column="26" selection-start-line="195" selection-start-column="26" selection-end-line="195" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/KernelInterface.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1098">
+          <caret line="61" column="28" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/PSTDFile.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5346">
+          <caret line="297" column="24" selection-start-line="297" selection-start-column="23" selection-end-line="297" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/core/Speaker.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1044">
+          <caret line="58" column="31" selection-start-line="58" selection-start-column="31" selection-end-line="58" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/PSTDKernel.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1134">
+          <caret line="63" column="47" selection-start-line="63" selection-start-column="47" selection-end-line="63" selection-end-column="47" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/kernel/core/Domain.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="80" column="34" selection-start-line="80" selection-start-column="34" selection-end-line="80" selection-end-column="34" />
+        <state relative-caret-position="6426">
+          <caret line="357" column="39" selection-start-line="357" selection-start-column="39" selection-end-line="357" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/PSTDKernel.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="268" column="45" selection-start-line="268" selection-start-column="45" selection-end-line="268" selection-end-column="45" />
+          <folding>
+            <element signature="e#1550#1569#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/core/Scene.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="468">
+          <caret line="292" column="38" selection-start-line="292" selection-start-column="33" selection-end-line="292" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kernel/core/Speaker.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
           <folding />
         </state>
       </provider>

@@ -265,8 +265,8 @@ namespace OpenPSTD {
                 domains2 = right;
             }
             else {
-                domains1 = top;
-                domains2 = bottom;
+                domains1 = bottom;
+                domains2 = top;
             }
             /*//debug
             cout << "\n\ndomains1:\n";
@@ -785,8 +785,7 @@ namespace OpenPSTD {
 
 
             for (unsigned long dim = 0; dim < location.size(); dim++) {
-               std::cout<<top_left.array.at(dim);
-                std::cin.get();
+
                 if (top_left.array.at(dim) > location.at(dim) or
                     location.at(dim) > bottom_right.array.at(dim)) {
 
