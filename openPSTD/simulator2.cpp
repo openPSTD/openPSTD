@@ -1,10 +1,11 @@
 #include "simulator2.h"
 
-Simulator2::Simulator2(QWidget* parent, QStatusBar* statusbar) {
+Simulator2::Simulator2(QWidget* parent, QStatusBar* statusbar, Sidebar* sidebar) {
 	// Initialize the state variables
 	this->threadRunning = false;
 	this->statusbar = statusbar;
-	
+    this->sidebar = sidebar;
+    
 	this->so = new SimulatorOutput();
 	
 	parent->connect(this, SIGNAL(updateText(QString)), this, SLOT(setText(QString)));
@@ -25,6 +26,7 @@ void Simulator2::start() {
 	
 	// Update the status bar text
 	model->simulating = true;
+    model->hasSimulationOutput = true;
 	emit updateText("Status: Starting Simulator");
     
 	// Disable all interfering actions
@@ -33,12 +35,13 @@ void Simulator2::start() {
 	// Show the simulator output
 	so->setShown(true);
 	
+    // Hide the settings sidebar
+    model->actionShowSidebar->setChecked(false);
+    sidebar->updateVisibility();
+    
 	// Center the scene
 	emit centerScene();
-	
-	// Select the first receiver by default
-	// TODO
-	
+    
 	// Start a new thread for the Simulator
 	threadRunning = true;
 	threadID = pthread_create(&thread, nullptr, &Simulator2::run, this);
@@ -55,8 +58,21 @@ void Simulator2::stop() {
 	
 	// Update the status bar text
 	model->simulating = false;
-	
-	// Re-enable the state selecting actions
+}
+
+void Simulator2::removeSimulation() {
+    // Stop the simulator
+    Model* model = ModelManager::getInstance()->getCurrent();
+    model->simulating = false;
+    
+    // Reset the state variables
+    this->frames.clear();
+    so->reset();
+    
+    // Register that the simulation output has been removed
+    model->hasSimulationOutput = false;
+    
+    // Re-enable the state selecting actions
 	so->updateActions();
 }
 
@@ -93,10 +109,24 @@ void* Simulator2::run(void* args) {
 		instance->exec(cmd);
 		
 		// Set the absorption coefficients of the walls
-		// TODO
-		
+        double at = *(model->domains[i]->getAbsorption(TOP));
+        double ab = *(model->domains[i]->getAbsorption(BOTTOM));
+        double al = *(model->domains[i]->getAbsorption(LEFT));
+        double ar = *(model->domains[i]->getAbsorption(RIGHT));
+        instance->exec(instance->kernel + " edit -a \"(" + std::to_string(i) + ",t," + std::to_string(at) + ")\" -f " + instance->filename);
+        instance->exec(instance->kernel + " edit -a \"(" + std::to_string(i) + ",b," + std::to_string(ab) + ")\" -f " + instance->filename);
+        instance->exec(instance->kernel + " edit -a \"(" + std::to_string(i) + ",l," + std::to_string(al) + ")\" -f " + instance->filename);
+        instance->exec(instance->kernel + " edit -a \"(" + std::to_string(i) + ",r," + std::to_string(ar) + ")\" -f " + instance->filename);
+        
 		// Set the ELR values of the walls
-		// TODO
+        bool et = *(model->domains[i]->getEdgeLocalReacting(TOP));
+        bool eb = *(model->domains[i]->getEdgeLocalReacting(BOTTOM));
+        bool el = *(model->domains[i]->getEdgeLocalReacting(LEFT));
+        bool er = *(model->domains[i]->getEdgeLocalReacting(RIGHT));
+        instance->exec(instance->kernel + " edit -l \"(" + std::to_string(i) + ",t," + (et ? "true" : "false") + ")\" -f " + instance->filename);
+        instance->exec(instance->kernel + " edit -l \"(" + std::to_string(i) + ",b," + (eb ? "true" : "false") + ")\" -f " + instance->filename);
+        instance->exec(instance->kernel + " edit -l \"(" + std::to_string(i) + ",l," + (el ? "true" : "false") + ")\" -f " + instance->filename);
+        instance->exec(instance->kernel + " edit -l \"(" + std::to_string(i) + ",r," + (er ? "true" : "false") + ")\" -f " + instance->filename);
 	}
 	
 	// Add all sources

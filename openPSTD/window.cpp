@@ -30,7 +30,8 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	ui->mainToolBar->addWidget(spacer);
 	
 	// Create a Simulator instance
-	simulator = new Simulator2(this, ui->statusBar);
+    sidebar = new Sidebar();
+	simulator = new Simulator2(this, ui->statusBar, sidebar);
 	
 	// Create a GraphicsView for the main frame
 	slZoom = new QSlider(Qt::Horizontal);
@@ -39,7 +40,6 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	ui->horizontalLayout->addWidget(view);
 	
 	// Add the sidebar
-	sidebar = new Sidebar();
 	ui->horizontalLayout->addWidget(sidebar);
 	connect(ui->actionSettings_Sidebar, SIGNAL(triggered()), this, SLOT(slot_showsidebar()));
 	
@@ -141,6 +141,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	connect(ui->actionChangeAbsorption, SIGNAL(triggered(bool)), this, SLOT(slot_changeabsorption()));
 	connect(ui->actionstart, SIGNAL(triggered(bool)), this, SLOT(slot_start()));
 	connect(ui->actionstop, SIGNAL(triggered(bool)), this, SLOT(slot_stop()));
+    connect(ui->actionRemove_Simulation, SIGNAL(triggered(bool)), this, SLOT(slot_removesimulation()));
 	
 	// Disable the change absorption action
 	ui->actionChangeAbsorption->setEnabled(false);

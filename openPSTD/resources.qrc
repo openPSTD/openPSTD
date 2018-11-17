@@ -25,5 +25,6 @@
         <file>icons/source_icon.png</file>
         <file>icons/receiver_icon.png</file>
         <file>icons/settings.png</file>
+        <file>icons/remove_simulation.png</file>
     </qresource>
 </RCC>

@@ -53,27 +53,28 @@ void Source::draw(QImage* pixels) {
 	// Check if this source is selected
 	if (selected) {
 		// Draw a square around the source
-		for (int i = -5; i <= 5; i++) {
+        int d = 8;
+		for (int i = -d; i <= d; i++) {
 			setPixel(
 				x + i,
-				y + 5,
+				y + d,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
 				x + i,
-				y - 5,
+				y - d,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				x + 5,
+				x + d,
 				y + i,
 				qRgb(0, 255, 255),
 				pixels
 			);
 			setPixel(
-				x - 5,
+				x - d,
 				y + i,
 				qRgb(0, 255, 255),
 				pixels

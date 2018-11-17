@@ -24,7 +24,7 @@ public:
     );
 	void draw(int x, int y, int size, QImage* pixels);
 	
-	void mousePress(int x, int y);
+	bool mousePress(int x, int y);
 private:
 	// Representation variables
 	ButtonType type;

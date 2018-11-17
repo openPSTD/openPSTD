@@ -73,7 +73,7 @@ void DomainHandler::addP2(bool final) {
 		// Update the end coordinate of the last domain
 		//model->domains.back()->setX1(m.x());
 		//model->domains.back()->setY1(m.y());
-		model->domains.back()->setP1(mouse->clampToGrid());
+		model->domains.back()->setP2(mouse->clampToGrid());
 		model->domains.back()->resetWalls();
 		
 		if (final) {

@@ -145,10 +145,7 @@ bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
 		int p2 = one.getMaxY();
 		int q1 = two.getMinY();
 		int q2 = two.getMaxY();
-		std::cout << std::endl;
-		std::cout << p1 << ", " << p2 << std::endl;
-		std::cout << q1 << ", " << q2 << std::endl;
-		
+        
 		// Check if the two walls overlap
 		// Do nothing if the walls do not overlap
 		if (p2 <= q1 || p1 >= q2) return false;
@@ -161,7 +158,6 @@ bool Wall::mergeWalls(Wall one, Wall two, std::pair<int, int>* toMerge) {
 		int start = std::max(p1, q1);
 		int end = std::min(p2, q2);
 		*toMerge = std::make_pair(start, end);
-		std::cout << "overlap" << std::endl;
 		return true;
 	}
 	

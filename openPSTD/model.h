@@ -62,6 +62,7 @@ public:
 	
 	// Simulator state
 	bool simulating = false;
+    bool hasSimulationOutput = false;
 	unsigned int simulatorHeight = 0; // 0 if hidden, height otherwise
 	
 	// Window actions

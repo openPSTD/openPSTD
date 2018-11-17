@@ -48,7 +48,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOpenPSTD">
@@ -113,6 +113,7 @@
     <addaction name="separator"/>
     <addaction name="actionstop"/>
     <addaction name="actionstart"/>
+    <addaction name="actionRemove_Simulation"/>
     <addaction name="separator"/>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
@@ -147,6 +148,7 @@
    <addaction name="separator"/>
    <addaction name="actionstop"/>
    <addaction name="actionstart"/>
+   <addaction name="actionRemove_Simulation"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
@@ -172,9 +174,6 @@
    </property>
    <property name="toolTip">
     <string>Select</string>
-   </property>
-   <property name="shortcut">
-    <string>S</string>
    </property>
   </action>
   <action name="actionMoveScene">
@@ -448,6 +447,18 @@
    </property>
    <property name="text">
     <string>Settings Sidebar</string>
+   </property>
+  </action>
+  <action name="actionRemove_Simulation">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/icons/remove_simulation.png</normaloff>:/new/prefix1/icons/remove_simulation.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove Simulation</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove Simulation</string>
    </property>
   </action>
  </widget>

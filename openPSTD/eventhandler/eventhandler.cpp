@@ -66,14 +66,14 @@ void EventHandler::mousePress(
 	
 	// LMB + sMove = Move scene
 	Model* model = ModelManager::getInstance()->getCurrent();
-	if (button == Qt::LeftButton && model->state == MOVE && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == MOVE && !model->hasSimulationOutput) {
 		// Save the start coordinates
 		*q0 = Point(model->offsetX, model->offsetY, OBJECT);
 		s0 = screen;
 	}
 	
 	// LMB + sMeasure = Measure
-	if (button == Qt::LeftButton && model->state == MEASURE && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == MEASURE && !model->hasSimulationOutput) {
 		// Delegate to MeasureHandler
 		if (doubleclick) {
 			mh->setP2(true);
@@ -84,7 +84,7 @@ void EventHandler::mousePress(
 	}
 	
 	// LMB + sAddDomain = Add domain
-	if (button == Qt::LeftButton && model->state == ADDDOMAIN && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == ADDDOMAIN && !model->hasSimulationOutput) {
 		// Delegate to DomainHandler
 		if (doubleclick) {
 			dh->addP2(true);
@@ -95,14 +95,14 @@ void EventHandler::mousePress(
 	}
 	
 	// LMB + sSelectDomain = Select domain
-	if (button == Qt::LeftButton && model->state == SELECTDOMAIN && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == SELECTDOMAIN && !model->hasSimulationOutput) {
 		// Delegate to DomainHandler
 		dh->selectDomain(modifiers == Qt::Modifier::CTRL);
 		s0 = screen;
 	}
 	
 	// LMB + sSelect = Select sources / receivers / walls
-	if (button == Qt::LeftButton && model->state == SELECT) {
+	if (button == Qt::LeftButton && model->state == SELECT && !model->hasSimulationOutput) {
 		// Delegate to SourceHandler
 		sh->selectSource(modifiers == Qt::Modifier::CTRL);
 		
@@ -117,8 +117,26 @@ void EventHandler::mousePress(
 	// LMB + Simulating = Delegate to Simulator
 	if (button == Qt::LeftButton && model->simulatorHeight > 0) {
 		// Delegate to Simulator
-		simulator->mousePress(mouse->getScreen().x(), mouse->getScreen().y());
+        simulator->mousePress(screen.x(), screen.y());
 	}
+    
+    // LMB + sSelectDomain + Simulating = Select receivers
+    if (button == Qt::LeftButton && model->state == SELECTDOMAIN && model->hasSimulationOutput) {
+        // Delegate to ReceiverHandler
+        rh->selectReceiver(modifiers == Qt::Modifier::CTRL);
+        
+        // Ensure that at least one receiver is selected
+        bool hasSelected = false;
+        for (unsigned int i = 0; i < model->receivers.size(); i++) {
+            if (model->receivers[i]->getSelected()) {
+                hasSelected = true;
+                break;
+            }
+        }
+        if (!hasSelected) {
+            model->receivers[0]->setSelected(true);
+        }
+    }
 }
 
 /**
@@ -135,7 +153,7 @@ void EventHandler::mouseRelease(QPoint screen, Qt::MouseButton button) {
 	
 	// LMB + sMeasure = Measure
 	Model* model = ModelManager::getInstance()->getCurrent();
-	if (button == Qt::LeftButton && model->state == MEASURE && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == MEASURE && !model->hasSimulationOutput) {
 		if (mouse->clampToGrid().getObject() == mh->getP1()) {
 			doubleclick = true;
 		} else {
@@ -144,7 +162,7 @@ void EventHandler::mouseRelease(QPoint screen, Qt::MouseButton button) {
 	}
 	
 	// LMB + sAddDomain = Add domain
-	if (button == Qt::LeftButton && model->state == ADDDOMAIN && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == ADDDOMAIN && !model->hasSimulationOutput) {
 		if (mouse->clampToGrid().getObject() == dh->getP1()) {
 			doubleclick = true;
 		} else {
@@ -153,12 +171,12 @@ void EventHandler::mouseRelease(QPoint screen, Qt::MouseButton button) {
 	}
 	
 	// LMB + sSelectDomain = Move domain
-	if (button == Qt::LeftButton && model->state == SELECTDOMAIN && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == SELECTDOMAIN && !model->hasSimulationOutput) {
 		moved = false;
 	}
 	
 	// LMB + sSelect = Move sources / receivers / walls
-	if (button == Qt::LeftButton && model->state == SELECT && !model->simulating) {
+	if (button == Qt::LeftButton && model->state == SELECT && !model->hasSimulationOutput) {
 		moved = false;
 	}
 }
@@ -177,12 +195,12 @@ void EventHandler::mouseMove(QPoint screen) {
 	
 	// sMeasure = Measure
 	Model* model = ModelManager::getInstance()->getCurrent();
-	if (model->state == MEASURE && !model->simulating) {
+	if (model->state == MEASURE && !model->hasSimulationOutput) {
 		if (doubleclick) mh->setP2(false);
 	}
 	
 	// sAddDomain = Add domain
-	if (model->state == ADDDOMAIN && !model->simulating) {
+	if (model->state == ADDDOMAIN && !model->hasSimulationOutput) {
 		if (doubleclick) dh->addP2(false);
 	}
 }
@@ -195,7 +213,7 @@ void EventHandler::mouseDrag(QPoint screen) {
 	
 	// sMove = Move scene
 	Model* model = ModelManager::getInstance()->getCurrent();
-	if (model->state == MOVE && !model->simulating) {
+	if (model->state == MOVE && !model->hasSimulationOutput) {
 		// Update the scene offset
 		QPoint dscreen = screen - s0;
 		model->offsetX = q0->getObject().x() + dscreen.x() / model->zoom;
@@ -203,21 +221,21 @@ void EventHandler::mouseDrag(QPoint screen) {
 	}
 	
 	// sMeasure = Measure
-	if (model->state == MEASURE && !model->simulating) {
+	if (model->state == MEASURE && !model->hasSimulationOutput) {
 		if (!doubleclick) {
 			mh->setP2(false);
 		}
 	}
 	
 	// sAddDomain = Add domain
-	if (model->state == ADDDOMAIN && !model->simulating) {
+	if (model->state == ADDDOMAIN && !model->hasSimulationOutput) {
 		if (!doubleclick) {
 			dh->addP2(false);
 		}
 	}
 	
 	// sSelectDomain = Move domain
-	if (model->state == SELECTDOMAIN && !model->simulating) {
+	if (model->state == SELECTDOMAIN && !model->hasSimulationOutput) {
 		// Compute the move delta in object coordinates
 		QPoint dscreen = screen - s0;
 		QPoint dobject = dscreen / model->zoom; // TODO
@@ -237,7 +255,7 @@ void EventHandler::mouseDrag(QPoint screen) {
 	}
 	
 	// sSelect = Move sources / receivers / walls
-	if (model->state == SELECT && !model->simulating) {
+	if (model->state == SELECT && !model->hasSimulationOutput) {
 		// Compute the move delta in object coordinates
 		QPoint dscreen = screen - s0;
 		QPoint dobject = QPoint(dscreen.x() / model->zoom, -dscreen.y() / model->zoom);
@@ -260,6 +278,12 @@ void EventHandler::mouseDrag(QPoint screen) {
 			// Update the start position
 			s0 += QPoint(dobject.x(), -dobject.y()) * model->zoom;
 		}
+	}
+    
+    // Simulating = Delegate to Simulator
+	if (model->simulatorHeight > 0) {
+		// Delegate to Simulator
+        simulator->mouseDrag(screen.x(), screen.y());
 	}
 }
 
@@ -372,11 +396,12 @@ void EventHandler::moveToCenter() {
 	// Compute the available screen size
 	unsigned int w = width;
 	unsigned int h = height - model->simulatorHeight;
+    // TODO: Only subtract simulatorHeight if simulator is shown
 	
 	// Compute the new zoom level
 	int zoom = static_cast<int>(std::min(
-		static_cast<double>(w-32)/(maxX-minX),
-		static_cast<double>(h-32)/(maxY-minY)
+		static_cast<double>(w-64)/(maxX-minX),
+		static_cast<double>(h-64)/(maxY-minY)
 	));
 	
 	// Compute the new offset

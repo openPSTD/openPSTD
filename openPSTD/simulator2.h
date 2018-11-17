@@ -7,25 +7,29 @@
 #include "simulatoroutput.h"
 #include "modelmanager.h"
 #include "frame.h"
+#include "sidebar.h"
 
 class Simulator2 : public QObject {
 	Q_OBJECT
 public:
-	Simulator2(QWidget* parent, QStatusBar* statusbar);
+	Simulator2(QWidget* parent, QStatusBar* statusbar, Sidebar* sidebar);
 	~Simulator2();
 	
 	void start();
 	void stop();
+    void removeSimulation();
 	
 	inline void draw(QImage* pixels) { so->draw(pixels); }
 	inline void toggle() { so->toggle(); }
 	
 	inline void mousePress(int x, int y) { so->mousePress(x, y); }
+    inline void mouseDrag(int x, int y) { so->mouseDrag(x, y); }
 private:
 	// Reference variables
 	QStatusBar* statusbar;
 	SimulatorOutput* so;
-	
+    Sidebar* sidebar;
+    
 	// Settings variables
 	std::string kernel = "./OpenPSTD-cli";
 	std::string filename = "test"; // Filename for the scene file (for kernel)

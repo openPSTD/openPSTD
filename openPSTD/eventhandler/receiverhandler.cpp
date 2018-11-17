@@ -98,7 +98,7 @@ void ReceiverHandler::addReceiver() {
 	if (model->simulating) return;
 	
 	// Open a CoordinateDialog to request the coordinates for the new receiver
-	CoordinateDialog* cd = new CoordinateDialog(window, true);
+	CoordinateDialog* cd = new CoordinateDialog(window, false);
 	cd->exec();
 	
 	// Do nothing if the CoordinateDialog was cancelled

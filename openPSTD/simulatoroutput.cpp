@@ -17,6 +17,8 @@ SimulatorOutput::SimulatorOutput() {
 void SimulatorOutput::draw(QImage* pixels) {
 	// Do nothing if the output should not be shown
 	if (!shown) return;
+    this->width = pixels->width();
+    this->height = pixels->height();
 	
     // Update shownFrame based on frameSpeed
     shownFrame += frameSpeed;
@@ -38,9 +40,28 @@ void SimulatorOutput::draw(QImage* pixels) {
 
 void SimulatorOutput::mousePress(int x, int y) {
 	// Delegate to the simulator buttons
+    bool handled = false;
 	for (unsigned int i = 0; i < buttons.size(); i++) {
-		buttons[i].mousePress(x, y);
+		handled |= buttons[i].mousePress(x, y);
 	}
+    
+    Model* model = ModelManager::getInstance()->getCurrent();
+    if (!handled && y > height - model->simulatorHeight) {
+        // Select the clicked frame
+        int numFrames = model->rendertime * 340 / (0.5 * model->gridspacing);
+        int frameID = numFrames * x / width;
+        this->shownFrame = frameID;
+    }
+}
+
+void SimulatorOutput::mouseDrag(int x, int y) {
+    Model* model = ModelManager::getInstance()->getCurrent();
+    if (y > height - model->simulatorHeight) {
+        // Select the clicked frame
+        int numFrames = model->rendertime * 340 / (0.5 * model->gridspacing);
+        int frameID = numFrames * x / width;
+        this->shownFrame = frameID;
+    }
 }
 
 void SimulatorOutput::loadFrame(int frameID) {
@@ -82,6 +103,14 @@ void SimulatorOutput::updateActions() {
     model->state = SELECTDOMAIN;
 }
 
+void SimulatorOutput::reset() {
+    // Reset the state variables
+    this->frames.clear();
+    this->shown = false;
+    this->shownFrame = 0;
+    this->frameSpeed = 1;
+}
+
 void SimulatorOutput::drawScene(QImage* pixels) {
 	// Do nothing if the shown frame does not exist
 	framesMutex.lock();
@@ -109,6 +138,9 @@ void SimulatorOutput::drawScene(QImage* pixels) {
 				// Compute the sample index for this pixel
 				int sx = ((x-x0)*static_cast<int>(w)/(x1-x0));
 				int sy = ((y-y0)*static_cast<int>(h)/(y1-y0));
+                if (FLIP_Y_COORDINATES) {
+                    sy = ((y1-y)*static_cast<int>(h)/(y1-y0));
+                }
 				
 				// Get the sample value at this index
 				double value = frames[shownFrame].getSample(
@@ -121,6 +153,8 @@ void SimulatorOutput::drawScene(QImage* pixels) {
 				QRgb color = sampleValue2Color(value);
 				
 				// Draw this pixel
+                if (x-1 < 0 || x-1 >= pixels->width()) continue;
+                if (y-1 < 0 || y-1 >= pixels->height()) continue;
 				pixels->setPixel(x-1, y-1, color);
 			}
 		}
@@ -197,35 +231,43 @@ void SimulatorOutput::drawPressureGraph(QImage* pixels) {
 	
 	// Loop through all frames
 	std::vector<double> pressure;
+    double maxSample;
 	for (unsigned int frameID = 0; frameID < frames.size(); frameID++) {
 		// Get the pressure value at the receiver position
 		double p = frames[frameID].getSample(sx, sy, domainID);
 		pressure.push_back(p);
+        
+        // Update the maxSample value
+        if (frameID == 0 || std::abs(p) > maxSample) maxSample = std::abs(p);
 	}
-	
-	// Compute the maximum sample value
-	double maxSample = 1.0;
-	
+    
 	// Loop through all x-coordinates of the pressure graph
-	int numFrames = 340; // TODO
-	for (int x = 0; x < pixels->width(); x++) {
-		// Compute the index in the pressure graph of this x-coordinate
-		double index = static_cast<double>(x) * numFrames / pixels->width();
-		unsigned int il = static_cast<unsigned int>(index);
-		unsigned int ih = static_cast<unsigned int>(index) + 1;
-		
-		// Do nothing if this index does not exist yet
-		if (ih >= pressure.size()) break;
-		
-		// Interpolate the two surrounding samples
-		double t = index - static_cast<int>(index);
-		double sample = (1-t)*pressure[il] + t*pressure[ih];
-		
-		// Draw this sample
-		int yy = static_cast<int>(sample * outputHeight / (2 * maxSample));
-		int y = pixels->height() - static_cast<int>(outputHeight/2) - yy;
-		pixels->setPixel(x, y, qRgb(0, 255, 0));
-	}
+    int numFrames = model->rendertime * 340 / (0.5 * model->gridspacing);
+    for (unsigned int i = 0; i < frames.size()-1; i++) {
+        double sample0 = pressure[i];
+        int x0 = i * pixels->width() / numFrames;
+        int y0 = outputHeight/2 + (sample0 * (outputHeight-34) / (2 * maxSample));
+        
+        double sample1 = pressure[i+1];
+        int x1 = (i+1) * pixels->width() / numFrames;
+        int y1 = outputHeight/2 + (sample1 * (outputHeight-34) / (2 * maxSample));
+        
+        if (std::abs(x1-x0) >= std::abs(y1-y0)) {
+            for (int x = x0; x < x1; x++) {
+                int y = y0 + (y1-y0)*(x-x0)/(x1-x0);
+                pixels->setPixel(x, pixels->height()-y, qRgb(0, 255, 0));
+            }
+        } else {
+            if (y1 < y0) {
+                int xx = x1; x1 = x0; x0 = xx;
+                int yy = y1; y1 = y0; y0 = yy;
+            }
+            for (int y = y0; y < y1; y++) {
+                int x = x0 + (x1-x0)*(y-y0)/(y1-y0);
+                pixels->setPixel(x, pixels->height()-y, qRgb(0, 255, 0));
+            }
+        }
+    }
 	
 	// Draw a vertical line at the current frame
 	int frameX = shownFrame * pixels->width() / numFrames;

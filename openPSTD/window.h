@@ -95,6 +95,7 @@ public slots:
 	inline void slot_changeabsorption() { view->renderer->eh->changeAbsorption(); }
 	inline void slot_start() { simulator->start(); }
 	inline void slot_stop() { simulator->stop(); }
+    inline void slot_removesimulation() { simulator->removeSimulation(); }
 };
 
 #endif

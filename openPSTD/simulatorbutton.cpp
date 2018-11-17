@@ -29,13 +29,13 @@ void SimulatorButton::draw(int x, int y, int s, QImage* pixels) {
 	drawBackground(x, y, s, pixels);
 }
 
-void SimulatorButton::mousePress(int x, int y) {
+bool SimulatorButton::mousePress(int x, int y) {
 	// Do nothing if the state variables have not been initialized yet
-	if (!initialized) return;
+	if (!initialized) return false;
 	
     // Do nothing if this button was not pressed
     if (std::abs(this->x - x) > this->s/2 || std::abs(this->y - y) > this->s/2) {
-        return;
+        return false;
     }
     
     // Update the shownFrame variable based on this button's type
@@ -44,6 +44,7 @@ void SimulatorButton::mousePress(int x, int y) {
     if (type == PAUSE) *frameSpeed = 0;
     if (type == PLAY)  *frameSpeed = 1;
     if (type == END)   *shownFrame = frames->size() - 1;
+    return true;
 }
 
 void SimulatorButton::drawBackground(int x, int y, int s, QImage* pixels) {

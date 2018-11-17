@@ -17,10 +17,13 @@ public:
 	unsigned int getOutputHeight() { return outputHeight; }
 	
 	void mousePress(int x, int y);
+    void mouseDrag(int x, int y);
 	
 	void loadFrame(int frameID);
 	
 	void updateActions();
+    
+    void reset();
 private:
 	std::vector<Frame> frames;
 	std::mutex framesMutex;
@@ -32,7 +35,11 @@ private:
 	bool shown;
 	int shownFrame;
     int frameSpeed;
+    int width;
+    int height;
 	
+    const bool FLIP_Y_COORDINATES = true;
+    
 	void drawScene(QImage* pixels);
 	void drawBackground(QImage* pixels);
 	void drawPressureGraph(QImage* pixels);
