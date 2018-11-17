@@ -179,8 +179,9 @@ void Window::paintEvent(QPaintEvent* event) {
  * Exports the simulation output to csv files.
  */
 void Window::slot_exporttocsv() {
-	/*// Verify that a simulation has been completed
-	if (!view->simulator->getCompleted()) {
+	// Verify that a simulation has been completed
+    Model* model = ModelManager::getInstance()->getCurrent();
+	if (!model->hasSimulationOutput || model->simulating) {
 		QMessageBox::information(
 			this,
 			"Export to csv",
@@ -197,66 +198,52 @@ void Window::slot_exporttocsv() {
 	).toStdString();
 	
 	// Get the frame data from Simulator
-	std::vector<Frame> frames = view->renderer->simulator->getFrames();
-	
+	std::vector<Frame> frames = simulator->getFrames();
+    
 	// Loop through all receivers
-	Model* model = ModelManager::getInstance()->getCurrent();
 	for (unsigned int i = 0; i < model->receivers.size(); i++) {
 		// Get the position of this receiver
 		int x = model->receivers[i]->getX();
 		int y = model->receivers[i]->getY();
 		
 		// Open a file stream for this file
-		std::ofstream outfile(dir + "/receiver_" + std::to_string(x) + "_" + std::to_string(-y) + ".csv");
+		std::ofstream outfile(dir + "/receiver_" + std::to_string(x) + "_" + std::to_string(y) + ".csv");
 		
 		// Compute which domain the receiver is in
 		unsigned int domainID;
+        int sx, sy;
 		for (unsigned int j = 0; j < model->domains.size(); j++) {
 			// Get the position of this domain
-			int dx0 = model->domains[j]->getMinX();
-			int dx1 = model->domains[j]->getMaxX();
-			int dy0 = model->domains[j]->getMinY();
-			int dy1 = model->domains[j]->getMaxY();
+			int x0 = model->domains[j]->getMinX();
+			int x1 = model->domains[j]->getMaxX();
+			int y0 = model->domains[j]->getMinY();
+			int y1 = model->domains[j]->getMaxY();
 			
 			// Check if the receiver is inside this domain
-			bool xm = dx0 <= x && x <= dx1;
-			bool ym = dy0 <= y && y <= dy1;
-			if (xm && ym) {
+			bool xmatch = x0 <= x && x <= x1;
+			bool ymatch = y0 <= y && y <= y1;
+			if (xmatch && ymatch) {
+                // Save the domainID
 				domainID = j;
-				break;
+                
+                // Compute the sample coordinates
+                unsigned int w = frames[0].getWidth(domainID);
+                unsigned int h = frames[0].getHeight(domainID);
+                sx = ((x-x0)*static_cast<int>(w)/(x1-x0));
+                sy = ((y-y0)*static_cast<int>(h)/(y1-y0));
 			}
 		}
-		
-		// Compute the position of the receiver in kernel coordinates
-		int px = model->receivers[i]->getX() * model->zoom + model->offsetX;
-		int py = model->receivers[i]->getY() * model->zoom + model->offsetY;
-		int x0 = model->domains[domainID]->getMinX();
-		int x1 = model->domains[domainID]->getMaxX();
-		int y0 = model->domains[domainID]->getMinY();
-		int y1 = model->domains[domainID]->getMaxY();
-		int minx = x0 * model->zoom + model->offsetX;
-		int maxx = x1 * model->zoom + model->offsetX;
-		int miny = y0 * model->zoom + model->offsetY;
-		int maxy = y1 * model->zoom + model->offsetY;
-		unsigned int fwidth = frames[0].getWidth(domainID);
-		unsigned int fheight = frames[0].getHeight(domainID);
-		int ix = (px - minx) * static_cast<int>(fwidth-1) / (maxx - minx) + 1;
-		int iy = (maxy - py) * static_cast<int>(fheight-1) / (maxy - miny) + 1;
-		
-		// Loop through all frames
-		for (unsigned int j = 0; j < frames.size(); j++) {
-			// Get the pressure of the receiver at this frame
-			double pressure = frames[j].getSample(
-				static_cast<unsigned int>(ix),
-				static_cast<unsigned int>(iy),
-				domainID
-			);
-			if (j != 0) outfile << ",";
-			outfile << pressure;
-		}
-		outfile.close();
-		std::cout << "Saved receiver " << i << std::endl;
-	}*/
+        
+        // Loop through all frames
+        for (unsigned int frameID = 0; frameID < frames.size(); frameID++) {
+            // Get the pressure value at the receiver position
+            double p = frames[frameID].getSample(sx, sy, domainID);
+            outfile << p << ",";
+        }
+        
+        // Close the output file
+        outfile.close();
+	}
 }
 
 /**

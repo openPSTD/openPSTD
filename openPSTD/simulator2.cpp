@@ -405,6 +405,7 @@ void Simulator2::runSimulation(std::string cmd) {
 			// Check if the simulation has finished
 			if (line == simulationFinishString) {
                 emit updateText("Status: Finished simulation");
+                model->simulating = false;
                 break;
 			}
 			

@@ -15,6 +15,7 @@ public:
 	inline void toggle() { this->shown = !this->shown; updateActions(); }
 	inline void setShown(bool shown) { this->shown = shown; updateActions(); }
 	unsigned int getOutputHeight() { return outputHeight; }
+    std::vector<Frame> getFrames() { return frames; }
 	
 	void mousePress(int x, int y);
     void mouseDrag(int x, int y);

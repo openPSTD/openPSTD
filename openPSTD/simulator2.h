@@ -24,6 +24,8 @@ public:
 	
 	inline void mousePress(int x, int y) { so->mousePress(x, y); }
     inline void mouseDrag(int x, int y) { so->mouseDrag(x, y); }
+    
+    inline std::vector<Frame> getFrames() { return so->getFrames(); }
 private:
 	// Reference variables
 	QStatusBar* statusbar;
