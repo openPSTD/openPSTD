@@ -39,6 +39,7 @@ public slots:
 private:
 	QGraphicsScene* scene;
 	QSlider* slZoom;
+	QPoint mousePosition;
 	
 	bool offsetInitialized;
 	

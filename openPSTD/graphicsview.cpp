@@ -124,6 +124,9 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event) {
 		static_cast<int>(point.y()),
 		event->buttons() == Qt::LeftButton
 	);
+	
+	// Save the new mouse position
+	this->mousePosition = event->pos();
 }
 
 /**
@@ -135,11 +138,19 @@ void GraphicsView::wheelEvent(QWheelEvent* event) {
 	// Compute how much the mouse wheel was rotated
 	int delta = event->delta() / 120;
 	
+	// Save the current mouse position
+	QPoint mouse_screen = mousePosition;
+	QPoint mouse_object = Point(mouse_screen, SCREEN).getObject();
+	
 	// Update the zoom level
 	Model* model = ModelManager::getInstance()->getCurrent();
 	model->zoom += delta;
 	if (model->zoom < slZoom->minimum()) model->zoom = slZoom->minimum();
 	if (model->zoom > slZoom->maximum()) model->zoom = slZoom->maximum();
+	
+	// Update the offset such that zooming is centered on the mouse
+	model->offsetX = mouse_screen.x() / model->zoom - mouse_object.x();
+	model->offsetY = mouse_screen.y() / model->zoom + mouse_object.y();
 	
 	// Update the value of the zoom level spinbox
 	slZoom->setValue(model->zoom);
