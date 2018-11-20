@@ -197,49 +197,49 @@ bool Simulator2::sceneValid() {
 	// Verify that there is at least one domain
 	Model* model = ModelManager::getInstance()->getCurrent();
 	if (model->domains.size() == 0) {
-		emit updateText("Status: Error occurred (at least one domain is required)");
+		showErrorPopup("Error occurred (at least one domain is required)");
 		return false;
 	}
 	
 	// Verify that there is at least one source
 	if (model->sources.size() == 0) {
-		emit updateText("Status: Error occurred (at least one source is required)");
+		showErrorPopup("Error occurred (at least one source is required)");
 		return false;
 	}
 	
 	// Verify that there is at least one receiver
 	if (model->receivers.size() == 0) {
-		emit updateText("Status: Error occurred (at least one receiver is required)");
+		showErrorPopup("Error occurred (at least one receiver is required)");
 		return false;
 	}
 	
 	// Verify that all domains are connected
 	if (!domainsConnected()) {
-		emit updateText("Status: Error occurred (not all domains are connected)");
+		showErrorPopup("Error occurred (not all domains are connected)");
 		return false;
 	}
 	
 	// Verify that no domains overlap
 	if (domainsOverlap()) {
-		emit updateText("Status: Error occurred (domains should not overlap)");
+		showErrorPopup("Error occurred (domains should not overlap)");
 		return false;
 	}
 	
 	// Verify that all sources are inside a domain
 	if (!sourcesInDomain()) {
-		emit updateText("Status: Error occurred (all sources should be inside a domain)");
+		showErrorPopup("Error occurred (all sources should be inside a domain)");
 		return false;
 	}
 	
 	// Verify that all receivers are inside a domain
 	if (!receiversInDomain()) {
-		emit updateText("Status: Error occurred (all receivers should be inside a domain)");
+		showErrorPopup("Error occurred (all receivers should be inside a domain)");
 		return false;
 	}
 	
 	// Verify that all domains conform to the minimum dimensions
 	if (!domainMinimumSize()) {
-		emit updateText("Status: Error occurred (domain size should be larger than the grid size)");
+		showErrorPopup("Error occurred (domain size should be larger than the grid size)");
 		return false;
 	}
 	
@@ -486,4 +486,9 @@ void Simulator2::runSimulation(std::string cmd) {
 		}
 	}
 	pclose(fp);
+}
+
+void Simulator2::showErrorPopup(std::string message) {
+	QMessageBox::critical(nullptr, "Could not start simulation", message.c_str());
+	emit updateText("Status: Ready");
 }

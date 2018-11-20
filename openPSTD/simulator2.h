@@ -2,6 +2,7 @@
 #define SIMULATOR2_H
 
 #include <QStatusBar>
+#include <QMessageBox>
 #include <pthread.h>
 #include <sys/stat.h>
 #include "simulatoroutput.h"
@@ -60,6 +61,8 @@ private:
 	
 	void exec(std::string cmd);
 	void runSimulation(std::string cmd);
+	
+	void showErrorPopup(std::string message);
 signals:
 	void updateText(QString text);
 	void centerScene();
