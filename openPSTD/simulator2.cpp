@@ -237,6 +237,12 @@ bool Simulator2::sceneValid() {
 		return false;
 	}
 	
+	// Verify that all domains conform to the minimum dimensions
+	if (!domainMinimumSize()) {
+		emit updateText("Status: Error occurred (domain size should be larger than the grid size)");
+		return false;
+	}
+	
 	// No errors occurred, the scene is valid
 	return true;
 }
@@ -360,6 +366,25 @@ bool Simulator2::receiversInDomain() {
 	}
 	
 	// All receivers are in a domain
+	return true;
+}
+
+bool Simulator2::domainMinimumSize() {
+	// Compute the minimum size from the window size and grid size
+	Model* model = ModelManager::getInstance()->getCurrent();
+	int minSize = model->gridspacing * model->windowsize;
+			
+	// Loop through all domains
+	for (unsigned int i = 0; i < model->domains.size(); i++) {
+		// Get the dimensions of this domain
+		int w = model->domains[i]->getMaxX() - model->domains[i]->getMinX();
+		int h = model->domains[i]->getMaxY() - model->domains[i]->getMinY();
+		
+		if (w < minSize) return false;
+		if (h < minSize) return false;
+	}
+	
+	// Add domains conform the minimum size
 	return true;
 }
 

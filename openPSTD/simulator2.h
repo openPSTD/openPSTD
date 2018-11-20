@@ -54,6 +54,7 @@ private:
 	bool domainsOverlap();
 	bool sourcesInDomain();
 	bool receiversInDomain();
+	bool domainMinimumSize();
 	
 	int getDomainOfPoint(QPoint pos);
 	
