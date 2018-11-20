@@ -26,6 +26,7 @@ GraphicsView::GraphicsView(
 	// Save the reference to the zoom level slider
 	this->slZoom = slZoom;
 	
+	this->simulator = simulator;
 	offsetInitialized = false;
 }
 
@@ -205,6 +206,18 @@ void GraphicsView::keyPressEvent(QKeyEvent* event) {
 	if (key == Qt::Key_F12 && modifiers == Qt::NoModifier) {
 		// Print all domains, sources, and receivers to stdout
 		printModel();
+	}
+	
+	// Check for CTRL+Q
+	if (key == Qt::Key_Q && modifiers == Qt::ControlModifier) {
+		// Close the application
+		QApplication::quit();
+	}
+	
+	// Check for CTRL+R
+	if (key == Qt::Key_R && modifiers == Qt::ControlModifier) {
+		// Run the simulation
+		simulator->start();
 	}
 }
 

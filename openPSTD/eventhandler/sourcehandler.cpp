@@ -33,8 +33,8 @@ void SourceHandler::selectSource(bool add) {
 	if (!add) deselectAll();
 	
 	// Get the mouse coordinates
-	int x = mouse->getObject().x();
-	int y = mouse->getObject().y();
+	int x = mouse->getScreen().x();
+	int y = mouse->getScreen().y();
 	
 	// Loop through all sources
 	Model* model = ModelManager::getInstance()->getCurrent();
@@ -43,9 +43,12 @@ void SourceHandler::selectSource(bool add) {
 		int x1 = model->sources[i]->getX();
 		int y1 = model->sources[i]->getY();
 		
+		// Convert the source's position to screen coordinates
+		QPoint screenPos = Point(x1, y1, OBJECT).getScreen();
+		
 		// Check if this source was clicked
-		bool xmatch = std::abs(x1 - x) < 5;
-		bool ymatch = std::abs(y1 - y) < 5;
+		bool xmatch = std::abs(screenPos.x() - x) < 12;
+		bool ymatch = std::abs(screenPos.y() - y) < 12;
 		if (xmatch && ymatch) {
 			// Select this source
 			model->sources[i]->toggleSelected();

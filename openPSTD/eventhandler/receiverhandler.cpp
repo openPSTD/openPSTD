@@ -33,8 +33,8 @@ void ReceiverHandler::selectReceiver(bool add) {
 	if (!add) deselectAll();
 	
 	// Get the mouse coordinates
-	int x = mouse->getObject().x();
-	int y = mouse->getObject().y();
+	int x = mouse->getScreen().x();
+	int y = mouse->getScreen().y();
 	
 	// Loop through all receivers
 	Model* model = ModelManager::getInstance()->getCurrent();
@@ -43,9 +43,12 @@ void ReceiverHandler::selectReceiver(bool add) {
 		int x1 = model->receivers[i]->getX();
 		int y1 = model->receivers[i]->getY();
 		
+		// Convert the receiver's position to screen coordinates
+		QPoint screenPos = Point(x1, y1, OBJECT).getScreen();
+		
 		// Check if this receiver was clicked
-		bool xmatch = std::abs(x1 - x) < 5;
-		bool ymatch = std::abs(y1 - y) < 5;
+		bool xmatch = std::abs(screenPos.x() - x) < 12;
+		bool ymatch = std::abs(screenPos.y() - y) < 12;
 		if (xmatch && ymatch) {
 			// Select this receiver
 			model->receivers[i]->toggleSelected();

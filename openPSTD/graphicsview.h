@@ -7,6 +7,7 @@
 #include <QWheelEvent>
 #include <QSpinBox>
 #include <QSlider>
+#include <QApplication>
 #include <iostream>
 #include "renderer.h"
 #include "settings.h"
@@ -39,6 +40,7 @@ public slots:
 private:
 	QGraphicsScene* scene;
 	QSlider* slZoom;
+	Simulator2* simulator;
 	QPoint mousePosition;
 	
 	bool offsetInitialized;
