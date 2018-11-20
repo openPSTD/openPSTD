@@ -58,6 +58,7 @@ private:
 	bool domainMinimumSize();
 	
 	int getDomainOfPoint(QPoint pos);
+	void deselectDomainsWallsSources();
 	
 	void exec(std::string cmd);
 	void runSimulation(std::string cmd);

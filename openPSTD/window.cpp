@@ -56,9 +56,9 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	// Create a QSpinBox for the zoom level
 	slZoom->setMinimum(1);
 	slZoom->setMaximum(100);
-	slZoom->setValue(5);
+	slZoom->setValue(10);
 	slZoom->setFixedWidth(100);
-	ModelManager::getInstance()->getCurrent()->zoom = 5;
+	ModelManager::getInstance()->getCurrent()->zoom = 10;
 	ui->mainToolBar->addWidget(slZoom);
 	connect(slZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
 	

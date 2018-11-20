@@ -35,6 +35,9 @@ void Simulator2::start() {
 	// Disable the start simulation action
 	model->actionStart->setEnabled(false);
 	
+	// Deselect all domains, walls, and sources
+	deselectDomainsWallsSources();
+	
 	// Show the simulator output
 	so->setShown(true);
 	
@@ -410,6 +413,21 @@ int Simulator2::getDomainOfPoint(QPoint pos) {
 	// Error
 	std::cerr << "Error: Point not in any domain" << std::endl;
 	return 0;
+}
+
+void Simulator2::deselectDomainsWallsSources() {
+	// Loop through all domains
+	Model* model = ModelManager::getInstance()->getCurrent();
+	for (unsigned int i = 0; i < model->domains.size(); i++) {
+		// Deselect this domain, and all its walls
+		model->domains[i]->deselectAll();
+	}
+	
+	// Loop through all sources
+	for (unsigned int i = 0; i < model->sources.size(); i++) {
+		// Deselect this source
+		model->sources[i]->setSelected(false);
+	}
 }
 
 void Simulator2::exec(std::string cmd) {
