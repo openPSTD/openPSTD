@@ -32,6 +32,9 @@ void Simulator2::start() {
 	// Disable all interfering actions
 	so->updateActions();
     
+	// Disable the start simulation action
+	model->actionStart->setEnabled(false);
+	
 	// Show the simulator output
 	so->setShown(true);
 	
@@ -41,7 +44,7 @@ void Simulator2::start() {
     
 	// Center the scene
 	emit centerScene();
-    
+	
 	// Start a new thread for the Simulator
 	threadRunning = true;
 	threadID = pthread_create(&thread, nullptr, &Simulator2::run, this);
@@ -74,6 +77,9 @@ void Simulator2::removeSimulation() {
     
     // Re-enable the state selecting actions
 	so->updateActions();
+	
+	// Re-enable the start simulation action
+	model->actionStart->setEnabled(true);
 }
 
 void* Simulator2::run(void* args) {

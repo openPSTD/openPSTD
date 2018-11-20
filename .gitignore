@@ -14,3 +14,8 @@ openpstd_plugin*
 .qmake.stash
 testdata/
 installers/
+installation/
+installation2/
+AppRun/
+installation.zip
+installation2.zip

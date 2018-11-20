@@ -23,6 +23,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	model->actionChangeAbsorption = ui->actionChangeAbsorption;
 	model->actionShow_Output = ui->actionShow_Output;
 	model->actionShowSidebar = ui->actionSettings_Sidebar;
+	model->actionStart = ui->actionstart;
 	
 	// Add a spacer to the main toolbar
 	spacer = new QWidget();

@@ -79,6 +79,7 @@ public:
 	QAction* actionChangeAbsorption;
 	QAction* actionShow_Output;
 	QAction* actionShowSidebar;
+	QAction* actionStart;
 };
 
 #endif
