@@ -55,6 +55,8 @@ private:
 	bool sourcesInDomain();
 	bool receiversInDomain();
 	
+	int getDomainOfPoint(QPoint pos);
+	
 	void exec(std::string cmd);
 	void runSimulation(std::string cmd);
 signals:

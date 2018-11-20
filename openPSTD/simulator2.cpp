@@ -134,9 +134,15 @@ void* Simulator2::run(void* args) {
 		// Add the source
 		int x = model->sources[i]->getX();
 		int y = model->sources[i]->getY();
+		
+		// Flip y-coordinate inside the domain:
+		//   Domain from y0 to y1, source at y: y' = y1-(y-y0) = y0+y1-y
+		int domainID = instance->getDomainOfPoint(QPoint(x, y));
+		int deltaY = model->domains[domainID]->getMaxY() + model->domains[domainID]->getMinY();
+		
 		std::string cmd = "";
 		cmd += instance->kernel + " edit -p [";
-		cmd += std::to_string(x) + "," + std::to_string(y);
+		cmd += std::to_string(x) + "," + std::to_string(deltaY-y);
 		cmd += "] -f " + instance->filename;
 		instance->exec(cmd);
 	}
@@ -146,9 +152,14 @@ void* Simulator2::run(void* args) {
 		// Add the receiver
 		int x = model->receivers[i]->getX();
 		int y = model->receivers[i]->getY();
+		
+		// Flip y-coordinate inside the domain
+		int domainID = instance->getDomainOfPoint(QPoint(x, y));
+		int deltaY = model->domains[domainID]->getMaxY() + model->domains[domainID]->getMinY();
+		
 		std::string cmd = "";
 		cmd += instance->kernel + " edit -r [";
-		cmd += std::to_string(x) + "," + std::to_string(y);
+		cmd += std::to_string(x) + "," + std::to_string(deltaY-y);
 		cmd += "] -f " + instance->filename;
 		instance->exec(cmd);
 	}
@@ -344,6 +355,30 @@ bool Simulator2::receiversInDomain() {
 	
 	// All receivers are in a domain
 	return true;
+}
+
+int Simulator2::getDomainOfPoint(QPoint pos) {
+	// Loop through all domains
+	Model* model = ModelManager::getInstance()->getCurrent();
+	for (unsigned int i = 0; i < model->domains.size(); i++) {
+		// Get the coordinates of this domain
+		int minX = model->domains[i]->getMinX();
+		int maxX = model->domains[i]->getMaxX();
+		int minY = model->domains[i]->getMinY();
+		int maxY = model->domains[i]->getMaxY();
+		
+		// Check if this domain contains the given point
+		bool xmatch = minX <= pos.x() && pos.x() <= maxX;
+		bool ymatch = minY <= pos.y() && pos.y() <= maxY;
+		if (xmatch && ymatch) {
+			// Return this domain's id
+			return i;
+		}
+	}
+	
+	// Error
+	std::cerr << "Error: Point not in any domain" << std::endl;
+	return 0;
 }
 
 void Simulator2::exec(std::string cmd) {

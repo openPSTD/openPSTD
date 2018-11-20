@@ -39,7 +39,7 @@ private:
     int width;
     int height;
 	
-    const bool FLIP_Y_COORDINATES = true;
+    const bool FLIP_Y_COORDINATES = false;
     
 	void drawScene(QImage* pixels);
 	void drawBackground(QImage* pixels);
