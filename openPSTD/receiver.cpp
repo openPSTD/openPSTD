@@ -58,25 +58,25 @@ void Receiver::draw(QImage* pixels) {
 			setPixel(
 				x + i,
 				y + d,
-				qRgb(0, 255, 255),
+				qRgb(0, 128, 255),
 				pixels
 			);
 			setPixel(
 				x + i,
 				y - d,
-				qRgb(0, 255, 255),
+				qRgb(0, 128, 255),
 				pixels
 			);
 			setPixel(
 				x + d,
 				y + i,
-				qRgb(0, 255, 255),
+				qRgb(0, 128, 255),
 				pixels
 			);
 			setPixel(
 				x - d,
 				y + i,
-				qRgb(0, 255, 255),
+				qRgb(0, 128, 255),
 				pixels
 			);
 		}

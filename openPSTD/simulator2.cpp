@@ -150,11 +150,12 @@ void* Simulator2::run(void* args) {
 		// Flip y-coordinate inside the domain:
 		//   Domain from y0 to y1, source at y: y' = y1-(y-y0) = y0+y1-y
 		int domainID = instance->getDomainOfPoint(QPoint(x, y));
+		int deltaX = model->domains[domainID]->getMaxX() + model->domains[domainID]->getMinX();
 		int deltaY = model->domains[domainID]->getMaxY() + model->domains[domainID]->getMinY();
 		
 		std::string cmd = "";
 		cmd += instance->kernel + " edit -p [";
-		cmd += std::to_string(x) + "," + std::to_string(deltaY-y);
+		cmd += std::to_string(deltaX-x) + "," + std::to_string(deltaY-y);
 		cmd += "] -f " + instance->filename;
 		instance->exec(cmd);
 	}
@@ -167,11 +168,12 @@ void* Simulator2::run(void* args) {
 		
 		// Flip y-coordinate inside the domain
 		int domainID = instance->getDomainOfPoint(QPoint(x, y));
+		int deltaX = model->domains[domainID]->getMaxX() + model->domains[domainID]->getMinX();
 		int deltaY = model->domains[domainID]->getMaxY() + model->domains[domainID]->getMinY();
 		
 		std::string cmd = "";
 		cmd += instance->kernel + " edit -r [";
-		cmd += std::to_string(x) + "," + std::to_string(deltaY-y);
+		cmd += std::to_string(deltaX-x) + "," + std::to_string(deltaY-y);
 		cmd += "] -f " + instance->filename;
 		instance->exec(cmd);
 	}

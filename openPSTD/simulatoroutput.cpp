@@ -229,7 +229,7 @@ void SimulatorOutput::drawPressureGraph(QImage* pixels) {
 			unsigned int w = frames[0].getWidth(domainID);
 			unsigned int h = frames[0].getHeight(domainID);
 			sx = ((x-x0)*static_cast<int>(w)/(x1-x0));
-			sy = ((y-y0)*static_cast<int>(h)/(y1-y0));
+			sy = ((y1-y)*static_cast<int>(h)/(y1-y0));
 		}
 	}
 	
@@ -259,6 +259,8 @@ void SimulatorOutput::drawPressureGraph(QImage* pixels) {
         if (std::abs(x1-x0) >= std::abs(y1-y0)) {
             for (int x = x0; x < x1; x++) {
                 int y = y0 + (y1-y0)*(x-x0)/(x1-x0);
+				if (x < 0 || x >= pixels->width()) continue;
+				if (y < 0 || y >= pixels->height()) continue;
                 pixels->setPixel(x, pixels->height()-y, qRgb(0, 255, 0));
             }
         } else {
@@ -268,6 +270,8 @@ void SimulatorOutput::drawPressureGraph(QImage* pixels) {
             }
             for (int y = y0; y < y1; y++) {
                 int x = x0 + (x1-x0)*(y-y0)/(y1-y0);
+				if (x < 0 || x >= pixels->width()) continue;
+				if (y < 0 || y >= pixels->height()) continue;
                 pixels->setPixel(x, pixels->height()-y, qRgb(0, 255, 0));
             }
         }
