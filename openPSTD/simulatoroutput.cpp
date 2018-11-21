@@ -98,6 +98,10 @@ void SimulatorOutput::updateActions() {
 	// Update the state of the show output action
 	model->actionShow_Output->setChecked(shown);
     
+	// Enable / disable the Stop Simulator action
+	model->actionStop->setEnabled(model->simulating);
+	model->actionRemoveSimulation->setEnabled(model->hasSimulationOutput);
+	
     // Select the SELECT_DOMAIN action
     model->actionSelect_Domain->setChecked(true);
     model->state = SELECTDOMAIN;

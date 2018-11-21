@@ -36,6 +36,10 @@ public:
 		dh->cancelNewDomain();
 		doubleclick = false;
 	}
+	inline void cancelMeasure() {
+		mh->remove();
+		doubleclick = false;
+	}
 	inline bool isSourceSelected(unsigned int id) { return sh->isSelected(id); }
 	inline bool isReceiverSelected(unsigned int id) { return rh->isSelected(id); }
 	inline void selectReceiver(unsigned int id) { rh->selectReceiver(id); }

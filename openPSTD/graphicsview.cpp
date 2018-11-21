@@ -250,6 +250,7 @@ void GraphicsView::keyPressEvent(QKeyEvent* event) {
 	if (key == Qt::Key_Escape && modifiers == Qt::NoModifier) {
 		// Cancel adding a domain
 		renderer->eh->cancelNewDomain();
+		renderer->eh->cancelMeasure();
 		renderer->draw();
 	}
 	

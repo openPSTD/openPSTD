@@ -35,7 +35,7 @@ QPoint Point::getObject() {
 
 Point Point::clampToGrid() {
 	// Clamping distance in pixels
-	int max_delta = 20;
+	int max_delta = Settings::getInstance()->clampDist;
 	
 	// Define some helper variables
 	int gz = model->gridsize * model->zoom;

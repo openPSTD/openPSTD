@@ -62,6 +62,9 @@ void Simulator2::stop() {
 	// If pressed twice, force stop the thread.
 	emit updateText("Status: Stopping Simulator");
 	
+	// Disable the stop simulator action
+	model->actionStop->setEnabled(false);
+	
 	// Update the status bar text
 	model->simulating = false;
 }
@@ -490,6 +493,7 @@ void Simulator2::runSimulation(std::string cmd) {
 			if (line == simulationFinishString) {
                 emit updateText("Status: Finished simulation");
                 model->simulating = false;
+				model->actionStop->setEnabled(false);
                 break;
 			}
 			

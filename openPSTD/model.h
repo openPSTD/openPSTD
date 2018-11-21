@@ -81,6 +81,8 @@ public:
 	QAction* actionShow_Output;
 	QAction* actionShowSidebar;
 	QAction* actionStart;
+	QAction* actionStop;
+	QAction* actionRemoveSimulation;
 };
 
 #endif

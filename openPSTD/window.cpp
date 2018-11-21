@@ -24,6 +24,12 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	model->actionShow_Output = ui->actionShow_Output;
 	model->actionShowSidebar = ui->actionSettings_Sidebar;
 	model->actionStart = ui->actionstart;
+	model->actionStop = ui->actionstop;
+	model->actionRemoveSimulation = ui->actionRemove_Simulation;
+	
+	// Disable the stop simulator action by default
+	ui->actionstop->setEnabled(false);
+	ui->actionRemove_Simulation->setEnabled(false);
 	
 	// Add a spacer to the main toolbar
 	spacer = new QWidget();
@@ -74,9 +80,7 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	// Create a QSpinBox for the grid size
 	Settings* settings = Settings::getInstance();
 	sbGridSize = new QSpinBox();
-	sbGridSize->setMinimum(settings->guiGridSize);
-	sbGridSize->setMaximum(10*settings->guiGridSize);
-	sbGridSize->setSingleStep(settings->guiGridSize);
+	sbGridSize->setMinimum(4);
 	sbGridSize->setValue(settings->guiGridSize);
 	sbGridSize->setToolTip("In m");
 	view->renderer->setGridSize(settings->guiGridSize);
@@ -291,81 +295,81 @@ void Window::slot_guigridsize() {
 }
 
 void Window::slot_pstdgridsize() {
-	Settings* settings = Settings::getInstance();
-	double pstdgridsize = QInputDialog::getDouble(
+	Model* model = ModelManager::getInstance()->getCurrent();
+	double pstdgridspacing = QInputDialog::getDouble(
 		this,
-		"Choose a PSTD grid size",
-		"Choose a PSTD grid size",
-		settings->pstdGridSize
+		"Choose a PSTD grid spacing",
+		"Choose a PSTD grid spacing",
+		model->gridspacing
 	);
-	settings->pstdGridSize = pstdgridsize;
+	model->gridspacing = pstdgridspacing;
 }
 
 void Window::slot_windowsize() {
 	// TODO: Window size has to be 16 or 32
-	Settings* settings = Settings::getInstance();
+	Model* model = ModelManager::getInstance()->getCurrent();
 	int windowsize = QInputDialog::getInt(
 		this,
 		"Choose a window size",
 		"Choose a window size",
-		settings->windowSize
+		model->windowsize
 	);
-	settings->windowSize = windowsize;
+	model->windowsize = windowsize;
 }
 
 void Window::slot_rendertime() {
-	Settings* settings = Settings::getInstance();
+	Model* model = ModelManager::getInstance()->getCurrent();
 	double rendertime = QInputDialog::getDouble(
 		this,
 		"Choose a render time",
 		"Choose a render time",
-		settings->renderTime
+		model->rendertime
 	);
-	settings->renderTime = rendertime;
+	model->rendertime = rendertime;
 }
 
 void Window::slot_pmlcells() {
-	Settings* settings = Settings::getInstance();
+	Model* model = ModelManager::getInstance()->getCurrent();
 	int pmlcells = QInputDialog::getInt(
 		this,
 		"Choose a number of PML cells",
 		"Choose a number of PML cells",
-		settings->pmlcells
+		model->pmlcells
 	);
-	settings->pmlcells = pmlcells;
+	model->pmlcells = pmlcells;
 }
 
 void Window::slot_attenuationpmlcells() {
-	Settings* settings = Settings::getInstance();
+	Model* model = ModelManager::getInstance()->getCurrent();
 	int attenuationpmlcells = QInputDialog::getInt(
 		this,
 		"Choose an attenuation of PML cells",
 		"Choose an attenuation of PML cells",
-		settings->attenuationpmlcells
+		model->attenuationpmlcells
 	);
-	settings->attenuationpmlcells = attenuationpmlcells;
+	model->attenuationpmlcells = attenuationpmlcells;
 }
 
 void Window::slot_airdensity() {
-	Settings* settings = Settings::getInstance();
+	Model* model = ModelManager::getInstance()->getCurrent();
 	double airdensity = QInputDialog::getDouble(
 		this,
 		"Choose an air density",
 		"Choose an air density",
-		settings->airDensity
+		model->airdensity
 	);
-	settings->airDensity = airdensity;
+	model->airdensity = airdensity;
 }
 
 void Window::slot_soundspeed() {
-	Settings* settings = Settings::getInstance();
+	Model* model = ModelManager::getInstance()->getCurrent();
 	int soundspeed = QInputDialog::getInt(
 		this,
 		"Choose a sound speed",
 		"Choose a sound speed",
-		settings->soundSpeed
+		model->soundspeed
 	);
-	settings->soundSpeed = soundspeed;
+	model->soundspeed = soundspeed;
 }
 
 /**
