@@ -76,6 +76,57 @@ void GraphicsView::resizeEvent(QResizeEvent* event) {
 }
 
 /**
+ * Generic event method inheritted from QObject.
+ * Needed to capture keypresses of only a modifier key,
+ * specifically needed for the CTRL key for disabling
+ * clamping of the mouse temporarily.
+ * 
+ * @param event  A reference to the QEvent
+ * 
+ * @return  Whether or not the event has been processed
+ */
+bool GraphicsView::event(QEvent* event) {
+	// Pass the event to the parent
+	QGraphicsView::event(event);
+	
+	// Check if the event is a keypress
+	if (event->type() == QEvent::KeyPress) {
+		// Check if the CTRL key is currently pressed, and
+		// update its state in the Model
+		bool ctrl = ((QKeyEvent*) event)->modifiers() == Qt::ControlModifier;
+		Model* model = ModelManager::getInstance()->getCurrent();
+		model->ctrlPressed = ctrl;
+		
+		// Fire a mouse move event to update the eventhandler
+		renderer->mouseDrag(
+			mousePosition.x(),
+			mousePosition.y(),
+			QApplication::mouseButtons() == Qt::LeftButton
+		);
+	}
+	
+	// Check if the event is a keyrelease
+	if (event->type() == QEvent::KeyRelease) {
+		// Check if the CTRL key is currently pressed, and
+		// update its state in the Model
+		bool ctrl = ((QKeyEvent*) event)->modifiers() == Qt::ControlModifier;
+		Model* model = ModelManager::getInstance()->getCurrent();
+		model->ctrlPressed = ctrl;
+		
+		// Fire a mouse move event to update the eventhandler
+		renderer->mouseDrag(
+			mousePosition.x(),
+			mousePosition.y(),
+			QApplication::mouseButtons() == Qt::LeftButton
+		);
+	}
+	
+	// Don't register any processing of the event, such
+	// that propagation of the event will continue normally
+	return false;
+}
+
+/**
  * Event listener for mouse click.
  * 
  * @param event  A reference to the QMouseEvent

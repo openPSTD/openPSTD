@@ -31,6 +31,7 @@ public:
 protected:
 	void paintEvent(QPaintEvent* event);
 	void resizeEvent(QResizeEvent* event);
+	bool event(QEvent* event);
 public slots:
 	void mousePressEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent* event);

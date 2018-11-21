@@ -50,6 +50,7 @@ public:
 	
 	// Grid
 	bool showGrid = true;
+	bool ctrlPressed = false;
 	
 	// PSTD settings
 	double gridspacing = 0.2;

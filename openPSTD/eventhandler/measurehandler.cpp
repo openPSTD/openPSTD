@@ -33,7 +33,9 @@ MeasureHandler::~MeasureHandler() {
  */
 void MeasureHandler::setP1() {
 	// Save the first point of the measure
-	*p1 = mouse->clampToGrid();
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (model->ctrlPressed) *p1 = *mouse;
+	else *p1 = mouse->clampToGrid();
 	
 	// Hide the measure tool until p2 is defined
 	this->hasP1 = true;
@@ -48,7 +50,9 @@ void MeasureHandler::setP2(bool final) {
 	if (!hasP1) return;
 	
 	// Save the second point of the measure
-	*p2 = mouse->clampToGrid();
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (model->ctrlPressed) *p2 = *mouse;
+	else *p2 = mouse->clampToGrid();
 	
 	// Show the measure tool
 	this->shown = true;

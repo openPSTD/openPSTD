@@ -103,7 +103,8 @@ void Renderer::draw() {
 	
 	// Draw cursor if adding domain or measuring
 	if (model->state == ADDDOMAIN || model->state == MEASURE) {
-		Point c = eh->getMousePos().clampToGrid();
+		Point c = eh->getMousePos();
+		if (!model->ctrlPressed) c = c.clampToGrid();
 		drawCursor(c.getScreen().x(), c.getScreen().y());
 	}
 	

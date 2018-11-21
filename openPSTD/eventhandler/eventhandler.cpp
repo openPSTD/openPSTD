@@ -154,7 +154,11 @@ void EventHandler::mouseRelease(QPoint screen, Qt::MouseButton button) {
 	// LMB + sMeasure = Measure
 	Model* model = ModelManager::getInstance()->getCurrent();
 	if (button == Qt::LeftButton && model->state == MEASURE && !model->hasSimulationOutput) {
-		if (mouse->clampToGrid().getObject() == mh->getP1()) {
+		bool samePos = (
+			(model->ctrlPressed && mouse->getObject() == mh->getP1()) ||
+			(!model->ctrlPressed && mouse->clampToGrid().getObject() == mh->getP1())
+		);
+		if (samePos) {
 			doubleclick = true;
 		} else {
 			mh->setP2(true);
@@ -163,7 +167,11 @@ void EventHandler::mouseRelease(QPoint screen, Qt::MouseButton button) {
 	
 	// LMB + sAddDomain = Add domain
 	if (button == Qt::LeftButton && model->state == ADDDOMAIN && !model->hasSimulationOutput) {
-		if (mouse->clampToGrid().getObject() == dh->getP1()) {
+		bool samePos = (
+			(model->ctrlPressed && mouse->getObject() == dh->getP1()) ||
+			(!model->ctrlPressed && mouse->clampToGrid().getObject() == dh->getP1())
+		);
+		if (samePos) {
 			doubleclick = true;
 		} else {
 			dh->addP2(true);

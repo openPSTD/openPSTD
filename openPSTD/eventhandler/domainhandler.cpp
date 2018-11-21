@@ -55,7 +55,9 @@ void DomainHandler::addP1() {
 	ModelManager::getInstance()->saveState();
 	
 	// Register the first corner of a new domain
-	this->p1 = mouse->clampToGrid().getObject();
+	Model* model = ModelManager::getInstance()->getCurrent();
+	if (model->ctrlPressed) this->p1 = mouse->getObject();
+	else this->p1 = mouse->clampToGrid().getObject();
 	this->hasP1 = true;
 	this->hasP2 = false;
 }
@@ -73,7 +75,8 @@ void DomainHandler::addP2(bool final) {
 		// Update the end coordinate of the last domain
 		//model->domains.back()->setX1(m.x());
 		//model->domains.back()->setY1(m.y());
-		model->domains.back()->setP2(mouse->clampToGrid());
+		if (model->ctrlPressed) model->domains.back()->setP2(*mouse);
+		else model->domains.back()->setP2(mouse->clampToGrid());
 		model->domains.back()->resetWalls();
 		
 		if (final) {
@@ -85,9 +88,12 @@ void DomainHandler::addP2(bool final) {
 		hasP2 = true;
 		
 		// Create a new domain
+		Point* myP2;
+		if (model->ctrlPressed) myP2 = new Point(mouse->getObject(), OBJECT);
+		else myP2 = new Point(mouse->clampToGrid().getObject(), OBJECT);
 		model->domains.push_back(new Domain(
 			new Point(p1, OBJECT),
-			new Point(mouse->clampToGrid().getObject(), OBJECT)
+			myP2
 		));
 	}
 	
