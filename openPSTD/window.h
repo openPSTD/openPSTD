@@ -41,6 +41,8 @@ private:
 	QLabel* lGridSize;
 	QLabel* lGridSize2;
 	QLabel* lZoom;
+	QAction* actionZoomMinus;
+	QAction* actionZoomPlus;
 	QActionGroup* qagMainToolbar;
 	Simulator2* simulator;
 	Sidebar* sidebar;
@@ -55,6 +57,8 @@ public slots:
 	// Toolbar button slots
 	inline void slot_gridsize(int gridsize) { view->renderer->setGridSize(gridsize); }
 	inline void slot_zoom(int zoom) { ModelManager::getInstance()->getCurrent()->zoom = zoom; }
+	inline void slot_zoomminus() { ModelManager::getInstance()->getCurrent()->zoom--; }
+	inline void slot_zoomplus() { ModelManager::getInstance()->getCurrent()->zoom++; }
 	
 	// File menu slots
 	void slot_exporttocsv();

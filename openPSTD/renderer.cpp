@@ -108,11 +108,6 @@ void Renderer::draw() {
 		drawCursor(c.getScreen().x(), c.getScreen().y());
 	}
 	
-	// Draw zoom level reference
-	int zoomaim = model->gridsize - model->gridsize % 10;
-	if (zoomaim == 0) zoomaim = 10;
-	drawZoom(zoomaim);
-	
 	// Update fps
 	if (numframes++ >= 20) {
 		fps = static_cast<int>(20 * 1000.0 / time.elapsed());
@@ -246,29 +241,6 @@ void Renderer::drawCursor(int x, int y) {
 	p.end();
 }
 
-/**
- * Draws a zoom level reference with given size.
- * 
- * @param zoomaim  The size for the zoom level reference
- */
-void Renderer::drawZoom(int zoomaim) {
-	// Draw the zoom level reference line
-	Model* model = ModelManager::getInstance()->getCurrent();
-	int width = model->zoom * zoomaim;
-	for (int i = 5; i < 5 + width; i++) {
-		if (i < pixels->width()) pixels->setPixel(i, 5, Settings::getInstance()->zoomColor);
-	}
-	for (int i = 3; i < 8; i++) {
-		pixels->setPixel(5, i, Settings::getInstance()->zoomColor);
-		if (5 + width < pixels->width()) {
-			pixels->setPixel(5 + width, i, Settings::getInstance()->zoomColor);
-		}
-	}
-	
-	// Draw the current zoom level text
-	drawText(std::to_string(zoomaim) + " m", 5, 10, 14, Settings::getInstance()->zoomColor);
-}
-
 void Renderer::drawAxes() {
 	// Draw horizontal axis at (0, 0)
 	Model* model = ModelManager::getInstance()->getCurrent();
@@ -297,9 +269,43 @@ void Renderer::drawAxes() {
 		}
 	}
 	
-	// Draw horizontal offset text
-	int mousex = eh->getMousePos().getObject().x(); //(eh->getMousePos().getScreen().x() - model->offsetX) / model->zoom;
-	int mousey = eh->getMousePos().getObject().y(); //-(eh->getMousePos().getScreen().y() - model->offsetY) / model->zoom;
+	// Draw horizontal axis labels
+	int minX = std::ceil(-model->offsetX / model->gridsize);
+	int maxX = std::floor((-model->offsetX + width / model->zoom) / model->gridsize);
+	for (int x = minX; x <= maxX; x++) {
+		int xx = (x * model->gridsize + model->offsetX) * model->zoom;
+		int yy = model->offsetY * model->zoom;
+		std::string text = std::to_string(x * model->gridsize);
+		int dx = text.size() * 12 / 2;
+		drawText(
+			text,
+			xx - dx,
+			yy + 5,
+			16,
+			qRgb(0, 0, 0)
+		);
+	}
+	
+	// Draw vertical axis labels
+	int minY = std::ceil(-model->offsetY / model->gridsize);
+	int maxY = std::floor((-model->offsetY + height / model->zoom) / model->gridsize);
+	for (int y = minY; y <= maxY; y++) {
+		int yy = (y * model->gridsize + model->offsetY) * model->zoom;
+		int xx = model->offsetX * model->zoom;
+		std::string text = std::to_string(-y * model->gridsize);
+		int dx = text.size() * 12;
+		drawText(
+			text,
+			xx - dx - 5,
+			yy - 8,
+			16,
+			qRgb(0, 0, 0)
+		);
+	}
+	
+	// Draw mouse position text
+	int mousex = eh->getMousePos().getObject().x();
+	int mousey = eh->getMousePos().getObject().y();
 	drawText(
 		"X: " + std::to_string(mousex),
 		0,

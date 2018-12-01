@@ -93,7 +93,9 @@ void* Simulator2::run(void* args) {
 	Simulator2* instance = static_cast<Simulator2*>(args);
 	
     // Create an output directory if it does not exist yet
-    system("[ ! -d testdata ] && mkdir testdata");
+    //system("[ ! -d testdata ] && mkdir testdata");
+	system(instance->rmoutputdircmd.c_str());
+	system(instance->mkoutputdircmd.c_str());
     
 	// Create a file for this simulation
 	emit instance->updateText("Status: Initializing kernel");
@@ -247,7 +249,7 @@ bool Simulator2::sceneValid() {
 	
 	// Verify that all domains conform to the minimum dimensions
 	if (!domainMinimumSize()) {
-		showErrorPopup("Error occurred (domain size should be larger than the grid size)");
+		showErrorPopup("Error occurred (domain size should be larger than the grid spacing times window size)");
 		return false;
 	}
 	
@@ -496,7 +498,9 @@ void Simulator2::runSimulation(std::string cmd) {
                 emit updateText("Status: Finished simulation");
                 model->simulating = false;
 				model->actionStop->setEnabled(false);
-                break;
+				
+				pclose(fp);
+				return;
 			}
 			
 			line = "";
@@ -509,7 +513,10 @@ void Simulator2::runSimulation(std::string cmd) {
 			return;
 		}
 	}
+	
 	pclose(fp);
+	emit updateText("Status: Kernel error");
+	showErrorPopup("Kernel error");
 }
 
 void Simulator2::showErrorPopup(std::string message) {

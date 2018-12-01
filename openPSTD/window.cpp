@@ -68,6 +68,18 @@ Window::Window(QWidget* parent) : QMainWindow(parent), ui(new Ui::Window) {
 	ui->mainToolBar->addWidget(slZoom);
 	connect(slZoom, SIGNAL(valueChanged(int)), this, SLOT(slot_zoom(int)));
 	
+	actionZoomMinus = new QAction();
+	actionZoomMinus->setIcon(QIcon(":/new/prefix1/icons/zoom_minus.png"));
+	actionZoomMinus->setToolTip("Zoom out");
+	ui->mainToolBar->addAction(actionZoomMinus);
+	connect(actionZoomMinus, SIGNAL(triggered(bool)), this, SLOT(slot_zoomminus()));
+	
+	actionZoomPlus = new QAction();
+	actionZoomPlus->setIcon(QIcon(":/new/prefix1/icons/zoom_plus.png"));
+	actionZoomPlus->setToolTip("Zoom in");
+	ui->mainToolBar->addAction(actionZoomPlus);
+	connect(actionZoomPlus, SIGNAL(triggered(bool)), this, SLOT(slot_zoomplus()));
+	
 	QWidget* w = new QWidget();
 	w->setFixedWidth(20);
 	ui->mainToolBar->addWidget(w);
@@ -160,12 +172,17 @@ Window::~Window() {
 	// Delete class instance variables
 	Settings::getInstance()->destruct();
 	delete sidebar;
+	delete simulator;
 	delete qagMainToolbar;
-	delete sbGridSize;
-	delete view;
+	delete actionZoomPlus;
+	delete actionZoomMinus;
+	delete lZoom;
 	delete lGridSize2;
 	delete lGridSize;
 	delete spacer;
+	delete slZoom;
+	delete sbGridSize;
+	delete view;
 	delete ui;
 }
 

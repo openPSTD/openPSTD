@@ -33,8 +33,12 @@ private:
 	SimulatorOutput* so;
     Sidebar* sidebar;
     
+	const std::string OS = "linux";
+	
 	// Settings variables
-	std::string kernel = "./OpenPSTD-cli";
+	std::string kernel = (OS == "linux" ? "./OpenPSTD-cli" : "OpenPSTD-cli.exe");
+	std::string rmoutputdircmd = (OS == "linux" ? "[ -d testdata ] && rm -r testdata" : "rem testdata");
+	std::string mkoutputdircmd = "mkdir testdata";
 	std::string filename = "test"; // Filename for the scene file (for kernel)
 	std::string frameFinishString = "Finished frame: ";
 	std::string simulationFinishString = "Succesfully finished simulation";
