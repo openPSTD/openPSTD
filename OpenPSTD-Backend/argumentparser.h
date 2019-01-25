@@ -9,7 +9,8 @@ enum Command {
 	CREATE,
 	LIST,
 	EDIT,
-	RUN
+	RUN,
+	TEST
 };
 
 /**

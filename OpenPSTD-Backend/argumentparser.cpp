@@ -22,6 +22,7 @@ ArgumentParser::ArgumentParser(int argc, char** argv) {
 	else if (cmd == "list") command = LIST;
 	else if (cmd == "edit") command = EDIT;
 	else if (cmd == "run") command = RUN;
+	else if (cmd == "test") command = TEST;
 	else {
 		std::cerr << "[ArgumentParser] Invalid command \"" << cmd << "\"" << std::endl;
 		exit(1);
