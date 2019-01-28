@@ -13,6 +13,10 @@ void RunCommand::execute(ArgumentParser* parser) {
 		std::cerr << "[RunCommand] Option \"-f\" is required" << std::endl;
 		exit(1);
 	}
+	if (filename == "") {
+		std::cerr << "[RunCommand] Option \"-f\" requires a filename" << std::endl;
+		exit(1);
+	}
 	
 	// Read the scene file
 	Configuration conf = FileIO::readSceneFile(filename);

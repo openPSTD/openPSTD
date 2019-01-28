@@ -13,10 +13,10 @@ public:
 	const static int NEW_SCENE_ATTENUATION = 20000;
 	
 	// Absorption values for when a new domain is created
-	const static int NEW_DOMAIN_ABSORPTION_TOP = 0;
-	const static int NEW_DOMAIN_ABSORPTION_BOTTOM = 0;
-	const static int NEW_DOMAIN_ABSORPTION_LEFT = 0;
-	const static int NEW_DOMAIN_ABSORPTION_RIGHT = 0;
+	constexpr static double NEW_DOMAIN_ABSORPTION_TOP = 0;
+	constexpr static double NEW_DOMAIN_ABSORPTION_BOTTOM = 0;
+	constexpr static double NEW_DOMAIN_ABSORPTION_LEFT = 0;
+	constexpr static double NEW_DOMAIN_ABSORPTION_RIGHT = 0;
 	
 	// ELR values for when a new domain is created
 	const static bool NEW_DOMAIN_ELR_TOP = false;

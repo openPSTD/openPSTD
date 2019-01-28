@@ -8,9 +8,20 @@
  */
 void CreateCommand::execute(ArgumentParser* parser) {
 	// Verify that all required arguments are supplied
-	std::string filename;
+	std::string filename = "";
 	if (!parser->hasOption("-f", &filename)) {
 		std::cerr << "[CreateCommand] Option \"-f\" is required" << std::endl;
+		exit(1);
+	}
+	if (filename == "") {
+		std::cerr << "[CreateCommand] Option \"-f\" requires a filename" << std::endl;
+		exit(1);
+	}
+	
+	// Verify that no file exists already with this name
+	std::ifstream in(filename.c_str());
+	if (in.good()) {
+		std::cerr << "[CreateCommand] A file with this name already exists" << std::endl;
 		exit(1);
 	}
 	

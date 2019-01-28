@@ -8,9 +8,13 @@
  */
 void EditCommand::execute(ArgumentParser* parser) {
 	// Verify that all required arguments are supplied
-	std::string filename;
+	std::string filename = "";
 	if (!parser->hasOption("-f", &filename)) {
 		std::cerr << "[EditCommand] Option \"-f\" is required" << std::endl;
+		exit(1);
+	}
+	if (filename == "") {
+		std::cerr << "[EditCommand] Option \"-f\" requires a filename" << std::endl;
 		exit(1);
 	}
 	
@@ -54,7 +58,7 @@ void EditCommand::addDomain(ArgumentParser* parser) {
 	}
 	
 	// Add a new domain
-	conf.domains.push_back({
+	Domain d = {
 		std::atoi(coords[0].c_str()), std::atoi(coords[1].c_str()),
 		std::atoi(coords[2].c_str()), std::atoi(coords[3].c_str()),
 		Settings::NEW_DOMAIN_ABSORPTION_TOP, Settings::NEW_DOMAIN_ABSORPTION_BOTTOM,
@@ -62,7 +66,8 @@ void EditCommand::addDomain(ArgumentParser* parser) {
 		Settings::NEW_DOMAIN_ELR_TOP, Settings::NEW_DOMAIN_ELR_BOTTOM,
 		Settings::NEW_DOMAIN_ELR_LEFT, Settings::NEW_DOMAIN_ELR_RIGHT,
 		false
-	});
+	};
+	conf.domains.push_back(d);
 	
 	// Save the scene file
 	FileIO::saveSceneFile(filename, conf);
@@ -226,10 +231,11 @@ void EditCommand::addSource(ArgumentParser* parser) {
 	}
 	
 	// Add a new source
-	conf.sources.push_back({
+	Source s = {
 		std::atoi(segments[0].c_str()),
 		std::atoi(segments[1].c_str())
-	});
+	};
+	conf.sources.push_back(s);
 	
 	// Save the scene file
 	FileIO::saveSceneFile(filename, conf);
@@ -285,10 +291,11 @@ void EditCommand::addReceiver(ArgumentParser* parser) {
 	}
 	
 	// Add a new receiver
-	conf.receivers.push_back({
+	Receiver r = {
 		std::atoi(segments[0].c_str()),
 		std::atoi(segments[1].c_str())
-	});
+	};
+	conf.receivers.push_back(r);
 	
 	// Save the scene file
 	FileIO::saveSceneFile(filename, conf);

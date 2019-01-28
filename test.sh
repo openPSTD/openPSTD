@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Compile the program
+dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd $dir
 cd /home/jeroen/programming/openPSTD/Backend_new_git/
 [ -d build_testing ] && rm -r build_testing/
 mkdir build_testing

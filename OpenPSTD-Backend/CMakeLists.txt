@@ -18,6 +18,12 @@ set(SOURCES
 	"runcommand.cpp"
 	"solver.cpp"
 	"test/testcommand.cpp"
+	"test/testargumentparser.cpp"
+	"test/testcreatecommand.cpp"
+	"test/testeditcommand.cpp"
+	"test/testlistcommand.cpp"
+	"test/testfileio.cpp"
+	"test/testruncommand.cpp"
 )
 
 set(HEADERS

@@ -33,8 +33,8 @@ ArgumentParser::ArgumentParser(int argc, char** argv) {
 		// Verify that this option is prefixed with a dash
 		std::string option = argv[i];
 		if (option[0] != '-') {
-			std::cerr << "[ArgumentParser] Options must be prefixed";
-			std::cerr << "with a dash (" << i << "th word)" << std::endl;
+			std::cerr << "[ArgumentParser] Options must be prefixed ";
+			std::cerr << "with a dash (word " << i << ")" << std::endl;
 			exit(1);
 		}
 		
@@ -47,9 +47,14 @@ ArgumentParser::ArgumentParser(int argc, char** argv) {
 	}
 	
 	// Print the parsed options
-	if (debug) {
+	if (options.find("--debug") != options.end()) {
 		std::cout << "ArgumentParser:" << std::endl;
-		std::cout << "  Command: \"" << command << "\"" << std::endl;
+		std::cout << "  Command: \"" << command << "\"";
+		if (command == CREATE) std::cout << " (create)" << std::endl;
+		if (command == LIST) std::cout << " (list)" << std::endl;
+		if (command == EDIT) std::cout << " (edit)" << std::endl;
+		if (command == RUN) std::cout << " (run)" << std::endl;
+		if (command == TEST) std::cout << " (test)" << std::endl;
 		for (auto it = options.begin(); it != options.end(); it++) {
 			std::cout << "  Option: \"" << it->first << "\" -> \"";
 			std::cout << it->second << "\"" << std::endl;

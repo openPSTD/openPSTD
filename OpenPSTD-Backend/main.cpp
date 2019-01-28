@@ -1,16 +1,3 @@
-/**
- * TODO:
- * - FileIO::saveFrameFile
- * - Solver::initializePMLDomains
- * - Solver::computeDeltaP
- * - Solver::computeLEE
- * - Solver::applyWindowing
- * 
- * Testing:
- * - Create methods in FileIO for reading a vector of strings from a file,
- *   and for writing a vector of strings to a file. Then the rest of the
- *   FileIO class (parsing from/to a Configuration instance) can be tested.
- */
 #include <iostream>
 #include "argumentparser.h"
 #include "createcommand.h"

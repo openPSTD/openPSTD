@@ -27,9 +27,6 @@ public:
 	int getArgc() { return argc; }
 	char** getArgv() { return argv; }
 private:
-	// Settings variables
-	const bool debug = false;
-	
 	// Representation variables.
 	Command command;
 	std::map<std::string, std::string> options;
