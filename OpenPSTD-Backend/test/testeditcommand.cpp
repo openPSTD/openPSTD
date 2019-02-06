@@ -91,7 +91,7 @@ TEST(EditCommand, AddDomainCorrect) {
 	Configuration conf = FileIO::readSceneFile(filename);
 	ASSERT_EQ(conf.domains.size(), 1);
 	ASSERT_EQ(conf.domains[0].left, 1);
-	ASSERT_EQ(conf.domains[0].top, 2);
+	ASSERT_EQ(conf.domains[0].bottom, 2);
 	ASSERT_EQ(conf.domains[0].width, 3);
 	ASSERT_EQ(conf.domains[0].height, 4);
 }

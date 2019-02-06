@@ -46,8 +46,53 @@ unsigned int Solver::getNumFrames() {
 
 /**
  * Private computation method: Initialize the PML domains.
+ * TODO: Currently two overlapping PML domains are created in concave
+ * corners, and no PML domains are created in convex corners. Is this
+ * correct?
  */
-void Solver::initializePMLDomains() {}
+void Solver::initializePMLDomains() {
+	// Compute a list of all non-shared wall segments
+	std::vector<Line> segments = SolverLib::computeBorders(&conf->domains);
+	
+	// Loop through all segments
+	for (unsigned int i = 0; i < segments.size(); i++) {
+		// Create a new PML domain for this segment
+		Domain d;
+		d.isPML = true;
+		if (segments[i].side == LEFT) {
+			d.left = segments[i].p1.x - conf->pmlCells;
+			d.bottom = segments[i].p1.y;
+			d.width = conf->pmlCells;
+			d.height = segments[i].p2.y - segments[i].p1.y;
+		}
+		if (segments[i].side == RIGHT) {
+			d.left = segments[i].p1.x;
+			d.bottom = segments[i].p1.y;
+			d.width = conf->pmlCells;
+			d.height = segments[i].p2.y - segments[i].p1.y;
+		}
+		if (segments[i].side == TOP) {
+			d.left = segments[i].p1.x;
+			d.bottom = segments[i].p1.y;
+			d.width = segments[i].p2.x - segments[i].p1.x;
+			d.height = conf->pmlCells;
+		}
+		if (segments[i].side == BOTTOM) {
+			d.left = segments[i].p1.x;
+			d.bottom = segments[i].p1.y - conf->pmlCells;
+			d.width = segments[i].p2.x - segments[i].p1.x;
+			d.height = conf->pmlCells;
+		}
+		conf->domains.push_back(d);
+		
+		// Output the coordinates of the added PML domain
+		if (conf->debug) {
+			std::cout << "Adding PML domain: ";
+			std::cout << "  (" << d.left << ", " << d.bottom << ") -> (";
+			std::cout << (d.left+d.width) << ", " << (d.bottom+d.height) << ")" << std::endl;
+		}
+	}
+}
 
 /**
  * Private computation method: Compute the delta p values.

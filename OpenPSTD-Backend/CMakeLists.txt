@@ -17,6 +17,7 @@ set(SOURCES
 	"editcommand.cpp"
 	"runcommand.cpp"
 	"solver.cpp"
+	"solverlib.cpp"
 	"test/testcommand.cpp"
 	"test/testargumentparser.cpp"
 	"test/testcreatecommand.cpp"
@@ -36,6 +37,7 @@ set(HEADERS
 	"settings.h"
 	"runcommand.h"
 	"solver.h"
+	"solverlib.h"
 	"test/testcommand.h"
 )
 

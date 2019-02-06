@@ -25,7 +25,7 @@ void ListCommand::execute(ArgumentParser* parser) {
 	for (unsigned int i = 0; i < conf.domains.size(); i++) {
 		std::cout << "domain " << i << std::endl;
 		std::cout << "  left: " << conf.domains[i].left << std::endl;
-		std::cout << "  top: " << conf.domains[i].top << std::endl;
+		std::cout << "  bottom: " << conf.domains[i].bottom << std::endl;
 		std::cout << "  width: " << conf.domains[i].width << std::endl;
 		std::cout << "  height: " << conf.domains[i].height << std::endl;
 		std::cout << "  absorption top: " << conf.domains[i].absorptionTop << std::endl;

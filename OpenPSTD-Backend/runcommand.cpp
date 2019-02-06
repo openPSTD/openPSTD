@@ -21,6 +21,15 @@ void RunCommand::execute(ArgumentParser* parser) {
 	// Read the scene file
 	Configuration conf = FileIO::readSceneFile(filename);
 	
+	// TODO: Validate the configuration
+	// - At least one domain
+	// - No domains are overlapping
+	// - All sources are inside a domain
+	// - ...
+	
+	// Enable debug output if the debug flag is set
+	if (parser->hasOption("--debug", nullptr)) conf.debug = true;
+	
 	// Create a Solver instance
 	Solver solver(&conf);
 	

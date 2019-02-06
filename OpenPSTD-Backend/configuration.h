@@ -6,7 +6,7 @@
 struct Domain {
 	// Position and size of the domain
 	int left;
-	int top;
+	int bottom;
 	int width;
 	int height;
 	
@@ -56,6 +56,9 @@ struct Configuration {
 	int soundSpeed;
 	int pmlCells;
 	int attenuation;
+	
+	// Whether or not to print debug information
+	bool debug;
 };
 
 #endif

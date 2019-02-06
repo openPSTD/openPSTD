@@ -16,6 +16,7 @@ Configuration FileIO::readSceneFile(std::string filename) {
 	
 	// Initialize the result configuration
 	Configuration conf;
+	conf.debug = false;
 	
 	// Loop through all lines in the file
 	std::string line;
@@ -28,11 +29,11 @@ Configuration FileIO::readSceneFile(std::string filename) {
 		std::string type;
 		std::getline(ss, type, ',');
 		if (type == "domain") {
-			// Format: "domain,<left>,<top>,<width>,<height>,<absorptionTop>,
+			// Format: "domain,<left>,<bottom>,<width>,<height>,<absorptionTop>,
 			// <absorptionBottom>,<absorptionLeft>,<absorptionRight>,<elrTop>,
 			// <elrBottom>,<elrLeft>,<elrRight>"
 			int left = getInt(&ss);
-			int top = getInt(&ss);
+			int bottom = getInt(&ss);
 			int width = getInt(&ss);
 			int height = getInt(&ss);
 			double absorptionTop = getDouble(&ss);
@@ -44,7 +45,7 @@ Configuration FileIO::readSceneFile(std::string filename) {
 			bool elrLeft = getBool(&ss);
 			bool elrRight = getBool(&ss);
 			conf.domains.push_back({
-				left, top, width, height,
+				left, bottom, width, height,
 				absorptionTop, absorptionBottom, absorptionLeft, absorptionRight,
 				elrTop, elrBottom, elrLeft, elrRight,
 				false
@@ -136,7 +137,7 @@ void FileIO::saveSceneFile(std::string filename, Configuration conf) {
 		if (conf.domains[i].isPML) continue;
 		out << "domain,";
 		out << conf.domains[i].left << ",";
-		out << conf.domains[i].top << ",";
+		out << conf.domains[i].bottom << ",";
 		out << conf.domains[i].width << ",";
 		out << conf.domains[i].height << ",";
 		out << conf.domains[i].absorptionTop << ",";

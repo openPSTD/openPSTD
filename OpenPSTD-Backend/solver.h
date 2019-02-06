@@ -1,7 +1,9 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
+#include <iostream>
 #include "configuration.h"
+#include "solverlib.h"
 
 /**
  * Implementation of the PSTD solver.
