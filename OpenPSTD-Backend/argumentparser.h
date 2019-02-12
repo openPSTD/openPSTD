@@ -23,7 +23,7 @@ public:
 	
 	// Get methods for representation variables.
 	inline Command getCommand() { return command; }
-	bool hasOption(std::string option, std::string* value);
+	bool hasOption(std::string option, std::string* value = nullptr);
 	int getArgc() { return argc; }
 	char** getArgv() { return argv; }
 private:

@@ -19,21 +19,25 @@ void EditCommand::execute(ArgumentParser* parser) {
 	}
 	
 	// Delegate based on the supplied arguments
-	if (parser->hasOption("-d", nullptr)) addDomain(parser);
-	if (parser->hasOption("-D", nullptr)) removeDomain(parser);
-	if (parser->hasOption("-a", nullptr)) setAbsorption(parser);
-	if (parser->hasOption("-l", nullptr)) setELR(parser);
-	if (parser->hasOption("-p", nullptr)) addSource(parser);
-	if (parser->hasOption("-P", nullptr)) removeSource(parser);
-	if (parser->hasOption("-r", nullptr)) addReceiver(parser);
-	if (parser->hasOption("-R", nullptr)) removeReceiver(parser);
-	if (parser->hasOption("--grid-spacing", nullptr)) setGridSpacing(parser);
-	if (parser->hasOption("--window-size", nullptr)) setWindowSize(parser);
-	if (parser->hasOption("--render-time", nullptr)) setRenderTime(parser);
-	if (parser->hasOption("--density-of-air", nullptr)) setAirDensity(parser);
-	if (parser->hasOption("--sound-speed", nullptr)) setSoundSpeed(parser);
-	if (parser->hasOption("--pml-cells", nullptr)) setPMLCells(parser);
-	if (parser->hasOption("--attenuation-of-pml-cells", nullptr)) setAttenuation(parser);
+	bool m = false;
+	if (parser->hasOption("-d"))                         { addDomain(parser);      m = true; }
+	if (parser->hasOption("-D"))                         { removeDomain(parser);   m = true; }
+	if (parser->hasOption("-a"))                         { setAbsorption(parser);  m = true; }
+	if (parser->hasOption("-l"))                         { setELR(parser);         m = true; }
+	if (parser->hasOption("-p"))                         { addSource(parser);      m = true; }
+	if (parser->hasOption("-P"))                         { removeSource(parser);   m = true; }
+	if (parser->hasOption("-r"))                         { addReceiver(parser);    m = true; }
+	if (parser->hasOption("-R"))                         { removeReceiver(parser); m = true; }
+	if (parser->hasOption("--grid-spacing"))             { setGridSpacing(parser); m = true; }
+	if (parser->hasOption("--window-size"))              { setWindowSize(parser);  m = true; }
+	if (parser->hasOption("--render-time"))              { setRenderTime(parser);  m = true; }
+	if (parser->hasOption("--density-of-air"))           { setAirDensity(parser);  m = true; }
+	if (parser->hasOption("--sound-speed"))              { setSoundSpeed(parser);  m = true; }
+	if (parser->hasOption("--pml-cells"))                { setPMLCells(parser);    m = true; }
+	if (parser->hasOption("--attenuation-of-pml-cells")) { setAttenuation(parser); m = true; }
+	
+	// Print usage if none of the arguments matched
+	if (!m) printUsage();
 }
 
 /**
@@ -522,4 +526,43 @@ std::vector<std::string> EditCommand::parseSegments(std::string s) {
 	
 	// Return the result vector
 	return result;
+}
+
+/**
+ * Prints the usage of the edit command.
+ */
+void EditCommand::printUsage() {
+	// Print the usage of the edit command
+	std::cout << "Usage: ./OpenPSTD-cli edit <option> <value> -f <filename>" << std::endl;
+	std::cout << "Possible options:" << std::endl;
+	std::cout << "  \"-d [x,y,w,h]\"                 ";
+	std::cout << "Add a domain at (x,y) with size (w,h)" << std::endl;
+	std::cout << "  \"-D i\"                         ";
+	std::cout << "Delete the domain with ID i" << std::endl;
+	std::cout << "  \"-a [i,s,v]\"                   ";
+	std::cout << "Set the absorption of domain i, side s" << std::endl;
+	std::cout << "  \"-l [i,s,v]\"                   ";
+	std::cout << "Set the ELR of domain i, side s" << std::endl;
+	std::cout << "  \"-p [x,y]\"                     ";
+	std::cout << "Add a source at (x,y)" << std::endl;
+	std::cout << "  \"-P i\"                         ";
+	std::cout << "Delete the source with ID i" << std::endl;
+	std::cout << "  \"-r [x,y]\"                     ";
+	std::cout << "Add a receiver at (x,y)" << std::endl;
+	std::cout << "  \"-R i\"                         ";
+	std::cout << "Delete the receiver with ID i" << std::endl;
+	std::cout << "  \"--grid-spacing v\"             ";
+	std::cout << "Set the grid spacing" << std::endl;
+	std::cout << "  \"--window-size v\"              ";
+	std::cout << "Set the window size" << std::endl;
+	std::cout << "  \"--render-time v\"              ";
+	std::cout << "Set the render time" << std::endl;
+	std::cout << "  \"--density-of-air v\"           ";
+	std::cout << "Set the air density" << std::endl;
+	std::cout << "  \"--sound-speed v\"              ";
+	std::cout << "Set the sound speed" << std::endl;
+	std::cout << "  \"--pml-cells v\"                ";
+	std::cout << "Set the number of PML cells" << std::endl;
+	std::cout << "  \"--attenuation-of-pml-cells v\" ";
+	std::cout << "Set the attenuation of the PML cells" << std::endl;
 }

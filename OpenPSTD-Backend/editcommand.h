@@ -35,6 +35,9 @@ private:
 	
 	// Private string parsing methods.
 	static std::vector<std::string> parseSegments(std::string s);
+	
+	// Prints the usage of the edit command.
+	static void printUsage();
 };
 
 #endif

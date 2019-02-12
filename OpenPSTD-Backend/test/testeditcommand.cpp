@@ -38,6 +38,31 @@ TEST(EditCommand, EmptyFilename) {
 }
 
 /**
+ * Verifies that the program prints the edit command usage
+ * if the edit command is called without any options (other
+ * than the filename).
+ */
+TEST(EditCommand, NoOptions) {
+	// Generate a unique filename
+	std::string filename = getUniqueFilename();
+	
+	// Create a scene file with this name
+	executeCommand("./OpenPSTD-cli create -f " + filename);
+	
+	// Execute the edit command
+	testing::internal::CaptureStdout();
+	executeCommand("./OpenPSTD-cli edit -f " + filename);
+	
+	// Assert that the usage lines are printed to stdout
+	std::string output = testing::internal::GetCapturedStdout();
+	ASSERT_NE(
+		output.find("Usage: ./OpenPSTD-cli edit <option> <value> -f <filename>"),
+		std::string::npos
+	);
+	ASSERT_NE(output.find("Possible options:"), std::string::npos);
+}
+
+/**
  * Verifies that the program exits with the correct error
  * message if the value of the add domain option cannot be
  * parsed as a segment string.
