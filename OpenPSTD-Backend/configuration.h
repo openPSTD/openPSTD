@@ -56,6 +56,7 @@ struct Configuration {
 	int soundSpeed;
 	int pmlCells;
 	int attenuation;
+	int saventhframe;
 	
 	// Whether or not to print debug information
 	bool debug;

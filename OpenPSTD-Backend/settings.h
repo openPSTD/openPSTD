@@ -11,6 +11,7 @@ public:
 	const static int NEW_SCENE_SOUND_SPEED = 340;
 	const static int NEW_SCENE_PML_CELLS = 50;
 	const static int NEW_SCENE_ATTENUATION = 20000;
+	const static int NEW_SCENE_SAVENTHFRAME = 1;
 	
 	// Absorption values for when a new domain is created
 	constexpr static double NEW_DOMAIN_ABSORPTION_TOP = 0;

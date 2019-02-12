@@ -49,6 +49,7 @@ Configuration CreateCommand::getDefaultConfiguration() {
 	conf.soundSpeed = Settings::NEW_SCENE_SOUND_SPEED;
 	conf.pmlCells = Settings::NEW_SCENE_PML_CELLS;
 	conf.attenuation = Settings::NEW_SCENE_ATTENUATION;
+	conf.saventhframe = Settings::NEW_SCENE_SAVENTHFRAME;
 	
 	// Return the result instance
 	return conf;

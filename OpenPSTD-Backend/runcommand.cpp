@@ -34,12 +34,15 @@ void RunCommand::execute(ArgumentParser* parser) {
 	unsigned int numFrames = solver.getNumFrames();
 	
 	// Loop through all frames to compute
+	unsigned int saventhframe = static_cast<unsigned int>(conf.saventhframe);
 	for (unsigned int frameID = 0; frameID < numFrames; frameID++) {
 		// Let the solver compute a single frame
 		solver.computeFrame();
 		
 		// Save the computed frame
-		FileIO::saveFrameFile(filename, &conf);
+		if (frameID % saventhframe == 0) {
+			FileIO::saveFrameFile(filename, &conf);
+		}
 		
 		// Output the progress
 		std::cout << "Finished frame: " << frameID << std::endl;

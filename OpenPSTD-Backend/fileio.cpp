@@ -108,6 +108,12 @@ Configuration FileIO::readSceneFile(std::string filename) {
 			conf.attenuation = attenuation;
 			continue;
 		}
+		if (type == "saventhframe") {
+			// Format: "saventhframe,<value>"
+			int saventhframe = getInt(&ss);
+			conf.saventhframe = saventhframe;
+			continue;
+		}
 		
 		// Unknown data type
 		std::cerr << "[FileIO] Unknown data type \"" << type << "\"" << std::endl;
@@ -172,6 +178,7 @@ void FileIO::saveSceneFile(std::string filename, Configuration conf) {
 	out << "soundspeed," << conf.soundSpeed << std::endl;
 	out << "pmlcells," << conf.pmlCells << std::endl;
 	out << "attenuation," << conf.attenuation << std::endl;
+	out << "saventhframe," << conf.saventhframe << std::endl;
 }
 
 /**

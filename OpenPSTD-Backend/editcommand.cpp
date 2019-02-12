@@ -35,6 +35,7 @@ void EditCommand::execute(ArgumentParser* parser) {
 	if (parser->hasOption("--sound-speed"))              { setSoundSpeed(parser);  m = true; }
 	if (parser->hasOption("--pml-cells"))                { setPMLCells(parser);    m = true; }
 	if (parser->hasOption("--attenuation-of-pml-cells")) { setAttenuation(parser); m = true; }
+	if (parser->hasOption("--save-nth-frame"))           { setSaveNth(parser);     m = true; }
 	
 	// Print usage if none of the arguments matched
 	if (!m) printUsage();
@@ -501,6 +502,29 @@ void EditCommand::setAttenuation(ArgumentParser* parser) {
 }
 
 /**
+ * Private editing method: Set the save nth frame setting.
+ * 
+ * @param parser  A reference to the supplied arguments
+ */
+void EditCommand::setSaveNth(ArgumentParser* parser) {
+	// Read the scene file
+	std::string filename;
+	if (!parser->hasOption("-f", &filename)) return;
+	Configuration conf = FileIO::readSceneFile(filename);
+	
+	// Parse the save nth frame argument
+	std::string valuestr;
+	if (!parser->hasOption("--save-nth-frame", &valuestr)) return;
+	int value = std::atoi(valuestr.c_str());
+	
+	// Set the save nth frame setting
+	conf.saventhframe = value;
+	
+	// Save the scene file
+	FileIO::saveSceneFile(filename, conf);
+}
+
+/**
  * Parses a string in the form "[one,two,...]" into a vector of substrings.
  * 
  * @param s  The string to parse
@@ -565,4 +589,6 @@ void EditCommand::printUsage() {
 	std::cout << "Set the number of PML cells" << std::endl;
 	std::cout << "  \"--attenuation-of-pml-cells v\" ";
 	std::cout << "Set the attenuation of the PML cells" << std::endl;
+	std::cout << "  \"--save-nth-frame v\"           ";
+	std::cout << "Save only every nth frame when simulating" << std::endl;
 }

@@ -60,4 +60,5 @@ void ListCommand::execute(ArgumentParser* parser) {
 	std::cout << "soundSpeed: " << conf.soundSpeed << std::endl;
 	std::cout << "pmlCells: " << conf.pmlCells << std::endl;
 	std::cout << "attenuation: " << conf.attenuation << std::endl;
+	std::cout << "saveNthFrame: " << conf.saventhframe << std::endl;
 }

@@ -32,6 +32,7 @@ private:
 	static void setSoundSpeed(ArgumentParser* parser);
 	static void setPMLCells(ArgumentParser* parser);
 	static void setAttenuation(ArgumentParser* parser);
+	static void setSaveNth(ArgumentParser* parser);
 	
 	// Private string parsing methods.
 	static std::vector<std::string> parseSegments(std::string s);
