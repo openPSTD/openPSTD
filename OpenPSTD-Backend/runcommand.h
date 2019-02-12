@@ -5,6 +5,7 @@
 #include "configuration.h"
 #include "fileio.h"
 #include "solver.h"
+#include "scenevalidator.h"
 
 /**
  * Handles operations provided by the run command.
